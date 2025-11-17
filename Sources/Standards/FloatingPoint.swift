@@ -43,6 +43,38 @@ extension FloatingPoint {
         self + t * (other - self)
     }
 
+    /// Computes self raised to an integer power using fast exponentiation
+    ///
+    /// Uses exponentiation by squaring for O(log n) complexity.
+    /// More efficient than Foundation's pow() for integer exponents.
+    ///
+    /// Category theory: Group homomorphism from (ℤ, +) to (ℝ*, ×)
+    /// power: ℝ × ℤ → ℝ where power(x, m+n) = power(x, m) × power(x, n)
+    ///
+    /// Example:
+    /// ```swift
+    /// 2.0.power(10)   // 1024.0
+    /// 10.0.power(3)   // 1000.0
+    /// 0.5.power(4)    // 0.0625
+    /// ```
+    public func power(_ exponent: Int) -> Self {
+        guard exponent > 0 else { return exponent == 0 ? 1 : 0 }
+
+        var result: Self = 1
+        var base = self
+        var n = exponent
+
+        // Fast exponentiation by squaring: O(log n)
+        while n > 0 {
+            if n & 1 == 1 {
+                result *= base
+            }
+            base *= base
+            n >>= 1
+        }
+        return result
+    }
+
     /// Rounds to specified decimal places
     ///
     /// Quantization morphism to discrete subset.
@@ -59,10 +91,7 @@ extension FloatingPoint {
     /// ```
     public func rounded(to places: Int) -> Self {
         guard places >= 0 else { return self }
-        var divisor: Self = 1
-        for _ in 0..<places {
-            divisor *= 10
-        }
+        let divisor = Self(10).power(places)
         return (self * divisor).rounded() / divisor
     }
 

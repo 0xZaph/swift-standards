@@ -1,5 +1,6 @@
 import Testing
 @testable import Standards
+import StandardsTestSupport
 
 @Suite
 struct `FixedWidthInteger - Extensions` {
@@ -271,5 +272,45 @@ struct `FixedWidthInteger - Type Specific` {
         let reversed = value.reverseBits()
         // Reversed would be 0b1111111100000000 which is -256 in two's complement
         #expect(reversed == -256)
+    }
+}
+
+// MARK: - Performance Tests
+
+extension PerformanceTests {
+    @Suite
+    struct `FixedWidthInteger - Performance` {
+
+    @Test(.timed(threshold: .milliseconds(60), maxAllocations: 3_000_000))
+    func `rotateLeft 100k UInt32 values`() {
+        let values = Array(0..<100_000).map { UInt32($0) }
+        for value in values {
+            _ = value.rotateLeft(by: 7)
+        }
+    }
+
+    @Test(.timed(threshold: .milliseconds(45), maxAllocations: 2_000_000))
+    func `rotateRight 100k UInt32 values`() {
+        let values = Array(0..<100_000).map { UInt32($0) }
+        for value in values {
+            _ = value.rotateRight(by: 7)
+        }
+    }
+
+    @Test(.timed(threshold: .milliseconds(600), maxAllocations: 2_000_000))
+    func `reverseBits 100k UInt32 values`() {
+        let values = Array(0..<100_000).map { UInt32($0) }
+        for value in values {
+            _ = value.reverseBits()
+        }
+    }
+
+    @Test(.timed(threshold: .milliseconds(50), maxAllocations: 5_000_000))
+    func `bytes conversion 100k UInt32 values`() {
+        let values = Array(0..<100_000).map { UInt32($0) }
+        for value in values {
+            _ = value.bytes(endianness: .big)
+        }
+    }
     }
 }

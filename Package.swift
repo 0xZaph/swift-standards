@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.1
 
 import PackageDescription
 
@@ -10,19 +10,36 @@ import PackageDescription
 
 let package = Package(
     name: "swift-standards",
+    platforms: [
+        .macOS(.v15),
+        .iOS(.v16),
+        .watchOS(.v9),
+        .tvOS(.v16)
+    ],
     products: [
         .library(
             name: "Standards",
             targets: ["Standards"]
+        ),
+        .library(
+            name: "StandardsTestSupport",
+            targets: ["StandardsTestSupport"]
         )
     ],
     targets: [
         .target(
             name: "Standards"
         ),
+        .target(
+            name: "StandardsTestSupport",
+            dependencies: ["Standards"]
+        ),
         .testTarget(
             name: "Standards Tests",
-            dependencies: ["Standards"]
+            dependencies: [
+                "Standards",
+                "StandardsTestSupport"
+            ]
         )
     ]
 )
