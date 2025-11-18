@@ -194,10 +194,9 @@ struct TimeFoundationTests {
         }
     }
 
-    @Test("Epoch Conversion - Round Trip with Foundation")
-    func testEpochRoundTripWithFoundation() throws {
-        // Test dates from 1970 onwards (negative epochs not yet supported)
-        let testSeconds: [Int] = [
+    @Test(
+        "Epoch Conversion - Round trip with Foundation",
+        arguments: [
             0,  // Unix epoch
             86400,  // One day after epoch
             1_000_000_000,  // 2001-09-09
@@ -205,41 +204,31 @@ struct TimeFoundationTests {
             1_700_000_000,  // 2023-11-14
             2_147_483_647,  // Max 32-bit signed int (2038-01-19)
         ]
+    )
+    func testEpochRoundTripWithFoundation(seconds: Int) throws {
+        // Convert from epoch to Time
+        let time = Time(secondsSinceEpoch: seconds)
 
-        for seconds in testSeconds {
-            // Convert from epoch to Time
-            let time = Time(secondsSinceEpoch: seconds)
+        // Convert back to epoch
+        let roundTripSeconds = Time.Epoch.Conversion.secondsSinceEpoch(from: time)
 
-            // Convert back to epoch
-            let roundTripSeconds = Time.Epoch.Conversion.secondsSinceEpoch(from: time)
+        #expect(roundTripSeconds == seconds)
 
-            #expect(
-                roundTripSeconds == seconds,
-                "Round trip failed for \(seconds): got \(roundTripSeconds)"
-            )
+        // Compare with Foundation
+        let foundationDate = Date(timeIntervalSince1970: TimeInterval(seconds))
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let components = calendar.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second],
+            from: foundationDate
+        )
 
-            // Compare with Foundation
-            let foundationDate = Date(timeIntervalSince1970: TimeInterval(seconds))
-            var calendar = Calendar(identifier: .gregorian)
-            calendar.timeZone = TimeZone(secondsFromGMT: 0)!
-            let components = calendar.dateComponents(
-                [.year, .month, .day, .hour, .minute, .second],
-                from: foundationDate
-            )
-
-            #expect(time.year.value == components.year, "Year mismatch for epoch \(seconds)")
-            #expect(time.month.value == components.month, "Month mismatch for epoch \(seconds)")
-            #expect(time.day.value == components.day, "Day mismatch for epoch \(seconds)")
-            #expect(time.hour.value == components.hour, "Hour mismatch for epoch \(seconds)")
-            #expect(
-                time.minute.value == components.minute,
-                "Minute mismatch for epoch \(seconds)"
-            )
-            #expect(
-                time.second.value == components.second,
-                "Second mismatch for epoch \(seconds)"
-            )
-        }
+        #expect(time.year.value == components.year)
+        #expect(time.month.value == components.month)
+        #expect(time.day.value == components.day)
+        #expect(time.hour.value == components.hour)
+        #expect(time.minute.value == components.minute)
+        #expect(time.second.value == components.second)
     }
 
     @Test("Epoch Conversion - Every Day in 2024")
