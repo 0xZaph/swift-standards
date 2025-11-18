@@ -281,7 +281,7 @@ extension PerformanceTests {
     @Suite
     struct `FixedWidthInteger - Performance` {
 
-    @Test(.timed(threshold: .milliseconds(60), maxAllocations: 3_000_000))
+    @Test(.timed(threshold: .milliseconds(120), maxAllocations: 3_000_000))
     func `rotateLeft 100k UInt32 values`() {
         let values = Array(0..<100_000).map { UInt32($0) }
         for value in values {

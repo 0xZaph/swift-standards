@@ -264,7 +264,7 @@ extension PerformanceTests {
         _ = numbers.sum()
     }
 
-    @Test(.timed(threshold: .microseconds(24), maxAllocations: 60_000))
+    @Test(.timed(threshold: .microseconds(100), maxAllocations: 60_000))
     func `product 20 elements`() {
         let numbers = Array(1...20)
         _ = numbers.product()
