@@ -21,7 +21,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(path: "../../coenttb/swift-testing-performance"),
+        .package(url: "https://github.com/coenttb/swift-testing-performance", from: "0.1.0"),
         .package(path: "../../coenttb/swift-formatting")
     ],
     targets: [
