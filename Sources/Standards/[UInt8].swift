@@ -260,3 +260,92 @@ extension [UInt8] {
     }
 }
 
+// MARK: - String Conversions
+extension [UInt8] {
+    /// Creates a byte array from a UTF-8 encoded string
+    /// - Parameter string: The string to convert to UTF-8 bytes
+    ///
+    /// Example:
+    /// ```swift
+    /// let bytes = [UInt8](utf8: "Hello")  // [72, 101, 108, 108, 111]
+    /// ```
+    public init(utf8 string: String) {
+        self = Array(string.utf8)
+    }
+}
+
+// MARK: - Subsequence Search and Splitting
+extension [UInt8] {
+    /// Finds the first occurrence of a byte subsequence
+    /// - Parameter needle: The byte sequence to search for
+    /// - Returns: Index of the first occurrence, or nil if not found
+    public func firstIndex(of needle: [UInt8]) -> Int? {
+        guard !needle.isEmpty else { return startIndex }
+        guard needle.count <= count else { return nil }
+
+        for i in 0...(count - needle.count) {
+            if self[i..<i + needle.count].elementsEqual(needle) {
+                return i
+            }
+        }
+
+        return nil
+    }
+
+    /// Splits the byte array at all occurrences of a delimiter sequence
+    /// - Parameter separator: The byte sequence to split on
+    /// - Returns: Array of byte arrays split at the delimiter
+    public func split(separator: [UInt8]) -> [[UInt8]] {
+        guard !separator.isEmpty else { return [self] }
+
+        var result: [[UInt8]] = []
+        var start = 0
+
+        while start < count {
+            // Check if there's enough bytes left for the separator
+            guard start + separator.count <= count else {
+                result.append(Array(self[start...]))
+                break
+            }
+
+            // Search for separator starting from current position
+            var found = false
+            for i in start...(count - separator.count) {
+                if self[i..<i + separator.count].elementsEqual(separator) {
+                    result.append(Array(self[start..<i]))
+                    start = i + separator.count
+                    found = true
+                    break
+                }
+            }
+
+            if !found {
+                result.append(Array(self[start...]))
+                break
+            }
+        }
+
+        return result
+    }
+}
+
+// MARK: - Mutation Helpers
+extension [UInt8] {
+    /// Appends a UTF-8 string as bytes
+    /// - Parameter string: The string to append as UTF-8 bytes
+    public mutating func append(utf8 string: String) {
+        append(contentsOf: string.utf8)
+    }
+
+    /// Appends an integer as bytes with specified endianness
+    /// - Parameters:
+    ///   - value: The integer value to append
+    ///   - endianness: Byte order for the serialized bytes (defaults to little-endian)
+    public mutating func append<T: FixedWidthInteger>(
+        _ value: T,
+        endianness: Endianness = .little
+    ) {
+        append(contentsOf: value.bytes(endianness: endianness))
+    }
+}
+

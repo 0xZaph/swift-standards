@@ -3,6 +3,7 @@
 //
 // Extensions for Swift standard library Duration
 
+#if compiler(>=5.7)
 import Foundation
 
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
@@ -67,6 +68,7 @@ extension Duration {
     }
 }
 
+@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension Double {
     fileprivate func splitIntegerAndFraction() -> (integer: Int64, fraction: Double) {
         let integer = Int64(self)
@@ -74,3 +76,4 @@ extension Double {
         return (integer, fraction)
     }
 }
+#endif

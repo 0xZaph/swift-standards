@@ -94,4 +94,35 @@ extension FixedWidthInteger {
 
         return Swift.withUnsafeBytes(of: converted) { Array($0) }
     }
+
+    /// Creates an integer from byte array with specified endianness
+    ///
+    /// Deserializes bytes to integer respecting byte order.
+    /// Inverse operation of bytes(endianness:).
+    ///
+    /// Category theory: Inverse homomorphism from byte sequences to integers
+    /// init(bytes:endianness:): Seq(UInt8) → ℤ, inverse of bytes(endianness:)
+    ///
+    /// Example:
+    /// ```swift
+    /// let bytes: [UInt8] = [0x12, 0x34, 0x56, 0x78]
+    /// let value = UInt32(bytes: bytes, endianness: .big)  // 0x12345678
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - bytes: Byte array to deserialize
+    ///   - endianness: Byte order of the input bytes (defaults to little-endian)
+    /// - Returns: Integer value, or nil if byte count doesn't match type size
+    public init?(bytes: [UInt8], endianness: [UInt8].Endianness = .little) {
+        guard bytes.count == MemoryLayout<Self>.size else { return nil }
+
+        let value = bytes.withUnsafeBytes { $0.load(as: Self.self) }
+
+        switch endianness {
+        case .little:
+            self = Self(littleEndian: value)
+        case .big:
+            self = Self(bigEndian: value)
+        }
+    }
 }

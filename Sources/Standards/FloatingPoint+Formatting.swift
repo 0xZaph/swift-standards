@@ -17,7 +17,6 @@ import Formatting
 ///
 /// ```swift
 /// 0.75.formatted(.percent)  // "75%"
-/// 3.14159.formatted(.number)  // "3.14159"
 /// Float(0.5).formatted(.percent)  // "50%"
 /// ```
 ///
@@ -75,11 +74,6 @@ extension FloatingPointFormat {
 // MARK: - FloatingPointFormat Static Properties
 
 extension FloatingPointFormat {
-    /// Formats the floating point value as a decimal number.
-    public static var number: Self {
-        .init(isPercent: false, shouldRound: false, precisionDigits: nil)
-    }
-
     /// Formats the floating point value as a percentage.
     public static var percent: Self {
         .init(isPercent: true, shouldRound: false, precisionDigits: nil)
@@ -92,7 +86,6 @@ extension FloatingPointFormat {
     /// Rounds the value when formatting.
     ///
     /// ```swift
-    /// 3.7.formatted(FloatingPointFormat.number.rounded())  // "4.0"
     /// 0.755.formatted(FloatingPointFormat.percent.rounded())  // "76%"
     /// ```
     public func rounded() -> Self {
@@ -102,7 +95,6 @@ extension FloatingPointFormat {
     /// Sets the precision (decimal places) for the formatted value.
     ///
     /// ```swift
-    /// 3.14159.formatted(FloatingPointFormat.number.precision(2))  // "3.14"
     /// 0.12345.formatted(FloatingPointFormat.percent.precision(2))  // "12.35%"
     /// ```
     public func precision(_ digits: Int) -> Self {
@@ -118,9 +110,9 @@ extension FloatingPoint {
     /// Use this method with static format properties:
     ///
     /// ```swift
-    /// let result = 0.75.formatted(.percent)
-    /// let result = Float(3.14159).formatted(.number)
-    /// let result = 0.755.formatted(.percent.precision(2))
+    /// let result = 0.75.formatted(.percent)               // "75%"
+    /// let result = Float(0.5).formatted(.percent)         // "50%"
+    /// let result = 0.755.formatted(.percent.precision(2)) // "75.50%"
     /// ```
     ///
     /// - Parameter format: The floating point format to use.

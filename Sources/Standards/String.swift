@@ -144,3 +144,20 @@ extension String {
 }
 
 // Line ending normalization has been moved to swift-incits-4-1986
+
+// MARK: - Byte Array Conversions
+extension String {
+    /// Creates a string by decoding UTF-8 bytes
+    /// - Parameter bytes: The UTF-8 encoded bytes to decode
+    ///
+    /// Example:
+    /// ```swift
+    /// let bytes: [UInt8] = [72, 101, 108, 108, 111]
+    /// let string = String(bytes)  // "Hello"
+    /// ```
+    public init(_ bytes: [UInt8]) {
+        self = String(decoding: bytes, as: UTF8.self)
+    }
+}
+
+// ASCII string conversion has been moved to swift-incits-4-1986
