@@ -4,7 +4,6 @@
 // Extensions for Swift standard library Duration
 
 #if compiler(>=5.7)
-import Foundation
 
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension Duration {
