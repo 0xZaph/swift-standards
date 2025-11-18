@@ -13,62 +13,60 @@ struct TimeExhaustiveTests {
 
     // MARK: - Leap Year Tests
 
-    @Test("Leap Year - Comprehensive Edge Cases")
-    func testLeapYearComprehensive() {
-        // Years divisible by 400 (always leap years)
-        let divisibleBy400 = [400, 800, 1200, 1600, 2000, 2400]
-        for year in divisibleBy400 {
-            #expect(
-                Time.Calendar.Gregorian.isLeapYear(Time.Year(year)) == true,
-                "\(year) should be a leap year"
-            )
-        }
+    @Test(
+        "Leap Year - Years divisible by 400",
+        arguments: [400, 800, 1200, 1600, 2000, 2400]
+    )
+    func testLeapYearDivisibleBy400(year: Int) {
+        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(year)) == true)
+    }
 
-        // Years divisible by 100 but not 400 (NOT leap years)
-        let divisibleBy100Not400 = [
+    @Test(
+        "Leap Year - Years divisible by 100 but not 400",
+        arguments: [
             100, 200, 300, 500, 600, 700, 900, 1000, 1100, 1300, 1400, 1500, 1700, 1800, 1900, 2100,
             2200, 2300,
         ]
-        for year in divisibleBy100Not400 {
-            #expect(
-                Time.Calendar.Gregorian.isLeapYear(Time.Year(year)) == false,
-                "\(year) should NOT be a leap year"
-            )
-        }
+    )
+    func testLeapYearDivisibleBy100Not400(year: Int) {
+        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(year)) == false)
+    }
 
-        // Years divisible by 4 but not 100 (leap years)
-        let divisibleBy4Not100 = [
+    @Test(
+        "Leap Year - Years divisible by 4 but not 100",
+        arguments: [
             4, 8, 12, 16, 96, 104, 196, 204, 296, 304, 396, 404, 496, 504, 596, 604, 696, 704, 796,
             804, 896, 904, 996, 1004, 1996, 2004, 2008, 2012, 2016, 2020, 2024, 2028,
         ]
-        for year in divisibleBy4Not100 {
-            #expect(
-                Time.Calendar.Gregorian.isLeapYear(Time.Year(year)) == true,
-                "\(year) should be a leap year"
-            )
-        }
+    )
+    func testLeapYearDivisibleBy4Not100(year: Int) {
+        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(year)) == true)
+    }
 
-        // Years not divisible by 4 (NOT leap years)
-        let notDivisibleBy4 = [
+    @Test(
+        "Leap Year - Years not divisible by 4",
+        arguments: [
             1, 2, 3, 5, 7, 11, 97, 101, 199, 201, 1001, 1997, 1998, 1999, 2001, 2002, 2003, 2005,
             2006, 2007, 2009, 2010, 2011, 2013, 2014, 2015, 2017, 2018, 2019, 2021, 2022, 2023,
             2025, 2026, 2027,
         ]
-        for year in notDivisibleBy4 {
-            #expect(
-                Time.Calendar.Gregorian.isLeapYear(Time.Year(year)) == false,
-                "\(year) should NOT be a leap year"
-            )
-        }
+    )
+    func testLeapYearNotDivisibleBy4(year: Int) {
+        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(year)) == false)
+    }
 
-        // Edge case: Year 0 in proleptic Gregorian calendar (leap year)
-        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(0)) == true)
-
-        // Negative years (proleptic Gregorian)
-        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(-4)) == true)
-        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(-1)) == false)
-        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(-100)) == false)
-        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(-400)) == true)
+    @Test(
+        "Leap Year - Special cases",
+        arguments: [
+            (0, true),  // Year 0 in proleptic Gregorian
+            (-4, true),  // Negative leap year
+            (-1, false),  // Negative non-leap year
+            (-100, false),  // Negative divisible by 100
+            (-400, true),  // Negative divisible by 400
+        ]
+    )
+    func testLeapYearSpecialCases(year: Int, isLeap: Bool) {
+        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(year)) == isLeap)
     }
 
     // MARK: - Days in Month Tests
@@ -101,10 +99,9 @@ struct TimeExhaustiveTests {
         }
     }
 
-    @Test("Days in Month - February Across Multiple Years")
-    func testFebruaryDaysAcrossYears() {
-        // Test February in various year types
-        let testCases: [(Int, Int)] = [
+    @Test(
+        "Days in Month - February in various years",
+        arguments: [
             (2000, 29),  // Divisible by 400
             (2100, 28),  // Divisible by 100, not 400
             (2020, 29),  // Divisible by 4, not 100
@@ -114,14 +111,13 @@ struct TimeExhaustiveTests {
             (1900, 28),  // Divisible by 100, not 400
             (2004, 29),  // Divisible by 4, not 100
         ]
-
-        for (year, expectedDays) in testCases {
-            let days = Time.Calendar.Gregorian.daysInMonth(
-                Time.Year(year),
-                Time.Month(unchecked: 2)
-            )
-            #expect(days == expectedDays, "February \(year) should have \(expectedDays) days")
-        }
+    )
+    func testFebruaryDaysAcrossYears(year: Int, expectedDays: Int) {
+        let days = Time.Calendar.Gregorian.daysInMonth(
+            Time.Year(year),
+            Time.Month(unchecked: 2)
+        )
+        #expect(days == expectedDays)
     }
 
     // MARK: - Component Validation Tests
@@ -289,10 +285,9 @@ struct TimeExhaustiveTests {
 
     // MARK: - Sub-Second Precision Tests
 
-    @Test("Total Nanoseconds - Calculation Accuracy")
-    func testTotalNanosecondsCalculation() throws {
-        // Test various combinations
-        let testCases: [(ms: Int, us: Int, ns: Int, expected: Int)] = [
+    @Test(
+        "Total Nanoseconds - Calculation accuracy",
+        arguments: [
             (0, 0, 0, 0),
             (1, 0, 0, 1_000_000),
             (0, 1, 0, 1_000),
@@ -302,24 +297,20 @@ struct TimeExhaustiveTests {
             (123, 456, 789, 123_456_789),
             (500, 500, 500, 500_500_500),
         ]
-
-        for (ms, us, ns, expected) in testCases {
-            let time = try Time(
-                year: 2024,
-                month: 1,
-                day: 1,
-                hour: 0,
-                minute: 0,
-                second: 0,
-                millisecond: ms,
-                microsecond: us,
-                nanosecond: ns
-            )
-            #expect(
-                time.totalNanoseconds == expected,
-                "ms:\(ms) us:\(us) ns:\(ns) should total \(expected) nanoseconds"
-            )
-        }
+    )
+    func testTotalNanosecondsCalculation(ms: Int, us: Int, ns: Int, expected: Int) throws {
+        let time = try Time(
+            year: 2024,
+            month: 1,
+            day: 1,
+            hour: 0,
+            minute: 0,
+            second: 0,
+            millisecond: ms,
+            microsecond: us,
+            nanosecond: ns
+        )
+        #expect(time.totalNanoseconds == expected)
     }
 
     @Test("Total Nanoseconds - Boundary Cases")
