@@ -10,6 +10,7 @@ Thumbs.db
 !/.gitignore
 !/.spi.yml
 !/.swift-format
+!/.swiftformat
 !/.swiftlint.yml
 
 # Documentation (opt-in for top-level .md files only)

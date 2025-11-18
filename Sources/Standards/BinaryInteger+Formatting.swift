@@ -31,19 +31,22 @@ public struct BinaryIntegerFormat {
     let prefix: String
     public let signStrategy: SignDisplayStrategy
     public let isUppercase: Bool
+    public let minWidth: Int?
 
-    private init(radix: Int, prefix: String, signStrategy: SignDisplayStrategy, isUppercase: Bool) {
+    private init(radix: Int, prefix: String, signStrategy: SignDisplayStrategy, isUppercase: Bool, minWidth: Int? = nil) {
         self.radix = radix
         self.prefix = prefix
         self.signStrategy = signStrategy
         self.isUppercase = isUppercase
+        self.minWidth = minWidth
     }
 
-    public init(signStrategy: SignDisplayStrategy = .automatic, isUppercase: Bool = false) {
+    public init(signStrategy: SignDisplayStrategy = .automatic, isUppercase: Bool = false, minWidth: Int? = nil) {
         self.radix = 10
         self.prefix = ""
         self.signStrategy = signStrategy
         self.isUppercase = isUppercase
+        self.minWidth = minWidth
     }
 }
 
@@ -91,6 +94,12 @@ extension BinaryIntegerFormat {
             digits = digits.uppercased()
         }
 
+        // Apply zero-padding if minWidth is specified
+        if let minWidth = minWidth {
+            let padding = max(0, minWidth - digits.count)
+            digits = String(repeating: "0", count: padding) + digits
+        }
+
         var result = prefix + digits
 
         // Handle sign
@@ -107,19 +116,24 @@ extension BinaryIntegerFormat {
 // MARK: - BinaryIntegerFormat Static Properties
 
 extension BinaryIntegerFormat {
+    /// Formats the binary integer as decimal (base 10).
+    public static var decimal: Self {
+        .init(radix: 10, prefix: "", signStrategy: .automatic, isUppercase: false, minWidth: nil)
+    }
+
     /// Formats the binary integer as hexadecimal.
     public static var hex: Self {
-        .init(radix: 16, prefix: "0x", signStrategy: .automatic, isUppercase: false)
+        .init(radix: 16, prefix: "0x", signStrategy: .automatic, isUppercase: false, minWidth: nil)
     }
 
     /// Formats the binary integer as binary.
     public static var binary: Self {
-        .init(radix: 2, prefix: "0b", signStrategy: .automatic, isUppercase: false)
+        .init(radix: 2, prefix: "0b", signStrategy: .automatic, isUppercase: false, minWidth: nil)
     }
 
     /// Formats the binary integer as octal.
     public static var octal: Self {
-        .init(radix: 8, prefix: "0o", signStrategy: .automatic, isUppercase: false)
+        .init(radix: 8, prefix: "0o", signStrategy: .automatic, isUppercase: false, minWidth: nil)
     }
 }
 
@@ -129,11 +143,11 @@ extension BinaryIntegerFormat {
     /// Configures the sign display strategy.
     ///
     /// ```swift
-    /// 42.formatted(BinaryIntegerFormat.number.sign(strategy: .always))  // "+42"
-    /// (-42).formatted(BinaryIntegerFormat.number.sign(strategy: .always))  // "-42"
+    /// 42.formatted(BinaryIntegerFormat.decimal.sign(strategy: .always))  // "+42"
+    /// (-42).formatted(BinaryIntegerFormat.decimal.sign(strategy: .always))  // "-42"
     /// ```
     public func sign(strategy: SignDisplayStrategy) -> Self {
-        .init(radix: radix, prefix: prefix, signStrategy: strategy, isUppercase: isUppercase)
+        .init(radix: radix, prefix: prefix, signStrategy: strategy, isUppercase: isUppercase, minWidth: minWidth)
     }
 
     /// Formats hex letters as uppercase.
@@ -142,7 +156,17 @@ extension BinaryIntegerFormat {
     /// 255.formatted(BinaryIntegerFormat.hex.uppercase())  // "0xFF"
     /// ```
     public func uppercase() -> Self {
-        .init(radix: radix, prefix: prefix, signStrategy: signStrategy, isUppercase: true)
+        .init(radix: radix, prefix: prefix, signStrategy: signStrategy, isUppercase: true, minWidth: minWidth)
+    }
+
+    /// Pads the number with leading zeros to reach the specified width.
+    ///
+    /// ```swift
+    /// 5.formatted(.decimal.zeroPadded(width: 2))   // "05"
+    /// 42.formatted(.decimal.zeroPadded(width: 4))  // "0042"
+    /// ```
+    public func zeroPadded(width: Int) -> Self {
+        .init(radix: radix, prefix: prefix, signStrategy: signStrategy, isUppercase: isUppercase, minWidth: width)
     }
 }
 
