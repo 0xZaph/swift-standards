@@ -102,6 +102,217 @@ func testFirstIndexEmptyNeedle() {
     #expect(bytes.firstIndex(of: needle) == 0)
 }
 
+// MARK: - Last Index Tests
+
+@Test("Find last occurrence at end")
+func testLastIndexAtEnd() {
+    let bytes: [UInt8] = [1, 2, 3, 2, 3]
+    let needle: [UInt8] = [2, 3]
+
+    #expect(bytes.lastIndex(of: needle) == 3)
+}
+
+@Test("Find last occurrence in middle")
+func testLastIndexInMiddle() {
+    let bytes: [UInt8] = [1, 2, 3, 4, 2, 3, 5]
+    let needle: [UInt8] = [2, 3]
+
+    #expect(bytes.lastIndex(of: needle) == 4)
+}
+
+@Test("Find last occurrence at beginning when only one")
+func testLastIndexOnlyAtBeginning() {
+    let bytes: [UInt8] = [1, 2, 3, 4, 5]
+    let needle: [UInt8] = [1, 2]
+
+    #expect(bytes.lastIndex(of: needle) == 0)
+}
+
+@Test("Last index not found returns nil")
+func testLastIndexNotFound() {
+    let bytes: [UInt8] = [1, 2, 3, 4, 5]
+    let needle: [UInt8] = [6, 7]
+
+    #expect(bytes.lastIndex(of: needle) == nil)
+}
+
+@Test("Last index with empty needle returns end index")
+func testLastIndexEmptyNeedle() {
+    let bytes: [UInt8] = [1, 2, 3]
+    let needle: [UInt8] = []
+
+    #expect(bytes.lastIndex(of: needle) == 3)
+}
+
+// MARK: - Contains Tests
+
+@Test("Contains subsequence that exists")
+func testContainsFound() {
+    let bytes: [UInt8] = [1, 2, 3, 4, 5]
+
+    #expect(bytes.contains([2, 3]) == true)
+    #expect(bytes.contains([1]) == true)
+    #expect(bytes.contains([5]) == true)
+    #expect(bytes.contains([3, 4, 5]) == true)
+}
+
+@Test("Contains subsequence that doesn't exist")
+func testContainsNotFound() {
+    let bytes: [UInt8] = [1, 2, 3, 4, 5]
+
+    #expect(bytes.contains([6, 7]) == false)
+    #expect(bytes.contains([5, 6]) == false)
+    #expect(bytes.contains([0]) == false)
+}
+
+@Test("Contains with empty subsequence")
+func testContainsEmpty() {
+    let bytes: [UInt8] = [1, 2, 3]
+
+    #expect(bytes.contains([]) == true)
+}
+
+// MARK: - Edge Case Tests
+
+@Test("Search in empty array")
+func testSearchEmptyArray() {
+    let empty: [UInt8] = []
+
+    #expect(empty.firstIndex(of: [1, 2]) == nil)
+    #expect(empty.lastIndex(of: [1, 2]) == nil)
+    #expect(empty.contains([1, 2]) == false)
+    #expect(empty.firstIndex(of: []) == 0)
+    #expect(empty.lastIndex(of: []) == 0)
+    #expect(empty.contains([]) == true)
+}
+
+@Test("Needle larger than haystack")
+func testNeedleLargerThanHaystack() {
+    let bytes: [UInt8] = [1, 2]
+    let needle: [UInt8] = [1, 2, 3, 4]
+
+    #expect(bytes.firstIndex(of: needle) == nil)
+    #expect(bytes.lastIndex(of: needle) == nil)
+    #expect(bytes.contains(needle) == false)
+}
+
+@Test("Exact match - needle equals haystack")
+func testExactMatch() {
+    let bytes: [UInt8] = [1, 2, 3]
+    let needle: [UInt8] = [1, 2, 3]
+
+    #expect(bytes.firstIndex(of: needle) == 0)
+    #expect(bytes.lastIndex(of: needle) == 0)
+    #expect(bytes.contains(needle) == true)
+}
+
+@Test("Single byte search")
+func testSingleByteSearch() {
+    let bytes: [UInt8] = [1, 2, 3, 2, 4]
+
+    #expect(bytes.firstIndex(of: [2]) == 1)
+    #expect(bytes.lastIndex(of: [2]) == 3)
+    #expect(bytes.contains([2]) == true)
+    #expect(bytes.contains([5]) == false)
+}
+
+@Test("Overlapping patterns")
+func testOverlappingPatterns() {
+    let bytes: [UInt8] = [1, 1, 1, 2]
+    let needle: [UInt8] = [1, 1]
+
+    #expect(bytes.firstIndex(of: needle) == 0)
+    #expect(bytes.lastIndex(of: needle) == 1)
+}
+
+@Test("Large byte sequence performance")
+func testLargeSequence() {
+    // Create a 10KB array
+    let large = [UInt8](repeating: 0xFF, count: 10_000)
+    let needle: [UInt8] = [0xFF, 0xFF, 0xFF]
+
+    #expect(large.firstIndex(of: needle) == 0)
+    #expect(large.lastIndex(of: needle) == 9_997)
+    #expect(large.contains(needle) == true)
+}
+
+@Test("Pattern at every position")
+func testPatternAtEveryPosition() {
+    let bytes: [UInt8] = [1, 1, 1, 1, 1]
+    let needle: [UInt8] = [1]
+
+    #expect(bytes.firstIndex(of: needle) == 0)
+    #expect(bytes.lastIndex(of: needle) == 4)
+    #expect(bytes.contains(needle) == true)
+}
+
+// MARK: - Unicode and String Conversion Edge Cases
+
+@Test("Empty string conversion")
+func testEmptyStringConversion() {
+    let empty = [UInt8](utf8: "")
+    #expect(empty.isEmpty)
+    #expect(String(empty) == "")
+}
+
+@Test("Multi-byte UTF-8 characters")
+func testMultiByteUTF8() {
+    // Emoji and multi-byte characters
+    let emoji = "Hello 👋 World 🌍"
+    let bytes = [UInt8](utf8: emoji)
+    let restored = String(bytes)
+
+    #expect(restored == emoji)
+    #expect(bytes.count > emoji.count) // UTF-8 uses multiple bytes
+}
+
+@Test("Special UTF-8 characters")
+func testSpecialUTF8() {
+    let special = "Café résumé naïve"
+    let bytes = [UInt8](utf8: special)
+    let restored = String(bytes)
+
+    #expect(restored == special)
+}
+
+@Test("RTL and mixed scripts")
+func testMixedScripts() {
+    let mixed = "Hello مرحبا שלום 你好"
+    let bytes = [UInt8](utf8: mixed)
+    let restored = String(bytes)
+
+    #expect(restored == mixed)
+}
+
+@Test("Null bytes in string")
+func testNullBytes() {
+    let withNull: [UInt8] = [72, 101, 108, 108, 111, 0, 87, 111, 114, 108, 100]
+    let string = String(withNull)
+
+    #expect(string.contains("\0"))
+    #expect(String(withNull).count == 11)
+}
+
+@Test("Maximum valid UTF-8 sequences")
+func testMaxUTF8() {
+    // 4-byte UTF-8 character (e.g., 𝄞 musical symbol)
+    let musical = "𝄞𝄢𝄫"
+    let bytes = [UInt8](utf8: musical)
+    let restored = String(bytes)
+
+    #expect(restored == musical)
+}
+
+@Test("Very long string conversion")
+func testLongString() {
+    let long = String(repeating: "Hello World! ", count: 1000)
+    let bytes = [UInt8](utf8: long)
+    let restored = String(bytes)
+
+    #expect(restored == long)
+    #expect(bytes.count == long.utf8.count)
+}
+
 // MARK: - Split Tests
 
 @Test("Split on delimiter")

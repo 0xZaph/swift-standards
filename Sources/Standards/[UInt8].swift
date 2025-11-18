@@ -292,6 +292,29 @@ extension [UInt8] {
         return nil
     }
 
+    /// Finds the last occurrence of a byte subsequence
+    /// - Parameter needle: The byte sequence to search for
+    /// - Returns: Index of the last occurrence, or nil if not found
+    public func lastIndex(of needle: [UInt8]) -> Int? {
+        guard !needle.isEmpty else { return endIndex }
+        guard needle.count <= count else { return nil }
+
+        for i in stride(from: count - needle.count, through: 0, by: -1) {
+            if self[i..<i + needle.count].elementsEqual(needle) {
+                return i
+            }
+        }
+
+        return nil
+    }
+
+    /// Checks if the byte array contains a subsequence
+    /// - Parameter needle: The byte sequence to search for
+    /// - Returns: True if the subsequence is found, false otherwise
+    public func contains(_ needle: [UInt8]) -> Bool {
+        firstIndex(of: needle) != nil
+    }
+
     /// Splits the byte array at all occurrences of a delimiter sequence
     /// - Parameter separator: The byte sequence to split on
     /// - Returns: Array of byte arrays split at the delimiter
