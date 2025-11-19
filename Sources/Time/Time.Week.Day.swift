@@ -5,7 +5,7 @@
 // Supports different numbering conventions (ISO 8601 and Gregorian/Western)
 
 extension Time {
-    typealias Weekday = Time.Week.Day
+    public typealias Weekday = Time.Week.Day
 }
 
 extension Time.Week {
