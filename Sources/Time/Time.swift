@@ -63,9 +63,9 @@ public struct Time: Sendable, Equatable, Hashable {
         year: Time.Year,
         month: Time.Month,
         day: Time.Month.Day,
-        hour: Time.Hour,
-        minute: Time.Minute,
-        second: Time.Second,
+        hour: Time.Hour = .zero,
+        minute: Time.Minute = .zero,
+        second: Time.Second = .zero,
         millisecond: Time.Millisecond = .zero,
         microsecond: Time.Microsecond = .zero,
         nanosecond: Time.Nanosecond = .zero
@@ -291,5 +291,40 @@ extension Time {
     /// - Returns: Total nanoseconds (0-999,999,999)
     public var totalNanoseconds: Int {
         millisecond.value * 1_000_000 + microsecond.value * 1000 + nanosecond.value
+    }
+
+    /// The day of the week for this time
+    ///
+    /// Calculates the weekday using Zeller's congruence algorithm.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let time = try Time(year: 2024, month: 1, day: 15, hour: 10, minute: 30, second: 0)
+    /// print(time.weekday)  // Time.Weekday.monday
+    /// ```
+    public var weekday: Time.Weekday {
+        Time.Weekday(year: year, month: month, day: day)
+    }
+
+    /// Seconds since Unix epoch (1970-01-01 00:00:00 UTC)
+    ///
+    /// Calculates the number of seconds from the Unix epoch to this time.
+    /// Uses O(1) algorithm based on Gregorian calendar cycle structure.
+    ///
+    /// Note: This only includes whole seconds. Use `totalNanoseconds` to get
+    /// the sub-second component.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let time = try Time(year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0)
+    /// print(time.secondsSinceEpoch)  // 0
+    ///
+    /// let time2 = try Time(year: 2024, month: 1, day: 1, hour: 0, minute: 0, second: 0)
+    /// print(time2.secondsSinceEpoch)  // 1704067200
+    /// ```
+    public var secondsSinceEpoch: Int {
+        Time.Epoch.Conversion.secondsSinceEpoch(from: self)
     }
 }

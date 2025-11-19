@@ -80,11 +80,11 @@ extension Time.Calendar.Gregorian {
         return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)
     }
 
-    /// Determine if a year is a leap year (internal Int version for epoch conversion)
+    /// Determine if a year is a leap year (Int version)
     ///
     /// - Parameter year: The year to check
     /// - Returns: `true` if the year is a leap year, `false` otherwise
-    internal static func isLeapYear(_ year: Int) -> Bool {
+    public static func isLeapYear(_ year: Int) -> Bool {
         isLeapYear(Time.Year(year))
     }
 }
@@ -115,14 +115,14 @@ extension Time.Calendar.Gregorian {
         return monthArray[month.value - 1]
     }
 
-    /// Get the number of days in each month for a given year (internal)
+    /// Get the number of days in each month for a given year
     ///
     /// Returns an array of 12 integers representing days in each month.
     /// February has 28 days in common years, 29 in leap years.
     ///
     /// - Parameter year: The year
     /// - Returns: Array of 12 integers (days per month)
-    internal static func daysInMonths(year: Int) -> [Int] {
+    public static func daysInMonths(year: Int) -> [Int] {
         isLeapYear(year) ? daysInLeapYearMonths : daysInCommonYearMonths
     }
 
