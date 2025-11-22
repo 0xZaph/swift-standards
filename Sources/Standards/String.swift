@@ -91,21 +91,7 @@ extension String {
 
 }
 
-extension StringProtocol {
-    /// Formats the string using the specified case transformation
-    /// - Parameter case: The case format to apply
-    /// - Returns: Formatted string
-    ///
-    /// Example:
-    /// ```swift
-    /// "hello world".formatted(as: .upper)  // "HELLO WORLD"
-    /// "hello world".formatted(as: .title)  // "Hello World"
-    /// let sub = "hello world"[...]; sub.formatted(as: .upper)  // Works on Substring too
-    /// ```
-    public func formatted(as case: String.Case) -> String {
-        `case`.transform(String(self))
-    }
-}
+// StringProtocol extensions have been moved to StringProtocol.swift
 
 extension String {
     /// Splits string into lines
