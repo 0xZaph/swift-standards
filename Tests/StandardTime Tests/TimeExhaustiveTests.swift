@@ -6,7 +6,7 @@
 import Foundation
 import Testing
 
-@testable import Time
+@testable import StandardTime
 
 @Suite
 struct `Time Exhaustive Tests` {

@@ -5,7 +5,7 @@
 
 import Testing
 
-@testable import Time
+@testable import StandardTime
 
 @Suite
 struct `Time Target Tests` {
