@@ -328,3 +328,33 @@ extension Time {
         Time.Epoch.Conversion.secondsSinceEpoch(from: self)
     }
 }
+
+// MARK: - Instant Conversion
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+extension Time {
+    /// Create Time from Instant
+    ///
+    /// Transforms timeline representation to calendar representation.
+    ///
+    /// - Parameter instant: The instant to convert
+    public init(_ instant: Instant) {
+        self.init(secondsSinceEpoch: Int(instant.secondsSinceUnixEpoch))
+        // Note: Nanosecond precision currently lost in conversion
+        // TODO: Extend init(secondsSinceEpoch:) to accept nanoseconds
+    }
+}
+
+// MARK: - Codable
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+extension Time: Codable {
+    public init(from decoder: any Decoder) throws {
+        let instant = try Instant(from: decoder)
+        self.init(instant)
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        try Instant(self).encode(to: encoder)
+    }
+}
