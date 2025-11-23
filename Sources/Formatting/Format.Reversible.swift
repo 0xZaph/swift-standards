@@ -24,6 +24,6 @@ extension Format {
     ///
     /// - Note: This protocol is a convenience that combines `Formatting` and `Parsing`.
     ///   The format input type must match the parse output type, and vice versa.
-    public protocol Reversible: Formatting, Parsing
+    public protocol Reversible: Format.Style, Parsing
         where FormatInput == ParseOutput, FormatOutput == ParseInput {}
 }

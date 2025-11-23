@@ -27,7 +27,7 @@ extension Format.Numeric {
     /// let grouped = Format.Numeric.Clean(groupingSeparator: ",")
     /// 1234567.0.formatted(grouped)  // "1,234,567"
     /// ```
-    public struct Clean: Formatting, Sendable {
+    public struct Clean: Format.Style, Sendable {
         public typealias FormatInput = Double
         public typealias FormatOutput = String
 
