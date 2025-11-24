@@ -2,6 +2,11 @@ disabled_rules:
   - line_length
   - trailing_comma
   - redundant_discardable_let
+  - identifier_name  # Allow short variable names (i, x, y, etc.)
+  - large_tuple  # Allow tuples with more than 2 members
+  - optional_data_string_conversion  # False positive with String(decoding:as:)
+  - for_where  # False positives when for loops have complex logic, not just filtering
+  - todo  # Allow TODO comments for tracking future work
 
 opt_in_rules:
   - explicit_init
@@ -50,20 +55,9 @@ cyclomatic_complexity:
   warning: 15
   error: 20
 
-# Identifier name settings
-identifier_name:
-  min_length:
-    warning: 2
-  max_length:
-    warning: 50
-    error: 60
-  excluded:
-    - id
-    - URL
-    - to
-    - db
-
-# Type name settings - allow RFC_XXXX pattern
+# Type name settings - very permissive to allow test suite names with spaces/special chars
 type_name:
-  allowed_symbols:
-    - "_"
+  allowed_symbols: ["_", "-", " ", "+", ".", ":", "(", ")", "[", "]"]
+  validates_start_with_lowercase: false
+  min_length: 1
+  max_length: 100

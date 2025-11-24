@@ -342,13 +342,11 @@ extension [UInt8] {
 
             // Search for separator starting from current position
             var found = false
-            for i in start...(count - separator.count) {
-                if self[i..<i + separator.count].elementsEqual(separator) {
-                    result.append(Array(self[start..<i]))
-                    start = i + separator.count
-                    found = true
-                    break
-                }
+            for i in start...(count - separator.count) where self[i..<i + separator.count].elementsEqual(separator) {
+                result.append(Array(self[start..<i]))
+                start = i + separator.count
+                found = true
+                break
             }
 
             if !found {

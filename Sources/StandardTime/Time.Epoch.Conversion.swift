@@ -89,9 +89,7 @@ extension Time.Epoch.Conversion {
     /// - Returns: Tuple of (year, month, day, hour, minute, second) - all values valid by construction
     internal static func componentsRaw(
         fromSecondsSinceEpoch secondsSinceEpoch: Int
-    )
-        -> (year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int)
-    {
+    ) -> (year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int) {
         let totalDays = secondsSinceEpoch / Time.Calendar.Gregorian.TimeConstants.secondsPerDay
         let secondsInDay = secondsSinceEpoch % Time.Calendar.Gregorian.TimeConstants.secondsPerDay
 

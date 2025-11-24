@@ -292,9 +292,7 @@ struct `Time vs Foundation Comparison Tests` {
         month: Int,
         day: Int,
         expectedWeekday: Time.Weekday
-    )
-        throws
-    {
+    ) throws {
         let weekday = try Time.Weekday(year: year, month: month, day: day)
         #expect(weekday == expectedWeekday)
 
