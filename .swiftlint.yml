@@ -8,6 +8,7 @@ disabled_rules:
   - for_where  # False positives when for loops have complex logic, not just filtering
   - todo  # Allow TODO comments for tracking future work
   - type_body_length  # Don't enforce maximum type body length
+  - nesting  # Allow nested types for hierarchical APIs
 
 opt_in_rules:
   - explicit_init
