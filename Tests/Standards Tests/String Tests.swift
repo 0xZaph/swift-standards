@@ -177,7 +177,9 @@ struct `StringProtocol.range(of:) - Substring Support` {
     @Test
     func `Works with Substring as search pattern`() {
         let pattern = "World Test"
-        let subPattern = pattern[pattern.startIndex..<pattern.index(pattern.startIndex, offsetBy: 5)]
+        let subPattern = pattern[
+            pattern.startIndex..<pattern.index(pattern.startIndex, offsetBy: 5)
+        ]
 
         let result = "Hello World".range(of: subPattern)
         #expect(result != nil)

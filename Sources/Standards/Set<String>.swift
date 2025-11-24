@@ -13,6 +13,6 @@ extension Set<String> {
         "for", "func", "guard", "if", "import", "in", "init", "inout", "internal",
         "is", "let", "nil", "operator", "private", "protocol", "public", "repeat",
         "return", "self", "Self", "static", "struct", "subscript", "super", "switch",
-        "throw", "throws", "true", "try", "typealias", "var", "where", "while"
+        "throw", "throws", "true", "try", "typealias", "var", "where", "while",
     ]
 }
