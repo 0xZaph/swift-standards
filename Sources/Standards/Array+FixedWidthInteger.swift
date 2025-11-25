@@ -1,14 +1,33 @@
-// [UInt32].swift
-// swift-standards
 //
-// Array extensions for Swift standard library UInt32
+//  Array+FixedWidthInteger.swift
+//  swift-standards
+//
+//  Created by Coen ten Thije Boonkkamp on 25/11/2025.
+//
 
-extension [UInt32] {
-    /// Creates an array of integers from a flat byte collection
+// MARK: - Byte Deserialization
+
+extension Array where Element: FixedWidthInteger {
+    /// Creates an array of integers from a flat byte collection (authoritative implementation)
+    ///
     /// - Parameters:
     ///   - bytes: Collection of bytes representing multiple integers
     ///   - endianness: Byte order of the input bytes (defaults to little-endian)
     /// - Returns: Array of integers, or nil if byte count is not a multiple of integer size
+    ///
+    /// Example:
+    /// ```swift
+    /// // Deserialize 4 bytes into two UInt16 values (little-endian)
+    /// let bytes: [UInt8] = [0x01, 0x00, 0x02, 0x00]
+    /// let values = [UInt16](bytes: bytes)  // [1, 2]
+    ///
+    /// // Deserialize as big-endian
+    /// let bigEndian = [UInt16](bytes: bytes, endianness: .big)  // [256, 512]
+    ///
+    /// // Works with any FixedWidthInteger type
+    /// let int32s = [Int32](bytes: someBytes)
+    /// let int64s = [Int64](bytes: someBytes)
+    /// ```
     public init?<C: Collection>(bytes: C, endianness: [UInt8].Endianness = .little)
     where C.Element == UInt8 {
         let elementSize = MemoryLayout<Element>.size

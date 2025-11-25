@@ -76,3 +76,95 @@ extension StringProtocol {
         return nil
     }
 }
+
+// MARK: - String Trimming
+
+extension StringProtocol {
+    /// Trims characters from both ends of a string (authoritative implementation)
+    ///
+    /// - Parameters:
+    ///   - string: The string to trim
+    ///   - predicate: A closure that returns `true` for characters to trim
+    /// - Returns: A substring view with matching characters trimmed from both ends
+    ///
+    /// This method returns a zero-copy view (SubSequence) of the original string.
+    /// If you need an owned String, explicitly convert the result: `String(result)`.
+    ///
+    /// Example:
+    /// ```swift
+    /// String.trimming("  hello  ", where: { $0.isWhitespace })  // "hello"
+    /// String.trimming("123hello456", where: \.isNumber)         // "hello"
+    /// ```
+    public static func trimming(
+        _ string: Self,
+        where predicate: (Character) -> Bool
+    ) -> SubSequence {
+        var start = string.startIndex
+        var end = string.endIndex
+
+        // Trim from start
+        while start < end, predicate(string[start]) {
+            start = string.index(after: start)
+        }
+
+        // Trim from end
+        while end > start, predicate(string[string.index(before: end)]) {
+            end = string.index(before: end)
+        }
+
+        return string[start..<end]
+    }
+
+    /// Trims characters from both ends of a string
+    ///
+    /// Convenience overload that delegates to `trimming(_:where:)`.
+    ///
+    /// - Parameters:
+    ///   - string: The string to trim
+    ///   - characterSet: The set of characters to trim
+    /// - Returns: A substring view with the specified characters trimmed from both ends
+    ///
+    /// Example:
+    /// ```swift
+    /// String.trimming("  hello  ", of: [" "])  // "hello"
+    /// ```
+    public static func trimming(
+        _ string: Self,
+        of characterSet: Set<Character>
+    ) -> SubSequence {
+        trimming(string, where: characterSet.contains)
+    }
+
+    /// Trims characters matching a predicate from both ends of the string
+    ///
+    /// Delegates to the authoritative `Self.trimming(_:where:)` implementation.
+    ///
+    /// - Parameter predicate: A closure that returns `true` for characters to trim
+    /// - Returns: A substring view with matching characters trimmed from both ends
+    ///
+    /// Example:
+    /// ```swift
+    /// "  hello  ".trimming(where: { $0.isWhitespace })  // "hello"
+    /// "123hello456".trimming(where: \.isNumber)         // "hello"
+    /// ```
+    public func trimming(where predicate: (Character) -> Bool) -> SubSequence {
+        Self.trimming(self, where: predicate)
+    }
+
+    /// Trims characters from both ends of the string
+    ///
+    /// Delegates to the authoritative `Self.trimming(_:where:)` implementation.
+    ///
+    /// - Parameter characterSet: The set of characters to trim
+    /// - Returns: A substring view with the specified characters trimmed from both ends
+    ///
+    /// Example:
+    /// ```swift
+    /// "  hello  ".trimming([" "])           // "hello"
+    /// "\t\nhello\n\t".trimming(["\t", "\n"]) // "hello"
+    /// "🎉hello🎉".trimming(["🎉"])          // "hello"
+    /// ```
+    public func trimming(_ characterSet: Set<Character>) -> SubSequence {
+        Self.trimming(self, of: characterSet)
+    }
+}
