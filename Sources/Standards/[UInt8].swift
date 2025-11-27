@@ -157,6 +157,86 @@ extension [UInt8] {
     }
 }
 
+// MARK: - Joining Byte Arrays
+
+extension [[UInt8]] {
+    /// Joins byte arrays with a separator, pre-allocating exact capacity
+    ///
+    /// Efficiently concatenates an array of byte arrays with a separator between each element.
+    /// Pre-calculates the total size needed and reserves capacity to avoid reallocations.
+    ///
+    /// ## Performance
+    ///
+    /// This method is O(n) where n is the total number of bytes across all arrays.
+    /// It performs exactly one allocation by pre-computing the required capacity.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let lines: [[UInt8]] = [[72, 101, 108, 108, 111], [87, 111, 114, 108, 100]]
+    /// let crlf: [UInt8] = [13, 10]
+    /// let joined = lines.joined(separator: crlf)
+    /// // [72, 101, 108, 108, 111, 13, 10, 87, 111, 114, 108, 100] ("Hello\r\nWorld")
+    /// ```
+    ///
+    /// - Parameter separator: The byte sequence to insert between each element
+    /// - Returns: A single byte array with all elements joined by the separator
+    @inlinable
+    public func joined(separator: [UInt8]) -> [UInt8] {
+        guard !isEmpty else { return [] }
+        guard count > 1 else { return self[0] }
+
+        // Pre-calculate exact size needed
+        let totalBytes = reduce(0) { $0 + $1.count }
+        let totalSeparators = separator.count * (count - 1)
+        let totalCapacity = totalBytes + totalSeparators
+
+        var result: [UInt8] = []
+        result.reserveCapacity(totalCapacity)
+
+        var isFirst = true
+        for element in self {
+            if !isFirst {
+                result.append(contentsOf: separator)
+            }
+            result.append(contentsOf: element)
+            isFirst = false
+        }
+
+        return result
+    }
+
+    /// Joins byte arrays without a separator
+    ///
+    /// Efficiently concatenates an array of byte arrays.
+    /// Pre-calculates the total size needed and reserves capacity to avoid reallocations.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let chunks: [[UInt8]] = [[1, 2], [3, 4], [5]]
+    /// let flat = chunks.joined()  // [1, 2, 3, 4, 5]
+    /// ```
+    ///
+    /// - Returns: A single byte array with all elements concatenated
+    @inlinable
+    public func joined() -> [UInt8] {
+        guard !isEmpty else { return [] }
+        guard count > 1 else { return self[0] }
+
+        let totalBytes = reduce(0) { $0 + $1.count }
+
+        var result: [UInt8] = []
+        result.reserveCapacity(totalBytes)
+
+        for element in self {
+            result.append(contentsOf: element)
+        }
+
+        return result
+    }
+}
+
 // MARK: - Mutation Helpers
 extension [UInt8] {
     /// Appends a UTF-8 string as bytes

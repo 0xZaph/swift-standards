@@ -164,7 +164,12 @@ extension StringProtocol {
     /// "\t\nhello\n\t".trimming(["\t", "\n"]) // "hello"
     /// "🎉hello🎉".trimming(["🎉"])          // "hello"
     /// ```
+    @_disfavoredOverload
     public func trimming(_ characterSet: Set<Character>) -> SubSequence {
         Self.trimming(self, of: characterSet)
+    }
+    
+    public func trimming(_ characterSet: Set<Character>) -> String {
+        String(Self.trimming(self, of: characterSet))
     }
 }
