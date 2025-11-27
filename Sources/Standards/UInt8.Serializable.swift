@@ -101,22 +101,24 @@ extension UInt8 {
     /// }
     /// ```
     public protocol Serializable: Sendable {
-        /// Serialize this value into a byte buffer
+        /// Serialize this type to a byte array
         ///
-        /// Appends the byte representation of this value to the provided buffer.
-        /// The buffer is mutated in place for efficiency.
+        /// This is the canonical serialization for types that can be converted
+        /// to bytes. The static property returns a function that transforms
+        /// a value of this type into its byte representation.
         ///
-        /// - Parameter buffer: The buffer to append bytes to
+        /// ## Example Implementation
         ///
-        /// ## Implementation Notes
+        /// ```swift
+        /// extension MyType: UInt8.Serializable {
+        ///     static let serialize: @Sendable (Self) -> [UInt8] = {
+        ///         [$0.rawValue]
+        ///     }
+        /// }
+        /// ```
         ///
-        /// - Append bytes using `buffer.append(contentsOf:)` for sequences
-        /// - Use `buffer.append(_:)` for single bytes
-        /// - Call `child.serialize(into: &buffer)` for nested streaming types
-        /// - Do not clear or replace the buffer contents
-        func serialize<Buffer: RangeReplaceableCollection>(
-            into buffer: inout Buffer
-        ) where Buffer.Element == UInt8
+        /// - Returns: A sendable function that converts Self to [UInt8]
+        static var serialize: @Sendable (Self) -> [UInt8] { get }
     }
 }
 
@@ -125,41 +127,35 @@ extension UInt8 {
 extension UInt8.Serializable {
     /// Serialize to a new byte array
     ///
-    /// Convenience method that creates a buffer and returns the result.
-    /// For repeated serialization or large outputs, prefer `serialize(into:)`
-    /// with a pre-allocated or reusable buffer.
+    /// Convenience property that invokes the static serialize function.
     ///
     /// ## Example
     ///
     /// ```swift
-    /// let html: HTMLDocument = ...
-    /// let bytes = html.bytes  // [UInt8]
+    /// let address: IPv4.Address = "192.168.1.1"
+    /// let bytes = address.bytes  // [UInt8]
     /// ```
     public var bytes: [UInt8] {
-        var buffer: [UInt8] = []
-        serialize(into: &buffer)
-        return buffer
+        Self.serialize(self)
     }
 
-    /// Serialize to a new byte array with capacity hint
+    /// Serialize this value into a byte buffer
     ///
-    /// When you know the approximate output size, providing a capacity
-    /// hint avoids buffer reallocations during serialization.
+    /// Convenience method for streaming serialization into a mutable buffer.
+    /// Appends the byte representation of this value to the provided buffer.
     ///
     /// ## Example
     ///
     /// ```swift
-    /// let html: HTMLDocument = ...
-    /// let bytes = html.bytes(reservingCapacity: 4096)
+    /// var buffer: [UInt8] = []
+    /// address.serialize(into: &buffer)
     /// ```
     ///
-    /// - Parameter capacity: Initial buffer capacity
-    /// - Returns: Serialized byte array
-    public func bytes(reservingCapacity capacity: Int) -> [UInt8] {
-        var buffer: [UInt8] = []
-        buffer.reserveCapacity(capacity)
-        serialize(into: &buffer)
-        return buffer
+    /// - Parameter buffer: The buffer to append bytes to
+    public func serialize<Buffer: RangeReplaceableCollection>(
+        into buffer: inout Buffer
+    ) where Buffer.Element == UInt8 {
+        buffer.append(contentsOf: Self.serialize(self))
     }
 }
 
@@ -183,17 +179,3 @@ extension StringProtocol {
     }
 }
 
-// MARK: - Static Serialize Convenience
-
-extension UInt8.Serializable {
-    /// Static serialization function matching UInt8.ASCII.Serializable style
-    ///
-    /// Provides API compatibility with `UInt8.ASCII.Serializable`:
-    ///
-    /// ```swift
-    /// let bytes = HTMLDocument.serialize(document)
-    /// ```
-    public static var serialize: @Sendable (Self) -> [UInt8] {
-        { $0.bytes }
-    }
-}
