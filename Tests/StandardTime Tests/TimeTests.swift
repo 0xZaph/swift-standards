@@ -12,10 +12,14 @@ struct `Time Target Tests` {
 
     @Test
     func `GregorianCalendar - Leap Year`() {
-        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(2000)) == true)  // Divisible by 400
-        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(2100)) == false)  // Divisible by 100, not 400
-        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(2024)) == true)  // Divisible by 4, not 100
-        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(2023)) == false)  // Not divisible by 4
+        // Divisible by 400
+        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(2000)) == true)
+        // Divisible by 100, not 400
+        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(2100)) == false)
+        // Divisible by 4, not 100
+        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(2024)) == true)
+        // Not divisible by 4
+        #expect(Time.Calendar.Gregorian.isLeapYear(Time.Year(2023)) == false)
     }
 
     @Test

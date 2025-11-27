@@ -125,48 +125,47 @@ struct `Time vs Foundation Comparison Tests` {
 
     // NOTE: Epoch conversion for dates before 1970 is not yet implemented
     // The yearAndDays algorithm currently only supports dates from 1970 onwards
-    /*
-     @Test
-     func `Epoch Conversion - Negative Epochs (Before 1970)`() throws {
-     let testDates: [(year: Int, month: Int, day: Int)] = [
-     (1969, 12, 31),  // Day before epoch
-     (1969, 1, 1),    // Start of 1969
-     (1960, 1, 1),    // Start of 1960s
-     (1950, 1, 1),    // Mid-century
-     (1945, 5, 8),    // VE Day
-     (1920, 1, 1),    // Roaring Twenties
-     ]
-    
-     for testDate in testDates {
-     let time = try Time(
-     year: testDate.year,
-     month: testDate.month,
-     day: testDate.day,
-     hour: 0,
-     minute: 0,
-     second: 0
-     )
-    
-     let ourSeconds = Time.Epoch.Conversion.secondsSinceEpoch(from: time)
-    
-     guard let foundationDate = foundationDate(
-     year: testDate.year,
-     month: testDate.month,
-     day: testDate.day
-     ) else {
-     Issue.record("Failed to create Foundation date for \(testDate)")
-     continue
-     }
-     let foundationSeconds = Int(foundationDate.timeIntervalSince1970)
-    
-     #expect(
-     ourSeconds == foundationSeconds,
-     "Epoch seconds mismatch for \(testDate): ours=\(ourSeconds) foundation=\(foundationSeconds)"
-     )
-     #expect(ourSeconds < 0, "Date before 1970 should have negative epoch seconds")
-     }
-     }
-     */
+    //
+    // @Test
+    // func `Epoch Conversion - Negative Epochs (Before 1970)`() throws {
+    //     let testDates: [(year: Int, month: Int, day: Int)] = [
+    //         (1969, 12, 31),  // Day before epoch
+    //         (1969, 1, 1),    // Start of 1969
+    //         (1960, 1, 1),    // Start of 1960s
+    //         (1950, 1, 1),    // Mid-century
+    //         (1945, 5, 8),    // VE Day
+    //         (1920, 1, 1),    // Roaring Twenties
+    //     ]
+    //
+    //     for testDate in testDates {
+    //         let time = try Time(
+    //             year: testDate.year,
+    //             month: testDate.month,
+    //             day: testDate.day,
+    //             hour: 0,
+    //             minute: 0,
+    //             second: 0
+    //         )
+    //
+    //         let ourSeconds = Time.Epoch.Conversion.secondsSinceEpoch(from: time)
+    //
+    //         guard let foundationDate = foundationDate(
+    //             year: testDate.year,
+    //             month: testDate.month,
+    //             day: testDate.day
+    //         ) else {
+    //             Issue.record("Failed to create Foundation date for \(testDate)")
+    //             continue
+    //         }
+    //         let foundationSeconds = Int(foundationDate.timeIntervalSince1970)
+    //
+    //         #expect(
+    //             ourSeconds == foundationSeconds,
+    //             "Epoch seconds mismatch for \(testDate): ours=\(ourSeconds) foundation=\(foundationSeconds)"
+    //         )
+    //         #expect(ourSeconds < 0, "Date before 1970 should have negative epoch seconds")
+    //     }
+    // }
 
     @Test(
         "Epoch Conversion - Century boundaries",

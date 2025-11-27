@@ -168,7 +168,7 @@ extension StringProtocol {
     public func trimming(_ characterSet: Set<Character>) -> SubSequence {
         Self.trimming(self, of: characterSet)
     }
-    
+
     public func trimming(_ characterSet: Set<Character>) -> String {
         String(Self.trimming(self, of: characterSet))
     }
