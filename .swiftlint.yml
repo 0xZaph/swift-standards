@@ -10,6 +10,10 @@ disabled_rules:
   - type_body_length  # Don't enforce maximum type body length
   - nesting  # Allow nested types for hierarchical APIs
   - type_name  # Allow flexible test suite naming (lowercase, special chars, etc.)
+  - cyclomatic_complexity  # Allow complex inline logic over helper extraction
+  - implicit_optional_initialization  # Allow explicit = nil initialization
+  - function_body_length  # Allow longer inline functions
+  - file_length  # Allow longer files
 
 opt_in_rules:
   - explicit_init
@@ -32,23 +36,7 @@ excluded:
   - Pods
   - fastlane
 
-# File length settings
-file_length:
-  warning: 800
-  error: 1000
-  ignore_comment_only_lines: true
-
-# Function body length settings
-function_body_length:
-  warning: 100
-  error: 120
-
-# Function parameter count
+# Function parameter count (kept as a reasonable limit)
 function_parameter_count:
   warning: 6
   error: 8
-
-# Cyclomatic complexity
-cyclomatic_complexity:
-  warning: 15
-  error: 20
