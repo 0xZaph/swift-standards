@@ -1,4 +1,4 @@
-// UInt8.Streaming.swift
+// UInt8.Serializable.swift
 // swift-standards
 //
 // Streaming byte serialization protocol
@@ -51,9 +51,9 @@ extension UInt8 {
     /// ## Example
     ///
     /// ```swift
-    /// struct HTMLDiv: UInt8.Streaming {
+    /// struct HTMLDiv: UInt8.Serializable {
     ///     let className: String?
-    ///     let children: [any UInt8.Streaming]
+    ///     let children: [any UInt8.Serializable]
     ///
     ///     func serialize<Buffer: RangeReplaceableCollection>(
     ///         into buffer: inout Buffer
@@ -88,9 +88,9 @@ extension UInt8 {
     /// Streaming types compose naturally:
     ///
     /// ```swift
-    /// struct Document: UInt8.Streaming {
-    ///     let header: Header      // also UInt8.Streaming
-    ///     let body: Body          // also UInt8.Streaming
+    /// struct Document: UInt8.Serializable {
+    ///     let header: Header      // also UInt8.Serializable
+    ///     let body: Body          // also UInt8.Serializable
     ///
     ///     func serialize<Buffer: RangeReplaceableCollection>(
     ///         into buffer: inout Buffer
@@ -122,6 +122,15 @@ extension UInt8 {
     }
 }
 
+extension [UInt8] {
+    @_transparent
+    public init<Serializable: UInt8.Serializable>(
+        _ serializable: Serializable
+    ) {
+        self = Serializable.serialize(serializable)
+    }
+}
+
 // MARK: - Convenience Extensions
 
 extension UInt8.Serializable {
@@ -135,6 +144,7 @@ extension UInt8.Serializable {
     /// let address: IPv4.Address = "192.168.1.1"
     /// let bytes = address.bytes  // [UInt8]
     /// ```
+    @_transparent
     public var bytes: [UInt8] {
         Self.serialize(self)
     }
@@ -152,10 +162,49 @@ extension UInt8.Serializable {
     /// ```
     ///
     /// - Parameter buffer: The buffer to append bytes to
+    @_transparent
     public func serialize<Buffer: RangeReplaceableCollection>(
         into buffer: inout Buffer
     ) where Buffer.Element == UInt8 {
         buffer.append(contentsOf: Self.serialize(self))
+    }
+}
+
+// MARK: - RawRepresentable Default Implementations
+
+// String-like types → UTF-8 bytes
+extension UInt8.Serializable where Self: RawRepresentable, Self.RawValue: StringProtocol {
+    /// Default serialize implementation for string-backed types
+    ///
+    /// Automatically provided for types where RawValue conforms to StringProtocol.
+    /// Converts the raw value to UTF-8 bytes.
+    ///
+    /// ## Category Theory
+    ///
+    /// ```
+    /// Self → RawValue (String) → [UInt8] (UTF-8)
+    /// ```
+    @_transparent
+    public static var serialize: @Sendable (Self) -> [UInt8] {
+        { Array($0.rawValue.utf8) }
+    }
+}
+
+// Byte array types → direct passthrough
+extension UInt8.Serializable where Self: RawRepresentable, Self.RawValue == [UInt8] {
+    /// Default serialize implementation for byte-array-backed types
+    ///
+    /// Automatically provided for types where RawValue is [UInt8].
+    /// Returns the raw value directly (identity transformation).
+    ///
+    /// ## Category Theory
+    ///
+    /// ```
+    /// Self → RawValue ([UInt8]) → [UInt8] (identity)
+    /// ```
+    @_transparent
+    public static var serialize: @Sendable (Self) -> [UInt8] {
+        { $0.rawValue }
     }
 }
 
@@ -174,6 +223,7 @@ extension StringProtocol {
     /// ```
     ///
     /// - Parameter value: The streaming value to convert
+    @_transparent
     public init<T: UInt8.Serializable>(_ value: T) {
         self = Self(decoding: value.bytes, as: UTF8.self)
     }
