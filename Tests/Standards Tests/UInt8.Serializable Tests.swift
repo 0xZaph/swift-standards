@@ -17,14 +17,10 @@ import Testing
 private struct Greeting: UInt8.Serializable {
     let name: String
 
-    static var serialize: @Sendable (Self) -> [UInt8] {
-        { greeting in
-            var bytes: [UInt8] = []
-            bytes.append(contentsOf: "Hello, ".utf8)
-            bytes.append(contentsOf: greeting.name.utf8)
-            bytes.append(UInt8(ascii: "!"))
-            return bytes
-        }
+    static func serialize<Buffer>(_ greeting: Self, into buffer: inout Buffer) where Buffer : RangeReplaceableCollection, Buffer.Element == UInt8 {
+        buffer.append(contentsOf: "Hello, ".utf8)
+        buffer.append(contentsOf: greeting.name.utf8)
+        buffer.append(UInt8(ascii: "!"))
     }
 }
 
@@ -34,24 +30,19 @@ private struct Element: UInt8.Serializable {
     let tag: String
     let content: String
 
-    static var serialize: @Sendable (Self) -> [UInt8] {
-        { element in
-            var bytes: [UInt8] = []
-            // Opening tag
-            bytes.append(UInt8(ascii: "<"))
-            bytes.append(contentsOf: element.tag.utf8)
-            bytes.append(UInt8(ascii: ">"))
+    static func serialize<Buffer>(_ element: Self, into buffer: inout Buffer) where Buffer : RangeReplaceableCollection, Buffer.Element == UInt8 {
+        buffer.append(UInt8(ascii: "<"))
+        buffer.append(contentsOf: element.tag.utf8)
+        buffer.append(UInt8(ascii: ">"))
 
-            // Content
-            bytes.append(contentsOf: element.content.utf8)
+        // Content
+        buffer.append(contentsOf: element.content.utf8)
 
-            // Closing tag
-            bytes.append(UInt8(ascii: "<"))
-            bytes.append(UInt8(ascii: "/"))
-            bytes.append(contentsOf: element.tag.utf8)
-            bytes.append(UInt8(ascii: ">"))
-            return bytes
-        }
+        // Closing tag
+        buffer.append(UInt8(ascii: "<"))
+        buffer.append(UInt8(ascii: "/"))
+        buffer.append(contentsOf: element.tag.utf8)
+        buffer.append(UInt8(ascii: ">"))
     }
 }
 
@@ -60,16 +51,12 @@ private struct Element: UInt8.Serializable {
 private struct Container: UInt8.Serializable {
     let children: [Element]
 
-    static var serialize: @Sendable (Self) -> [UInt8] {
-        { container in
-            var bytes: [UInt8] = []
-            bytes.append(contentsOf: "<div>".utf8)
-            for child in container.children {
-                bytes.append(contentsOf: Element.serialize(child))
-            }
-            bytes.append(contentsOf: "</div>".utf8)
-            return bytes
+    static func serialize<Buffer>(_ container: Self, into buffer: inout Buffer) where Buffer : RangeReplaceableCollection, Buffer.Element == UInt8 {
+        buffer.append(contentsOf: "<div>".utf8)
+        for child in container.children {
+            buffer.append(contentsOf: child.bytes)
         }
+        buffer.append(contentsOf: "</div>".utf8)
     }
 }
 
@@ -77,16 +64,12 @@ private struct Container: UInt8.Serializable {
 private struct LargeContent: UInt8.Serializable {
     let lines: [String]
 
-    static var serialize: @Sendable (Self) -> [UInt8] {
-        { content in
-            var bytes: [UInt8] = []
-            for (index, line) in content.lines.enumerated() {
-                if index > 0 {
-                    bytes.append(UInt8(ascii: "\n"))
-                }
-                bytes.append(contentsOf: line.utf8)
+    static func serialize<Buffer>(_ content: Self, into buffer: inout Buffer) where Buffer : RangeReplaceableCollection, Buffer.Element == UInt8 {
+        for (index, line) in content.lines.enumerated() {
+            if index > 0 {
+                buffer.append(UInt8(ascii: "\n"))
             }
-            return bytes
+            buffer.append(contentsOf: line.utf8)
         }
     }
 }
@@ -121,7 +104,7 @@ struct SerializableBasicTests {
     func staticSerializeBytes() {
         let content = LargeContent(lines: ["Line 1", "Line 2", "Line 3"])
 
-        let bytes = LargeContent.serialize(content)
+        let bytes: [UInt8] = LargeContent.serialize(content)
 
         #expect(bytes == Array("Line 1\nLine 2\nLine 3".utf8))
     }
@@ -141,7 +124,7 @@ struct SerializableBasicTests {
         let greeting = Greeting(name: "API")
 
         // Static function style (compatible with UInt8.ASCII.Serializable)
-        let bytes = Greeting.serialize(greeting)
+        let bytes: [UInt8] = Greeting.serialize(greeting)
 
         #expect(bytes == Array("Hello, API!".utf8))
     }

@@ -16,7 +16,7 @@
 // ## Design Philosophy
 //
 // The protocol is intentionally minimal:
-// - Single requirement: `serialize(into:)`
+// - Single requirement: `serialize(_:into:)`
 // - No context parameter (values are self-describing)
 // - No associated error type (serialization is infallible for valid values)
 // - Buffer-agnostic via `RangeReplaceableCollection`
@@ -55,18 +55,19 @@ extension UInt8 {
     ///     let className: String?
     ///     let children: [any UInt8.Serializable]
     ///
-    ///     func serialize<Buffer: RangeReplaceableCollection>(
+    ///     static func serialize<Buffer: RangeReplaceableCollection>(
+    ///         _ div: Self,
     ///         into buffer: inout Buffer
     ///     ) where Buffer.Element == UInt8 {
     ///         buffer.append(contentsOf: "<div".utf8)
-    ///         if let className {
+    ///         if let className = div.className {
     ///             buffer.append(contentsOf: " class=\"".utf8)
     ///             buffer.append(contentsOf: className.utf8)
     ///             buffer.append(UInt8(ascii: "\""))
     ///         }
     ///         buffer.append(UInt8(ascii: ">"))
     ///
-    ///         for child in children {
+    ///         for child in div.children {
     ///             child.serialize(into: &buffer)
     ///         }
     ///
@@ -79,9 +80,11 @@ extension UInt8 {
     ///
     /// The generic constraint allows writing to:
     /// - `[UInt8]` — Standard byte array
-    /// - `Data` — Foundation's data type (via adapter)
-    /// - `ByteBuffer` — SwiftNIO's buffer type (via adapter)
-    /// - Custom buffers for specialized use cases
+    /// - `ContiguousArray<UInt8>` — Cache-friendly contiguous storage
+    /// - Custom buffers conforming to `RangeReplaceableCollection`
+    ///
+    /// For `Data` or `ByteBuffer`, use their native append methods after
+    /// serializing to `[UInt8]`, or create a thin adapter type.
     ///
     /// ## Composition
     ///
@@ -92,42 +95,47 @@ extension UInt8 {
     ///     let header: Header      // also UInt8.Serializable
     ///     let body: Body          // also UInt8.Serializable
     ///
-    ///     func serialize<Buffer: RangeReplaceableCollection>(
+    ///     static func serialize<Buffer: RangeReplaceableCollection>(
+    ///         _ doc: Self,
     ///         into buffer: inout Buffer
     ///     ) where Buffer.Element == UInt8 {
-    ///         header.serialize(into: &buffer)
-    ///         body.serialize(into: &buffer)
+    ///         doc.header.serialize(into: &buffer)
+    ///         doc.body.serialize(into: &buffer)
     ///     }
     /// }
     /// ```
     public protocol Serializable: Sendable {
-        /// Serialize this type to a byte array
+        /// Serialize this value into a byte buffer
         ///
-        /// This is the canonical serialization for types that can be converted
-        /// to bytes. The static property returns a function that transforms
-        /// a value of this type into its byte representation.
+        /// Writes the byte representation of this value into the provided buffer.
+        /// Implementations should append bytes without clearing existing content.
+        ///
+        /// ## Implementation Requirements
+        ///
+        /// - MUST append bytes to buffer (not replace)
+        /// - MUST NOT throw (serialization is infallible for valid values)
+        /// - SHOULD be deterministic (same value produces same bytes)
         ///
         /// ## Example Implementation
         ///
         /// ```swift
         /// extension MyType: UInt8.Serializable {
-        ///     static let serialize: @Sendable (Self) -> [UInt8] = {
-        ///         [$0.rawValue]
+        ///     static func serialize<Buffer: RangeReplaceableCollection>(
+        ///         _ value: Self,
+        ///         into buffer: inout Buffer
+        ///     ) where Buffer.Element == UInt8 {
+        ///         buffer.append(contentsOf: value.data.utf8)
         ///     }
         /// }
         /// ```
         ///
-        /// - Returns: A sendable function that converts Self to [UInt8]
-        static var serialize: @Sendable (Self) -> [UInt8] { get }
-    }
-}
-
-extension [UInt8] {
-    @_transparent
-    public init<Serializable: UInt8.Serializable>(
-        _ serializable: Serializable
-    ) {
-        self = Serializable.serialize(serializable)
+        /// - Parameters:
+        ///   - serializable: The value to serialize
+        ///   - buffer: The buffer to append bytes to
+        static func serialize<Buffer: RangeReplaceableCollection>(
+            _ serializable: Self,
+            into buffer: inout Buffer
+        ) where Buffer.Element == UInt8
     }
 }
 
@@ -136,7 +144,7 @@ extension [UInt8] {
 extension UInt8.Serializable {
     /// Serialize to a new byte array
     ///
-    /// Convenience property that invokes the static serialize function.
+    /// Convenience property that creates a new buffer and serializes into it.
     ///
     /// ## Example
     ///
@@ -144,74 +152,107 @@ extension UInt8.Serializable {
     /// let address: IPv4.Address = "192.168.1.1"
     /// let bytes = address.bytes  // [UInt8]
     /// ```
-    @_transparent
+    ///
+    /// ## Performance Note
+    ///
+    /// Each call allocates a new array. For repeated serialization,
+    /// prefer `serialize(into:)` with a reusable buffer.
+    @inlinable
     public var bytes: [UInt8] {
-        Self.serialize(self)
+        var buffer: [UInt8] = []
+        Self.serialize(self, into: &buffer)
+        return buffer
     }
 
-    /// Serialize this value into a byte buffer
+    /// Serialize this value into a byte buffer (instance method)
     ///
-    /// Convenience method for streaming serialization into a mutable buffer.
+    /// Convenience method that delegates to the static `serialize(_:into:)`.
     /// Appends the byte representation of this value to the provided buffer.
     ///
     /// ## Example
     ///
     /// ```swift
     /// var buffer: [UInt8] = []
-    /// address.serialize(into: &buffer)
+    /// header.serialize(into: &buffer)
+    /// body.serialize(into: &buffer)
+    /// footer.serialize(into: &buffer)
     /// ```
     ///
     /// - Parameter buffer: The buffer to append bytes to
-    @_transparent
+    @inlinable
     public func serialize<Buffer: RangeReplaceableCollection>(
         into buffer: inout Buffer
     ) where Buffer.Element == UInt8 {
-        buffer.append(contentsOf: Self.serialize(self))
+        Self.serialize(self, into: &buffer)
     }
 }
 
-// MARK: - RawRepresentable Default Implementations
+// MARK: - Static Returning Convenience
 
-// String-like types → UTF-8 bytes
-extension UInt8.Serializable where Self: RawRepresentable, Self.RawValue: StringProtocol {
-    /// Default serialize implementation for string-backed types
+extension UInt8.Serializable {
+    /// Serialize to a new collection (static method)
     ///
-    /// Automatically provided for types where RawValue conforms to StringProtocol.
-    /// Converts the raw value to UTF-8 bytes.
+    /// Creates a new buffer of the inferred type and serializes into it.
     ///
-    /// ## Category Theory
+    /// ## Example
     ///
+    /// ```swift
+    /// let bytes: [UInt8] = MyType.serialize(value)
+    /// let contiguous: ContiguousArray<UInt8> = MyType.serialize(value)
     /// ```
-    /// Self → RawValue (String) → [UInt8] (UTF-8)
-    /// ```
-    @_transparent
-    public static var serialize: @Sendable (Self) -> [UInt8] {
-        { Array($0.rawValue.utf8) }
+    ///
+    /// - Parameter serializable: The value to serialize
+    /// - Returns: A new collection containing the serialized bytes
+    @inlinable
+    public static func serialize<Bytes: RangeReplaceableCollection>(
+        _ serializable: Self
+    ) -> Bytes where Bytes.Element == UInt8 {
+        var buffer = Bytes()
+        Self.serialize(serializable, into: &buffer)
+        return buffer
     }
 }
 
-// Byte array types → direct passthrough
-extension UInt8.Serializable where Self: RawRepresentable, Self.RawValue == [UInt8] {
-    /// Default serialize implementation for byte-array-backed types
+// MARK: - Collection Initializers
+
+extension Array where Element == UInt8 {
+    /// Create a byte array from a serializable value
     ///
-    /// Automatically provided for types where RawValue is [UInt8].
-    /// Returns the raw value directly (identity transformation).
+    /// ## Example
     ///
-    /// ## Category Theory
-    ///
+    /// ```swift
+    /// let bytes = [UInt8](mySerializableValue)
     /// ```
-    /// Self → RawValue ([UInt8]) → [UInt8] (identity)
+    ///
+    /// - Parameter serializable: The value to serialize
+    @inlinable
+    public init<S: UInt8.Serializable>(_ serializable: S) {
+        self = []
+        S.serialize(serializable, into: &self)
+    }
+}
+
+extension ContiguousArray where Element == UInt8 {
+    /// Create a contiguous byte array from a serializable value
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let bytes = ContiguousArray<UInt8>(mySerializableValue)
     /// ```
-    @_transparent
-    public static var serialize: @Sendable (Self) -> [UInt8] {
-        { $0.rawValue }
+    ///
+    /// - Parameter serializable: The value to serialize
+    @inlinable
+    public init<S: UInt8.Serializable>(_ serializable: S) {
+        self = []
+        S.serialize(serializable, into: &self)
     }
 }
 
 // MARK: - String Conversion
 
-extension StringProtocol {
-    /// Create a string from a streaming value's UTF-8 output
+extension String {
+    /// Create a string from a serializable value's UTF-8 output
     ///
     /// Serializes the value and interprets the bytes as UTF-8.
     ///
@@ -222,9 +263,57 @@ extension StringProtocol {
     /// let string = String(html)
     /// ```
     ///
-    /// - Parameter value: The streaming value to convert
-    @_transparent
+    /// - Parameter value: The serializable value to convert
+    @inlinable
     public init<T: UInt8.Serializable>(_ value: T) {
-        self = Self(decoding: value.bytes, as: UTF8.self)
+        self = String(decoding: value.bytes, as: UTF8.self)
+    }
+}
+
+// MARK: - RawRepresentable Default Implementations
+
+extension UInt8.Serializable where Self: RawRepresentable, Self.RawValue: StringProtocol {
+    /// Default implementation for string-backed types
+    ///
+    /// Automatically provided for types where RawValue conforms to StringProtocol.
+    /// Writes the raw value as UTF-8 bytes directly into the buffer.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// enum Status: String, UInt8.Serializable {
+    ///     case ok = "OK"
+    ///     case error = "ERROR"
+    /// }
+    /// // Status.ok.bytes == [79, 75] ("OK" in UTF-8)
+    /// ```
+    @inlinable
+    public static func serialize<Buffer: RangeReplaceableCollection>(
+        _ serializable: Self,
+        into buffer: inout Buffer
+    ) where Buffer.Element == UInt8 {
+        buffer.append(contentsOf: serializable.rawValue.utf8)
+    }
+}
+
+extension UInt8.Serializable where Self: RawRepresentable, Self.RawValue == [UInt8] {
+    /// Default implementation for byte-array-backed types
+    ///
+    /// Automatically provided for types where RawValue is [UInt8].
+    /// Appends the raw value directly (identity transformation).
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// struct Checksum: RawRepresentable, UInt8.Serializable {
+    ///     let rawValue: [UInt8]
+    /// }
+    /// ```
+    @inlinable
+    public static func serialize<Buffer: RangeReplaceableCollection>(
+        _ serializable: Self,
+        into buffer: inout Buffer
+    ) where Buffer.Element == UInt8 {
+        buffer.append(contentsOf: serializable.rawValue)
     }
 }
