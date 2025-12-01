@@ -17,7 +17,8 @@ import Testing
 private struct Greeting: UInt8.Serializable {
     let name: String
 
-    static func serialize<Buffer>(_ greeting: Self, into buffer: inout Buffer) where Buffer : RangeReplaceableCollection, Buffer.Element == UInt8 {
+    static func serialize<Buffer>(_ greeting: Self, into buffer: inout Buffer)
+    where Buffer: RangeReplaceableCollection, Buffer.Element == UInt8 {
         buffer.append(contentsOf: "Hello, ".utf8)
         buffer.append(contentsOf: greeting.name.utf8)
         buffer.append(UInt8(ascii: "!"))
@@ -30,7 +31,8 @@ private struct Element: UInt8.Serializable {
     let tag: String
     let content: String
 
-    static func serialize<Buffer>(_ element: Self, into buffer: inout Buffer) where Buffer : RangeReplaceableCollection, Buffer.Element == UInt8 {
+    static func serialize<Buffer>(_ element: Self, into buffer: inout Buffer)
+    where Buffer: RangeReplaceableCollection, Buffer.Element == UInt8 {
         buffer.append(UInt8(ascii: "<"))
         buffer.append(contentsOf: element.tag.utf8)
         buffer.append(UInt8(ascii: ">"))
@@ -51,7 +53,8 @@ private struct Element: UInt8.Serializable {
 private struct Container: UInt8.Serializable {
     let children: [Element]
 
-    static func serialize<Buffer>(_ container: Self, into buffer: inout Buffer) where Buffer : RangeReplaceableCollection, Buffer.Element == UInt8 {
+    static func serialize<Buffer>(_ container: Self, into buffer: inout Buffer)
+    where Buffer: RangeReplaceableCollection, Buffer.Element == UInt8 {
         buffer.append(contentsOf: "<div>".utf8)
         for child in container.children {
             buffer.append(contentsOf: child.bytes)
@@ -64,7 +67,8 @@ private struct Container: UInt8.Serializable {
 private struct LargeContent: UInt8.Serializable {
     let lines: [String]
 
-    static func serialize<Buffer>(_ content: Self, into buffer: inout Buffer) where Buffer : RangeReplaceableCollection, Buffer.Element == UInt8 {
+    static func serialize<Buffer>(_ content: Self, into buffer: inout Buffer)
+    where Buffer: RangeReplaceableCollection, Buffer.Element == UInt8 {
         for (index, line) in content.lines.enumerated() {
             if index > 0 {
                 buffer.append(UInt8(ascii: "\n"))
