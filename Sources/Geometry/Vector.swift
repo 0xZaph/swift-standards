@@ -25,7 +25,7 @@ extension Geometry {
 
         /// Create a vector from an inline array of components
         @inlinable
-        public init(_ components: InlineArray<N, Unit>) {
+        public init(_ components: consuming InlineArray<N, Unit>) {
             self.components = components
         }
     }
@@ -37,7 +37,7 @@ extension Geometry.Vector: Sendable where Unit: Sendable {}
 
 extension Geometry.Vector: Equatable where Unit: Equatable {
     @inlinable
-    public static func == (lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: borrowing Self, rhs: borrowing Self) -> Bool {
         for i in 0..<N {
             if lhs.components[i] != rhs.components[i] {
                 return false
@@ -102,6 +102,32 @@ extension Geometry.Vector {
     }
 }
 
+// MARK: - Functorial Map
+
+extension Geometry.Vector {
+    /// Create a vector by transforming each component of another vector
+    @inlinable
+    public init<U>(_ other: borrowing Geometry<U>.Vector<N>, _ transform: (U) -> Unit) {
+        var comps = InlineArray<N, Unit>(repeating: transform(other.components[0]))
+        for i in 1..<N {
+            comps[i] = transform(other.components[i])
+        }
+        self.init(comps)
+    }
+
+    /// Transform each component using the given closure
+    @inlinable
+    public func map<E: Error, Result>(
+        _ transform: (Unit) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Vector<N> {
+        var result = InlineArray<N, Result>(repeating: try transform(components[0]))
+        for i in 1..<N {
+            result[i] = try transform(components[i])
+        }
+        return Geometry<Result>.Vector<N>(result)
+    }
+}
+
 // MARK: - Zero
 
 extension Geometry.Vector where Unit: AdditiveArithmetic {
@@ -117,7 +143,7 @@ extension Geometry.Vector where Unit: AdditiveArithmetic {
 extension Geometry.Vector: AdditiveArithmetic where Unit: AdditiveArithmetic {
     /// Add two vectors
     @inlinable
-    public static func + (lhs: Self, rhs: Self) -> Self {
+    public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         var result = lhs.components
         for i in 0..<N {
             result[i] = lhs.components[i] + rhs.components[i]
@@ -127,7 +153,7 @@ extension Geometry.Vector: AdditiveArithmetic where Unit: AdditiveArithmetic {
 
     /// Subtract two vectors
     @inlinable
-    public static func - (lhs: Self, rhs: Self) -> Self {
+    public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         var result = lhs.components
         for i in 0..<N {
             result[i] = lhs.components[i] - rhs.components[i]
@@ -136,12 +162,26 @@ extension Geometry.Vector: AdditiveArithmetic where Unit: AdditiveArithmetic {
     }
 }
 
-// MARK: - Scalar Operations (Double)
+// MARK: - Negation (SignedNumeric)
 
-extension Geometry.Vector where Unit == Double {
+extension Geometry.Vector where Unit: SignedNumeric {
+    /// Negate vector
+    @inlinable
+    public static prefix func - (value: borrowing Self) -> Self {
+        var result = value.components
+        for i in 0..<N {
+            result[i] = -value.components[i]
+        }
+        return Self(result)
+    }
+}
+
+// MARK: - Scalar Operations (FloatingPoint)
+
+extension Geometry.Vector where Unit: FloatingPoint {
     /// Scale vector by a scalar
     @inlinable
-    public static func * (lhs: Self, rhs: Double) -> Self {
+    public static func * (lhs: borrowing Self, rhs: Unit) -> Self {
         var result = lhs.components
         for i in 0..<N {
             result[i] = lhs.components[i] * rhs
@@ -151,7 +191,7 @@ extension Geometry.Vector where Unit == Double {
 
     /// Scale vector by a scalar
     @inlinable
-    public static func * (lhs: Double, rhs: Self) -> Self {
+    public static func * (lhs: Unit, rhs: borrowing Self) -> Self {
         var result = rhs.components
         for i in 0..<N {
             result[i] = lhs * rhs.components[i]
@@ -161,34 +201,24 @@ extension Geometry.Vector where Unit == Double {
 
     /// Divide vector by a scalar
     @inlinable
-    public static func / (lhs: Self, rhs: Double) -> Self {
+    public static func / (lhs: borrowing Self, rhs: Unit) -> Self {
         var result = lhs.components
         for i in 0..<N {
             result[i] = lhs.components[i] / rhs
         }
         return Self(result)
     }
-
-    /// Negate vector
-    @inlinable
-    public static prefix func - (value: Self) -> Self {
-        var result = value.components
-        for i in 0..<N {
-            result[i] = -value.components[i]
-        }
-        return Self(result)
-    }
 }
 
-// MARK: - Properties (Double)
+// MARK: - Properties (FloatingPoint)
 
-extension Geometry.Vector where Unit == Double {
+extension Geometry.Vector where Unit: FloatingPoint {
     /// The squared length of the vector
     ///
     /// Use this when comparing magnitudes to avoid the sqrt computation.
     @inlinable
-    public var lengthSquared: Double {
-        var sum = 0.0
+    public var lengthSquared: Unit {
+        var sum = Unit.zero
         for i in 0..<N {
             sum += components[i] * components[i]
         }
@@ -197,7 +227,7 @@ extension Geometry.Vector where Unit == Double {
 
     /// The length (magnitude) of the vector
     @inlinable
-    public var length: Double {
+    public var length: Unit {
         lengthSquared.squareRoot()
     }
 
@@ -212,13 +242,13 @@ extension Geometry.Vector where Unit == Double {
     }
 }
 
-// MARK: - Operations (Double)
+// MARK: - Operations (FloatingPoint)
 
-extension Geometry.Vector where Unit == Double {
+extension Geometry.Vector where Unit: FloatingPoint {
     /// Dot product of two vectors
     @inlinable
-    public func dot(_ other: Self) -> Double {
-        var sum = 0.0
+    public func dot(_ other: borrowing Self) -> Unit {
+        var sum = Unit.zero
         for i in 0..<N {
             sum += components[i] * other.components[i]
         }
@@ -250,15 +280,15 @@ extension Geometry.Vector where N == 2 {
     }
 }
 
-// MARK: - 2D Cross Product (Double)
+// MARK: - 2D Cross Product (SignedNumeric)
 
-extension Geometry.Vector where N == 2, Unit == Double {
+extension Geometry.Vector where N == 2, Unit: SignedNumeric {
     /// 2D cross product (returns scalar z-component)
     ///
     /// This is the signed area of the parallelogram formed by the two vectors.
     /// Positive if `other` is counter-clockwise from `self`.
     @inlinable
-    public func cross(_ other: Self) -> Double {
+    public func cross(_ other: borrowing Self) -> Unit {
         dx * other.dy - dy * other.dx
     }
 }
@@ -292,14 +322,20 @@ extension Geometry.Vector where N == 3 {
     public init(dx: Unit, dy: Unit, dz: Unit) {
         self.init([dx, dy, dz])
     }
+
+    /// Create a 3D vector from a 2D vector with z component
+    @inlinable
+    public init(_ vector2: Geometry.Vector<2>, dz: Unit) {
+        self.init(dx: vector2.dx, dy: vector2.dy, dz: dz)
+    }
 }
 
-// MARK: - 3D Cross Product (Double)
+// MARK: - 3D Cross Product (SignedNumeric)
 
-extension Geometry.Vector where N == 3, Unit == Double {
+extension Geometry.Vector where N == 3, Unit: SignedNumeric {
     /// 3D cross product
     @inlinable
-    public func cross(_ other: Self) -> Self {
+    public func cross(_ other: borrowing Self) -> Self {
         Self(
             dx: dy * other.dz - dz * other.dy,
             dy: dz * other.dx - dx * other.dz,
@@ -343,5 +379,25 @@ extension Geometry.Vector where N == 4 {
     @inlinable
     public init(dx: Unit, dy: Unit, dz: Unit, dw: Unit) {
         self.init([dx, dy, dz, dw])
+    }
+
+    /// Create a 4D vector from a 3D vector with w component
+    @inlinable
+    public init(_ vector3: Geometry.Vector<3>, dw: Unit) {
+        self.init(dx: vector3.dx, dy: vector3.dy, dz: vector3.dz, dw: dw)
+    }
+}
+
+// MARK: - Zip
+
+extension Geometry.Vector {
+    /// Combine two vectors component-wise
+    @inlinable
+    public static func zip(_ a: Self, _ b: Self, _ combine: (Unit, Unit) -> Unit) -> Self {
+        var result = a.components
+        for i in 0..<N {
+            result[i] = combine(a.components[i], b.components[i])
+        }
+        return Self(result)
     }
 }

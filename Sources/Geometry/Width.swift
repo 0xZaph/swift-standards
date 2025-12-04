@@ -19,15 +19,15 @@ extension Geometry {
         public let value: Unit
 
         /// Create a width with the given value
-        public init(_ value: Unit) {
+        public init(_ value: consuming Unit) {
             self.value = value
         }
     }
 }
 
 extension Geometry.Width: Sendable where Unit: Sendable {}
-extension Geometry.Width: Hashable where Unit: Hashable {}
 extension Geometry.Width: Equatable where Unit: Equatable {}
+extension Geometry.Width: Hashable where Unit: Hashable {}
 
 // MARK: - Codable
 
@@ -36,15 +36,16 @@ extension Geometry.Width: Codable where Unit: Codable {}
 // MARK: - AdditiveArithmetic
 
 extension Geometry.Width: AdditiveArithmetic where Unit: AdditiveArithmetic {
+    @inlinable
     public static var zero: Self {
         Self(.zero)
     }
 
-    public static func + (lhs: Self, rhs: Self) -> Self {
+    public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value + rhs.value)
     }
 
-    public static func - (lhs: Self, rhs: Self) -> Self {
+    public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value - rhs.value)
     }
 }
@@ -52,7 +53,25 @@ extension Geometry.Width: AdditiveArithmetic where Unit: AdditiveArithmetic {
 // MARK: - Comparable
 
 extension Geometry.Width: Comparable where Unit: Comparable {
-    public static func < (lhs: Self, rhs: Self) -> Bool {
+    public static func < (lhs: borrowing Self, rhs: borrowing Self) -> Bool {
         lhs.value < rhs.value
+    }
+}
+
+// MARK: - Functorial Map
+
+extension Geometry.Width {
+    /// Create a Width by transforming the value of another Width
+    @inlinable
+    public init<U>(_ other: borrowing Geometry<U>.Width, _ transform: (U) -> Unit) {
+        self.init(transform(other.value))
+    }
+
+    /// Transform the value using the given closure
+    @inlinable
+    public func map<E: Error, Result>(
+        _ transform: (Unit) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Width {
+        Geometry<Result>.Width(try transform(value))
     }
 }

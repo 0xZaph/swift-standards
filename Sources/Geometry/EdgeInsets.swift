@@ -31,7 +31,7 @@ extension Geometry {
         ///   - leading: Leading inset
         ///   - bottom: Bottom inset
         ///   - trailing: Trailing inset
-        public init(top: Unit, leading: Unit, bottom: Unit, trailing: Unit) {
+        public init(top: consuming Unit, leading: consuming Unit, bottom: consuming Unit, trailing: consuming Unit) {
             self.top = top
             self.leading = leading
             self.bottom = bottom
@@ -40,12 +40,13 @@ extension Geometry {
     }
 }
 
-// MARK: - Codable
-
-extension Geometry.EdgeInsets: Codable where Unit: Codable {}
 extension Geometry.EdgeInsets: Sendable where Unit: Sendable {}
 extension Geometry.EdgeInsets: Equatable where Unit: Equatable {}
 extension Geometry.EdgeInsets: Hashable where Unit: Hashable {}
+
+// MARK: - Codable
+
+extension Geometry.EdgeInsets: Codable where Unit: Codable {}
 
 // MARK: - Convenience Initializers
 
@@ -79,5 +80,48 @@ extension Geometry.EdgeInsets where Unit: AdditiveArithmetic {
     /// Zero insets
     public static var zero: Self {
         Self(top: .zero, leading: .zero, bottom: .zero, trailing: .zero)
+    }
+}
+
+// MARK: - Functorial Map
+
+extension Geometry.EdgeInsets {
+    /// Create edge insets by transforming each value of another edge insets
+    @inlinable
+    public init<U>(_ other: borrowing Geometry<U>.EdgeInsets, _ transform: (U) -> Unit) {
+        self.init(
+            top: transform(other.top),
+            leading: transform(other.leading),
+            bottom: transform(other.bottom),
+            trailing: transform(other.trailing)
+        )
+    }
+
+    /// Transform each inset value using the given closure
+    @inlinable
+    public func map<E: Error, Result>(
+        _ transform: (Unit) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.EdgeInsets {
+        Geometry<Result>.EdgeInsets(
+            top: try transform(top),
+            leading: try transform(leading),
+            bottom: try transform(bottom),
+            trailing: try transform(trailing)
+        )
+    }
+}
+
+// MARK: - Monoid
+
+extension Geometry.EdgeInsets where Unit: AdditiveArithmetic {
+    /// Combine two edge insets by adding their values
+    @inlinable
+    public static func combined(_ lhs: borrowing Self, _ rhs: borrowing Self) -> Self {
+        Self(
+            top: lhs.top + rhs.top,
+            leading: lhs.leading + rhs.leading,
+            bottom: lhs.bottom + rhs.bottom,
+            trailing: lhs.trailing + rhs.trailing
+        )
     }
 }

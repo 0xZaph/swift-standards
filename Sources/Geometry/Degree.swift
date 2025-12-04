@@ -7,123 +7,91 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// let rightAngle = Geometry.Degree(90)
-    /// let inRadians = rightAngle.radians  // Geometry.Radian
+    /// let rightAngle: Geometry<Double>.Degree = .init(90)
     /// ```
-    public struct Degree: Sendable, Hashable {
+    public struct Degree {
         /// The value in degrees
-        public var value: Double
+        public var value: Unit
 
         /// Create a degree value
         @inlinable
-        public init(_ value: Double) {
+        public init(_ value: consuming Unit) {
             self.value = value
         }
     }
 }
 
+extension Geometry.Degree: Sendable where Unit: Sendable {}
+extension Geometry.Degree: Equatable where Unit: Equatable {}
+extension Geometry.Degree: Hashable where Unit: Hashable {}
+
 // MARK: - Codable
 
-extension Geometry.Degree: Codable {}
+extension Geometry.Degree: Codable where Unit: Codable {}
 
-// MARK: - Conversions
+// MARK: - Zero
 
-extension Geometry.Degree {
-    /// Convert to radians
-    @inlinable
-    public var radians: Geometry.Radian {
-        Geometry.Radian(value * .pi / 180.0)
-    }
-}
-
-// MARK: - Common Angles
-
-extension Geometry.Degree {
+extension Geometry.Degree where Unit: AdditiveArithmetic {
     /// Zero angle
-    public static var zero: Self { Self(0) }
-
-    /// Create an angle as a fraction of a full turn (360 degrees)
-    ///
-    /// - Parameter fraction: The fraction of a full turn (e.g., 0.25 for 90°, 0.5 for 180°)
-    /// - Returns: The angle in degrees
-    ///
-    /// ## Examples
-    /// ```swift
-    /// let quarterTurn = Geometry.Degree.turn(1/4)  // 90 degrees
-    /// let halfTurn = Geometry.Degree.turn(1/2)     // 180 degrees
-    /// let fullTurn = Geometry.Degree.turn(1)       // 360 degrees
-    /// ```
     @inlinable
-    public static func turn(_ fraction: Double) -> Self {
-        Self(360 * fraction)
-    }
+    public static var zero: Self { Self(.zero) }
 }
 
 // MARK: - AdditiveArithmetic
 
-extension Geometry.Degree: AdditiveArithmetic {
+extension Geometry.Degree: AdditiveArithmetic where Unit: AdditiveArithmetic {
     @inlinable
-    public static func + (lhs: Self, rhs: Self) -> Self {
+    public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value + rhs.value)
     }
 
     @inlinable
-    public static func - (lhs: Self, rhs: Self) -> Self {
+    public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value - rhs.value)
-    }
-}
-
-// MARK: - Scalar Operations
-
-extension Geometry.Degree {
-    /// Multiply by a scalar
-    @inlinable
-    public static func * (lhs: Self, rhs: Double) -> Self {
-        Self(lhs.value * rhs)
-    }
-
-    /// Multiply scalar by degree
-    @inlinable
-    public static func * (lhs: Double, rhs: Self) -> Self {
-        Self(lhs * rhs.value)
-    }
-
-    /// Divide by a scalar
-    @inlinable
-    public static func / (lhs: Self, rhs: Double) -> Self {
-        Self(lhs.value / rhs)
-    }
-
-    /// Negate
-    @inlinable
-    public static prefix func - (value: Self) -> Self {
-        Self(-value.value)
     }
 }
 
 // MARK: - Comparable
 
-extension Geometry.Degree: Comparable {
+extension Geometry.Degree: Comparable where Unit: Comparable {
     @inlinable
-    public static func < (lhs: Self, rhs: Self) -> Bool {
+    public static func < (lhs: borrowing Self, rhs: borrowing Self) -> Bool {
         lhs.value < rhs.value
     }
 }
 
 // MARK: - ExpressibleByFloatLiteral
 
-extension Geometry.Degree: ExpressibleByFloatLiteral {
+extension Geometry.Degree: ExpressibleByFloatLiteral where Unit: ExpressibleByFloatLiteral {
     @inlinable
-    public init(floatLiteral value: Double) {
-        self.value = value
+    public init(floatLiteral value: Unit.FloatLiteralType) {
+        self.value = Unit(floatLiteral: value)
     }
 }
 
 // MARK: - ExpressibleByIntegerLiteral
 
-extension Geometry.Degree: ExpressibleByIntegerLiteral {
+extension Geometry.Degree: ExpressibleByIntegerLiteral where Unit: ExpressibleByIntegerLiteral {
     @inlinable
-    public init(integerLiteral value: Int) {
-        self.value = Double(value)
+    public init(integerLiteral value: Unit.IntegerLiteralType) {
+        self.value = Unit(integerLiteral: value)
+    }
+}
+
+// MARK: - Functorial Map
+
+extension Geometry.Degree {
+    /// Create a Degree by transforming the value of another Degree
+    @inlinable
+    public init<U>(_ other: borrowing Geometry<U>.Degree, _ transform: (U) -> Unit) {
+        self.init(transform(other.value))
+    }
+
+    /// Transform the value using the given closure
+    @inlinable
+    public func map<E: Error, Result>(
+        _ transform: (Unit) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Degree {
+        Geometry<Result>.Degree(try transform(value))
     }
 }

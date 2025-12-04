@@ -51,7 +51,7 @@ extension Geometry {
 
         /// Create a transform with explicit matrix components
         @inlinable
-        public init(a: Double, b: Double, c: Double, d: Double, tx: Geometry.X, ty: Geometry.Y) {
+        public init(a: Double, b: Double, c: Double, d: Double, tx: consuming Geometry.X, ty: consuming Geometry.Y) {
             self.a = a
             self.b = b
             self.c = c
@@ -63,8 +63,8 @@ extension Geometry {
 }
 
 extension Geometry.AffineTransform: Sendable where Unit: Sendable {}
-extension Geometry.AffineTransform: Hashable where Unit: Hashable {}
 extension Geometry.AffineTransform: Equatable where Unit: Equatable {}
+extension Geometry.AffineTransform: Hashable where Unit: Hashable {}
 
 // MARK: - Typealiases
 
@@ -240,5 +240,27 @@ extension Geometry.AffineTransform where Unit == Double {
         let width = abs(a * size.width + b * size.height)
         let height = abs(c * size.width + d * size.height)
         return Geometry.Size(width: width, height: height)
+    }
+}
+
+// MARK: - Monoid
+
+extension Geometry.AffineTransform where Unit == Double {
+    /// Compose multiple transforms into a single transform
+    ///
+    /// The transforms are applied in order, so the first transform in the array
+    /// is applied first, then the second, etc.
+    @inlinable
+    public static func composed(_ transforms: [Self]) -> Self {
+        transforms.reduce(.identity) { $0.concatenating($1) }
+    }
+
+    /// Compose multiple transforms into a single transform
+    ///
+    /// The transforms are applied in order, so the first transform in the variadic list
+    /// is applied first, then the second, etc.
+    @inlinable
+    public static func composed(_ transforms: Self...) -> Self {
+        composed(transforms)
     }
 }

@@ -32,7 +32,7 @@ extension Geometry {
         ///   - lly: Lower-left y coordinate
         ///   - urx: Upper-right x coordinate
         ///   - ury: Upper-right y coordinate
-        public init(llx: Unit, lly: Unit, urx: Unit, ury: Unit) {
+        public init(llx: consuming Unit, lly: consuming Unit, urx: consuming Unit, ury: consuming Unit) {
             self.llx = llx
             self.lly = lly
             self.urx = urx
@@ -42,8 +42,8 @@ extension Geometry {
 }
 
 extension Geometry.Rectangle: Sendable where Unit: Sendable {}
-extension Geometry.Rectangle: Hashable where Unit: Hashable {}
 extension Geometry.Rectangle: Equatable where Unit: Equatable {}
+extension Geometry.Rectangle: Hashable where Unit: Hashable {}
 
 // MARK: - Codable
 
@@ -159,38 +159,24 @@ extension Geometry.Rectangle {
     }
 }
 
-// MARK: - Double-based Rectangle Operations
+// MARK: - Comparable-based Rectangle Operations
 
-extension Geometry.Rectangle where Unit == Double {
+extension Geometry.Rectangle where Unit: Comparable {
     /// Minimum x (same as llx for normalized rectangles)
     @inlinable
-    public var minX: Double { min(llx, urx) }
+    public var minX: Unit { min(llx, urx) }
 
     /// Maximum x (same as urx for normalized rectangles)
     @inlinable
-    public var maxX: Double { max(llx, urx) }
+    public var maxX: Unit { max(llx, urx) }
 
     /// Minimum y (same as lly for normalized rectangles)
     @inlinable
-    public var minY: Double { min(lly, ury) }
+    public var minY: Unit { min(lly, ury) }
 
     /// Maximum y (same as ury for normalized rectangles)
     @inlinable
-    public var maxY: Double { max(lly, ury) }
-
-    /// Center x coordinate
-    @inlinable
-    public var midX: Double { (llx + urx) / 2 }
-
-    /// Center y coordinate
-    @inlinable
-    public var midY: Double { (lly + ury) / 2 }
-
-    /// Center point
-    @inlinable
-    public var center: Geometry.Point<2> {
-        Geometry.Point(x: midX, y: midY)
-    }
+    public var maxY: Unit { max(lly, ury) }
 
     /// Check if the rectangle contains a point
     @inlinable
@@ -211,23 +197,6 @@ extension Geometry.Rectangle where Unit == Double {
     public func intersects(_ other: Self) -> Bool {
         minX <= other.maxX && maxX >= other.minX &&
         minY <= other.maxY && maxY >= other.minY
-    }
-
-    /// Return a rectangle inset by the given amounts
-    @inlinable
-    public func insetBy(dx: Double, dy: Double) -> Self {
-        Self(llx: llx + dx, lly: lly + dy, urx: urx - dx, ury: ury - dy)
-    }
-
-    /// Return a rectangle inset by edge insets
-    @inlinable
-    public func inset(by insets: Geometry.EdgeInsets) -> Self {
-        Self(
-            llx: llx + insets.leading,
-            lly: lly + insets.bottom,
-            urx: urx - insets.trailing,
-            ury: ury - insets.top
-        )
     }
 
     /// The union of this rectangle with another
@@ -251,5 +220,84 @@ extension Geometry.Rectangle where Unit == Double {
             urx: min(maxX, other.maxX),
             ury: min(maxY, other.maxY)
         )
+    }
+}
+
+// MARK: - FloatingPoint-based Rectangle Operations
+
+extension Geometry.Rectangle where Unit: FloatingPoint {
+    /// Center x coordinate
+    @inlinable
+    public var midX: Unit { (llx + urx) / 2 }
+
+    /// Center y coordinate
+    @inlinable
+    public var midY: Unit { (lly + ury) / 2 }
+
+    /// Center point
+    @inlinable
+    public var center: Geometry.Point<2> {
+        Geometry.Point(x: midX, y: midY)
+    }
+
+    /// Return a rectangle inset by the given amounts
+    @inlinable
+    public func insetBy(dx: Unit, dy: Unit) -> Self {
+        Self(llx: llx + dx, lly: lly + dy, urx: urx - dx, ury: ury - dy)
+    }
+
+    /// Return a rectangle inset by edge insets
+    @inlinable
+    public func inset(by insets: Geometry.EdgeInsets) -> Self {
+        Self(
+            llx: llx + insets.leading,
+            lly: lly + insets.bottom,
+            urx: urx - insets.trailing,
+            ury: ury - insets.top
+        )
+    }
+}
+
+// MARK: - Functorial Map
+
+extension Geometry.Rectangle {
+    /// Create a rectangle by transforming each coordinate of another rectangle
+    @inlinable
+    public init<U>(_ other: borrowing Geometry<U>.Rectangle, _ transform: (U) -> Unit) {
+        self.init(
+            llx: transform(other.llx),
+            lly: transform(other.lly),
+            urx: transform(other.urx),
+            ury: transform(other.ury)
+        )
+    }
+
+    /// Transform each coordinate using the given closure
+    @inlinable
+    public func map<E: Error, Result>(
+        _ transform: (Unit) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Rectangle {
+        Geometry<Result>.Rectangle(
+            llx: try transform(llx),
+            lly: try transform(lly),
+            urx: try transform(urx),
+            ury: try transform(ury)
+        )
+    }
+}
+
+// MARK: - Bifunctor
+
+extension Geometry.Rectangle where Unit: AdditiveArithmetic {
+    /// Create a rectangle by independently transforming origin and size
+    @inlinable
+    public init<U>(
+        _ other: Geometry<U>.Rectangle,
+        transformOrigin: (Geometry<U>.Point<2>) -> Geometry.Point<2>,
+        transformSize: (Geometry<U>.Size<2>) -> Geometry.Size<2>
+    ) where U: AdditiveArithmetic {
+        let newOrigin = transformOrigin(other.origin)
+        let newSize = transformSize(other.size)
+        self.init(origin: newOrigin, size: newSize)
     }
 }

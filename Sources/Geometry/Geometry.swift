@@ -27,4 +27,10 @@
 // ```
 
 /// The Geometry namespace for geometric primitives.
-public enum Geometry<Unit> {}
+///
+/// Supports both copyable and non-copyable unit types.
+/// Types are conditionally `Copyable` when `Unit` is `Copyable`.
+public enum Geometry<Unit: ~Copyable>: ~Copyable {}
+
+extension Geometry: Copyable where Unit: Copyable {}
+extension Geometry: Sendable where Unit: Sendable {}

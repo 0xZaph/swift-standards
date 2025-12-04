@@ -7,123 +7,91 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// let rightAngle = Geometry.Radian(.pi / 2)
-    /// let fromDegrees = Geometry.Degree(90).radians
+    /// let rightAngle: Geometry<Double>.Radian = .init(1.5707963267948966)
     /// ```
-    public struct Radian: Sendable, Hashable {
+    public struct Radian {
         /// The value in radians
-        public var value: Double
+        public var value: Unit
 
         /// Create a radian value
         @inlinable
-        public init(_ value: Double) {
+        public init(_ value: consuming Unit) {
             self.value = value
         }
     }
 }
 
+extension Geometry.Radian: Sendable where Unit: Sendable {}
+extension Geometry.Radian: Equatable where Unit: Equatable {}
+extension Geometry.Radian: Hashable where Unit: Hashable {}
+
 // MARK: - Codable
 
-extension Geometry.Radian: Codable {}
+extension Geometry.Radian: Codable where Unit: Codable {}
 
-// MARK: - Conversions
+// MARK: - Zero
 
-extension Geometry.Radian {
-    /// Convert to degrees
-    @inlinable
-    public var degrees: Geometry.Degree {
-        Geometry.Degree(value * 180.0 / .pi)
-    }
-}
-
-// MARK: - Common Angles
-
-extension Geometry.Radian {
+extension Geometry.Radian where Unit: AdditiveArithmetic {
     /// Zero angle
-    public static var zero: Self { Self(0) }
-
-    /// Create an angle as a fraction of a full turn (2π radians)
-    ///
-    /// - Parameter fraction: The fraction of a full turn (e.g., 0.25 for 90°, 0.5 for 180°)
-    /// - Returns: The angle in radians
-    ///
-    /// ## Examples
-    /// ```swift
-    /// let quarterTurn = Geometry.Radian.turn(1/4)  // π/2 radians
-    /// let halfTurn = Geometry.Radian.turn(1/2)     // π radians
-    /// let fullTurn = Geometry.Radian.turn(1)       // 2π radians
-    /// ```
     @inlinable
-    public static func turn(_ fraction: Double) -> Self {
-        Self(2 * .pi * fraction)
-    }
+    public static var zero: Self { Self(.zero) }
 }
 
 // MARK: - AdditiveArithmetic
 
-extension Geometry.Radian: AdditiveArithmetic {
+extension Geometry.Radian: AdditiveArithmetic where Unit: AdditiveArithmetic {
     @inlinable
-    public static func + (lhs: Self, rhs: Self) -> Self {
+    public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value + rhs.value)
     }
 
     @inlinable
-    public static func - (lhs: Self, rhs: Self) -> Self {
+    public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value - rhs.value)
-    }
-}
-
-// MARK: - Scalar Operations
-
-extension Geometry.Radian {
-    /// Multiply by a scalar
-    @inlinable
-    public static func * (lhs: Self, rhs: Double) -> Self {
-        Self(lhs.value * rhs)
-    }
-
-    /// Multiply scalar by radian
-    @inlinable
-    public static func * (lhs: Double, rhs: Self) -> Self {
-        Self(lhs * rhs.value)
-    }
-
-    /// Divide by a scalar
-    @inlinable
-    public static func / (lhs: Self, rhs: Double) -> Self {
-        Self(lhs.value / rhs)
-    }
-
-    /// Negate
-    @inlinable
-    public static prefix func - (value: Self) -> Self {
-        Self(-value.value)
     }
 }
 
 // MARK: - Comparable
 
-extension Geometry.Radian: Comparable {
+extension Geometry.Radian: Comparable where Unit: Comparable {
     @inlinable
-    public static func < (lhs: Self, rhs: Self) -> Bool {
+    public static func < (lhs: borrowing Self, rhs: borrowing Self) -> Bool {
         lhs.value < rhs.value
     }
 }
 
 // MARK: - ExpressibleByFloatLiteral
 
-extension Geometry.Radian: ExpressibleByFloatLiteral {
+extension Geometry.Radian: ExpressibleByFloatLiteral where Unit: ExpressibleByFloatLiteral {
     @inlinable
-    public init(floatLiteral value: Double) {
-        self.value = value
+    public init(floatLiteral value: Unit.FloatLiteralType) {
+        self.value = Unit(floatLiteral: value)
     }
 }
 
 // MARK: - ExpressibleByIntegerLiteral
 
-extension Geometry.Radian: ExpressibleByIntegerLiteral {
+extension Geometry.Radian: ExpressibleByIntegerLiteral where Unit: ExpressibleByIntegerLiteral {
     @inlinable
-    public init(integerLiteral value: Int) {
-        self.value = Double(value)
+    public init(integerLiteral value: Unit.IntegerLiteralType) {
+        self.value = Unit(integerLiteral: value)
+    }
+}
+
+// MARK: - Functorial Map
+
+extension Geometry.Radian {
+    /// Create a Radian by transforming the value of another Radian
+    @inlinable
+    public init<U>(_ other: borrowing Geometry<U>.Radian, _ transform: (U) -> Unit) {
+        self.init(transform(other.value))
+    }
+
+    /// Transform the value using the given closure
+    @inlinable
+    public func map<E: Error, Result>(
+        _ transform: (Unit) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Radian {
+        Geometry<Result>.Radian(try transform(value))
     }
 }
