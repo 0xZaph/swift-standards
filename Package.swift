@@ -44,7 +44,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/coenttb/swift-testing-performance", from: "0.1.1")
+        .package(url: "https://github.com/coenttb/swift-testing-performance", from: "0.1.1"),
+        .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
     ],
     targets: [
         .target(
@@ -66,7 +67,10 @@ let package = Package(
             ]
         ),
         .target(
-            name: "Geometry"
+            name: "Geometry",
+            dependencies: [
+                .product(name: "RealModule", package: "swift-numerics"),
+            ]
         ),
         .target(
             name: "StandardsTestSupport",
