@@ -54,9 +54,20 @@ extension Geometry.Radian where Unit: Real {
     @inlinable
     public static var pi: Self { Self(Unit.pi) }
 
-    /// 2π radians (360°, full circle)
+    /// π multiplied by the given factor
+    ///
+    /// - Parameter factor: The value to multiply π by
+    /// - Returns: π×factor radians
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let fullCircle: Geometry<Double>.Radian = .pi(times: 2)  // 2π
+    /// ```
     @inlinable
-    public static var twoPi: Self { Self(2 * Unit.pi) }
+    public static func pi(times factor: Unit) -> Self {
+        Self(Unit.pi * factor)
+    }
 
     /// π divided by the given divisor
     ///

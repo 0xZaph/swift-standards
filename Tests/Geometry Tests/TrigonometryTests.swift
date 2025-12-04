@@ -23,7 +23,7 @@ struct TrigonometryTests {
     @Test("Radian constants")
     func radianConstants() {
         #expect(abs(Geometry<Double>.Radian.pi.value - Double.pi) < 1e-10)
-        #expect(abs(Geometry<Double>.Radian.twoPi.value - 2 * Double.pi) < 1e-10)
+        #expect(abs(Geometry<Double>.Radian.pi(times: 2).value - 2 * Double.pi) < 1e-10)
         #expect(abs(Geometry<Double>.Radian.pi(over: 2).value - Double.pi / 2) < 1e-10)
         #expect(abs(Geometry<Double>.Radian.pi(over: 4).value - Double.pi / 4) < 1e-10)
         #expect(abs(Geometry<Double>.Radian.pi(over: 3).value - Double.pi / 3) < 1e-10)
