@@ -69,6 +69,7 @@ let package = Package(
         .target(
             name: "Geometry",
             dependencies: [
+                "Formatting",
                 .product(name: "RealModule", package: "swift-numerics"),
             ]
         ),
