@@ -85,12 +85,16 @@ extension Geometry.Line where Unit: FloatingPoint {
         )
     }
 
-    /// The perpendicular distance from a point to this line
+    /// The perpendicular distance from a point to this line.
+    ///
+    /// - Returns: The perpendicular distance, or `nil` if the line has zero-length direction vector.
     @inlinable
-    public func distance(to other: Geometry.Point<2>) -> Unit {
+    public func distance(to other: Geometry.Point<2>) -> Unit? {
+        let len = direction.length
+        guard len != 0 else { return nil }
         let v = Geometry.Vector(dx: other.x - point.x, dy: other.y - point.y)
         let cross = direction.dx * v.dy - direction.dy * v.dx
-        return abs(cross) / direction.length
+        return abs(cross) / len
     }
 }
 

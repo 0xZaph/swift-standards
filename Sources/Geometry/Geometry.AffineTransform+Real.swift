@@ -1,30 +1,30 @@
-// AffineTransform+Trigonometry.swift
-// Rotation extensions using angles.
+// AffineTransform+Real.swift
+// Rotation extensions using angles for Real types.
 
 public import RealModule
 
-extension Geometry<Double>.AffineTransform {
+extension Geometry.AffineTransform where Unit: Real {
     /// Create a rotation transform from an angle in radians
     @inlinable
-    public static func rotation(_ angle: Geometry<Double>.Radian) -> Self {
+    public static func rotation(_ angle: Geometry.Radian) -> Self {
         rotation(cos: angle.cos, sin: angle.sin)
     }
 
     /// Create a rotation transform from an angle in degrees
     @inlinable
-    public static func rotation(_ angle: Geometry<Double>.Degree) -> Self {
+    public static func rotation(_ angle: Geometry.Degree) -> Self {
         rotation(angle.radians)
     }
 
     /// Return a new transform with rotation applied
     @inlinable
-    public func rotated(by angle: Geometry<Double>.Radian) -> Self {
+    public func rotated(by angle: Geometry.Radian) -> Self {
         rotated(cos: angle.cos, sin: angle.sin)
     }
 
     /// Return a new transform with rotation applied
     @inlinable
-    public func rotated(by angle: Geometry<Double>.Degree) -> Self {
+    public func rotated(by angle: Geometry.Degree) -> Self {
         rotated(by: angle.radians)
     }
 }

@@ -22,26 +22,26 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// let transform = Geometry.AffineTransform<Double>.identity
+    /// let transform = Geometry<Double>.AffineTransform.identity
     ///     .translated(x: 100, y: 50)
     ///     .rotated(cos: 0.707, sin: 0.707)
     ///     .scaled(by: 2.0)
     ///
-    /// let point = Geometry.Point<2>(x: 10, y: 20)
+    /// let point = Geometry<Double>.Point<2>(x: 10, y: 20)
     /// let transformed = transform.apply(to: point)
     /// ```
     public struct AffineTransform {
         /// Scale/rotation component (row 1, col 1)
-        public var a: Double
+        public var a: Unit
 
         /// Scale/rotation component (row 1, col 2)
-        public var b: Double
+        public var b: Unit
 
         /// Scale/rotation component (row 2, col 1)
-        public var c: Double
+        public var c: Unit
 
         /// Scale/rotation component (row 2, col 2)
-        public var d: Double
+        public var d: Unit
 
         /// Translation x
         public var tx: Geometry.X
@@ -51,7 +51,7 @@ extension Geometry {
 
         /// Create a transform with explicit matrix components
         @inlinable
-        public init(a: Double, b: Double, c: Double, d: Double, tx: consuming Geometry.X, ty: consuming Geometry.Y) {
+        public init(a: consuming Unit, b: consuming Unit, c: consuming Unit, d: consuming Unit, tx: consuming Geometry.X, ty: consuming Geometry.Y) {
             self.a = a
             self.b = b
             self.c = c
@@ -79,8 +79,9 @@ extension Geometry.AffineTransform: Codable where Unit: Codable {}
 
 // MARK: - Identity
 
-extension Geometry.AffineTransform where Unit: AdditiveArithmetic {
+extension Geometry.AffineTransform where Unit: FloatingPoint {
     /// The identity transform (no transformation)
+    @inlinable
     public static var identity: Self {
         Self(a: 1, b: 0, c: 0, d: 1, tx: .zero, ty: .zero)
     }
@@ -88,7 +89,7 @@ extension Geometry.AffineTransform where Unit: AdditiveArithmetic {
 
 // MARK: - Factory Methods
 
-extension Geometry.AffineTransform where Unit: AdditiveArithmetic {
+extension Geometry.AffineTransform where Unit: FloatingPoint {
     /// Create a translation transform
     @inlinable
     public static func translation(x: Geometry.X, y: Geometry.Y) -> Self {
@@ -97,13 +98,13 @@ extension Geometry.AffineTransform where Unit: AdditiveArithmetic {
 
     /// Create a uniform scaling transform
     @inlinable
-    public static func scale(_ factor: Double) -> Self {
+    public static func scale(_ factor: Unit) -> Self {
         Self(a: factor, b: 0, c: 0, d: factor, tx: .zero, ty: .zero)
     }
 
     /// Create a non-uniform scaling transform
     @inlinable
-    public static func scale(x: Double, y: Double) -> Self {
+    public static func scale(x: Unit, y: Unit) -> Self {
         Self(a: x, b: 0, c: 0, d: y, tx: .zero, ty: .zero)
     }
 
@@ -113,20 +114,20 @@ extension Geometry.AffineTransform where Unit: AdditiveArithmetic {
     ///   - cos: Cosine of the rotation angle
     ///   - sin: Sine of the rotation angle
     @inlinable
-    public static func rotation(cos: Double, sin: Double) -> Self {
+    public static func rotation(cos: Unit, sin: Unit) -> Self {
         Self(a: cos, b: -sin, c: sin, d: cos, tx: .zero, ty: .zero)
     }
 
     /// Create a shear transform
     @inlinable
-    public static func shear(x: Double, y: Double) -> Self {
+    public static func shear(x: Unit, y: Unit) -> Self {
         Self(a: 1, b: y, c: x, d: 1, tx: .zero, ty: .zero)
     }
 }
 
-// MARK: - Composition (Double Unit)
+// MARK: - Composition
 
-extension Geometry.AffineTransform where Unit == Double {
+extension Geometry.AffineTransform where Unit: FloatingPoint {
     /// Create a translation transform from a vector
     @inlinable
     public static func translation(_ vector: Geometry.Vector<2>) -> Self {
@@ -150,7 +151,7 @@ extension Geometry.AffineTransform where Unit == Double {
 
     /// Return a new transform with translation applied
     @inlinable
-    public func translated(x: Double, y: Double) -> Self {
+    public func translated(x: Unit, y: Unit) -> Self {
         concatenating(.translation(x: .init(x), y: .init(y)))
     }
 
@@ -162,13 +163,13 @@ extension Geometry.AffineTransform where Unit == Double {
 
     /// Return a new transform with uniform scaling applied
     @inlinable
-    public func scaled(by factor: Double) -> Self {
+    public func scaled(by factor: Unit) -> Self {
         concatenating(.scale(factor))
     }
 
     /// Return a new transform with non-uniform scaling applied
     @inlinable
-    public func scaled(x: Double, y: Double) -> Self {
+    public func scaled(x: Unit, y: Unit) -> Self {
         concatenating(.scale(x: x, y: y))
     }
 
@@ -178,17 +179,17 @@ extension Geometry.AffineTransform where Unit == Double {
     ///   - cos: Cosine of the rotation angle
     ///   - sin: Sine of the rotation angle
     @inlinable
-    public func rotated(cos: Double, sin: Double) -> Self {
+    public func rotated(cos: Unit, sin: Unit) -> Self {
         concatenating(.rotation(cos: cos, sin: sin))
     }
 }
 
-// MARK: - Inversion (Double Unit)
+// MARK: - Inversion
 
-extension Geometry.AffineTransform where Unit == Double {
+extension Geometry.AffineTransform where Unit: FloatingPoint {
     /// The determinant of the linear part
     @inlinable
-    public var determinant: Double {
+    public var determinant: Unit {
         a * d - b * c
     }
 
@@ -203,7 +204,7 @@ extension Geometry.AffineTransform where Unit == Double {
     public var inverted: Self? {
         let det = determinant
         guard det != 0 else { return nil }
-        let invDet = 1.0 / det
+        let invDet: Unit = 1 / det
         return Self(
             a: d * invDet,
             b: -b * invDet,
@@ -215,9 +216,9 @@ extension Geometry.AffineTransform where Unit == Double {
     }
 }
 
-// MARK: - Apply Transform (Double Unit)
+// MARK: - Apply Transform
 
-extension Geometry.AffineTransform where Unit == Double {
+extension Geometry.AffineTransform where Unit: FloatingPoint {
     /// Apply transform to a point
     @inlinable
     public func apply(to point: Geometry.Point<2>) -> Geometry.Point<2> {
@@ -245,7 +246,7 @@ extension Geometry.AffineTransform where Unit == Double {
 
 // MARK: - Monoid
 
-extension Geometry.AffineTransform where Unit == Double {
+extension Geometry.AffineTransform where Unit: FloatingPoint {
     /// Compose multiple transforms into a single transform
     ///
     /// The transforms are applied in order, so the first transform in the array
@@ -262,5 +263,37 @@ extension Geometry.AffineTransform where Unit == Double {
     @inlinable
     public static func composed(_ transforms: Self...) -> Self {
         composed(transforms)
+    }
+}
+
+// MARK: - Functorial Map
+
+extension Geometry.AffineTransform {
+    /// Create a transform by transforming the components of another transform
+    @inlinable
+    public init<U>(_ other: borrowing Geometry<U>.AffineTransform, _ transform: (U) -> Unit) {
+        self.init(
+            a: transform(other.a),
+            b: transform(other.b),
+            c: transform(other.c),
+            d: transform(other.d),
+            tx: Geometry.X(other.tx, transform),
+            ty: Geometry.Y(other.ty, transform)
+        )
+    }
+
+    /// Transform components using the given closure
+    @inlinable
+    public func map<E: Error, Result>(
+        _ transform: (Unit) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.AffineTransform {
+        Geometry<Result>.AffineTransform(
+            a: try transform(a),
+            b: try transform(b),
+            c: try transform(c),
+            d: try transform(d),
+            tx: try tx.map(transform),
+            ty: try ty.map(transform)
+        )
     }
 }

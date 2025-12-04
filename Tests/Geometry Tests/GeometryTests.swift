@@ -544,6 +544,13 @@ struct LineTests {
         // Point at (5, 3) should be distance 3 from line
         let point: Geometry<Double>.Point<2> = .init(x: 5, y: 3)
         #expect(line.distance(to: point) == 3)
+
+        // Zero direction vector returns nil
+        let degenerateLine: Geometry<Double>.Line = .init(
+            point: .init(x: 0, y: 0),
+            direction: .init(dx: 0, dy: 0)
+        )
+        #expect(degenerateLine.distance(to: point) == nil)
     }
 
     @Test
@@ -630,5 +637,82 @@ struct DimensionTests {
     func `Length zero`() {
         let zero: Geometry<TestUnit>.Length = .zero
         #expect(zero.value.value == 0)
+    }
+
+    @Test
+    func `Width literals`() {
+        let w: Geometry<Double>.Width = 100.0
+        #expect(w.value == 100)
+
+        let wInt: Geometry<Double>.Width = 50
+        #expect(wInt.value == 50)
+    }
+
+    @Test
+    func `Height negation`() {
+        let h: Geometry<Double>.Height = .init(10)
+        let neg = -h
+        #expect(neg.value == -10)
+    }
+
+    @Test
+    func `Length multiplication and division`() {
+        let len: Geometry<Double>.Length = .init(10)
+        #expect((len * 2).value == 20)
+        #expect((2 * len).value == 20)
+        #expect((len / 2).value == 5)
+    }
+
+    @Test
+    func `Dimension map`() {
+        let dim: Geometry<Double>.Dimension = .init(10)
+        let mapped = dim.map { $0 * 2 }
+        #expect(mapped.value == 20)
+    }
+
+    @Test
+    func `X negation and multiplication`() {
+        let x: Geometry<Double>.X = .init(10)
+        #expect((-x).value == -10)
+        #expect((x * 2).value == 20)
+        #expect((x / 2).value == 5)
+    }
+
+    @Test
+    func `Y negation and multiplication`() {
+        let y: Geometry<Double>.Y = .init(10)
+        #expect((-y).value == -10)
+        #expect((y * 2).value == 20)
+        #expect((y / 2).value == 5)
+    }
+}
+
+// MARK: - AffineTransform Generic Tests
+
+@Suite
+struct AffineTransformGenericTests {
+    @Test
+    func `Float AffineTransform`() {
+        let transform: Geometry<Float>.AffineTransform = .identity
+        let point: Geometry<Float>.Point<2> = .init(x: 10, y: 20)
+        let result = transform.apply(to: point)
+        #expect(result.x == 10)
+        #expect(result.y == 20)
+    }
+
+    @Test
+    func `Float rotation`() {
+        let transform: Geometry<Float>.AffineTransform = .rotation(cos: 0, sin: 1)
+        let point: Geometry<Float>.Point<2> = .init(x: 1, y: 0)
+        let result = transform.apply(to: point)
+        #expect(abs(result.x) < 0.0001)
+        #expect(abs(result.y - 1) < 0.0001)
+    }
+
+    @Test
+    func `AffineTransform map`() {
+        let transform: Geometry<Double>.AffineTransform = .scale(2)
+        let floatTransform = transform.map { Float($0) }
+        #expect(floatTransform.a == 2)
     }
 }

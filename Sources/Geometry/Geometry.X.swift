@@ -10,15 +10,16 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// func setPosition(x: Geometry.X<Points>, y: Geometry.Y<Points>) {
+    /// func setPosition(x: Geometry<Points>.X, y: Geometry<Points>.Y) {
     ///     // Compiler prevents accidentally swapping x and y
     /// }
     /// ```
     public struct X {
         /// The x coordinate value
-        public let value: Unit
+        public var value: Unit
 
         /// Create an x coordinate with the given value
+        @inlinable
         public init(_ value: consuming Unit) {
             self.value = value
         }
@@ -41,10 +42,12 @@ extension Geometry.X: AdditiveArithmetic where Unit: AdditiveArithmetic {
         Self(.zero)
     }
 
+    @inlinable
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value + rhs.value)
     }
 
+    @inlinable
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value - rhs.value)
     }
@@ -53,6 +56,7 @@ extension Geometry.X: AdditiveArithmetic where Unit: AdditiveArithmetic {
 // MARK: - Comparable
 
 extension Geometry.X: Comparable where Unit: Comparable {
+    @inlinable
     public static func < (lhs: borrowing Self, rhs: borrowing Self) -> Bool {
         lhs.value < rhs.value
     }
@@ -61,6 +65,7 @@ extension Geometry.X: Comparable where Unit: Comparable {
 // MARK: - ExpressibleByIntegerLiteral
 
 extension Geometry.X: ExpressibleByIntegerLiteral where Unit: ExpressibleByIntegerLiteral {
+    @inlinable
     public init(integerLiteral value: Unit.IntegerLiteralType) {
         self.value = Unit(integerLiteral: value)
     }
@@ -69,8 +74,41 @@ extension Geometry.X: ExpressibleByIntegerLiteral where Unit: ExpressibleByInteg
 // MARK: - ExpressibleByFloatLiteral
 
 extension Geometry.X: ExpressibleByFloatLiteral where Unit: ExpressibleByFloatLiteral {
+    @inlinable
     public init(floatLiteral value: Unit.FloatLiteralType) {
         self.value = Unit(floatLiteral: value)
+    }
+}
+
+// MARK: - Negation
+
+extension Geometry.X where Unit: SignedNumeric {
+    /// Negate
+    @inlinable
+    public static prefix func - (value: borrowing Self) -> Self {
+        Self(-value.value)
+    }
+}
+
+// MARK: - Multiplication/Division
+
+extension Geometry.X where Unit: FloatingPoint {
+    /// Multiply by a scalar
+    @inlinable
+    public static func * (lhs: borrowing Self, rhs: Unit) -> Self {
+        Self(lhs.value * rhs)
+    }
+
+    /// Multiply scalar by value
+    @inlinable
+    public static func * (lhs: Unit, rhs: borrowing Self) -> Self {
+        Self(lhs * rhs.value)
+    }
+
+    /// Divide by a scalar
+    @inlinable
+    public static func / (lhs: borrowing Self, rhs: Unit) -> Self {
+        Self(lhs.value / rhs)
     }
 }
 
