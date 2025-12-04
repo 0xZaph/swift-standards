@@ -280,6 +280,7 @@ extension Geometry.Vector where N == 2 {
     }
 
     /// Create a 2D vector from raw scalar values
+    @_disfavoredOverload
     @inlinable
     public init(dx: Scalar, dy: Scalar) {
         self.init([dx, dy])

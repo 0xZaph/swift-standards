@@ -205,6 +205,7 @@ extension Geometry.Point where N == 2 {
     }
 
     /// Create a 2D point from raw scalar values
+    @_disfavoredOverload
     @inlinable
     public init(x: Scalar, y: Scalar) {
         self.init([x, y])

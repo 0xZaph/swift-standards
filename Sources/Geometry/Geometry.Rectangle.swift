@@ -74,6 +74,7 @@ extension Geometry.Rectangle where Scalar: AdditiveArithmetic {
     ///   - y: Lower-left y coordinate
     ///   - width: Width of the rectangle
     ///   - height: Height of the rectangle
+    @_disfavoredOverload
     @inlinable
     public init(x: Scalar, y: Scalar, width: Scalar, height: Scalar) {
         self.llx = x

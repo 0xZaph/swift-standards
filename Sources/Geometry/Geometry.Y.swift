@@ -90,12 +90,14 @@ extension Geometry.Y: Comparable where Scalar: Comparable {
 
 extension Geometry.Y where Scalar: Equatable {
     /// Compare Y to a raw scalar value
+    @_disfavoredOverload
     @inlinable
     public static func == (lhs: borrowing Self, rhs: Scalar) -> Bool {
         lhs.value == rhs
     }
 
     /// Compare a raw scalar value to Y
+    @_disfavoredOverload
     @inlinable
     public static func == (lhs: Scalar, rhs: borrowing Self) -> Bool {
         lhs == rhs.value
@@ -172,5 +174,25 @@ extension Geometry.Y {
         _ transform: (Scalar) throws(E) -> Result
     ) throws(E) -> Geometry<Result>.Y {
         Geometry<Result>.Y(try transform(value))
+    }
+}
+
+// MARK: - ExpressibleByIntegerLiteral
+
+extension Geometry.Y: ExpressibleByIntegerLiteral where Scalar: ExpressibleByIntegerLiteral {
+    @_disfavoredOverload
+    @inlinable
+    public init(integerLiteral value: Scalar.IntegerLiteralType) {
+        self.init(Scalar(integerLiteral: value))
+    }
+}
+
+// MARK: - ExpressibleByFloatLiteral
+
+extension Geometry.Y: ExpressibleByFloatLiteral where Scalar: ExpressibleByFloatLiteral {
+    @_disfavoredOverload
+    @inlinable
+    public init(floatLiteral value: Scalar.FloatLiteralType) {
+        self.init(Scalar(floatLiteral: value))
     }
 }

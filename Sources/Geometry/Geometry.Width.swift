@@ -89,6 +89,7 @@ extension Geometry.Width: Comparable where Scalar: Comparable {
 // MARK: - ExpressibleByIntegerLiteral
 
 extension Geometry.Width: ExpressibleByIntegerLiteral where Scalar: ExpressibleByIntegerLiteral {
+    @_disfavoredOverload
     @inlinable
     public init(integerLiteral value: Scalar.IntegerLiteralType) {
         self.value = Scalar(integerLiteral: value)
@@ -98,6 +99,7 @@ extension Geometry.Width: ExpressibleByIntegerLiteral where Scalar: ExpressibleB
 // MARK: - ExpressibleByFloatLiteral
 
 extension Geometry.Width: ExpressibleByFloatLiteral where Scalar: ExpressibleByFloatLiteral {
+    @_disfavoredOverload
     @inlinable
     public init(floatLiteral value: Scalar.FloatLiteralType) {
         self.value = Scalar(floatLiteral: value)
