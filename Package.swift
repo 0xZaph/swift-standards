@@ -10,6 +10,13 @@ import PackageDescription
 
 let package = Package(
     name: "swift-standards",
+    platforms: [
+        .macOS(.v26),
+        .iOS(.v26),
+        .tvOS(.v26),
+        .watchOS(.v26),
+        .visionOS(.v26),
+    ],
     products: [
         .library(
             name: "Standards",
@@ -26,6 +33,10 @@ let package = Package(
         .library(
             name: "Locale",
             targets: ["Locale"]
+        ),
+        .library(
+            name: "Geometry",
+            targets: ["Geometry"]
         ),
         .library(
             name: "StandardsTestSupport",
@@ -53,6 +64,9 @@ let package = Package(
             dependencies: [
                 "Standards"
             ]
+        ),
+        .target(
+            name: "Geometry"
         ),
         .target(
             name: "StandardsTestSupport",
@@ -86,6 +100,13 @@ let package = Package(
             name: "Locale".tests,
             dependencies: [
                 "Locale",
+                "StandardsTestSupport",
+            ]
+        ),
+        .testTarget(
+            name: "Geometry".tests,
+            dependencies: [
+                "Geometry",
                 "StandardsTestSupport",
             ]
         ),
