@@ -16,16 +16,16 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// let velocity: Geometry.Vector<2, Units> = .init(dx: 10, dy: 5)
-    /// let velocity3D: Geometry.Vector<3, Units> = .init(dx: 1, dy: 2, dz: 3)
+    /// let velocity: Geometry.Vector<2, Double> = .init(dx: 10, dy: 5)
+    /// let velocity3D: Geometry.Vector<3, Double> = .init(dx: 1, dy: 2, dz: 3)
     /// ```
     public struct Vector<let N: Int, Unit: Geometry.Unit>: Sendable {
         /// The vector components stored inline
-        public var components: InlineArray<N, Double>
+        public var components: InlineArray<N, Unit>
 
         /// Create a vector from an inline array of components
         @inlinable
-        public init(_ components: InlineArray<N, Double>) {
+        public init(_ components: InlineArray<N, Unit>) {
             self.components = components
         }
     }
@@ -33,7 +33,7 @@ extension Geometry {
 
 // MARK: - Equatable
 
-extension Geometry.Vector: Equatable {
+extension Geometry.Vector: Equatable where Unit: Equatable {
     @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
         for i in 0..<N {
@@ -47,7 +47,7 @@ extension Geometry.Vector: Equatable {
 
 // MARK: - Hashable
 
-extension Geometry.Vector: Hashable {
+extension Geometry.Vector: Hashable where Unit: Hashable {
     @inlinable
     public func hash(into hasher: inout Hasher) {
         for i in 0..<N {
@@ -71,12 +71,12 @@ extension Geometry {
 
 // MARK: - Codable
 
-extension Geometry.Vector: Codable {
+extension Geometry.Vector: Codable where Unit: Codable {
     public init(from decoder: any Decoder) throws {
         var container = try decoder.unkeyedContainer()
-        var components = InlineArray<N, Double>(repeating: 0)
-        for i in 0..<N {
-            components[i] = try container.decode(Double.self)
+        var components = InlineArray<N, Unit>(repeating: try container.decode(Unit.self))
+        for i in 1..<N {
+            components[i] = try container.decode(Unit.self)
         }
         self.components = components
     }
@@ -94,7 +94,7 @@ extension Geometry.Vector: Codable {
 extension Geometry.Vector {
     /// Access component by index
     @inlinable
-    public subscript(index: Int) -> Double {
+    public subscript(index: Int) -> Unit {
         get { components[index] }
         set { components[index] = newValue }
     }
@@ -102,21 +102,21 @@ extension Geometry.Vector {
 
 // MARK: - Zero
 
-extension Geometry.Vector {
+extension Geometry.Vector where Unit: AdditiveArithmetic {
     /// The zero vector
     @inlinable
     public static var zero: Self {
-        Self(InlineArray(repeating: 0))
+        Self(InlineArray(repeating: .zero))
     }
 }
 
 // MARK: - AdditiveArithmetic
 
-extension Geometry.Vector: AdditiveArithmetic {
+extension Geometry.Vector: AdditiveArithmetic where Unit: AdditiveArithmetic {
     /// Add two vectors
     @inlinable
     public static func + (lhs: Self, rhs: Self) -> Self {
-        var result = InlineArray<N, Double>(repeating: 0)
+        var result = lhs.components
         for i in 0..<N {
             result[i] = lhs.components[i] + rhs.components[i]
         }
@@ -126,7 +126,7 @@ extension Geometry.Vector: AdditiveArithmetic {
     /// Subtract two vectors
     @inlinable
     public static func - (lhs: Self, rhs: Self) -> Self {
-        var result = InlineArray<N, Double>(repeating: 0)
+        var result = lhs.components
         for i in 0..<N {
             result[i] = lhs.components[i] - rhs.components[i]
         }
@@ -134,13 +134,13 @@ extension Geometry.Vector: AdditiveArithmetic {
     }
 }
 
-// MARK: - Scalar Operations
+// MARK: - Scalar Operations (Double)
 
-extension Geometry.Vector {
+extension Geometry.Vector where Unit == Double {
     /// Scale vector by a scalar
     @inlinable
     public static func * (lhs: Self, rhs: Double) -> Self {
-        var result = InlineArray<N, Double>(repeating: 0)
+        var result = lhs.components
         for i in 0..<N {
             result[i] = lhs.components[i] * rhs
         }
@@ -150,7 +150,7 @@ extension Geometry.Vector {
     /// Scale vector by a scalar
     @inlinable
     public static func * (lhs: Double, rhs: Self) -> Self {
-        var result = InlineArray<N, Double>(repeating: 0)
+        var result = rhs.components
         for i in 0..<N {
             result[i] = lhs * rhs.components[i]
         }
@@ -160,7 +160,7 @@ extension Geometry.Vector {
     /// Divide vector by a scalar
     @inlinable
     public static func / (lhs: Self, rhs: Double) -> Self {
-        var result = InlineArray<N, Double>(repeating: 0)
+        var result = lhs.components
         for i in 0..<N {
             result[i] = lhs.components[i] / rhs
         }
@@ -170,7 +170,7 @@ extension Geometry.Vector {
     /// Negate vector
     @inlinable
     public static prefix func - (value: Self) -> Self {
-        var result = InlineArray<N, Double>(repeating: 0)
+        var result = value.components
         for i in 0..<N {
             result[i] = -value.components[i]
         }
@@ -178,9 +178,9 @@ extension Geometry.Vector {
     }
 }
 
-// MARK: - Properties
+// MARK: - Properties (Double)
 
-extension Geometry.Vector {
+extension Geometry.Vector where Unit == Double {
     /// The squared length of the vector
     ///
     /// Use this when comparing magnitudes to avoid the sqrt computation.
@@ -210,9 +210,9 @@ extension Geometry.Vector {
     }
 }
 
-// MARK: - Operations
+// MARK: - Operations (Double)
 
-extension Geometry.Vector {
+extension Geometry.Vector where Unit == Double {
     /// Dot product of two vectors
     @inlinable
     public func dot(_ other: Self) -> Double {
@@ -229,24 +229,28 @@ extension Geometry.Vector {
 extension Geometry.Vector where N == 2 {
     /// The x component (horizontal displacement)
     @inlinable
-    public var dx: Double {
+    public var dx: Unit {
         get { components[0] }
         set { components[0] = newValue }
     }
 
     /// The y component (vertical displacement)
     @inlinable
-    public var dy: Double {
+    public var dy: Unit {
         get { components[1] }
         set { components[1] = newValue }
     }
 
     /// Create a 2D vector with the given components
     @inlinable
-    public init(dx: Double, dy: Double) {
+    public init(dx: Unit, dy: Unit) {
         self.init([dx, dy])
     }
+}
 
+// MARK: - 2D Cross Product (Double)
+
+extension Geometry.Vector where N == 2, Unit == Double {
     /// 2D cross product (returns scalar z-component)
     ///
     /// This is the signed area of the parallelogram formed by the two vectors.
@@ -262,31 +266,35 @@ extension Geometry.Vector where N == 2 {
 extension Geometry.Vector where N == 3 {
     /// The x component
     @inlinable
-    public var dx: Double {
+    public var dx: Unit {
         get { components[0] }
         set { components[0] = newValue }
     }
 
     /// The y component
     @inlinable
-    public var dy: Double {
+    public var dy: Unit {
         get { components[1] }
         set { components[1] = newValue }
     }
 
     /// The z component
     @inlinable
-    public var dz: Double {
+    public var dz: Unit {
         get { components[2] }
         set { components[2] = newValue }
     }
 
     /// Create a 3D vector with the given components
     @inlinable
-    public init(dx: Double, dy: Double, dz: Double) {
+    public init(dx: Unit, dy: Unit, dz: Unit) {
         self.init([dx, dy, dz])
     }
+}
 
+// MARK: - 3D Cross Product (Double)
+
+extension Geometry.Vector where N == 3, Unit == Double {
     /// 3D cross product
     @inlinable
     public func cross(_ other: Self) -> Self {
@@ -303,35 +311,35 @@ extension Geometry.Vector where N == 3 {
 extension Geometry.Vector where N == 4 {
     /// The x component
     @inlinable
-    public var dx: Double {
+    public var dx: Unit {
         get { components[0] }
         set { components[0] = newValue }
     }
 
     /// The y component
     @inlinable
-    public var dy: Double {
+    public var dy: Unit {
         get { components[1] }
         set { components[1] = newValue }
     }
 
     /// The z component
     @inlinable
-    public var dz: Double {
+    public var dz: Unit {
         get { components[2] }
         set { components[2] = newValue }
     }
 
     /// The w component
     @inlinable
-    public var dw: Double {
+    public var dw: Unit {
         get { components[3] }
         set { components[3] = newValue }
     }
 
     /// Create a 4D vector with the given components
     @inlinable
-    public init(dx: Double, dy: Double, dz: Double, dw: Double) {
+    public init(dx: Unit, dy: Unit, dz: Unit, dw: Unit) {
         self.init([dx, dy, dz, dw])
     }
 }
