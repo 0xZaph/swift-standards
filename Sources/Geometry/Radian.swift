@@ -40,7 +40,7 @@ extension Geometry.Radian {
 
 extension Geometry.Radian {
     /// Zero angle
-    public static let zero = Self(0)
+    public static var zero: Self { Self(0) }
 
     /// Create an angle as a fraction of a full turn (2π radians)
     ///

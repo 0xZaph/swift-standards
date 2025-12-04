@@ -16,10 +16,10 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// let velocity: Geometry.Vector<2, Double> = .init(dx: 10, dy: 5)
+    /// let velocity: Geometry.Vector<2> = .init(dx: 10, dy: 5)
     /// let velocity3D: Geometry.Vector<3, Double> = .init(dx: 1, dy: 2, dz: 3)
     /// ```
-    public struct Vector<let N: Int, Unit: Geometry.Unit>: Sendable {
+    public struct Vector<let N: Int> {
         /// The vector components stored inline
         public var components: InlineArray<N, Unit>
 
@@ -30,6 +30,8 @@ extension Geometry {
         }
     }
 }
+
+extension Geometry.Vector: Sendable where Unit: Sendable {}
 
 // MARK: - Equatable
 
@@ -60,13 +62,13 @@ extension Geometry.Vector: Hashable where Unit: Hashable {
 
 extension Geometry {
     /// A 2D vector
-    public typealias Vector2<Unit: Geometry.Unit> = Vector<2, Unit>
+    public typealias Vector2 = Vector<2>
 
     /// A 3D vector
-    public typealias Vector3<Unit: Geometry.Unit> = Vector<3, Unit>
+    public typealias Vector3 = Vector<3>
 
     /// A 4D vector
-    public typealias Vector4<Unit: Geometry.Unit> = Vector<4, Unit>
+    public typealias Vector4 = Vector<4>
 }
 
 // MARK: - Codable

@@ -5,7 +5,7 @@ extension Geometry {
     /// A generic linear measurement parameterized by unit type.
     ///
     /// This is the base type for specific dimensional types like `Width`, `Height`, and `Length`.
-    public struct Dimension<Unit: Geometry.Unit>: Sendable, Hashable {
+    public struct Dimension {
         /// The measurement value
         public let value: Unit
 
@@ -15,6 +15,10 @@ extension Geometry {
         }
     }
 }
+
+extension Geometry.Dimension: Sendable where Unit: Sendable {}
+extension Geometry.Dimension: Hashable where Unit: Hashable {}
+extension Geometry.Dimension: Equatable where Unit: Equatable {}
 
 // MARK: - Codable
 

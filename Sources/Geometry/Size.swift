@@ -13,10 +13,10 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// let pageSize: Geometry.Size<2, Double> = .init(width: 612, height: 792)
+    /// let pageSize: Geometry.Size<2> = .init(width: 612, height: 792)
     /// let boxSize: Geometry.Size<3, Double> = .init(width: 10, height: 20, depth: 30)
     /// ```
-    public struct Size<let N: Int, Unit: Geometry.Unit>: Sendable {
+    public struct Size<let N: Int> {
         /// The size dimensions stored inline
         public var dimensions: InlineArray<N, Unit>
 
@@ -27,6 +27,8 @@ extension Geometry {
         }
     }
 }
+
+extension Geometry.Size: Sendable where Unit: Sendable {}
 
 // MARK: - Equatable
 
@@ -57,10 +59,10 @@ extension Geometry.Size: Hashable where Unit: Hashable {
 
 extension Geometry {
     /// A 2D size
-    public typealias Size2<Unit: Geometry.Unit> = Size<2, Unit>
+    public typealias Size2 = Size<2>
 
     /// A 3D size
-    public typealias Size3<Unit: Geometry.Unit> = Size<3, Unit>
+    public typealias Size3 = Size<3>
 }
 
 // MARK: - Codable

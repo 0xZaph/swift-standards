@@ -11,7 +11,7 @@ extension Geometry {
     ///     top: 72, leading: 72, bottom: 72, trailing: 72
     /// )
     /// ```
-    public struct EdgeInsets<Unit: Geometry.Unit>: Sendable, Hashable {
+    public struct EdgeInsets {
         /// Top inset
         public var top: Unit
 
@@ -43,6 +43,9 @@ extension Geometry {
 // MARK: - Codable
 
 extension Geometry.EdgeInsets: Codable where Unit: Codable {}
+extension Geometry.EdgeInsets: Sendable where Unit: Sendable {}
+extension Geometry.EdgeInsets: Equatable where Unit: Equatable {}
+extension Geometry.EdgeInsets: Hashable where Unit: Hashable {}
 
 // MARK: - Convenience Initializers
 

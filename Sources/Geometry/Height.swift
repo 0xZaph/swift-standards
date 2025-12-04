@@ -14,7 +14,7 @@ extension Geometry {
     ///     // Compiler prevents accidentally swapping width and height
     /// }
     /// ```
-    public struct Height<Unit: Geometry.Unit>: Sendable, Hashable {
+    public struct Height {
         /// The height value
         public let value: Unit
 
@@ -28,6 +28,9 @@ extension Geometry {
 // MARK: - Codable
 
 extension Geometry.Height: Codable where Unit: Codable {}
+extension Geometry.Height: Sendable where Unit: Sendable {}
+extension Geometry.Height: Equatable where Unit: Equatable {}
+extension Geometry.Height: Hashable where Unit: Hashable {}
 
 // MARK: - AdditiveArithmetic
 

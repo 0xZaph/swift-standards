@@ -15,21 +15,25 @@ extension Geometry {
     /// )
     /// print(segment.length)  // 141.42...
     /// ```
-    public struct LineSegment<Unit: Geometry.Unit>: Sendable, Hashable {
+    public struct LineSegment {
         /// The start point
-        public var start: Point<2, Unit>
+        public var start: Point<2>
 
         /// The end point
-        public var end: Point<2, Unit>
+        public var end: Point<2>
 
         /// Create a line segment between two points
         @inlinable
-        public init(start: Point<2, Unit>, end: Point<2, Unit>) {
+        public init(start: Point<2>, end: Point<2>) {
             self.start = start
             self.end = end
         }
     }
 }
+
+extension Geometry.LineSegment: Sendable where Unit: Sendable {}
+extension Geometry.LineSegment: Hashable where Unit: Hashable {}
+extension Geometry.LineSegment: Equatable where Unit: Equatable {}
 
 // MARK: - Codable
 
@@ -50,7 +54,7 @@ extension Geometry.LineSegment {
 extension Geometry.LineSegment where Unit == Double {
     /// The vector from start to end
     @inlinable
-    public var vector: Geometry.Vector2<Double> {
+    public var vector: Geometry.Vector2 {
         Geometry.Vector2(dx: end.x - start.x, dy: end.y - start.y)
     }
 
@@ -70,7 +74,7 @@ extension Geometry.LineSegment where Unit == Double {
 
     /// The midpoint of the segment
     @inlinable
-    public var midpoint: Geometry.Point<2, Double> {
+    public var midpoint: Geometry.Point<2> {
         Geometry.Point(
             x: (start.x + end.x) / 2,
             y: (start.y + end.y) / 2
@@ -82,7 +86,7 @@ extension Geometry.LineSegment where Unit == Double {
     /// - Parameter t: Parameter from 0 (start) to 1 (end)
     /// - Returns: The interpolated point
     @inlinable
-    public func point(at t: Double) -> Geometry.Point<2, Double> {
+    public func point(at t: Double) -> Geometry.Point<2> {
         let x = start.x + t * (end.x - start.x)
         let y = start.y + t * (end.y - start.y)
         return Geometry.Point(x: x, y: y)

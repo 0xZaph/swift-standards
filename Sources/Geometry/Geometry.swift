@@ -27,4 +27,4 @@
 // ```
 
 /// The Geometry namespace for geometric primitives.
-public enum Geometry {}
+public enum Geometry<Unit> {}

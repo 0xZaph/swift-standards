@@ -14,7 +14,7 @@ extension Geometry {
     ///     // Compiler prevents accidentally swapping x and y
     /// }
     /// ```
-    public struct Y<Unit: Geometry.Unit>: Sendable, Hashable {
+    public struct Y {
         /// The y coordinate value
         public let value: Unit
 
@@ -24,6 +24,10 @@ extension Geometry {
         }
     }
 }
+
+extension Geometry.Y: Sendable where Unit: Sendable {}
+extension Geometry.Y: Hashable where Unit: Hashable {}
+extension Geometry.Y: Equatable where Unit: Equatable {}
 
 // MARK: - Codable
 

@@ -27,10 +27,10 @@ extension Geometry {
     ///     .rotated(cos: 0.707, sin: 0.707)
     ///     .scaled(by: 2.0)
     ///
-    /// let point = Geometry.Point<2, Double>(x: 10, y: 20)
+    /// let point = Geometry.Point<2>(x: 10, y: 20)
     /// let transformed = transform.apply(to: point)
     /// ```
-    public struct AffineTransform<Unit: Geometry.Unit>: Sendable, Hashable {
+    public struct AffineTransform {
         /// Scale/rotation component (row 1, col 1)
         public var a: Double
 
@@ -44,14 +44,14 @@ extension Geometry {
         public var d: Double
 
         /// Translation x
-        public var tx: Geometry.X<Unit>
+        public var tx: Geometry.X
 
         /// Translation y
-        public var ty: Geometry.Y<Unit>
+        public var ty: Geometry.Y
 
         /// Create a transform with explicit matrix components
         @inlinable
-        public init(a: Double, b: Double, c: Double, d: Double, tx: Geometry.X<Unit>, ty: Geometry.Y<Unit>) {
+        public init(a: Double, b: Double, c: Double, d: Double, tx: Geometry.X, ty: Geometry.Y) {
             self.a = a
             self.b = b
             self.c = c
@@ -62,11 +62,15 @@ extension Geometry {
     }
 }
 
+extension Geometry.AffineTransform: Sendable where Unit: Sendable {}
+extension Geometry.AffineTransform: Hashable where Unit: Hashable {}
+extension Geometry.AffineTransform: Equatable where Unit: Equatable {}
+
 // MARK: - Typealiases
 
 extension Geometry {
     /// A 2D affine transform (alias for AffineTransform)
-    public typealias AffineTransform2<Unit: Geometry.Unit> = AffineTransform<Unit>
+    public typealias AffineTransform2 = AffineTransform
 }
 
 // MARK: - Codable
@@ -87,7 +91,7 @@ extension Geometry.AffineTransform where Unit: AdditiveArithmetic {
 extension Geometry.AffineTransform where Unit: AdditiveArithmetic {
     /// Create a translation transform
     @inlinable
-    public static func translation(x: Geometry.X<Unit>, y: Geometry.Y<Unit>) -> Self {
+    public static func translation(x: Geometry.X, y: Geometry.Y) -> Self {
         Self(a: 1, b: 0, c: 0, d: 1, tx: x, ty: y)
     }
 
@@ -125,7 +129,7 @@ extension Geometry.AffineTransform where Unit: AdditiveArithmetic {
 extension Geometry.AffineTransform where Unit == Double {
     /// Create a translation transform from a vector
     @inlinable
-    public static func translation(_ vector: Geometry.Vector<2, Double>) -> Self {
+    public static func translation(_ vector: Geometry.Vector<2>) -> Self {
         translation(x: .init(vector.dx), y: .init(vector.dy))
     }
 
@@ -152,7 +156,7 @@ extension Geometry.AffineTransform where Unit == Double {
 
     /// Return a new transform with translation applied
     @inlinable
-    public func translated(by vector: Geometry.Vector<2, Double>) -> Self {
+    public func translated(by vector: Geometry.Vector<2>) -> Self {
         translated(x: vector.dx, y: vector.dy)
     }
 
@@ -216,7 +220,7 @@ extension Geometry.AffineTransform where Unit == Double {
 extension Geometry.AffineTransform where Unit == Double {
     /// Apply transform to a point
     @inlinable
-    public func apply(to point: Geometry.Point<2, Double>) -> Geometry.Point<2, Double> {
+    public func apply(to point: Geometry.Point<2>) -> Geometry.Point<2> {
         let x = a * point.x + b * point.y + tx.value
         let y = c * point.x + d * point.y + ty.value
         return Geometry.Point(x: x, y: y)
@@ -224,7 +228,7 @@ extension Geometry.AffineTransform where Unit == Double {
 
     /// Apply transform to a vector (ignores translation)
     @inlinable
-    public func apply(to vector: Geometry.Vector<2, Double>) -> Geometry.Vector<2, Double> {
+    public func apply(to vector: Geometry.Vector<2>) -> Geometry.Vector<2> {
         let dx = a * vector.dx + b * vector.dy
         let dy = c * vector.dx + d * vector.dy
         return Geometry.Vector(dx: dx, dy: dy)
@@ -232,7 +236,7 @@ extension Geometry.AffineTransform where Unit == Double {
 
     /// Apply transform to a size (uses absolute values of scale factors)
     @inlinable
-    public func apply(to size: Geometry.Size<2, Double>) -> Geometry.Size<2, Double> {
+    public func apply(to size: Geometry.Size<2>) -> Geometry.Size<2> {
         let width = abs(a * size.width + b * size.height)
         let height = abs(c * size.width + d * size.height)
         return Geometry.Size(width: width, height: height)

@@ -14,7 +14,7 @@ extension Geometry {
     ///     // ...
     /// }
     /// ```
-    public struct Length<Unit: Geometry.Unit>: Sendable, Hashable {
+    public struct Length {
         /// The length value
         public let value: Unit
 
@@ -28,6 +28,9 @@ extension Geometry {
 // MARK: - Codable
 
 extension Geometry.Length: Codable where Unit: Codable {}
+extension Geometry.Length: Sendable where Unit: Sendable {}
+extension Geometry.Length: Hashable where Unit: Hashable {}
+extension Geometry.Length: Equatable where Unit: Equatable {}
 
 // MARK: - AdditiveArithmetic
 

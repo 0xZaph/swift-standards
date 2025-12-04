@@ -34,7 +34,7 @@ struct TestUnit: Geometry.Unit, AdditiveArithmetic, Comparable, Codable {
 struct GeometryUnitTests {
     @Test
     func `Double conforms to Geometry Unit`() {
-        let point: Geometry.Point<2, Double> = .init(x: 10, y: 20)
+        let point: Geometry.Point<2> = .init(x: 10, y: 20)
         #expect(point.x == 10)
     }
 
@@ -109,7 +109,7 @@ struct PointTests {
 
     @Test
     func `Double point translation`() {
-        let point: Geometry.Point<2, Double> = .init(x: 10, y: 20)
+        let point: Geometry.Point<2> = .init(x: 10, y: 20)
         let moved = point.translated(dx: 5, dy: 10)
         #expect(moved.x == 15)
         #expect(moved.y == 30)
@@ -117,14 +117,14 @@ struct PointTests {
 
     @Test
     func `Double point distance`() {
-        let a: Geometry.Point<2, Double> = .init(x: 0, y: 0)
-        let b: Geometry.Point<2, Double> = .init(x: 3, y: 4)
+        let a: Geometry.Point<2> = .init(x: 0, y: 0)
+        let b: Geometry.Point<2> = .init(x: 3, y: 4)
         #expect(a.distance(to: b) == 5)
     }
 
     @Test
     func `Point plus vector`() {
-        let point: Geometry.Point<2, Double> = .init(x: 10, y: 20)
+        let point: Geometry.Point<2> = .init(x: 10, y: 20)
         let vector: Geometry.Vector2<Double> = .init(dx: 5, dy: 10)
         let result = point + vector
         #expect(result.x == 15)
@@ -237,8 +237,8 @@ struct RectangleTests {
     @Test
     func `Rectangle contains point`() {
         let rect: Geometry.Rectangle<Double> = .init(x: 0, y: 0, width: 100, height: 100)
-        let inside: Geometry.Point<2, Double> = .init(x: 50, y: 50)
-        let outside: Geometry.Point<2, Double> = .init(x: 150, y: 150)
+        let inside: Geometry.Point<2> = .init(x: 50, y: 50)
+        let outside: Geometry.Point<2> = .init(x: 150, y: 150)
 
         #expect(rect.contains(inside))
         #expect(!rect.contains(outside))
@@ -370,7 +370,7 @@ struct AffineTransformTests {
     @Test
     func `Identity transform`() {
         let transform: Geometry.AffineTransform2<Double> = .identity
-        let point: Geometry.Point<2, Double> = .init(x: 10, y: 20)
+        let point: Geometry.Point<2> = .init(x: 10, y: 20)
         let result = transform.apply(to: point)
 
         #expect(result.x == 10)
@@ -380,7 +380,7 @@ struct AffineTransformTests {
     @Test
     func `Translation transform`() {
         let transform: Geometry.AffineTransform2<Double> = .translation(x: 100, y: 50)
-        let point: Geometry.Point<2, Double> = .init(x: 10, y: 20)
+        let point: Geometry.Point<2> = .init(x: 10, y: 20)
         let result = transform.apply(to: point)
 
         #expect(result.x == 110)
@@ -390,7 +390,7 @@ struct AffineTransformTests {
     @Test
     func `Scale transform`() {
         let transform: Geometry.AffineTransform2<Double> = .scale(2)
-        let point: Geometry.Point<2, Double> = .init(x: 10, y: 20)
+        let point: Geometry.Point<2> = .init(x: 10, y: 20)
         let result = transform.apply(to: point)
 
         #expect(result.x == 20)
@@ -401,7 +401,7 @@ struct AffineTransformTests {
     func `Rotation transform`() {
         // 90 degree rotation: cos = 0, sin = 1
         let transform: Geometry.AffineTransform2<Double> = .rotation(cos: 0, sin: 1)
-        let point: Geometry.Point<2, Double> = .init(x: 1, y: 0)
+        let point: Geometry.Point<2> = .init(x: 1, y: 0)
         let result = transform.apply(to: point)
 
         #expect(abs(result.x - 0) < 0.0001)
@@ -416,7 +416,7 @@ struct AffineTransformTests {
         // Scale first, then translate
         let combined = translate.concatenating(scale)
 
-        let point: Geometry.Point<2, Double> = .init(x: 5, y: 5)
+        let point: Geometry.Point<2> = .init(x: 5, y: 5)
         let result = combined.apply(to: point)
 
         // 5 * 2 = 10, then + 10 = 20
@@ -429,7 +429,7 @@ struct AffineTransformTests {
         let transform: Geometry.AffineTransform2<Double> = .translation(x: 100, y: 50)
         let inverse = transform.inverted!
 
-        let point: Geometry.Point<2, Double> = .init(x: 110, y: 70)
+        let point: Geometry.Point<2> = .init(x: 110, y: 70)
         let result = inverse.apply(to: point)
 
         #expect(abs(result.x - 10) < 0.0001)

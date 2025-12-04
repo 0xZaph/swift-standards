@@ -19,7 +19,7 @@ extension Geometry {
     /// // Compile error: cannot mix units
     /// // let sum = pointValue + pixelValue
     /// ```
-    public struct Scalar<Unit: Geometry.Unit>: Sendable, Hashable {
+    public struct Scalar: Sendable, Hashable {
         /// The underlying value
         public var value: Double
 

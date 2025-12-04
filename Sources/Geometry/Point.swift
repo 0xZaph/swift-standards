@@ -15,11 +15,11 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// let origin: Geometry.Point<2, Double> = .zero
+    /// let origin: Geometry.Point<2> = .zero
     /// let position = Geometry.Point(x: 72.0, y: 144.0)
     /// let position3D = Geometry.Point(x: 1.0, y: 2.0, z: 3.0)
     /// ```
-    public struct Point<let N: Int, Unit: Geometry.Unit>: Sendable {
+    public struct Point<let N: Int> {
         /// The point coordinates stored inline
         public var coordinates: InlineArray<N, Unit>
 
@@ -30,6 +30,9 @@ extension Geometry {
         }
     }
 }
+
+extension Geometry.Point: Sendable where Unit: Sendable {}
+
 
 // MARK: - Equatable
 
@@ -60,13 +63,13 @@ extension Geometry.Point: Hashable where Unit: Hashable {
 
 extension Geometry {
     /// A 2D point
-    public typealias Point2<Unit: Geometry.Unit> = Point<2, Unit>
+    public typealias Point2 = Point<2>
 
     /// A 3D point
-    public typealias Point3<Unit: Geometry.Unit> = Point<3, Unit>
+    public typealias Point3 = Point<3>
 
     /// A 4D point
-    public typealias Point4<Unit: Geometry.Unit> = Point<4, Unit>
+    public typealias Point4 = Point<4>
 }
 
 // MARK: - Codable
@@ -238,7 +241,7 @@ extension Geometry.Point where N == 2, Unit == Double {
 
     /// Translate point by a vector
     @inlinable
-    public func translated(by vector: Geometry.Vector<2, Unit>) -> Self {
+    public func translated(by vector: Geometry.Vector<2>) -> Self {
         Self(x: x + vector.dx, y: y + vector.dy)
     }
 
@@ -258,7 +261,7 @@ extension Geometry.Point where N == 2, Unit == Double {
 
     /// The vector from this point to another
     @inlinable
-    public func vector(to other: Self) -> Geometry.Vector<2, Unit> {
+    public func vector(to other: Self) -> Geometry.Vector<2> {
         Geometry.Vector(dx: other.x - x, dy: other.y - y)
     }
 }
@@ -268,13 +271,13 @@ extension Geometry.Point where N == 2, Unit == Double {
 extension Geometry.Point where N == 2, Unit == Double {
     /// Add a vector to a point
     @inlinable
-    public static func + (lhs: Self, rhs: Geometry.Vector<2, Unit>) -> Self {
+    public static func + (lhs: Self, rhs: Geometry.Vector<2>) -> Self {
         Self(x: lhs.x + rhs.dx, y: lhs.y + rhs.dy)
     }
 
     /// Subtract a vector from a point
     @inlinable
-    public static func - (lhs: Self, rhs: Geometry.Vector<2, Unit>) -> Self {
+    public static func - (lhs: Self, rhs: Geometry.Vector<2>) -> Self {
         Self(x: lhs.x - rhs.dx, y: lhs.y - rhs.dy)
     }
 }
@@ -290,7 +293,7 @@ extension Geometry.Point where N == 3, Unit == Double {
 
     /// Translate point by a vector
     @inlinable
-    public func translated(by vector: Geometry.Vector<3, Unit>) -> Self {
+    public func translated(by vector: Geometry.Vector<3>) -> Self {
         Self(x: x + vector.dx, y: y + vector.dy, z: z + vector.dz)
     }
 
@@ -311,7 +314,7 @@ extension Geometry.Point where N == 3, Unit == Double {
 
     /// The vector from this point to another
     @inlinable
-    public func vector(to other: Self) -> Geometry.Vector<3, Unit> {
+    public func vector(to other: Self) -> Geometry.Vector<3> {
         Geometry.Vector(dx: other.x - x, dy: other.y - y, dz: other.z - z)
     }
 }
@@ -321,13 +324,13 @@ extension Geometry.Point where N == 3, Unit == Double {
 extension Geometry.Point where N == 3, Unit == Double {
     /// Add a vector to a point
     @inlinable
-    public static func + (lhs: Self, rhs: Geometry.Vector<3, Unit>) -> Self {
+    public static func + (lhs: Self, rhs: Geometry.Vector<3>) -> Self {
         Self(x: lhs.x + rhs.dx, y: lhs.y + rhs.dy, z: lhs.z + rhs.dz)
     }
 
     /// Subtract a vector from a point
     @inlinable
-    public static func - (lhs: Self, rhs: Geometry.Vector<3, Unit>) -> Self {
+    public static func - (lhs: Self, rhs: Geometry.Vector<3>) -> Self {
         Self(x: lhs.x - rhs.dx, y: lhs.y - rhs.dy, z: lhs.z - rhs.dz)
     }
 }

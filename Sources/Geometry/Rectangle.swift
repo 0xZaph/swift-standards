@@ -12,7 +12,7 @@ extension Geometry {
     /// ```swift
     /// let bounds: Geometry.Rectangle<Double> = .init(x: 0, y: 0, width: 612, height: 792)
     /// ```
-    public struct Rectangle<Unit: Geometry.Unit>: Sendable, Hashable {
+    public struct Rectangle {
         /// Lower-left x coordinate
         public let llx: Unit
 
@@ -40,6 +40,10 @@ extension Geometry {
         }
     }
 }
+
+extension Geometry.Rectangle: Sendable where Unit: Sendable {}
+extension Geometry.Rectangle: Hashable where Unit: Hashable {}
+extension Geometry.Rectangle: Equatable where Unit: Equatable {}
 
 // MARK: - Codable
 
@@ -73,12 +77,12 @@ extension Geometry.Rectangle where Unit: AdditiveArithmetic {
     }
 
     /// Size of the rectangle
-    public var size: Geometry.Size<2, Unit> {
+    public var size: Geometry.Size<2> {
         Geometry.Size(width: width, height: height)
     }
 
     /// Origin (lower-left corner) of the rectangle
-    public var origin: Geometry.Point<2, Unit> {
+    public var origin: Geometry.Point<2> {
         Geometry.Point(x: llx, y: lly)
     }
 
@@ -87,7 +91,7 @@ extension Geometry.Rectangle where Unit: AdditiveArithmetic {
     /// - Parameters:
     ///   - origin: Lower-left corner point
     ///   - size: Width and height of the rectangle
-    public init(origin: Geometry.Point<2, Unit>, size: Geometry.Size<2, Unit>) {
+    public init(origin: Geometry.Point<2>, size: Geometry.Size<2>) {
         self.llx = origin.x
         self.lly = origin.y
         self.urx = origin.x + size.width
@@ -117,7 +121,7 @@ extension Geometry.Rectangle {
     ///
     /// - Parameter corner: The corner to retrieve
     /// - Returns: The corner as a Point
-    public func corner(_ corner: Corner) -> Geometry.Point<2, Unit> {
+    public func corner(_ corner: Corner) -> Geometry.Point<2> {
         switch corner {
         case .lowerLeft:
             return Geometry.Point(x: llx, y: lly)
@@ -184,13 +188,13 @@ extension Geometry.Rectangle where Unit == Double {
 
     /// Center point
     @inlinable
-    public var center: Geometry.Point<2, Double> {
+    public var center: Geometry.Point<2> {
         Geometry.Point(x: midX, y: midY)
     }
 
     /// Check if the rectangle contains a point
     @inlinable
-    public func contains(_ point: Geometry.Point<2, Double>) -> Bool {
+    public func contains(_ point: Geometry.Point<2>) -> Bool {
         point.x >= minX && point.x <= maxX &&
         point.y >= minY && point.y <= maxY
     }
@@ -217,7 +221,7 @@ extension Geometry.Rectangle where Unit == Double {
 
     /// Return a rectangle inset by edge insets
     @inlinable
-    public func inset(by insets: Geometry.EdgeInsets<Double>) -> Self {
+    public func inset(by insets: Geometry.EdgeInsets) -> Self {
         Self(
             llx: llx + insets.leading,
             lly: lly + insets.bottom,
