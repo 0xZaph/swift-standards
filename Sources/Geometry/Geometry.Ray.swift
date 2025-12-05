@@ -270,21 +270,21 @@ extension Geometry.Ray where Scalar: FloatingPoint {
 extension Geometry.Ray {
     /// Create a ray by transforming the coordinates of another ray
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Ray, _ transform: (U) -> Scalar) {
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Ray, _ transform: (U) throws(E) -> Scalar) throws(E) {
         self.init(
-            origin: Geometry.Point<2>(other.origin, transform),
-            direction: Geometry.Vector<2>(other.direction, transform)
+            origin: try Geometry.Point<2>(other.origin, transform),
+            direction: try Geometry.Vector<2>(other.direction, transform)
         )
     }
 
     /// Transform coordinates using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Ray {
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Ray {
         Geometry<Result>.Ray(
-            origin: origin.map(transform),
-            direction: direction.map(transform)
+            origin: try origin.map(transform),
+            direction: try direction.map(transform)
         )
     }
 }

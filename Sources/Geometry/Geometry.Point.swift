@@ -107,22 +107,22 @@ extension Geometry.Point {
 extension Geometry.Point {
     /// Create a point by transforming each coordinate of another point
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Point<N>, _ transform: (U) -> Scalar) {
-        var coords = InlineArray<N, Scalar>(repeating: transform(other.coordinates[0]))
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Point<N>, _ transform: (U) throws(E) -> Scalar) throws(E) {
+        var coords = InlineArray<N, Scalar>(repeating: try transform(other.coordinates[0]))
         for i in 1..<N {
-            coords[i] = transform(other.coordinates[i])
+            coords[i] = try transform(other.coordinates[i])
         }
         self.init(coords)
     }
 
     /// Transform each coordinate using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Point<N> {
-        var result = InlineArray<N, Result>(repeating: transform(coordinates[0]))
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Point<N> {
+        var result = InlineArray<N, Result>(repeating: try transform(coordinates[0]))
         for i in 1..<N {
-            result[i] = transform(coordinates[i])
+            result[i] = try transform(coordinates[i])
         }
         return Geometry<Result>.Point<N>(result)
     }

@@ -164,16 +164,16 @@ extension Geometry.X where Scalar: Numeric {
 extension Geometry.X {
     /// Create an X coordinate by transforming the value of another X coordinate
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.X, _ transform: (U) -> Scalar) {
-        self.init(transform(other.value))
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.X, _ transform: (U) throws(E) -> Scalar) throws(E) {
+        self.init(try transform(other.value))
     }
 
     /// Transform the value using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.X {
-        Geometry<Result>.X(transform(value))
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.X {
+        Geometry<Result>.X(try transform(value))
     }
 }
 

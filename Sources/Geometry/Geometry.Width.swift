@@ -159,15 +159,15 @@ extension Geometry.Width: Strideable where Scalar: Strideable {
 extension Geometry.Width {
     /// Create a Width by transforming the value of another Width
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Width, _ transform: (U) -> Scalar) {
-        self.init(transform(other.value))
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Width, _ transform: (U) throws(E) -> Scalar) throws(E) {
+        self.init(try transform(other.value))
     }
 
     /// Transform the value using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Width {
-        Geometry<Result>.Width(transform(value))
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Width {
+        Geometry<Result>.Width(try transform(value))
     }
 }

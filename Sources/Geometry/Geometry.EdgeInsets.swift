@@ -121,25 +121,25 @@ extension Geometry.EdgeInsets where Scalar: SignedNumeric {
 extension Geometry.EdgeInsets {
     /// Create edge insets by transforming each value of another edge insets
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.EdgeInsets, _ transform: (U) -> Scalar) {
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.EdgeInsets, _ transform: (U) throws(E) -> Scalar) throws(E) {
         self.init(
-            top: transform(other.top),
-            leading: transform(other.leading),
-            bottom: transform(other.bottom),
-            trailing: transform(other.trailing)
+            top: try transform(other.top),
+            leading: try transform(other.leading),
+            bottom: try transform(other.bottom),
+            trailing: try transform(other.trailing)
         )
     }
 
     /// Transform each inset value using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.EdgeInsets {
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.EdgeInsets {
         Geometry<Result>.EdgeInsets(
-            top: transform(top),
-            leading: transform(leading),
-            bottom: transform(bottom),
-            trailing: transform(trailing)
+            top: try transform(top),
+            leading: try transform(leading),
+            bottom: try transform(bottom),
+            trailing: try transform(trailing)
         )
     }
 }

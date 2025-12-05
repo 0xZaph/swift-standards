@@ -24,46 +24,48 @@ public struct Scale<let N: Int>: Sendable {
     }
 }
 
-// MARK: - Equatable (2D)
+// MARK: - Equatable
 // Note: InlineArray doesn't yet conform to Equatable/Hashable/Codable in Swift 6.2
-// These conformances are planned for future Swift releases. For now, we implement
-// manual conformances for the 2D case which is our primary use case.
+// We implement these manually by iterating over factors.
 
-extension Scale: Equatable where N == 2 {
+extension Scale: Equatable {
     @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.x == rhs.x && lhs.y == rhs.y
+        for i in 0..<N {
+            if lhs.factors[i] != rhs.factors[i] { return false }
+        }
+        return true
     }
 }
 
-// MARK: - Hashable (2D)
+// MARK: - Hashable
 
-extension Scale: Hashable where N == 2 {
+extension Scale: Hashable {
     @inlinable
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(x)
-        hasher.combine(y)
+        for i in 0..<N {
+            hasher.combine(factors[i])
+        }
     }
 }
 
-// MARK: - Codable (2D)
+// MARK: - Codable
 
-extension Scale: Codable where N == 2 {
-    private enum CodingKeys: String, CodingKey {
-        case x, y
-    }
-
+extension Scale: Codable {
     public init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let x = try container.decode(Double.self, forKey: .x)
-        let y = try container.decode(Double.self, forKey: .y)
-        self.init(x: x, y: y)
+        var container = try decoder.unkeyedContainer()
+        var factors = InlineArray<N, Double>(repeating: 0)
+        for i in 0..<N {
+            factors[i] = try container.decode(Double.self)
+        }
+        self.init(factors)
     }
 
     public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(x, forKey: .x)
-        try container.encode(y, forKey: .y)
+        var container = encoder.unkeyedContainer()
+        for i in 0..<N {
+            try container.encode(factors[i])
+        }
     }
 }
 
@@ -103,6 +105,39 @@ extension Scale {
     @inlinable
     public static var half: Self {
         Self(InlineArray(repeating: 0.5))
+    }
+}
+
+// MARK: - 1D Convenience
+
+extension Scale where N == 1 {
+    /// The scale factor value
+    @inlinable
+    public var value: Double {
+        get { factors[0] }
+        set { factors[0] = newValue }
+    }
+
+    /// Create a 1D scale with the given factor
+    @inlinable
+    public init(_ value: Double) {
+        self.init([value])
+    }
+}
+
+// MARK: - 1D Literals
+
+extension Scale: ExpressibleByFloatLiteral where N == 1 {
+    @inlinable
+    public init(floatLiteral value: Double) {
+        self.init(value)
+    }
+}
+
+extension Scale: ExpressibleByIntegerLiteral where N == 1 {
+    @inlinable
+    public init(integerLiteral value: Int) {
+        self.init(Double(value))
     }
 }
 

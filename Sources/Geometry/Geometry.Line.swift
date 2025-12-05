@@ -344,21 +344,21 @@ extension Geometry {
 extension Geometry.Line {
     /// Create a line by transforming the coordinates of another line
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Line, _ transform: (U) -> Scalar) {
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Line, _ transform: (U) throws(E) -> Scalar) throws(E) {
         self.init(
-            point: Geometry.Point<2>(other.point, transform),
-            direction: Geometry.Vector<2>(other.direction, transform)
+            point: try Geometry.Point<2>(other.point, transform),
+            direction: try Geometry.Vector<2>(other.direction, transform)
         )
     }
 
     /// Transform coordinates using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Line {
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Line {
         Geometry<Result>.Line(
-            point: point.map(transform),
-            direction: direction.map(transform)
+            point: try point.map(transform),
+            direction: try direction.map(transform)
         )
     }
 }
@@ -368,21 +368,21 @@ extension Geometry.Line {
 extension Geometry.Line.Segment {
     /// Create a segment by transforming the coordinates of another segment
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Line.Segment, _ transform: (U) -> Scalar) {
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Line.Segment, _ transform: (U) throws(E) -> Scalar) throws(E) {
         self.init(
-            start: Geometry.Point<2>(other.start, transform),
-            end: Geometry.Point<2>(other.end, transform)
+            start: try Geometry.Point<2>(other.start, transform),
+            end: try Geometry.Point<2>(other.end, transform)
         )
     }
 
     /// Transform coordinates using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Line.Segment {
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Line.Segment {
         Geometry<Result>.Line.Segment(
-            start: start.map(transform),
-            end: end.map(transform)
+            start: try start.map(transform),
+            end: try end.map(transform)
         )
     }
 }

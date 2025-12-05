@@ -411,15 +411,25 @@ extension Geometry.Bezier where Scalar: BinaryFloatingPoint {
 extension Geometry.Bezier {
     /// Create a curve by transforming the coordinates of another curve
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Bezier, _ transform: (U) -> Scalar) {
-        self.init(controlPoints: other.controlPoints.map { Geometry.Point<2>($0, transform) })
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Bezier, _ transform: (U) throws(E) -> Scalar) throws(E) {
+        var result: [Geometry.Point<2>] = []
+        result.reserveCapacity(other.controlPoints.count)
+        for point in other.controlPoints {
+            result.append(try Geometry.Point<2>(point, transform))
+        }
+        self.init(controlPoints: result)
     }
 
     /// Transform coordinates using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Bezier {
-        Geometry<Result>.Bezier(controlPoints: controlPoints.map { $0.map(transform) })
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Bezier {
+        var result: [Geometry<Result>.Point<2>] = []
+        result.reserveCapacity(controlPoints.count)
+        for point in controlPoints {
+            result.append(try point.map(transform))
+        }
+        return Geometry<Result>.Bezier(controlPoints: result)
     }
 }

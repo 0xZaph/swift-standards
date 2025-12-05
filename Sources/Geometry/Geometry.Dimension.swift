@@ -124,8 +124,8 @@ extension Geometry.Dimension: Strideable where Scalar: Strideable {
 extension Geometry.Dimension {
     /// Create a Dimension by transforming the value of another Dimension
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Dimension, _ transform: (U) -> Scalar) {
-        self.init(transform(other.value))
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Dimension, _ transform: (U) throws(E) -> Scalar) throws(E) {
+        self.init(try transform(other.value))
     }
 
     /// Transform the value using the given closure

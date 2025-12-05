@@ -133,16 +133,16 @@ extension Geometry.Depth: Strideable where Scalar: Strideable {
 extension Geometry.Depth {
     /// Create a Depth by transforming the value of another Depth
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Depth, _ transform: (U) -> Scalar) {
-        self.init(transform(other.value))
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Depth, _ transform: (U) throws(E) -> Scalar) throws(E) {
+        self.init(try transform(other.value))
     }
 
     /// Transform the value using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Depth {
-        Geometry<Result>.Depth(transform(value))
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Depth {
+        Geometry<Result>.Depth(try transform(value))
     }
 }
 

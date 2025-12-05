@@ -361,21 +361,21 @@ extension Geometry.Circle where Scalar: FloatingPoint {
 extension Geometry.Circle {
     /// Create a circle by transforming the coordinates of another circle
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Circle, _ transform: (U) -> Scalar) {
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Circle, _ transform: (U) throws(E) -> Scalar) throws(E) {
         self.init(
-            center: Geometry.Point<2>(other.center, transform),
-            radius: Geometry.Length(other.radius, transform)
+            center: try Geometry.Point<2>(other.center, transform),
+            radius: try Geometry.Length(other.radius, transform)
         )
     }
 
     /// Transform coordinates using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Circle {
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Circle {
         Geometry<Result>.Circle(
-            center: center.map(transform),
-            radius: radius.map(transform)
+            center: try center.map(transform),
+            radius: try radius.map(transform)
         )
     }
 }

@@ -470,23 +470,23 @@ extension Geometry.Triangle where Scalar: FloatingPoint {
 extension Geometry.Triangle {
     /// Create a triangle by transforming the coordinates of another triangle
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Triangle, _ transform: (U) -> Scalar) {
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Triangle, _ transform: (U) throws(E) -> Scalar) throws(E) {
         self.init(
-            a: Geometry.Point<2>(other.a, transform),
-            b: Geometry.Point<2>(other.b, transform),
-            c: Geometry.Point<2>(other.c, transform)
+            a: try Geometry.Point<2>(other.a, transform),
+            b: try Geometry.Point<2>(other.b, transform),
+            c: try Geometry.Point<2>(other.c, transform)
         )
     }
 
     /// Transform coordinates using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Triangle {
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Triangle {
         Geometry<Result>.Triangle(
-            a: a.map(transform),
-            b: b.map(transform),
-            c: c.map(transform)
+            a: try a.map(transform),
+            b: try b.map(transform),
+            c: try c.map(transform)
         )
     }
 }

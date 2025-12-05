@@ -327,15 +327,81 @@ extension Geometry.Rectangle where Scalar: FloatingPoint {
         Self(llx: llx + dx, lly: lly + dy, urx: urx - dx, ury: ury - dy)
     }
 
-    /// Return a rectangle inset by edge insets
+    /// Return a rectangle inset by edge insets.
+    ///
+    /// Uses upward (standard Cartesian) orientation where "top" affects `ury`.
+    /// For screen coordinates where Y increases downward, use `inset(by:y:)`.
     @inlinable
     public func inset(by insets: Geometry.EdgeInsets) -> Self {
-        Self(
-            llx: llx + insets.leading,
-            lly: lly + insets.bottom,
-            urx: urx - insets.trailing,
-            ury: ury - insets.top
-        )
+        inset(by: insets, y: .upward)
+    }
+
+    /// Return a rectangle inset by edge insets with explicit Y-axis direction.
+    ///
+    /// - Parameters:
+    ///   - insets: The edge insets to apply
+    ///   - y: The vertical axis direction
+    /// - Returns: A new rectangle with the insets applied
+    ///
+    /// ## Axis Direction Effects
+    ///
+    /// - `.upward` (Cartesian): top→ury, bottom→lly
+    /// - `.downward` (screen): top→lly, bottom→ury
+    @inlinable
+    public func inset(
+        by insets: Geometry.EdgeInsets,
+        y: Axis.Vertical
+    ) -> Self {
+        switch y {
+        case .upward:
+            return Self(
+                llx: llx + insets.leading,
+                lly: lly + insets.bottom,
+                urx: urx - insets.trailing,
+                ury: ury - insets.top
+            )
+        case .downward:
+            return Self(
+                llx: llx + insets.leading,
+                lly: lly + insets.top,
+                urx: urx - insets.trailing,
+                ury: ury - insets.bottom
+            )
+        }
+    }
+}
+
+// MARK: - Dimension Clamping
+
+extension Geometry.Rectangle where Scalar: Comparable & AdditiveArithmetic {
+    /// Returns a rectangle with width clamped to at most the given maximum.
+    ///
+    /// The rectangle's origin and height are preserved. If the current width
+    /// is already ≤ maxWidth, returns self unchanged.
+    ///
+    /// - Parameter maxWidth: The upper bound for width
+    /// - Returns: A rectangle with `width ≤ maxWidth`
+    @inlinable
+    public func clamped(maxWidth: Geometry.Width) -> Self {
+        guard width.value > maxWidth.value else { return self }
+        var copy = self
+        copy.width = maxWidth
+        return copy
+    }
+
+    /// Returns a rectangle with height clamped to at most the given maximum.
+    ///
+    /// The rectangle's origin and width are preserved. If the current height
+    /// is already ≤ maxHeight, returns self unchanged.
+    ///
+    /// - Parameter maxHeight: The upper bound for height
+    /// - Returns: A rectangle with `height ≤ maxHeight`
+    @inlinable
+    public func clamped(maxHeight: Geometry.Height) -> Self {
+        guard height.value > maxHeight.value else { return self }
+        var copy = self
+        copy.height = maxHeight
+        return copy
     }
 }
 
@@ -344,25 +410,25 @@ extension Geometry.Rectangle where Scalar: FloatingPoint {
 extension Geometry.Rectangle {
     /// Create a rectangle by transforming each coordinate of another rectangle
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Rectangle, _ transform: (U) -> Scalar) {
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Rectangle, _ transform: (U) throws(E) -> Scalar) throws(E) {
         self.init(
-            llx: .init(transform(other.llx.value)),
-            lly: .init(transform(other.lly.value)),
-            urx: .init(transform(other.urx.value)),
-            ury: .init(transform(other.ury.value))
+            llx: .init(try transform(other.llx.value)),
+            lly: .init(try transform(other.lly.value)),
+            urx: .init(try transform(other.urx.value)),
+            ury: .init(try transform(other.ury.value))
         )
     }
 
     /// Transform each coordinate using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Rectangle {
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Rectangle {
         Geometry<Result>.Rectangle(
-            llx: .init(transform(llx.value)),
-            lly: .init(transform(lly.value)),
-            urx: .init(transform(urx.value)),
-            ury: .init(transform(ury.value))
+            llx: .init(try transform(llx.value)),
+            lly: .init(try transform(lly.value)),
+            urx: .init(try transform(urx.value)),
+            ury: .init(try transform(ury.value))
         )
     }
 }

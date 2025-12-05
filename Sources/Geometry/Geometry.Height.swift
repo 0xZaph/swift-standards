@@ -159,15 +159,15 @@ extension Geometry.Height: Strideable where Scalar: Strideable {
 extension Geometry.Height {
     /// Create a Height by transforming the value of another Height
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Height, _ transform: (U) -> Scalar) {
-        self.init(transform(other.value))
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Height, _ transform: (U) throws(E) -> Scalar) throws(E) {
+        self.init(try transform(other.value))
     }
 
     /// Transform the value using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Height {
-        Geometry<Result>.Height(transform(value))
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Height {
+        Geometry<Result>.Height(try transform(value))
     }
 }

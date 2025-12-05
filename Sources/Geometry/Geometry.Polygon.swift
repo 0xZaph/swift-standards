@@ -381,15 +381,25 @@ extension Geometry.Polygon where Scalar: FloatingPoint {
 extension Geometry.Polygon {
     /// Create a polygon by transforming the coordinates of another polygon
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Polygon, _ transform: (U) -> Scalar) {
-        self.init(vertices: other.vertices.map { Geometry.Point<2>($0, transform) })
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Polygon, _ transform: (U) throws(E) -> Scalar) throws(E) {
+        var result: [Geometry.Point<2>] = []
+        result.reserveCapacity(other.vertices.count)
+        for vertex in other.vertices {
+            result.append(try Geometry.Point<2>(vertex, transform))
+        }
+        self.init(vertices: result)
     }
 
     /// Transform coordinates using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Polygon {
-        Geometry<Result>.Polygon(vertices: vertices.map { $0.map(transform) })
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Polygon {
+        var result: [Geometry<Result>.Point<2>] = []
+        result.reserveCapacity(vertices.count)
+        for vertex in vertices {
+            result.append(try vertex.map(transform))
+        }
+        return Geometry<Result>.Polygon(vertices: result)
     }
 }

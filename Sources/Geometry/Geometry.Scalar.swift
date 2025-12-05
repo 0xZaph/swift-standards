@@ -96,16 +96,16 @@ extension Geometry.Scalar where Scalar: SignedNumeric {
 extension Geometry.Scalar {
     /// Create a scalar by transforming the value of another scalar
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Scalar, _ transform: (U) -> Scalar) {
-        self.init(transform(other.value))
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Scalar, _ transform: (U) throws(E) -> Scalar) throws(E) {
+        self.init(try transform(other.value))
     }
 
     /// Transform the value using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Scalar {
-        Geometry<Result>.Scalar(transform(value))
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Scalar {
+        Geometry<Result>.Scalar(try transform(value))
     }
 }
 

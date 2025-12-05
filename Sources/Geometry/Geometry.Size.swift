@@ -101,22 +101,22 @@ extension Geometry.Size {
 extension Geometry.Size {
     /// Create a size by transforming each dimension of another size
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Size<N>, _ transform: (U) -> Scalar) {
-        var dims = InlineArray<N, Scalar>(repeating: transform(other.dimensions[0]))
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Size<N>, _ transform: (U) throws(E) -> Scalar) throws(E) {
+        var dims = InlineArray<N, Scalar>(repeating: try transform(other.dimensions[0]))
         for i in 1..<N {
-            dims[i] = transform(other.dimensions[i])
+            dims[i] = try transform(other.dimensions[i])
         }
         self.init(dims)
     }
 
     /// Transform each dimension using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Size<N> {
-        var result = InlineArray<N, Result>(repeating: transform(dimensions[0]))
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Size<N> {
+        var result = InlineArray<N, Result>(repeating: try transform(dimensions[0]))
         for i in 1..<N {
-            result[i] = transform(dimensions[i])
+            result[i] = try transform(dimensions[i])
         }
         return Geometry<Result>.Size<N>(result)
     }

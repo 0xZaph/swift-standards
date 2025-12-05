@@ -107,22 +107,22 @@ extension Geometry.Vector {
 extension Geometry.Vector {
     /// Create a vector by transforming each component of another vector
     @inlinable
-    public init<U>(_ other: borrowing Geometry<U>.Vector<N>, _ transform: (U) -> Scalar) {
-        var comps = InlineArray<N, Scalar>(repeating: transform(other.components[0]))
+    public init<U, E: Error>(_ other: borrowing Geometry<U>.Vector<N>, _ transform: (U) throws(E) -> Scalar) throws(E) {
+        var comps = InlineArray<N, Scalar>(repeating: try transform(other.components[0]))
         for i in 1..<N {
-            comps[i] = transform(other.components[i])
+            comps[i] = try transform(other.components[i])
         }
         self.init(comps)
     }
 
     /// Transform each component using the given closure
     @inlinable
-    public func map<Result>(
-        _ transform: (Scalar) -> Result
-    ) -> Geometry<Result>.Vector<N> {
-        var result = InlineArray<N, Result>(repeating: transform(components[0]))
+    public func map<Result, E: Error>(
+        _ transform: (Scalar) throws(E) -> Result
+    ) throws(E) -> Geometry<Result>.Vector<N> {
+        var result = InlineArray<N, Result>(repeating: try transform(components[0]))
         for i in 1..<N {
-            result[i] = transform(components[i])
+            result[i] = try transform(components[i])
         }
         return Geometry<Result>.Vector<N>(result)
     }
