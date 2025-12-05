@@ -86,23 +86,23 @@ extension Geometry.X: Comparable where Scalar: Comparable {
     }
 }
 
-// MARK: - Scalar Comparison
-
-extension Geometry.X where Scalar: Equatable {
-    /// Compare X to a raw scalar value
-    @_disfavoredOverload
-    @inlinable
-    public static func == (lhs: borrowing Self, rhs: Scalar) -> Bool {
-        lhs.value == rhs
-    }
-
-    /// Compare a raw scalar value to X
-    @_disfavoredOverload
-    @inlinable
-    public static func == (lhs: Scalar, rhs: borrowing Self) -> Bool {
-        lhs == rhs.value
-    }
-}
+//// MARK: - Scalar Comparison
+//
+//extension Geometry.X where Scalar: Equatable {
+//    /// Compare X to a raw scalar value
+//    @_disfavoredOverload
+//    @inlinable
+//    public static func == (lhs: borrowing Self, rhs: Scalar) -> Bool {
+//        lhs.value == rhs
+//    }
+//
+//    /// Compare a raw scalar value to X
+//    @_disfavoredOverload
+//    @inlinable
+//    public static func == (lhs: Scalar, rhs: borrowing Self) -> Bool {
+//        lhs == rhs.value
+//    }
+//}
 
 
 // MARK: - Negation

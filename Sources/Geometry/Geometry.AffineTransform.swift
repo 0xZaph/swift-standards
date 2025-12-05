@@ -1,6 +1,8 @@
 // Geometry.AffineTransform.swift
 // A 2D affine transformation: linear transformation + translation.
 
+public import RealModule
+
 extension Geometry {
     /// A 2D affine transformation.
     ///
@@ -232,9 +234,9 @@ extension Geometry.AffineTransform where Scalar: FloatingPoint & ExpressibleByIn
     }
 }
 
-// MARK: - Rotation Factory (Double)
+// MARK: - Rotation Factory (Real & BinaryFloatingPoint)
 
-extension Geometry.AffineTransform where Scalar == Double {
+extension Geometry.AffineTransform where Scalar: Real & BinaryFloatingPoint {
     /// Create a rotation transform
     @inlinable
     public static func rotation(_ angle: Radian) -> Self {
@@ -247,22 +249,22 @@ extension Geometry.AffineTransform where Scalar == Double {
         Self(linear: .rotation(angle.radians), translation: .zero)
     }
 }
-
-// MARK: - Rotation Factory (Float)
-
-extension Geometry.AffineTransform where Scalar == Float {
-    /// Create a rotation transform
-    @inlinable
-    public static func rotation(_ angle: Radian) -> Self {
-        Self(linear: .rotation(angle), translation: .zero)
-    }
-
-    /// Create a rotation transform from degrees
-    @inlinable
-    public static func rotation(_ angle: Degree) -> Self {
-        Self(linear: .rotation(angle.radians), translation: .zero)
-    }
-}
+//
+//// MARK: - Rotation Factory (Float)
+//
+//extension Geometry.AffineTransform where Scalar == Float {
+//    /// Create a rotation transform
+//    @inlinable
+//    public static func rotation(_ angle: Radian) -> Self {
+//        Self(linear: .rotation(angle), translation: .zero)
+//    }
+//
+//    /// Create a rotation transform from degrees
+//    @inlinable
+//    public static func rotation(_ angle: Degree) -> Self {
+//        Self(linear: .rotation(angle.radians), translation: .zero)
+//    }
+//}
 
 // MARK: - Fluent Modifiers
 
@@ -292,21 +294,7 @@ extension Geometry.AffineTransform where Scalar: FloatingPoint & ExpressibleByIn
     }
 }
 
-extension Geometry.AffineTransform where Scalar == Double {
-    /// Return a new transform with rotation applied
-    @inlinable
-    public func rotated(by angle: Radian) -> Self {
-        concatenating(.rotation(angle))
-    }
-
-    /// Return a new transform with rotation applied
-    @inlinable
-    public func rotated(by angle: Degree) -> Self {
-        concatenating(.rotation(angle))
-    }
-}
-
-extension Geometry.AffineTransform where Scalar == Float {
+extension Geometry.AffineTransform where Scalar: Real & BinaryFloatingPoint {
     /// Return a new transform with rotation applied
     @inlinable
     public func rotated(by angle: Radian) -> Self {

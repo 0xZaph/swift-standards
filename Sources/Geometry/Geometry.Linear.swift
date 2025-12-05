@@ -1,6 +1,8 @@
 // Geometry.Linear.swift
 // An N×N linear transformation matrix parameterized by scalar type.
 
+public import RealModule
+
 extension Geometry {
     /// An N×N linear transformation matrix.
     ///
@@ -264,34 +266,33 @@ extension Geometry.Linear where N == 2, Scalar: FloatingPoint {
     }
 }
 
-// MARK: - Rotation Factory (Double)
+// MARK: - Rotation Factory (cos/sin)
 
-extension Geometry.Linear where N == 2, Scalar == Double {
+extension Geometry.Linear where N == 2, Scalar: SignedNumeric {
     /// Create a rotation matrix
     ///
     /// - Parameters:
     ///   - cos: Cosine of the rotation angle
     ///   - sin: Sine of the rotation angle
     @inlinable
-    public static func rotation(cos: Double, sin: Double) -> Self {
+    public static func rotation(cos: Scalar, sin: Scalar) -> Self {
         Self(a: cos, b: -sin, c: sin, d: cos)
-    }
-
-    /// Create a rotation matrix from an angle
-    @inlinable
-    public static func rotation(_ angle: Radian) -> Self {
-        rotation(cos: angle.cos, sin: angle.sin)
     }
 }
 
-// MARK: - Rotation Factory (Float)
+// MARK: - Rotation Factory (Real & BinaryFloatingPoint)
 
-extension Geometry.Linear where N == 2, Scalar == Float {
-    /// Create a rotation matrix from an angle
+extension Geometry.Linear where N == 2, Scalar: Real & BinaryFloatingPoint {
+    /// Create a rotation matrix from an angle.
+    ///
+    /// Works with any `Real & BinaryFloatingPoint` type (Double, Float).
+    ///
+    /// - Parameter angle: Rotation angle in radians
+    /// - Returns: A 2×2 rotation matrix
     @inlinable
     public static func rotation(_ angle: Radian) -> Self {
-        let c = Float(angle.cos)
-        let s = Float(angle.sin)
+        let c = Scalar(angle.cos)
+        let s = Scalar(angle.sin)
         return Self(a: c, b: -s, c: s, d: c)
     }
 }

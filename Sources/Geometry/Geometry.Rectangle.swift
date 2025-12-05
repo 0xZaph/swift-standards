@@ -14,16 +14,16 @@ extension Geometry {
     /// ```
     public struct Rectangle {
         /// Lower-left x coordinate
-        public let llx: Scalar
+        public var llx: Geometry.X
 
         /// Lower-left y coordinate
-        public let lly: Scalar
+        public var lly: Geometry.Y
 
         /// Upper-right x coordinate
-        public let urx: Scalar
+        public var urx: Geometry.X
 
         /// Upper-right y coordinate
-        public let ury: Scalar
+        public var ury: Geometry.Y
 
         /// Create a rectangle from corner coordinates
         ///
@@ -32,7 +32,7 @@ extension Geometry {
         ///   - lly: Lower-left y coordinate
         ///   - urx: Upper-right x coordinate
         ///   - ury: Upper-right y coordinate
-        public init(llx: consuming Scalar, lly: consuming Scalar, urx: consuming Scalar, ury: consuming Scalar) {
+        public init(llx: consuming Geometry.X, lly: consuming Geometry.Y, urx: consuming Geometry.X, ury: consuming Geometry.Y) {
             self.llx = llx
             self.lly = lly
             self.urx = urx
@@ -61,10 +61,10 @@ extension Geometry.Rectangle where Scalar: AdditiveArithmetic {
     ///   - height: Height of the rectangle
     @inlinable
     public init(x: Geometry.X, y: Geometry.Y, width: Geometry.Width, height: Geometry.Height) {
-        self.llx = x.value
-        self.lly = y.value
-        self.urx = x.value + width.value
-        self.ury = y.value + height.value
+        self.llx = x
+        self.lly = y
+        self.urx = .init(x.value + width.value)
+        self.ury = .init(y.value + height.value)
     }
 
     /// Create a rectangle from raw scalar values
@@ -77,34 +77,48 @@ extension Geometry.Rectangle where Scalar: AdditiveArithmetic {
     @_disfavoredOverload
     @inlinable
     public init(x: Scalar, y: Scalar, width: Scalar, height: Scalar) {
-        self.llx = x
-        self.lly = y
-        self.urx = x + width
-        self.ury = y + height
+        self.llx = .init(x)
+        self.lly = .init(y)
+        self.urx = .init(x + width)
+        self.ury = .init(y + height)
     }
 
     /// Width of the rectangle
     @inlinable
     public var width: Geometry.Width {
-        .init(urx - llx)
+        get { .init(urx.value - llx.value) }
+        set { urx = .init(llx.value + newValue.value) }
     }
 
     /// Height of the rectangle
     @inlinable
     public var height: Geometry.Height {
-        .init(ury - lly)
+        get { .init(ury.value - lly.value) }
+        set { ury = .init(lly.value + newValue.value) }
     }
 
     /// Size of the rectangle
     @inlinable
     public var size: Geometry.Size<2> {
-        Geometry.Size(width: width, height: height)
+        get { Geometry.Size(width: width, height: height) }
+        set {
+            urx = .init(llx.value + newValue.width.value)
+            ury = .init(lly.value + newValue.height.value)
+        }
     }
 
     /// Origin (lower-left corner) of the rectangle
     @inlinable
     public var origin: Geometry.Point<2> {
-        Geometry.Point(x: .init(llx), y: .init(lly))
+        get { Geometry.Point(x: llx, y: lly) }
+        set {
+            let w = width
+            let h = height
+            llx = newValue.x
+            lly = newValue.y
+            urx = .init(newValue.x.value + w.value)
+            ury = .init(newValue.y.value + h.value)
+        }
     }
     /// Create a rectangle from origin point and size
     ///
@@ -113,10 +127,10 @@ extension Geometry.Rectangle where Scalar: AdditiveArithmetic {
     ///   - size: Width and height of the rectangle
     @inlinable
     public init(origin: Geometry.Point<2>, size: Geometry.Size<2>) {
-        self.llx = origin.x.value
-        self.lly = origin.y.value
-        self.urx = origin.x.value + size.width.value
-        self.ury = origin.y.value + size.height.value
+        self.llx = origin.x
+        self.lly = origin.y
+        self.urx = origin.x + size.width.value
+        self.ury = origin.y + size.height.value
     }
 }
 
@@ -146,13 +160,13 @@ extension Geometry.Rectangle {
     public func corner(_ corner: Corner) -> Geometry.Point<2> {
         switch corner {
         case .lowerLeft:
-            return Geometry.Point(x: .init(llx), y: .init(lly))
+            return Geometry.Point(x: llx, y: lly)
         case .lowerRight:
-            return Geometry.Point(x: .init(urx), y: .init(lly))
+            return Geometry.Point(x: urx, y: lly)
         case .upperLeft:
-            return Geometry.Point(x: .init(llx), y: .init(ury))
+            return Geometry.Point(x: llx, y: ury)
         case .upperRight:
-            return Geometry.Point(x: .init(urx), y: .init(ury))
+            return Geometry.Point(x: urx, y: ury)
         }
     }
 }
@@ -162,26 +176,55 @@ extension Geometry.Rectangle {
 extension Geometry.Rectangle {
     /// Create a new rectangle with a modified lower-left x
     @inlinable
-    public func with(llx: Scalar) -> Self {
+    public func with(llx: Geometry.X) -> Self {
         Self(llx: llx, lly: lly, urx: urx, ury: ury)
     }
 
     /// Create a new rectangle with a modified lower-left y
     @inlinable
-    public func with(lly: Scalar) -> Self {
+    public func with(lly: Geometry.Y) -> Self {
         Self(llx: llx, lly: lly, urx: urx, ury: ury)
     }
 
     /// Create a new rectangle with a modified upper-right x
     @inlinable
-    public func with(urx: Scalar) -> Self {
+    public func with(urx: Geometry.X) -> Self {
         Self(llx: llx, lly: lly, urx: urx, ury: ury)
     }
 
     /// Create a new rectangle with a modified upper-right y
     @inlinable
-    public func with(ury: Scalar) -> Self {
+    public func with(ury: Geometry.Y) -> Self {
         Self(llx: llx, lly: lly, urx: urx, ury: ury)
+    }
+}
+
+// MARK: - Translation
+
+extension Geometry.Rectangle where Scalar: AdditiveArithmetic {
+    /// Translate the rectangle by the given amounts.
+    ///
+    /// - Parameters:
+    ///   - dx: Horizontal translation
+    ///   - dy: Vertical translation
+    /// - Returns: A new rectangle with translated origin
+    @inlinable
+    public func translated(dx: Scalar, dy: Scalar) -> Self {
+        Self(
+            llx: .init(llx.value + dx),
+            lly: .init(lly.value + dy),
+            urx: .init(urx.value + dx),
+            ury: .init(ury.value + dy)
+        )
+    }
+
+    /// Translate the rectangle by a vector.
+    ///
+    /// - Parameter vector: The translation vector
+    /// - Returns: A new rectangle with translated origin
+    @inlinable
+    public func translated(by vector: Geometry.Vector<2>) -> Self {
+        translated(dx: vector.dx.value, dy: vector.dy.value)
     }
 }
 
@@ -190,25 +233,37 @@ extension Geometry.Rectangle {
 extension Geometry.Rectangle where Scalar: Comparable {
     /// Minimum x (same as llx for normalized rectangles)
     @inlinable
-    public var minX: Scalar { min(llx, urx) }
+    public var minX: Geometry.X { min(llx, urx) }
 
     /// Maximum x (same as urx for normalized rectangles)
     @inlinable
-    public var maxX: Scalar { max(llx, urx) }
+    public var maxX: Geometry.X { max(llx, urx) }
 
     /// Minimum y (same as lly for normalized rectangles)
     @inlinable
-    public var minY: Scalar { min(lly, ury) }
+    public var minY: Geometry.Y { min(lly, ury) }
 
     /// Maximum y (same as ury for normalized rectangles)
     @inlinable
-    public var maxY: Scalar { max(lly, ury) }
+    public var maxY: Geometry.Y { max(lly, ury) }
+}
 
+extension Geometry.Rectangle where Scalar: SignedNumeric & Comparable {
+    /// Check if the rectangle has zero or negative area.
+    ///
+    /// A rectangle is empty if either its width or height is less than or equal to zero.
+    @inlinable
+    public var isEmpty: Bool {
+        urx.value - llx.value <= .zero || ury.value - lly.value <= .zero
+    }
+}
+
+extension Geometry.Rectangle where Scalar: Comparable {
     /// Check if the rectangle contains a point
     @inlinable
     public func contains(_ point: Geometry.Point<2>) -> Bool {
-        point.x.value >= minX && point.x.value <= maxX &&
-        point.y.value >= minY && point.y.value <= maxY
+        point.x >= minX && point.x <= maxX &&
+        point.y >= minY && point.y <= maxY
     }
 
     /// Check if this rectangle contains another rectangle
@@ -254,11 +309,11 @@ extension Geometry.Rectangle where Scalar: Comparable {
 extension Geometry.Rectangle where Scalar: FloatingPoint {
     /// Center x coordinate
     @inlinable
-    public var midX: Geometry.X { .init((llx + urx) / 2) }
+    public var midX: Geometry.X { (llx + urx) / 2 }
 
     /// Center y coordinate
     @inlinable
-    public var midY: Geometry.Y { .init((lly + ury) / 2) }
+    public var midY: Geometry.Y { lly + ury / 2 }
 
     /// Center point
     @inlinable
@@ -291,10 +346,10 @@ extension Geometry.Rectangle {
     @inlinable
     public init<U>(_ other: borrowing Geometry<U>.Rectangle, _ transform: (U) -> Scalar) {
         self.init(
-            llx: transform(other.llx),
-            lly: transform(other.lly),
-            urx: transform(other.urx),
-            ury: transform(other.ury)
+            llx: .init(transform(other.llx.value)),
+            lly: .init(transform(other.lly.value)),
+            urx: .init(transform(other.urx.value)),
+            ury: .init(transform(other.ury.value))
         )
     }
 
@@ -304,10 +359,10 @@ extension Geometry.Rectangle {
         _ transform: (Scalar) throws(E) -> Result
     ) throws(E) -> Geometry<Result>.Rectangle {
         Geometry<Result>.Rectangle(
-            llx: try transform(llx),
-            lly: try transform(lly),
-            urx: try transform(urx),
-            ury: try transform(ury)
+            llx: try .init(transform(llx.value)),
+            lly: try .init(transform(lly.value)),
+            urx: try .init(transform(urx.value)),
+            ury: try .init(transform(ury.value))
         )
     }
 }
