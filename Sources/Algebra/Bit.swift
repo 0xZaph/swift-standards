@@ -42,13 +42,7 @@ extension Bit: @retroactive CaseIterable {
 extension Bit {
     /// The flipped bit (NOT operation).
     @inlinable
-    public var flipped: Bit {
-        switch self {
-        case .zero: return .one
-        case .one: return .zero
-        default: fatalError()
-        }
-    }
+    public var flipped: Bit { self ^ 1 }
 
     /// Returns the flipped bit.
     @inlinable
