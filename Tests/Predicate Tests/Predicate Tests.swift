@@ -553,3 +553,85 @@ struct PredicateQuantifierTests {
         #expect(noneEven([]) == true)
     }
 }
+
+// MARK: - Closure Operator Tests
+
+@Suite
+struct PredicateClosureOperatorTests {
+    let isEvenClosure: (Int) -> Bool = { $0 % 2 == 0 }
+    let isPositiveClosure: (Int) -> Bool = { $0 > 0 }
+    let isEven = Predicate<Int> { $0 % 2 == 0 }
+
+    @Test
+    func `AND with two closures`() {
+        let combined = isEvenClosure && isPositiveClosure
+
+        #expect(combined(4) == true)
+        #expect(combined(3) == false)
+        #expect(combined(-4) == false)
+    }
+
+    @Test
+    func `OR with two closures`() {
+        let combined = isEvenClosure || isPositiveClosure
+
+        #expect(combined(4) == true)
+        #expect(combined(3) == true)
+        #expect(combined(-3) == false)
+    }
+
+    @Test
+    func `XOR with two closures`() {
+        let combined = isEvenClosure ^ isPositiveClosure
+
+        #expect(combined(4) == false)   // both
+        #expect(combined(3) == true)    // positive only
+        #expect(combined(-4) == true)   // even only
+    }
+
+    @Test
+    func `NOT with closure`() {
+        let isOdd = !isEvenClosure
+
+        #expect(isOdd(3) == true)
+        #expect(isOdd(4) == false)
+    }
+
+    @Test
+    func `Predicate AND closure`() {
+        let combined = isEven && isPositiveClosure
+
+        #expect(combined(4) == true)
+        #expect(combined(-4) == false)
+    }
+
+    @Test
+    func `Closure AND Predicate`() {
+        let combined = isEvenClosure && isEven.negated
+
+        // This should be isEven && isOdd, always false
+        for n in -10...10 {
+            #expect(combined(n) == false)
+        }
+    }
+
+    @Test
+    func `Fluent methods with closures`() {
+        let combined = isEven.and(isPositiveClosure)
+
+        #expect(combined(4) == true)
+        #expect(combined(-4) == false)
+    }
+
+    @Test
+    func `Chained closure operations`() {
+        let isSmall: (Int) -> Bool = { abs($0) < 5 }
+
+        let combined = isEvenClosure && isPositiveClosure && isSmall
+
+        #expect(combined(2) == true)
+        #expect(combined(4) == true)
+        #expect(combined(6) == false)  // not small
+        #expect(combined(3) == false)  // not even
+    }
+}
