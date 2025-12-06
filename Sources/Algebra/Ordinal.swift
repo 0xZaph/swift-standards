@@ -1,74 +1,77 @@
-// Fin.swift
+// Ordinal.swift
 // The canonical finite type with exactly N inhabitants.
 
 /// A value in the finite set {0, 1, ..., N-1}.
 ///
-/// `Fin<N>` (short for "finite") is the canonical type representing exactly N
-/// distinct values. It is the Swift equivalent of Idris's `Fin n` type and
-/// serves as the foundation for any type that has a fixed, finite number of
-/// inhabitants determined by a compile-time integer.
+/// `Ordinal<N>` represents the finite ordinal n in set theory — the set of
+/// all natural numbers less than n. It is the canonical type with exactly N
+/// distinct inhabitants, and serves as the foundation for any type with a
+/// fixed, finite number of values determined at compile time.
 ///
-/// ## Type-Theoretic Background
+/// ## Mathematical Background
 ///
-/// In dependent type theory, `Fin n` is defined inductively:
+/// In set theory, the **ordinal n** is defined as:
 /// ```
-/// data Fin : Nat -> Type where
-///     FZ : Fin (S k)           -- zero is in Fin (k+1)
-///     FS : Fin k -> Fin (S k)  -- successor preserves membership
+/// 0 = {}
+/// 1 = {0}
+/// 2 = {0, 1}
+/// n = {0, 1, ..., n-1}
 /// ```
 ///
-/// This type is fundamental because:
-/// - It provides **type-safe indexing** into fixed-size collections
-/// - It represents **bounded natural numbers** at the type level
-/// - It enables **exhaustive pattern matching** over finite domains
+/// This is also known as the **von Neumann ordinal** construction. Each
+/// ordinal n is simultaneously:
+/// - The set of all smaller ordinals
+/// - A canonical representative of the cardinality n
+///
+/// In type theory (Idris, Agda, Coq), this type is called `Fin n`.
 ///
 /// ## Relationship to Other Types
 ///
-/// Many types are isomorphic to `Fin<N>`:
-/// - `Axis<N>` (coordinate axes)
-/// - `Bool` is isomorphic to `Fin<2>`
-/// - `Ordering` (.less, .equal, .greater) is isomorphic to `Fin<3>`
-/// - Array indices for `[T; N]` are `Fin<N>`
+/// Many types are isomorphic to `Ordinal<N>`:
+/// - `Axis<N>` (coordinate axes in N-dimensional space)
+/// - `Bool` is isomorphic to `Ordinal<2>`
+/// - `Ordering` is isomorphic to `Ordinal<3>`
+/// - Array indices for fixed-size arrays are `Ordinal<N>`
 ///
 /// ## Usage
 ///
 /// ```swift
-/// // Create finite values
-/// let zero: Fin<5> = .zero
-/// let three = Fin<5>(3)!
+/// // Create ordinal values
+/// let zero: Ordinal<5> = .zero
+/// let three = Ordinal<5>(3)!
 ///
 /// // Iterate over all values
-/// for i in Fin<4>.allCases {
+/// for i in Ordinal<4>.allCases {
 ///     print(i.rawValue)  // 0, 1, 2, 3
 /// }
 ///
 /// // Use as array index (type-safe)
 /// let values = [10, 20, 30]
-/// let index: Fin<3> = Fin(1)!
+/// let index: Ordinal<3> = Ordinal(1)!
 /// let value = values[index]  // 20
 /// ```
 ///
 /// ## References
 ///
+/// - [Von Neumann Ordinals](https://en.wikipedia.org/wiki/Ordinal_number#Von_Neumann_definition_of_ordinals)
 /// - [Idris Fin Type](https://docs.idris-lang.org/en/latest/tutorial/typesfuns.html)
 /// - [Agda Data.Fin](https://agda.github.io/agda-stdlib/Data.Fin.html)
-/// - [Wikipedia: Dependent Types](https://en.wikipedia.org/wiki/Dependent_type)
 ///
-public struct Fin<let N: Int>: Sendable, Hashable {
+public struct Ordinal<let N: Int>: Sendable, Hashable {
     /// The underlying integer value (0 to N-1).
     public let rawValue: Int
 
-    /// Creates a finite value from an integer, if within bounds.
+    /// Creates an ordinal from an integer, if within bounds.
     ///
     /// - Parameter rawValue: An integer in the range 0..<N
-    /// - Returns: The finite value, or nil if out of bounds
+    /// - Returns: The ordinal, or nil if out of bounds
     @inlinable
     public init?(_ rawValue: Int) {
         guard rawValue >= 0 && rawValue < N else { return nil }
         self.rawValue = rawValue
     }
 
-    /// Creates a finite value without bounds checking.
+    /// Creates an ordinal without bounds checking.
     ///
     /// - Precondition: `rawValue` must be in 0..<N
     @inlinable
@@ -79,7 +82,7 @@ public struct Fin<let N: Int>: Sendable, Hashable {
 
 // MARK: - Special Values
 
-extension Fin {
+extension Ordinal {
     /// The zero value (first element).
     ///
     /// - Note: Ideally this would only be available when N >= 1, but Swift
@@ -107,7 +110,7 @@ extension Fin {
 
 // MARK: - Comparable
 
-extension Fin: Comparable {
+extension Ordinal: Comparable {
     @inlinable
     public static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.rawValue < rhs.rawValue
@@ -116,19 +119,19 @@ extension Fin: Comparable {
 
 // MARK: - Codable
 
-extension Fin: Codable {
+extension Ordinal: Codable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         let value = try container.decode(Int.self)
-        guard let fin = Self(value) else {
+        guard let ordinal = Self(value) else {
             throw DecodingError.dataCorrupted(
                 DecodingError.Context(
                     codingPath: decoder.codingPath,
-                    debugDescription: "Value \(value) out of bounds for Fin<\(N)> (expected 0..<\(N))"
+                    debugDescription: "Value \(value) out of bounds for Ordinal<\(N)> (expected 0..<\(N))"
                 )
             )
         }
-        self = fin
+        self = ordinal
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -139,57 +142,57 @@ extension Fin: Codable {
 
 // MARK: - Conversion
 
-extension Fin {
-    /// Converts this value to a `Fin` of a different domain.
+extension Ordinal {
+    /// Converts this value to an `Ordinal` of a different domain.
     ///
-    /// This is safe when M >= N, as every value in Fin<N> is also valid in Fin<M>.
+    /// This is safe when M >= N, as every value in Ordinal<N> is also valid in Ordinal<M>.
     ///
     /// ```swift
-    /// let small: Fin<3> = Fin(2)!
-    /// let large: Fin<10> = small.injected()  // Still represents 2
+    /// let small: Ordinal<3> = Ordinal(2)!
+    /// let large: Ordinal<10> = small.injected()  // Still represents 2
     /// ```
     ///
     /// - Note: Ideally this would have a `where M >= N` constraint, but Swift
     ///   does not yet support comparison constraints on integer generic parameters.
-    // FUTURE: public func injected<let M: Int>() -> Fin<M> where M >= N { ... }
+    // FUTURE: public func injected<let M: Int>() -> Ordinal<M> where M >= N { ... }
     /// - Precondition: `rawValue` must be less than M
     @inlinable
-    public func injected<let M: Int>() -> Fin<M> {
-        Fin<M>(unchecked: rawValue)
+    public func injected<let M: Int>() -> Ordinal<M> {
+        Ordinal<M>(unchecked: rawValue)
     }
 
-    /// Attempts to convert this value to a `Fin` of a smaller domain.
+    /// Attempts to convert this value to an `Ordinal` of a smaller domain.
     ///
     /// Returns nil if the value is too large for the target domain.
     ///
     /// ```swift
-    /// let large: Fin<10> = Fin(2)!
-    /// let small: Fin<3>? = large.projected()  // Fin<3>(2)
+    /// let large: Ordinal<10> = try Ordinal(2)
+    /// let small: Ordinal<3>? = large.projected()  // Ordinal<3>(2)
     ///
-    /// let tooBig: Fin<10> = Fin(5)!
-    /// let failed: Fin<3>? = tooBig.projected()  // nil
+    /// let tooBig: Ordinal<10> = try Ordinal(5)
+    /// let failed: Ordinal<3>? = tooBig.projected()  // nil
     /// ```
     @inlinable
-    public func projected<let M: Int>() -> Fin<M>? {
-        Fin<M>(rawValue)
+    public func projected<let M: Int>() -> Ordinal<M>? {
+        Ordinal<M>(rawValue)
     }
 }
 
-// MARK: - Fin: Finite.Indexable
+// MARK: - Ordinal: Enumerable
 
-extension Fin: Finite.Indexable {
-    /// The number of values in Fin<N>.
+extension Ordinal: Enumerable {
+    /// The number of values in Ordinal<N>.
     @inlinable
-    public static var finiteCount: Int { N }
+    public static var caseCount: Int { N }
 
     /// The index of this value.
     @inlinable
-    public var finiteIndex: Int { rawValue }
+    public var caseIndex: Int { rawValue }
 
     /// Creates a value from its index.
     @inlinable
-    public init(unsafeFiniteIndex index: Int) {
-        self.init(unchecked: index)
+    public init(caseIndex: Int) {
+        self.init(unchecked: caseIndex)
     }
 }
 
@@ -198,16 +201,25 @@ extension Fin: Finite.Indexable {
 extension Array {
     /// Accesses the element at a type-safe index.
     ///
-    /// Using `Fin<N>` as an index guarantees the access is within bounds
+    /// Using `Ordinal<N>` as an index guarantees the access is within bounds
     /// for arrays of exactly N elements.
     ///
     /// ```swift
     /// let colors = ["red", "green", "blue"]
-    /// let index: Fin<3> = Fin(1)!
+    /// let index: Ordinal<3> = Ordinal(1)!
     /// print(colors[index])  // "green"
     /// ```
     @inlinable
-    public subscript<let N: Int>(index: Fin<N>) -> Element {
+    public subscript<let N: Int>(index: Ordinal<N>) -> Element {
         self[index.rawValue]
     }
 }
+
+// MARK: - Type Alias
+
+/// Type alias for `Ordinal`, using the traditional type-theoretic name.
+///
+/// In dependent type theory (Idris, Agda, Coq), the finite type with N
+/// inhabitants is conventionally called `Fin n`. This alias is provided
+/// for those familiar with that convention.
+public typealias Fin = Ordinal
