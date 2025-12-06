@@ -526,8 +526,10 @@ struct PredicateOptionalTests {
 struct PredicateQuantifierTests {
     let isEven = Predicate<Int> { $0 % 2 == 0 }
 
+    // MARK: Array Properties
+
     @Test
-    func `all quantifier`() {
+    func `all quantifier array`() {
         let allEven = isEven.all
 
         #expect(allEven([2, 4, 6]) == true)
@@ -536,7 +538,7 @@ struct PredicateQuantifierTests {
     }
 
     @Test
-    func `any quantifier`() {
+    func `any quantifier array`() {
         let anyEven = isEven.any
 
         #expect(anyEven([1, 2, 3]) == true)
@@ -545,12 +547,66 @@ struct PredicateQuantifierTests {
     }
 
     @Test
-    func `none quantifier`() {
+    func `none quantifier array`() {
         let noneEven = isEven.none
 
         #expect(noneEven([1, 3, 5]) == true)
         #expect(noneEven([1, 2, 3]) == false)
         #expect(noneEven([]) == true)
+    }
+
+    // MARK: Generic Sequence Methods
+
+    @Test
+    func `forAll quantifier with Set`() {
+        let allEven: Predicate<Set<Int>> = isEven.forAll()
+
+        #expect(allEven(Set([2, 4, 6])) == true)
+        #expect(allEven(Set([2, 3, 4])) == false)
+        #expect(allEven(Set()) == true)
+    }
+
+    @Test
+    func `forAny quantifier with Set`() {
+        let anyEven: Predicate<Set<Int>> = isEven.forAny()
+
+        #expect(anyEven(Set([1, 2, 3])) == true)
+        #expect(anyEven(Set([1, 3, 5])) == false)
+        #expect(anyEven(Set()) == false)
+    }
+
+    @Test
+    func `forNone quantifier with Set`() {
+        let noneEven: Predicate<Set<Int>> = isEven.forNone()
+
+        #expect(noneEven(Set([1, 3, 5])) == true)
+        #expect(noneEven(Set([1, 2, 3])) == false)
+        #expect(noneEven(Set()) == true)
+    }
+
+    @Test
+    func `forAll quantifier with ClosedRange`() {
+        let allEven: Predicate<ClosedRange<Int>> = isEven.forAll()
+
+        #expect(allEven(2...2) == true)     // single even
+        #expect(allEven(1...10) == false)   // mixed
+    }
+
+    @Test
+    func `forAny quantifier with ClosedRange`() {
+        let anyEven: Predicate<ClosedRange<Int>> = isEven.forAny()
+
+        #expect(anyEven(1...10) == true)
+        #expect(anyEven(1...1) == false)    // single odd
+    }
+
+    @Test
+    func `quantifiers with type inference`() {
+        // Type can be inferred from usage
+        let set: Set<Int> = [2, 4, 6]
+        #expect(isEven.forAll()(set) == true)
+        #expect(isEven.forAny()(set) == true)
+        #expect(isEven.forNone()(set) == false)
     }
 }
 

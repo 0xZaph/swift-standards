@@ -457,7 +457,9 @@ extension Predicate {
 // MARK: - Quantifiers
 
 extension Predicate {
-    /// Creates a predicate that tests if all elements in a sequence satisfy this predicate.
+    // MARK: Array Convenience Properties
+
+    /// Creates a predicate that tests if all elements in an array satisfy this predicate.
     ///
     /// ```swift
     /// let isEven = Predicate<Int> { $0 % 2 == 0 }
@@ -465,12 +467,14 @@ extension Predicate {
     /// allEven([2, 4, 6])  // true
     /// allEven([2, 3, 4])  // false
     /// ```
+    ///
+    /// For other sequence types, use the generic `all()` method.
     @inlinable
     public var all: Predicate<[T]> {
         Predicate<[T]> { $0.allSatisfy(self.evaluate) }
     }
 
-    /// Creates a predicate that tests if any element in a sequence satisfies this predicate.
+    /// Creates a predicate that tests if any element in an array satisfies this predicate.
     ///
     /// ```swift
     /// let isEven = Predicate<Int> { $0 % 2 == 0 }
@@ -478,14 +482,62 @@ extension Predicate {
     /// anyEven([1, 2, 3])  // true
     /// anyEven([1, 3, 5])  // false
     /// ```
+    ///
+    /// For other sequence types, use the generic `any()` method.
     @inlinable
     public var any: Predicate<[T]> {
         Predicate<[T]> { $0.contains(where: self.evaluate) }
     }
 
-    /// Creates a predicate that tests if no elements in a sequence satisfy this predicate.
+    /// Creates a predicate that tests if no elements in an array satisfy this predicate.
+    ///
+    /// For other sequence types, use the generic `none()` method.
     @inlinable
     public var none: Predicate<[T]> {
-        any.negated
+        Predicate<[T]> { !$0.contains(where: self.evaluate) }
+    }
+
+    // MARK: Generic Sequence Methods
+
+    /// Creates a predicate that tests if all elements in a sequence satisfy this predicate.
+    ///
+    /// ```swift
+    /// let isEven = Predicate<Int> { $0 % 2 == 0 }
+    ///
+    /// // Works with any Sequence type
+    /// isEven.forAll()(Set([2, 4, 6]))   // true
+    /// isEven.forAll()(1...10)            // false
+    /// ```
+    @inlinable
+    public func forAll<S: Sequence>() -> Predicate<S> where S.Element == T {
+        Predicate<S> { $0.allSatisfy(self.evaluate) }
+    }
+
+    /// Creates a predicate that tests if any element in a sequence satisfies this predicate.
+    ///
+    /// ```swift
+    /// let isEven = Predicate<Int> { $0 % 2 == 0 }
+    ///
+    /// // Works with any Sequence type
+    /// isEven.forAny()(Set([1, 2, 3]))   // true
+    /// isEven.forAny()(1...10)            // true
+    /// ```
+    @inlinable
+    public func forAny<S: Sequence>() -> Predicate<S> where S.Element == T {
+        Predicate<S> { $0.contains(where: self.evaluate) }
+    }
+
+    /// Creates a predicate that tests if no elements in a sequence satisfy this predicate.
+    ///
+    /// ```swift
+    /// let isEven = Predicate<Int> { $0 % 2 == 0 }
+    ///
+    /// // Works with any Sequence type
+    /// isEven.forNone()(Set([1, 3, 5]))  // true
+    /// isEven.forNone()(1...10)           // false
+    /// ```
+    @inlinable
+    public func forNone<S: Sequence>() -> Predicate<S> where S.Element == T {
+        Predicate<S> { !$0.contains(where: self.evaluate) }
     }
 }
