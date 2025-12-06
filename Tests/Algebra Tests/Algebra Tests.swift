@@ -202,9 +202,10 @@ struct BitTests {
     }
 
     @Test
-    func `Bit rawValue`() {
-        #expect(Bit.zero.rawValue == 0)
-        #expect(Bit.one.rawValue == 1)
+    func `Bit value`() {
+        // Bit is a UInt8 typealias, so it IS the value
+        #expect(Bit.zero == 0)
+        #expect(Bit.one == 1)
     }
 
     @Test
