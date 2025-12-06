@@ -4,18 +4,20 @@
 public import Dimension
 
 extension Axis {
-    /// Vertical (Y) axis direction.
+    /// Vertical (Y) axis orientation convention.
     ///
     /// Determines how "top" and "bottom" map to y-coordinates:
     /// - `.upward`: Y increases upward (standard Cartesian, PDF)
     /// - `.downward`: Y increases downward (screen coordinates, CSS/HTML)
+    ///
+    /// This is a coordinate system convention, independent of dimension count.
     ///
     /// ## Mathematical Background
     ///
     /// In the standard Cartesian coordinate system, the y-axis points upward.
     /// Many screen-based systems invert this, with y increasing downward.
     /// This affects how directional terms ("top", "bottom") map to coordinates.
-    public enum Vertical: Sendable, Hashable {
+    public enum Vertical: Sendable, Hashable, CaseIterable {
         /// Y axis increases upward (standard Cartesian convention).
         ///
         /// In this system:

@@ -4,19 +4,24 @@
 /// A coordinate axis in N-dimensional space.
 ///
 /// An axis identifies a dimension of a coordinate system, independent of
-/// its orientation or direction. This separation allows layout logic to
-/// operate generically while geometry handles directional conventions
-/// separately through `Axis.Vertical` and `Axis.Horizontal`.
+/// its orientation or direction. The type is parameterized by the number
+/// of dimensions N, providing compile-time safety for dimensional operations.
 ///
 /// ## Mathematical Background
 ///
 /// In linear algebra, an axis is simply a basis vector direction in a
-/// coordinate system. The "primary" axis is typically horizontal (X),
-/// "secondary" is vertical (Y), and "tertiary" is depth (Z).
+/// coordinate system. For an N-dimensional space, there are exactly N axes,
+/// indexed from 0 to N-1.
+///
+/// Common naming conventions:
+/// - `primary` (axis 0): typically X, horizontal
+/// - `secondary` (axis 1): typically Y, vertical
+/// - `tertiary` (axis 2): typically Z, depth
+/// - `quaternary` (axis 3): typically W, fourth dimension
 ///
 /// ## Structure
 ///
-/// - `Axis`: The axis identity (`.primary`, `.secondary`, `.tertiary`)
+/// - `Axis<N>`: The axis identity, parameterized by dimension count
 /// - `Axis.Direction`: Direction along any axis (`.positive`, `.negative`)
 /// - `Axis.Vertical`: Y-axis orientation convention (`.upward`, `.downward`)
 /// - `Axis.Horizontal`: X-axis orientation convention (`.rightward`, `.leftward`)
@@ -24,34 +29,135 @@
 /// ## Usage
 ///
 /// ```swift
-/// let stack = Layout<Double>.Stack(axis: .secondary, spacing: 10, ...)
-/// let perpendicular = Axis.primary.perpendicular  // .secondary
+/// let axis2D: Axis<2> = .primary
+/// let axis3D: Axis<3> = .tertiary
+/// let perpendicular = Axis<2>.primary.perpendicular  // .secondary
+///
+/// // Iterate over all axes
+/// for axis in Axis<3>.allCases { ... }
 /// ```
-public enum Axis: Int, Sendable, Hashable, Codable, CaseIterable {
-    /// The first axis (traditionally X, horizontal).
-    case primary = 0
+public struct Axis<let N: Int>: Sendable, Hashable {
+    /// The zero-based index of this axis (0 to N-1).
+    public let rawValue: Int
 
-    /// The second axis (traditionally Y, vertical).
-    case secondary = 1
+    /// Create an axis from a raw index value.
+    ///
+    /// - Parameter rawValue: The axis index (must be 0 to N-1)
+    /// - Returns: The axis, or nil if the index is out of bounds
+    @inlinable
+    public init?(_ rawValue: Int) {
+        guard rawValue >= 0 && rawValue < N else { return nil }
+        self.rawValue = rawValue
+    }
 
-    /// The third axis (traditionally Z, depth).
-    case tertiary = 2
+    /// Create an axis from a raw value without bounds checking.
+    @usableFromInline
+    init(unchecked rawValue: Int) {
+        self.rawValue = rawValue
+    }
 }
 
-// MARK: - Perpendicular
+// MARK: - Codable
 
-extension Axis {
-    /// The axis perpendicular to this one in 2D.
+extension Axis: Codable {
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(Int.self)
+        guard let axis = Self(value) else {
+            throw DecodingError.dataCorrupted(
+                DecodingError.Context(
+                    codingPath: decoder.codingPath,
+                    debugDescription: "Axis index \(value) out of bounds for \(N)-dimensional space"
+                )
+            )
+        }
+        self = axis
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
+// MARK: - 1D
+
+extension Axis where N == 1 {
+    /// The first axis (index 0).
+    @inlinable
+    public static var primary: Self { Self(unchecked: 0) }
+
+    /// All axes in 1D space.
+    @inlinable
+    public static var allCases: [Self] { [.primary] }
+}
+
+// MARK: - 2D
+
+extension Axis where N == 2 {
+    /// The first axis (index 0, typically X/horizontal).
+    @inlinable
+    public static var primary: Self { Self(unchecked: 0) }
+
+    /// The second axis (index 1, typically Y/vertical).
+    @inlinable
+    public static var secondary: Self { Self(unchecked: 1) }
+
+    /// The axis perpendicular to this one.
     ///
+    /// In 2D, each axis has exactly one perpendicular axis:
     /// - `.primary.perpendicular` returns `.secondary`
     /// - `.secondary.perpendicular` returns `.primary`
-    /// - `.tertiary.perpendicular` returns `.primary` (undefined in 2D)
     @inlinable
-    public var perpendicular: Axis {
-        switch self {
-        case .primary: return .secondary
-        case .secondary: return .primary
-        case .tertiary: return .primary
-        }
+    public var perpendicular: Self {
+        Self(unchecked: 1 - rawValue)
     }
+
+    /// All axes in 2D space.
+    @inlinable
+    public static var allCases: [Self] { [.primary, .secondary] }
+}
+
+// MARK: - 3D
+
+extension Axis where N == 3 {
+    /// The first axis (index 0, typically X/horizontal).
+    @inlinable
+    public static var primary: Self { Self(unchecked: 0) }
+
+    /// The second axis (index 1, typically Y/vertical).
+    @inlinable
+    public static var secondary: Self { Self(unchecked: 1) }
+
+    /// The third axis (index 2, typically Z/depth).
+    @inlinable
+    public static var tertiary: Self { Self(unchecked: 2) }
+
+    /// All axes in 3D space.
+    @inlinable
+    public static var allCases: [Self] { [.primary, .secondary, .tertiary] }
+}
+
+// MARK: - 4D
+
+extension Axis where N == 4 {
+    /// The first axis (index 0, typically X).
+    @inlinable
+    public static var primary: Self { Self(unchecked: 0) }
+
+    /// The second axis (index 1, typically Y).
+    @inlinable
+    public static var secondary: Self { Self(unchecked: 1) }
+
+    /// The third axis (index 2, typically Z).
+    @inlinable
+    public static var tertiary: Self { Self(unchecked: 2) }
+
+    /// The fourth axis (index 3, typically W).
+    @inlinable
+    public static var quaternary: Self { Self(unchecked: 3) }
+
+    /// All axes in 4D space.
+    @inlinable
+    public static var allCases: [Self] { [.primary, .secondary, .tertiary, .quaternary] }
 }

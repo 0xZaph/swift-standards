@@ -31,7 +31,7 @@ extension Layout {
         ///
         /// - `.primary`: Horizontal arrangement (left to right)
         /// - `.secondary`: Vertical arrangement (top to bottom)
-        public var axis: Axis
+        public var axis: Axis<2>
 
         /// The spacing between adjacent items.
         public var spacing: Spacing
@@ -48,7 +48,7 @@ extension Layout {
         /// Create a stack with the given configuration.
         @inlinable
         public init(
-            axis: consuming Axis,
+            axis: consuming Axis<2>,
             spacing: consuming Spacing,
             alignment: consuming Cross.Alignment,
             content: consuming Content

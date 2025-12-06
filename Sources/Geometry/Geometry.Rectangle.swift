@@ -352,7 +352,7 @@ extension Geometry.Rectangle where Scalar: FloatingPoint {
     @inlinable
     public func inset(
         by insets: Geometry.EdgeInsets,
-        y: Axis.Vertical
+        y: Axis<2>.Vertical
     ) -> Self {
         switch y {
         case .upward:

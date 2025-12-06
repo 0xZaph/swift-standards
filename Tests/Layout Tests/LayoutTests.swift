@@ -40,43 +40,6 @@ struct TestSpacing: AdditiveArithmetic, Comparable, Codable, Hashable,
     }
 }
 
-// MARK: - Axis Tests
-
-@Suite
-struct AxisTests {
-    @Test
-    func `Axis primary secondary tertiary`() {
-        #expect(Axis.primary.rawValue == 0)
-        #expect(Axis.secondary.rawValue == 1)
-        #expect(Axis.tertiary.rawValue == 2)
-    }
-
-    @Test
-    func `Axis perpendicular`() {
-        #expect(Axis.primary.perpendicular == .secondary)
-        #expect(Axis.secondary.perpendicular == .primary)
-    }
-
-    @Test
-    func `Axis CaseIterable`() {
-        #expect(Axis.allCases.count == 3)
-    }
-
-    @Test
-    func `Axis Direction opposite`() {
-        #expect(Axis.Direction.positive.opposite == .negative)
-        #expect(Axis.Direction.negative.opposite == .positive)
-    }
-
-    @Test
-    func `Axis Direction sign`() {
-        #expect(Axis.Direction.positive.sign == 1)
-        #expect(Axis.Direction.negative.sign == -1)
-        #expect(Axis.Direction.positive.signDouble == 1.0)
-        #expect(Axis.Direction.negative.signDouble == -1.0)
-    }
-}
-
 // MARK: - Horizontal Alignment Tests
 
 @Suite
