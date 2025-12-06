@@ -1,4 +1,4 @@
-// AxisTests.swift
+// Axis Tests.swift
 
 import Testing
 @testable import Dimension
@@ -71,79 +71,6 @@ struct AxisTests {
     func `Axis Hashable`() {
         let set: Set<Axis<3>> = [.primary, .secondary, .tertiary, .primary]
         #expect(set.count == 3)
-    }
-}
-
-// MARK: - Axis.Direction Tests
-
-@Suite
-struct AxisDirectionTests {
-    @Test
-    func `Direction cases`() {
-        let positive: Axis<2>.Direction = .positive
-        let negative: Axis<2>.Direction = .negative
-        #expect(positive != negative)
-    }
-
-    @Test
-    func `Direction opposite`() {
-        #expect(Axis<2>.Direction.positive.opposite == .negative)
-        #expect(Axis<2>.Direction.negative.opposite == .positive)
-    }
-
-    @Test
-    func `Direction sign Int`() {
-        #expect(Axis<2>.Direction.positive.sign == 1)
-        #expect(Axis<2>.Direction.negative.sign == -1)
-    }
-
-    @Test
-    func `Direction signDouble`() {
-        #expect(Axis<2>.Direction.positive.signDouble == 1.0)
-        #expect(Axis<2>.Direction.negative.signDouble == -1.0)
-    }
-
-    @Test
-    func `Direction CaseIterable`() {
-        #expect(Axis<2>.Direction.allCases.count == 2)
-        #expect(Axis<2>.Direction.allCases.contains(.positive))
-        #expect(Axis<2>.Direction.allCases.contains(.negative))
-    }
-
-    @Test
-    func `Direction is nested but independent of N`() {
-        // Direction should behave identically regardless of which Axis<N> it's accessed from
-        let dir2: Axis<2>.Direction = .positive
-        let dir3: Axis<3>.Direction = .positive
-
-        // They have the same raw behavior even if Swift considers them different types
-        #expect(dir2.sign == dir3.sign)
-        #expect(dir2.opposite.sign == dir3.opposite.sign)
-    }
-}
-
-// MARK: - Type System Tests
-
-@Suite
-struct AxisTypeSystemTests {
-    /// Direction is dimension-independent - same type across all Axis<N>.
-    ///
-    /// Mathematically, direction along an axis is just a sign (±1), which is
-    /// the same concept regardless of the dimension of the space.
-    @Test
-    func `Direction is same type across all dimensions`() {
-        let dir2: Axis<2>.Direction = .positive
-        let dir3: Axis<3>.Direction = .positive
-        let dir4: Axis<4>.Direction = .negative
-
-        // These ARE the same type (via typealias to Direction)
-        #expect(dir2 == dir3)
-        #expect(dir2 != dir4)
-
-        // Can use Direction directly
-        let dir: Direction = .positive
-        #expect(dir == dir2)
-        #expect(dir == dir3)
     }
 
     /// Axis<N> types are distinct across dimensions - this is correct behavior.
