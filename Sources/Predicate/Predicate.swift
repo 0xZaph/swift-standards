@@ -13,6 +13,16 @@
 /// let isPositive = Predicate<Int> { $0 > 0 }
 /// ```
 ///
+/// ## Fluent Factory Methods
+///
+/// ```swift
+/// Predicate<String>.is.empty
+/// Predicate<Int>.in.range(1...10)
+/// Predicate<String>.has.prefix("foo")
+/// Predicate<Int>.greater.than(5)
+/// Predicate<Int>.equal.to(42)
+/// ```
+///
 /// ## Evaluating Predicates
 ///
 /// Predicates are callable, so you can use them like functions:
@@ -37,13 +47,6 @@
 /// let isOdd = isEven.negated
 /// ```
 ///
-/// ## Use Cases
-///
-/// - **Filtering**: `array.filter(isEven.and(isPositive).evaluate)`
-/// - **Validation**: `let isValid = isNotEmpty.and(isValidEmail)`
-/// - **Access control**: `let canEdit = isOwner.or(isAdmin)`
-/// - **Search**: `let matches = query.and(inDateRange)`
-///
 /// ## Mathematical Properties
 ///
 /// Predicates form a Boolean algebra under `and`, `or`, and `negated`:
@@ -55,6 +58,15 @@
 /// - **Double negation**: `p.negated.negated ≡ p`
 /// - **De Morgan**: `!(p && q) ≡ !p || !q`, `!(p || q) ≡ !p && !q`
 /// - **Distributivity**: `p && (q || r) ≡ (p && q) || (p && r)`
+///
+/// ## Operator Precedence
+///
+/// Predicate operators follow Swift's standard precedence:
+/// - `!` (negation) binds tightest
+/// - `&&` (conjunction) binds tighter than `||`
+/// - `||` (disjunction) binds loosest
+///
+/// This means `a || b && c` parses as `a || (b && c)`, matching Boolean algebra convention.
 public struct Predicate<T>: @unchecked Sendable {
     /// The underlying evaluation function.
     public var evaluate: (T) -> Bool
@@ -125,7 +137,7 @@ extension Predicate {
     /// ```
     @inlinable
     public var negated: Predicate {
-        Predicate { self.evaluate($0) == false }
+        Predicate { !self.evaluate($0) }
     }
 
     /// Returns the negation of the predicate.
@@ -220,18 +232,24 @@ extension Predicate {
 extension Predicate {
     /// Combines this predicate with another using logical NAND.
     ///
-    /// Equivalent to `self.and(other).negated`.
+    /// Returns `true` unless both predicates return `true`.
+    /// Short-circuits: if `self` is `false`, `other` is not evaluated.
+    ///
+    /// Equivalent to `!(self && other)`.
     @inlinable
     public func nand(_ other: Predicate) -> Predicate {
-        self.and(other).negated
+        Predicate { !self.evaluate($0) || !other.evaluate($0) }
     }
 
     /// Combines this predicate with another using logical NOR.
     ///
-    /// Equivalent to `self.or(other).negated`.
+    /// Returns `true` only if both predicates return `false`.
+    /// Short-circuits: if `self` is `true`, `other` is not evaluated.
+    ///
+    /// Equivalent to `!(self || other)`.
     @inlinable
     public func nor(_ other: Predicate) -> Predicate {
-        self.or(other).negated
+        Predicate { !self.evaluate($0) && !other.evaluate($0) }
     }
 }
 
@@ -259,6 +277,21 @@ extension Predicate {
     @inlinable
     public func iff(_ other: Predicate) -> Predicate {
         self.xor(other).negated
+    }
+
+    /// Creates a predicate representing reverse implication.
+    ///
+    /// `self.unless(condition)` returns `true` unless `condition` is `true` and `self` is `false`.
+    /// Equivalent to `condition.implies(self)` or `!condition || self`.
+    ///
+    /// Reads naturally in validation contexts:
+    /// ```swift
+    /// let isValid = hasPayment.unless(isFreeUser)
+    /// // Must have payment unless user is free tier
+    /// ```
+    @inlinable
+    public func unless(_ condition: Predicate) -> Predicate {
+        condition.implies(self)
     }
 }
 
@@ -296,148 +329,36 @@ extension Predicate {
     }
 }
 
-// MARK: - Convenience Factories
-
-extension Predicate where T: Equatable {
-    /// Creates a predicate that tests for equality with a value.
-    ///
-    /// ```swift
-    /// let isZero = Predicate<Int>.equals(0)
-    /// isZero(0)  // true
-    /// isZero(1)  // false
-    /// ```
-    @inlinable
-    public static func equals(_ value: T) -> Predicate {
-        Predicate { $0 == value }
-    }
-
-    /// Creates a predicate that tests for inequality with a value.
-    @inlinable
-    public static func notEquals(_ value: T) -> Predicate {
-        Predicate { $0 != value }
-    }
-
-    /// Creates a predicate that tests membership in a collection.
-    ///
-    /// ```swift
-    /// let isVowel = Predicate<Character>.isIn("aeiou")
-    /// isVowel("a")  // true
-    /// isVowel("b")  // false
-    /// ```
-    @inlinable
-    public static func isIn<C: Collection>(_ collection: C) -> Predicate where C.Element == T {
-        Predicate { collection.contains($0) }
-    }
-}
-
-extension Predicate where T: Comparable {
-    /// Creates a predicate that tests if a value is less than a threshold.
-    @inlinable
-    public static func lessThan(_ value: T) -> Predicate {
-        Predicate { $0 < value }
-    }
-
-    /// Creates a predicate that tests if a value is less than or equal to a threshold.
-    @inlinable
-    public static func lessThanOrEqual(_ value: T) -> Predicate {
-        Predicate { $0 <= value }
-    }
-
-    /// Creates a predicate that tests if a value is greater than a threshold.
-    @inlinable
-    public static func greaterThan(_ value: T) -> Predicate {
-        Predicate { $0 > value }
-    }
-
-    /// Creates a predicate that tests if a value is greater than or equal to a threshold.
-    @inlinable
-    public static func greaterThanOrEqual(_ value: T) -> Predicate {
-        Predicate { $0 >= value }
-    }
-
-    /// Creates a predicate that tests if a value is within a range.
-    ///
-    /// ```swift
-    /// let isTeenager = Predicate<Int>.inRange(13...19)
-    /// isTeenager(15)  // true
-    /// isTeenager(25)  // false
-    /// ```
-    @inlinable
-    public static func inRange(_ range: ClosedRange<T>) -> Predicate {
-        Predicate { range.contains($0) }
-    }
-
-    /// Creates a predicate that tests if a value is within a half-open range.
-    @inlinable
-    public static func inRange(_ range: Range<T>) -> Predicate {
-        Predicate { range.contains($0) }
-    }
-}
-
-extension Predicate where T: Collection {
-    /// A predicate that tests if a collection is empty.
-    @inlinable
-    public static var isEmpty: Predicate {
-        Predicate { $0.isEmpty }
-    }
-
-    /// A predicate that tests if a collection is not empty.
-    @inlinable
-    public static var isNotEmpty: Predicate {
-        Predicate { !$0.isEmpty }
-    }
-
-    /// Creates a predicate that tests if a collection has a specific count.
-    @inlinable
-    public static func hasCount(_ count: Int) -> Predicate {
-        Predicate { $0.count == count }
-    }
-}
-
-extension Predicate where T: StringProtocol {
-    /// Creates a predicate that tests if a string contains a substring.
-    @inlinable
-    public static func contains<S: StringProtocol>(_ substring: S) -> Predicate {
-        Predicate { $0.contains(substring) }
-    }
-
-    /// Creates a predicate that tests if a string has a prefix.
-    @inlinable
-    public static func hasPrefix<S: StringProtocol>(_ prefix: S) -> Predicate {
-        Predicate { $0.hasPrefix(prefix) }
-    }
-
-    /// Creates a predicate that tests if a string has a suffix.
-    @inlinable
-    public static func hasSuffix<S: StringProtocol>(_ suffix: S) -> Predicate {
-        Predicate { $0.hasSuffix(suffix) }
-    }
-}
-
-// MARK: - Optional Predicates
+// MARK: - Where Clause
 
 extension Predicate {
-    /// Creates a predicate on optional values that returns `true` for `nil`.
+    /// Creates a predicate that tests a property of the input using another predicate.
     ///
     /// ```swift
-    /// let isNil = Predicate<Int?>.isNil
-    /// isNil(nil)  // true
-    /// isNil(42)   // false
+    /// let isAdult = Predicate<Person>.where(\.age, Predicate<Int>.greater.thanOrEqualTo(18))
     /// ```
     @inlinable
-    public static var isNil: Predicate<T?> {
-        Predicate<T?> { $0 == nil }
+    public static func `where`<V>(_ keyPath: KeyPath<T, V>, _ predicate: Predicate<V>) -> Predicate {
+        predicate.pullback(keyPath)
     }
 
-    /// Creates a predicate on optional values that returns `true` for non-`nil`.
+    /// Creates a predicate that tests a property using a closure.
+    ///
+    /// ```swift
+    /// let isLongName = Predicate<Person>.where(\.name) { $0.count > 10 }
+    /// ```
     @inlinable
-    public static var isNotNil: Predicate<T?> {
-        Predicate<T?> { $0 != nil }
+    public static func `where`<V>(_ keyPath: KeyPath<T, V>, _ test: @escaping (V) -> Bool) -> Predicate {
+        Predicate<V>(test).pullback(keyPath)
     }
+}
 
+// MARK: - Optional Lifting
+
+extension Predicate {
     /// Lifts this predicate to work on optional values.
     ///
-    /// Returns `false` for `nil`, otherwise evaluates the wrapped value.
+    /// Returns the default value for `nil`, otherwise evaluates the wrapped value.
     ///
     /// ```swift
     /// let isEven = Predicate<Int> { $0 % 2 == 0 }
@@ -457,8 +378,6 @@ extension Predicate {
 // MARK: - Quantifiers
 
 extension Predicate {
-    // MARK: Array Convenience Properties
-
     /// Creates a predicate that tests if all elements in an array satisfy this predicate.
     ///
     /// ```swift
@@ -467,8 +386,6 @@ extension Predicate {
     /// allEven([2, 4, 6])  // true
     /// allEven([2, 3, 4])  // false
     /// ```
-    ///
-    /// For other sequence types, use the generic `all()` method.
     @inlinable
     public var all: Predicate<[T]> {
         Predicate<[T]> { $0.allSatisfy(self.evaluate) }
@@ -482,62 +399,366 @@ extension Predicate {
     /// anyEven([1, 2, 3])  // true
     /// anyEven([1, 3, 5])  // false
     /// ```
-    ///
-    /// For other sequence types, use the generic `any()` method.
     @inlinable
     public var any: Predicate<[T]> {
         Predicate<[T]> { $0.contains(where: self.evaluate) }
     }
 
     /// Creates a predicate that tests if no elements in an array satisfy this predicate.
-    ///
-    /// For other sequence types, use the generic `none()` method.
     @inlinable
     public var none: Predicate<[T]> {
         Predicate<[T]> { !$0.contains(where: self.evaluate) }
     }
 
-    // MARK: Generic Sequence Methods
-
     /// Creates a predicate that tests if all elements in a sequence satisfy this predicate.
-    ///
-    /// ```swift
-    /// let isEven = Predicate<Int> { $0 % 2 == 0 }
-    ///
-    /// // Works with any Sequence type
-    /// isEven.forAll()(Set([2, 4, 6]))   // true
-    /// isEven.forAll()(1...10)            // false
-    /// ```
     @inlinable
     public func forAll<S: Sequence>() -> Predicate<S> where S.Element == T {
         Predicate<S> { $0.allSatisfy(self.evaluate) }
     }
 
     /// Creates a predicate that tests if any element in a sequence satisfies this predicate.
-    ///
-    /// ```swift
-    /// let isEven = Predicate<Int> { $0 % 2 == 0 }
-    ///
-    /// // Works with any Sequence type
-    /// isEven.forAny()(Set([1, 2, 3]))   // true
-    /// isEven.forAny()(1...10)            // true
-    /// ```
     @inlinable
     public func forAny<S: Sequence>() -> Predicate<S> where S.Element == T {
         Predicate<S> { $0.contains(where: self.evaluate) }
     }
 
     /// Creates a predicate that tests if no elements in a sequence satisfy this predicate.
-    ///
-    /// ```swift
-    /// let isEven = Predicate<Int> { $0 % 2 == 0 }
-    ///
-    /// // Works with any Sequence type
-    /// isEven.forNone()(Set([1, 3, 5]))  // true
-    /// isEven.forNone()(1...10)           // false
-    /// ```
     @inlinable
     public func forNone<S: Sequence>() -> Predicate<S> where S.Element == T {
         Predicate<S> { !$0.contains(where: self.evaluate) }
     }
+}
+
+// MARK: - Is
+
+extension Predicate {
+    /// Namespace for "is" predicates.
+    public struct Is {
+        @usableFromInline
+        init() {}
+    }
+
+    public static var `is`: Is.Type { Is.self }
+}
+
+extension Predicate.Is where T: Collection {
+    @inlinable
+    public static var empty: Predicate<T> {
+        Predicate { $0.isEmpty }
+    }
+
+    @inlinable
+    public static var notEmpty: Predicate<T> {
+        Predicate { !$0.isEmpty }
+    }
+}
+
+extension Predicate.Is {
+    @inlinable
+    public static var `nil`: Predicate<T?> {
+        Predicate<T?> { $0 == nil }
+    }
+
+    @inlinable
+    public static var notNil: Predicate<T?> {
+        Predicate<T?> { $0 != nil }
+    }
+}
+
+// MARK: - In
+
+extension Predicate {
+    /// Namespace for "in" predicates.
+    public struct In {
+        @usableFromInline
+        init() {}
+    }
+
+    public static var `in`: In.Type { In.self }
+}
+
+extension Predicate.In where T: Comparable {
+    @inlinable
+    public static func range(_ range: ClosedRange<T>) -> Predicate<T> {
+        Predicate { range.contains($0) }
+    }
+
+    @inlinable
+    public static func range(_ range: Range<T>) -> Predicate<T> {
+        Predicate { range.contains($0) }
+    }
+}
+
+extension Predicate.In where T: Equatable {
+    @inlinable
+    public static func collection<C: Collection>(_ collection: C) -> Predicate<T> where C.Element == T {
+        Predicate { collection.contains($0) }
+    }
+}
+
+// MARK: - Has
+
+extension Predicate {
+    /// Namespace for "has" predicates.
+    public struct Has {
+        @usableFromInline
+        init() {}
+    }
+
+    public static var has: Has.Type { Has.self }
+}
+
+extension Predicate.Has where T: StringProtocol {
+    @inlinable
+    public static func prefix(_ prefix: String) -> Predicate<T> {
+        Predicate { $0.hasPrefix(prefix) }
+    }
+
+    @inlinable
+    public static func suffix(_ suffix: String) -> Predicate<T> {
+        Predicate { $0.hasSuffix(suffix) }
+    }
+}
+
+extension Predicate.Has where T: Collection {
+    @inlinable
+    public static func count(_ count: Int) -> Predicate<T> {
+        Predicate { $0.count == count }
+    }
+}
+
+extension Predicate.Has where T: Identifiable {
+    @inlinable
+    public static func id(_ id: T.ID) -> Predicate<T> {
+        Predicate { $0.id == id }
+    }
+
+    @inlinable
+    public static func id<C: Collection>(in ids: C) -> Predicate<T> where C.Element == T.ID {
+        Predicate { ids.contains($0.id) }
+    }
+}
+
+// MARK: - Greater / Less
+
+extension Predicate {
+    /// Namespace for "greater" predicates.
+    public struct Greater {
+        @usableFromInline
+        init() {}
+    }
+
+    /// Namespace for "less" predicates.
+    public struct Less {
+        @usableFromInline
+        init() {}
+    }
+
+    public static var greater: Greater.Type { Greater.self }
+    public static var less: Less.Type { Less.self }
+}
+
+extension Predicate.Greater where T: Comparable {
+    @inlinable
+    public static func than(_ value: T) -> Predicate<T> {
+        Predicate { $0 > value }
+    }
+
+    @inlinable
+    public static func thanOrEqualTo(_ value: T) -> Predicate<T> {
+        Predicate { $0 >= value }
+    }
+}
+
+extension Predicate.Less where T: Comparable {
+    @inlinable
+    public static func than(_ value: T) -> Predicate<T> {
+        Predicate { $0 < value }
+    }
+
+    @inlinable
+    public static func thanOrEqualTo(_ value: T) -> Predicate<T> {
+        Predicate { $0 <= value }
+    }
+}
+
+// MARK: - Equal
+
+extension Predicate {
+    /// Namespace for "equal" predicates.
+    public struct Equal {
+        @usableFromInline
+        init() {}
+    }
+
+    public static var equal: Equal.Type { Equal.self }
+}
+
+extension Predicate.Equal where T: Equatable {
+    @inlinable
+    public static func to(_ value: T) -> Predicate<T> {
+        Predicate { $0 == value }
+    }
+
+    @inlinable
+    public static func toAny(of values: T...) -> Predicate<T> {
+        Predicate { values.contains($0) }
+    }
+
+    @inlinable
+    public static func toNone(of values: T...) -> Predicate<T> {
+        Predicate { !values.contains($0) }
+    }
+}
+
+// MARK: - Not
+
+extension Predicate {
+    /// Namespace for "not" predicates.
+    public struct Not {
+        @usableFromInline
+        init() {}
+    }
+
+    public static var not: Not.Type { Not.self }
+}
+
+extension Predicate.Not where T: Equatable {
+    @inlinable
+    public static func equalTo(_ value: T) -> Predicate<T> {
+        Predicate { $0 != value }
+    }
+}
+
+extension Predicate.Not where T: Comparable {
+    @inlinable
+    public static func inRange(_ range: ClosedRange<T>) -> Predicate<T> {
+        Predicate { !range.contains($0) }
+    }
+
+    @inlinable
+    public static func inRange(_ range: Range<T>) -> Predicate<T> {
+        Predicate { !range.contains($0) }
+    }
+}
+
+extension Predicate.Not where T: Collection {
+    @inlinable
+    public static var empty: Predicate<T> {
+        Predicate { !$0.isEmpty }
+    }
+}
+
+// MARK: - Contains
+
+extension Predicate {
+    /// Namespace for "contains" predicates.
+    public struct Contains {
+        @usableFromInline
+        init() {}
+    }
+
+    public static var contains: Contains.Type { Contains.self }
+}
+
+extension Predicate.Contains where T: StringProtocol {
+    @inlinable
+    public static func substring(_ substring: String) -> Predicate<T> {
+        Predicate { $0.contains(substring) }
+    }
+
+    @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
+    @inlinable
+    public static func match(_ regex: Regex<Substring>) -> Predicate<T> {
+        Predicate { (try? regex.firstMatch(in: String($0))) != nil }
+    }
+}
+
+// MARK: - Matches
+
+extension Predicate {
+    /// Namespace for "matches" predicates.
+    public struct Matches {
+        @usableFromInline
+        init() {}
+    }
+
+    public static var matches: Matches.Type { Matches.self }
+}
+
+extension Predicate.Matches where T: StringProtocol {
+    @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
+    @inlinable
+    public static func regex(_ regex: Regex<Substring>) -> Predicate<T> {
+        Predicate { (try? regex.wholeMatch(in: String($0))) != nil }
+    }
+}
+
+// MARK: - Count (Instance-level quantifiers)
+
+extension Predicate {
+    /// Namespace for count-based quantifiers.
+    public struct Count {
+        @usableFromInline
+        let predicate: Predicate
+
+        @usableFromInline
+        init(_ predicate: Predicate) {
+            self.predicate = predicate
+        }
+    }
+
+    /// Access count-based quantifiers: `isEven.count.atLeast(2)`.
+    @inlinable
+    public var count: Count { Count(self) }
+}
+
+extension Predicate.Count {
+    @inlinable
+    public func atLeast(_ n: Int) -> Predicate<[T]> {
+        Predicate<[T]> { array in
+            var count = 0
+            for element in array {
+                if self.predicate.evaluate(element) {
+                    count += 1
+                    if count >= n { return true }
+                }
+            }
+            return false
+        }
+    }
+
+    @inlinable
+    public func atMost(_ n: Int) -> Predicate<[T]> {
+        Predicate<[T]> { array in
+            var count = 0
+            for element in array {
+                if self.predicate.evaluate(element) {
+                    count += 1
+                    if count > n { return false }
+                }
+            }
+            return true
+        }
+    }
+
+    @inlinable
+    public func exactly(_ n: Int) -> Predicate<[T]> {
+        Predicate<[T]> { array in
+            var count = 0
+            for element in array {
+                if self.predicate.evaluate(element) {
+                    count += 1
+                    if count > n { return false }
+                }
+            }
+            return count == n
+        }
+    }
+
+    @inlinable
+    public var zero: Predicate<[T]> { exactly(0) }
+
+    @inlinable
+    public var one: Predicate<[T]> { exactly(1) }
 }

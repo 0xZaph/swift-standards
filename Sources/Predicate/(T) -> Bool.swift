@@ -1,7 +1,7 @@
-// Predicate+Closure.swift
+// Predicate+(T) -> Bool.swift
 // Convenience operators for raw (T) -> Bool closures.
 
-// MARK: - Closure Operators
+// MARK: - (T) -> Bool Operators
 
 /// Combines two closures using logical AND.
 ///
@@ -46,7 +46,7 @@ public prefix func ! <T>(
     Predicate(closure).negated
 }
 
-// MARK: - Mixed Operators (Predicate with Closure)
+// MARK: - Mixed Operators (Predicate with (T) -> Bool)
 
 extension Predicate {
     /// Combines this predicate with a closure using logical AND.
@@ -86,7 +86,7 @@ extension Predicate {
     }
 }
 
-// MARK: - Fluent Methods with Closures
+// MARK: - Fluent Methods with (T) -> Bools
 
 extension Predicate {
     /// Combines this predicate with a closure using logical AND.
@@ -129,5 +129,11 @@ extension Predicate {
     @inlinable
     public func iff(_ closure: @escaping (T) -> Bool) -> Predicate {
         iff(Predicate(closure))
+    }
+
+    /// Creates reverse implication with a closure.
+    @inlinable
+    public func unless(_ closure: @escaping (T) -> Bool) -> Predicate {
+        unless(Predicate(closure))
     }
 }

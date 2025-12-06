@@ -412,29 +412,29 @@ struct PredicatePullbackTests {
     }
 }
 
-// MARK: - Factory Tests
+// MARK: - Fluent Factory Tests
 
 @Suite
-struct PredicateFactoryTests {
+struct PredicateFluentFactoryTests {
     @Test
-    func `equals predicate`() {
-        let isZero = Predicate<Int>.equals(0)
+    func `equal to predicate`() {
+        let isZero = Predicate<Int>.equal.to(0)
 
         #expect(isZero(0) == true)
         #expect(isZero(1) == false)
     }
 
     @Test
-    func `notEquals predicate`() {
-        let isNotZero = Predicate<Int>.notEquals(0)
+    func `not equal to predicate`() {
+        let isNotZero = Predicate<Int>.not.equalTo(0)
 
         #expect(isNotZero(0) == false)
         #expect(isNotZero(1) == true)
     }
 
     @Test
-    func `isIn predicate`() {
-        let isVowel = Predicate<Character>.isIn("aeiou")
+    func `in collection predicate`() {
+        let isVowel = Predicate<Character>.in.collection("aeiou")
 
         #expect(isVowel("a") == true)
         #expect(isVowel("b") == false)
@@ -442,22 +442,22 @@ struct PredicateFactoryTests {
 
     @Test
     func `comparison predicates`() {
-        #expect(Predicate<Int>.lessThan(5)(3) == true)
-        #expect(Predicate<Int>.lessThan(5)(5) == false)
+        #expect(Predicate<Int>.less.than(5)(3) == true)
+        #expect(Predicate<Int>.less.than(5)(5) == false)
 
-        #expect(Predicate<Int>.lessThanOrEqual(5)(5) == true)
-        #expect(Predicate<Int>.lessThanOrEqual(5)(6) == false)
+        #expect(Predicate<Int>.less.thanOrEqualTo(5)(5) == true)
+        #expect(Predicate<Int>.less.thanOrEqualTo(5)(6) == false)
 
-        #expect(Predicate<Int>.greaterThan(5)(6) == true)
-        #expect(Predicate<Int>.greaterThan(5)(5) == false)
+        #expect(Predicate<Int>.greater.than(5)(6) == true)
+        #expect(Predicate<Int>.greater.than(5)(5) == false)
 
-        #expect(Predicate<Int>.greaterThanOrEqual(5)(5) == true)
-        #expect(Predicate<Int>.greaterThanOrEqual(5)(4) == false)
+        #expect(Predicate<Int>.greater.thanOrEqualTo(5)(5) == true)
+        #expect(Predicate<Int>.greater.thanOrEqualTo(5)(4) == false)
     }
 
     @Test
-    func `inRange predicate`() {
-        let isTeenager = Predicate<Int>.inRange(13...19)
+    func `in range predicate`() {
+        let isTeenager = Predicate<Int>.in.range(13...19)
 
         #expect(isTeenager(15) == true)
         #expect(isTeenager(12) == false)
@@ -466,26 +466,42 @@ struct PredicateFactoryTests {
 
     @Test
     func `collection predicates`() {
-        #expect(Predicate<[Int]>.isEmpty([]) == true)
-        #expect(Predicate<[Int]>.isEmpty([1]) == false)
+        #expect(Predicate<[Int]>.is.empty([]) == true)
+        #expect(Predicate<[Int]>.is.empty([1]) == false)
 
-        #expect(Predicate<[Int]>.isNotEmpty([1]) == true)
-        #expect(Predicate<[Int]>.isNotEmpty([]) == false)
+        #expect(Predicate<[Int]>.is.notEmpty([1]) == true)
+        #expect(Predicate<[Int]>.is.notEmpty([]) == false)
 
-        #expect(Predicate<[Int]>.hasCount(3)([1, 2, 3]) == true)
-        #expect(Predicate<[Int]>.hasCount(3)([1, 2]) == false)
+        #expect(Predicate<[Int]>.has.count(3)([1, 2, 3]) == true)
+        #expect(Predicate<[Int]>.has.count(3)([1, 2]) == false)
     }
 
     @Test
     func `string predicates`() {
-        #expect(Predicate<String>.contains("ell")("hello") == true)
-        #expect(Predicate<String>.contains("xyz")("hello") == false)
+        #expect(Predicate<String>.contains.substring("ell")("hello") == true)
+        #expect(Predicate<String>.contains.substring("xyz")("hello") == false)
 
-        #expect(Predicate<String>.hasPrefix("hel")("hello") == true)
-        #expect(Predicate<String>.hasPrefix("xyz")("hello") == false)
+        #expect(Predicate<String>.has.prefix("hel")("hello") == true)
+        #expect(Predicate<String>.has.prefix("xyz")("hello") == false)
 
-        #expect(Predicate<String>.hasSuffix("llo")("hello") == true)
-        #expect(Predicate<String>.hasSuffix("xyz")("hello") == false)
+        #expect(Predicate<String>.has.suffix("llo")("hello") == true)
+        #expect(Predicate<String>.has.suffix("xyz")("hello") == false)
+    }
+
+    @Test
+    func `equal to any of predicate`() {
+        let isPrimaryColor = Predicate<String>.equal.toAny(of: "red", "green", "blue")
+
+        #expect(isPrimaryColor("red") == true)
+        #expect(isPrimaryColor("yellow") == false)
+    }
+
+    @Test
+    func `not in range predicate`() {
+        let outsideTeenage = Predicate<Int>.not.inRange(13...19)
+
+        #expect(outsideTeenage(10) == true)
+        #expect(outsideTeenage(15) == false)
     }
 }
 
@@ -494,16 +510,16 @@ struct PredicateFactoryTests {
 @Suite
 struct PredicateOptionalTests {
     @Test
-    func `isNil predicate`() {
-        let isNil = Predicate<Int>.isNil
+    func `is nil predicate`() {
+        let isNil = Predicate<Int>.is.nil
 
         #expect(isNil(nil) == true)
         #expect(isNil(42) == false)
     }
 
     @Test
-    func `isNotNil predicate`() {
-        let isNotNil = Predicate<Int>.isNotNil
+    func `is not nil predicate`() {
+        let isNotNil = Predicate<Int>.is.notNil
 
         #expect(isNotNil(42) == true)
         #expect(isNotNil(nil) == false)
