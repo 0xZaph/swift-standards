@@ -1,13 +1,47 @@
 // Predicate Tests.swift
-// Tests for predicate composition operators.
+// Tests for Predicate<T> type and composition operators.
 
 import Testing
 @testable import Predicate
 
+// MARK: - Basic Tests
+
+@Suite
+struct PredicateBasicTests {
+    @Test
+    func `Predicate creation and evaluation`() {
+        let isEven = Predicate<Int> { $0 % 2 == 0 }
+
+        #expect(isEven(4) == true)
+        #expect(isEven(3) == false)
+        #expect(isEven.evaluate(4) == true)
+    }
+
+    @Test
+    func `Predicate always`() {
+        let always = Predicate<Int>.always
+
+        #expect(always(0) == true)
+        #expect(always(100) == true)
+        #expect(always(-50) == true)
+    }
+
+    @Test
+    func `Predicate never`() {
+        let never = Predicate<Int>.never
+
+        #expect(never(0) == false)
+        #expect(never(100) == false)
+        #expect(never(-50) == false)
+    }
+}
+
+// MARK: - AND Tests
+
 @Suite
 struct PredicateANDTests {
-    let isEven: (Int) -> Bool = { $0 % 2 == 0 }
-    let isPositive: (Int) -> Bool = { $0 > 0 }
+    let isEven = Predicate<Int> { $0 % 2 == 0 }
+    let isPositive = Predicate<Int> { $0 > 0 }
 
     @Test
     func `AND combines predicates`() {
@@ -17,6 +51,14 @@ struct PredicateANDTests {
         #expect(isEvenAndPositive(3) == false)  // odd
         #expect(isEvenAndPositive(-4) == false) // negative
         #expect(isEvenAndPositive(-3) == false) // odd and negative
+    }
+
+    @Test
+    func `AND fluent method`() {
+        let isEvenAndPositive = isEven.and(isPositive)
+
+        #expect(isEvenAndPositive(4) == true)
+        #expect(isEvenAndPositive(-4) == false)
     }
 
     @Test
@@ -31,7 +73,7 @@ struct PredicateANDTests {
 
     @Test
     func `AND is associative`() {
-        let greaterThan5: (Int) -> Bool = { $0 > 5 }
+        let greaterThan5 = Predicate<Int> { $0 > 5 }
 
         let p1 = (isEven && isPositive) && greaterThan5
         let p2 = isEven && (isPositive && greaterThan5)
@@ -40,12 +82,34 @@ struct PredicateANDTests {
             #expect(p1(n) == p2(n))
         }
     }
+
+    @Test
+    func `AND identity`() {
+        // p && .always == p
+        let p = isEven && .always
+
+        for n in -10...10 {
+            #expect(p(n) == isEven(n))
+        }
+    }
+
+    @Test
+    func `AND annihilator`() {
+        // p && .never == .never
+        let p = isEven && .never
+
+        for n in -10...10 {
+            #expect(p(n) == false)
+        }
+    }
 }
+
+// MARK: - OR Tests
 
 @Suite
 struct PredicateORTests {
-    let isEven: (Int) -> Bool = { $0 % 2 == 0 }
-    let isNegative: (Int) -> Bool = { $0 < 0 }
+    let isEven = Predicate<Int> { $0 % 2 == 0 }
+    let isNegative = Predicate<Int> { $0 < 0 }
 
     @Test
     func `OR combines predicates`() {
@@ -55,6 +119,14 @@ struct PredicateORTests {
         #expect(isEvenOrNegative(-3) == true)   // negative
         #expect(isEvenOrNegative(-4) == true)   // both
         #expect(isEvenOrNegative(3) == false)   // neither
+    }
+
+    @Test
+    func `OR fluent method`() {
+        let isEvenOrNegative = isEven.or(isNegative)
+
+        #expect(isEvenOrNegative(4) == true)
+        #expect(isEvenOrNegative(3) == false)
     }
 
     @Test
@@ -69,7 +141,7 @@ struct PredicateORTests {
 
     @Test
     func `OR is associative`() {
-        let isZero: (Int) -> Bool = { $0 == 0 }
+        let isZero = Predicate<Int> { $0 == 0 }
 
         let p1 = (isEven || isNegative) || isZero
         let p2 = isEven || (isNegative || isZero)
@@ -78,15 +150,45 @@ struct PredicateORTests {
             #expect(p1(n) == p2(n))
         }
     }
+
+    @Test
+    func `OR identity`() {
+        // p || .never == p
+        let p = isEven || .never
+
+        for n in -10...10 {
+            #expect(p(n) == isEven(n))
+        }
+    }
+
+    @Test
+    func `OR annihilator`() {
+        // p || .always == .always
+        let p = isEven || .always
+
+        for n in -10...10 {
+            #expect(p(n) == true)
+        }
+    }
 }
+
+// MARK: - NOT Tests
 
 @Suite
 struct PredicateNOTTests {
-    let isEven: (Int) -> Bool = { $0 % 2 == 0 }
+    let isEven = Predicate<Int> { $0 % 2 == 0 }
 
     @Test
     func `NOT negates predicate`() {
         let isOdd = !isEven
+
+        #expect(isOdd(3) == true)
+        #expect(isOdd(4) == false)
+    }
+
+    @Test
+    func `NOT fluent property`() {
+        let isOdd = isEven.negated
 
         #expect(isOdd(3) == true)
         #expect(isOdd(4) == false)
@@ -100,12 +202,34 @@ struct PredicateNOTTests {
             #expect(doubleNegated(n) == isEven(n))
         }
     }
+
+    @Test
+    func `NOT complement law`() {
+        // p && !p == .never
+        let contradiction = isEven && !isEven
+
+        for n in -10...10 {
+            #expect(contradiction(n) == false)
+        }
+    }
+
+    @Test
+    func `NOT tautology law`() {
+        // p || !p == .always
+        let tautology = isEven || !isEven
+
+        for n in -10...10 {
+            #expect(tautology(n) == true)
+        }
+    }
 }
+
+// MARK: - XOR Tests
 
 @Suite
 struct PredicateXORTests {
-    let isEven: (Int) -> Bool = { $0 % 2 == 0 }
-    let isPositive: (Int) -> Bool = { $0 > 0 }
+    let isEven = Predicate<Int> { $0 % 2 == 0 }
+    let isPositive = Predicate<Int> { $0 > 0 }
 
     @Test
     func `XOR returns true when exactly one is true`() {
@@ -115,6 +239,14 @@ struct PredicateXORTests {
         #expect(isEvenXorPositive(3) == true)    // positive only
         #expect(isEvenXorPositive(-4) == true)   // even only
         #expect(isEvenXorPositive(-3) == false)  // neither
+    }
+
+    @Test
+    func `XOR fluent method`() {
+        let isEvenXorPositive = isEven.xor(isPositive)
+
+        #expect(isEvenXorPositive(4) == false)
+        #expect(isEvenXorPositive(3) == true)
     }
 
     @Test
@@ -129,7 +261,7 @@ struct PredicateXORTests {
 
     @Test
     func `XOR is associative`() {
-        let isSmall: (Int) -> Bool = { abs($0) < 5 }
+        let isSmall = Predicate<Int> { abs($0) < 5 }
 
         let p1 = (isEven ^ isPositive) ^ isSmall
         let p2 = isEven ^ (isPositive ^ isSmall)
@@ -140,10 +272,68 @@ struct PredicateXORTests {
     }
 }
 
+// MARK: - NAND / NOR Tests
+
+@Suite
+struct PredicateNANDNORTests {
+    let isEven = Predicate<Int> { $0 % 2 == 0 }
+    let isPositive = Predicate<Int> { $0 > 0 }
+
+    @Test
+    func `NAND is negation of AND`() {
+        let nand = isEven.nand(isPositive)
+        let notAnd = !(isEven && isPositive)
+
+        for n in -10...10 {
+            #expect(nand(n) == notAnd(n))
+        }
+    }
+
+    @Test
+    func `NOR is negation of OR`() {
+        let nor = isEven.nor(isPositive)
+        let notOr = !(isEven || isPositive)
+
+        for n in -10...10 {
+            #expect(nor(n) == notOr(n))
+        }
+    }
+}
+
+// MARK: - Implication Tests
+
+@Suite
+struct PredicateImplicationTests {
+    let isEven = Predicate<Int> { $0 % 2 == 0 }
+    let isPositive = Predicate<Int> { $0 > 0 }
+
+    @Test
+    func `implies is equivalent to not-or`() {
+        let implies = isEven.implies(isPositive)
+        let notOr = !isEven || isPositive
+
+        for n in -10...10 {
+            #expect(implies(n) == notOr(n))
+        }
+    }
+
+    @Test
+    func `iff is equivalent to not-xor`() {
+        let iff = isEven.iff(isPositive)
+        let notXor = !(isEven ^ isPositive)
+
+        for n in -10...10 {
+            #expect(iff(n) == notXor(n))
+        }
+    }
+}
+
+// MARK: - De Morgan Tests
+
 @Suite
 struct PredicateDeMorganTests {
-    let isEven: (Int) -> Bool = { $0 % 2 == 0 }
-    let isPositive: (Int) -> Bool = { $0 > 0 }
+    let isEven = Predicate<Int> { $0 % 2 == 0 }
+    let isPositive = Predicate<Int> { $0 > 0 }
 
     @Test
     func `De Morgan law 1`() {
@@ -168,11 +358,13 @@ struct PredicateDeMorganTests {
     }
 }
 
+// MARK: - Distributivity Tests
+
 @Suite
 struct PredicateDistributivityTests {
-    let isEven: (Int) -> Bool = { $0 % 2 == 0 }
-    let isPositive: (Int) -> Bool = { $0 > 0 }
-    let isSmall: (Int) -> Bool = { abs($0) < 5 }
+    let isEven = Predicate<Int> { $0 % 2 == 0 }
+    let isPositive = Predicate<Int> { $0 > 0 }
+    let isSmall = Predicate<Int> { abs($0) < 5 }
 
     @Test
     func `AND distributes over OR`() {
@@ -197,49 +389,167 @@ struct PredicateDistributivityTests {
     }
 }
 
+// MARK: - Pullback Tests
+
 @Suite
-struct PredicateIdentityTests {
-    let isEven: (Int) -> Bool = { $0 % 2 == 0 }
-    let alwaysTrue: (Int) -> Bool = { _ in true }
-    let alwaysFalse: (Int) -> Bool = { _ in false }
-
+struct PredicatePullbackTests {
     @Test
-    func `AND identity`() {
-        // a && true == a
-        let p = isEven && alwaysTrue
+    func `pullback with closure`() {
+        let isEven = Predicate<Int> { $0 % 2 == 0 }
+        let hasEvenLength = isEven.pullback { (s: String) in s.count }
 
-        for n in -10...10 {
-            #expect(p(n) == isEven(n))
-        }
+        #expect(hasEvenLength("hi") == true)      // count 2
+        #expect(hasEvenLength("hello") == false)  // count 5
     }
 
     @Test
-    func `AND annihilator`() {
-        // a && false == false
-        let p = isEven && alwaysFalse
+    func `pullback with keyPath`() {
+        let isLong = Predicate<Int> { $0 > 3 }
+        let hasLongCount: Predicate<String> = isLong.pullback(\.count)
 
-        for n in -10...10 {
-            #expect(p(n) == false)
-        }
+        #expect(hasLongCount("hi") == false)     // count 2
+        #expect(hasLongCount("hello") == true)   // count 5
+    }
+}
+
+// MARK: - Factory Tests
+
+@Suite
+struct PredicateFactoryTests {
+    @Test
+    func `equals predicate`() {
+        let isZero = Predicate<Int>.equals(0)
+
+        #expect(isZero(0) == true)
+        #expect(isZero(1) == false)
     }
 
     @Test
-    func `OR identity`() {
-        // a || false == a
-        let p = isEven || alwaysFalse
+    func `notEquals predicate`() {
+        let isNotZero = Predicate<Int>.notEquals(0)
 
-        for n in -10...10 {
-            #expect(p(n) == isEven(n))
-        }
+        #expect(isNotZero(0) == false)
+        #expect(isNotZero(1) == true)
     }
 
     @Test
-    func `OR annihilator`() {
-        // a || true == true
-        let p = isEven || alwaysTrue
+    func `isIn predicate`() {
+        let isVowel = Predicate<Character>.isIn("aeiou")
 
-        for n in -10...10 {
-            #expect(p(n) == true)
-        }
+        #expect(isVowel("a") == true)
+        #expect(isVowel("b") == false)
+    }
+
+    @Test
+    func `comparison predicates`() {
+        #expect(Predicate<Int>.lessThan(5)(3) == true)
+        #expect(Predicate<Int>.lessThan(5)(5) == false)
+
+        #expect(Predicate<Int>.lessThanOrEqual(5)(5) == true)
+        #expect(Predicate<Int>.lessThanOrEqual(5)(6) == false)
+
+        #expect(Predicate<Int>.greaterThan(5)(6) == true)
+        #expect(Predicate<Int>.greaterThan(5)(5) == false)
+
+        #expect(Predicate<Int>.greaterThanOrEqual(5)(5) == true)
+        #expect(Predicate<Int>.greaterThanOrEqual(5)(4) == false)
+    }
+
+    @Test
+    func `inRange predicate`() {
+        let isTeenager = Predicate<Int>.inRange(13...19)
+
+        #expect(isTeenager(15) == true)
+        #expect(isTeenager(12) == false)
+        #expect(isTeenager(20) == false)
+    }
+
+    @Test
+    func `collection predicates`() {
+        #expect(Predicate<[Int]>.isEmpty([]) == true)
+        #expect(Predicate<[Int]>.isEmpty([1]) == false)
+
+        #expect(Predicate<[Int]>.isNotEmpty([1]) == true)
+        #expect(Predicate<[Int]>.isNotEmpty([]) == false)
+
+        #expect(Predicate<[Int]>.hasCount(3)([1, 2, 3]) == true)
+        #expect(Predicate<[Int]>.hasCount(3)([1, 2]) == false)
+    }
+
+    @Test
+    func `string predicates`() {
+        #expect(Predicate<String>.contains("ell")("hello") == true)
+        #expect(Predicate<String>.contains("xyz")("hello") == false)
+
+        #expect(Predicate<String>.hasPrefix("hel")("hello") == true)
+        #expect(Predicate<String>.hasPrefix("xyz")("hello") == false)
+
+        #expect(Predicate<String>.hasSuffix("llo")("hello") == true)
+        #expect(Predicate<String>.hasSuffix("xyz")("hello") == false)
+    }
+}
+
+// MARK: - Optional Tests
+
+@Suite
+struct PredicateOptionalTests {
+    @Test
+    func `isNil predicate`() {
+        let isNil = Predicate<Int>.isNil
+
+        #expect(isNil(nil) == true)
+        #expect(isNil(42) == false)
+    }
+
+    @Test
+    func `isNotNil predicate`() {
+        let isNotNil = Predicate<Int>.isNotNil
+
+        #expect(isNotNil(42) == true)
+        #expect(isNotNil(nil) == false)
+    }
+
+    @Test
+    func `optional lift with default`() {
+        let isEven = Predicate<Int> { $0 % 2 == 0 }
+        let optionalIsEven = isEven.optional(default: false)
+
+        #expect(optionalIsEven(4) == true)
+        #expect(optionalIsEven(3) == false)
+        #expect(optionalIsEven(nil) == false)
+    }
+}
+
+// MARK: - Quantifier Tests
+
+@Suite
+struct PredicateQuantifierTests {
+    let isEven = Predicate<Int> { $0 % 2 == 0 }
+
+    @Test
+    func `all quantifier`() {
+        let allEven = isEven.all
+
+        #expect(allEven([2, 4, 6]) == true)
+        #expect(allEven([2, 3, 4]) == false)
+        #expect(allEven([]) == true)  // vacuous truth
+    }
+
+    @Test
+    func `any quantifier`() {
+        let anyEven = isEven.any
+
+        #expect(anyEven([1, 2, 3]) == true)
+        #expect(anyEven([1, 3, 5]) == false)
+        #expect(anyEven([]) == false)
+    }
+
+    @Test
+    func `none quantifier`() {
+        let noneEven = isEven.none
+
+        #expect(noneEven([1, 3, 5]) == true)
+        #expect(noneEven([1, 2, 3]) == false)
+        #expect(noneEven([]) == true)
     }
 }
