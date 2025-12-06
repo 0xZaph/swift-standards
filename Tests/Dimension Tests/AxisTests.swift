@@ -121,3 +121,64 @@ struct AxisDirectionTests {
         #expect(dir2.opposite.sign == dir3.opposite.sign)
     }
 }
+
+// MARK: - Type System Limitation Tests
+
+@Suite
+struct AxisTypeSystemTests {
+    /// Demonstrates that nested types in generic structs are distinct per specialization.
+    ///
+    /// Even though `Direction` doesn't use the generic parameter `N`, Swift treats
+    /// `Axis<2>.Direction` and `Axis<3>.Direction` as different types. This is a
+    /// limitation of Swift's generics system.
+    ///
+    /// Workaround: If you need a single `Direction` type across dimensions, define
+    /// it as a standalone type (e.g., `AxisDirection`) with a typealias.
+    @Test
+    func `Nested types are distinct per Axis specialization`() {
+        // These are the SAME enum definition with identical cases and behavior...
+        let dir2: Axis<2>.Direction = .positive
+        let dir3: Axis<3>.Direction = .positive
+
+        // ...but Swift considers them DIFFERENT types.
+        // This line would NOT compile:
+        // let same: Bool = (dir2 == dir3)  // Error: cannot convert Axis<3>.Direction to Axis<2>.Direction
+
+        // We can only compare their computed properties, not the values directly
+        #expect(dir2.sign == dir3.sign)
+        #expect(dir2.signDouble == dir3.signDouble)
+
+        // Same limitation applies to Vertical and Horizontal in Geometry module
+        // Axis<2>.Vertical and Axis<3>.Vertical are also distinct types
+    }
+
+    @Test
+    func `Axis types are distinct across dimensions`() {
+        // Axis<2> and Axis<3> are (correctly) different types
+        let axis2: Axis<2> = .primary
+        let axis3: Axis<3> = .primary
+
+        // They have the same rawValue...
+        #expect(axis2.rawValue == axis3.rawValue)
+
+        // ...but are not directly comparable (this would not compile):
+        // let same: Bool = (axis2 == axis3)  // Error: different types
+
+        // This is the INTENDED behavior - dimensional safety
+    }
+
+    @Test
+    func `Function accepting Axis of specific dimension`() {
+        // This demonstrates type safety - you can't pass Axis<3> where Axis<2> is expected
+        func process2D(_ axis: Axis<2>) -> Int {
+            axis.rawValue
+        }
+
+        let axis2: Axis<2> = .secondary
+        #expect(process2D(axis2) == 1)
+
+        // This would NOT compile - type safety prevents dimensional mismatch:
+        // let axis3: Axis<3> = .secondary
+        // process2D(axis3)  // Error: cannot convert Axis<3> to Axis<2>
+    }
+}
