@@ -1,11 +1,11 @@
 //
-//  File.swift
+//  Bool?+TernaryLogic.swift
 //  swift-standards
 //
 //  Created by Coen ten Thije Boonkkamp on 06/12/2025.
 //
 
-extension Optional: TernaryLogic where Wrapped == Bool {
+extension Optional: TernaryLogic.`Protocol` where Wrapped == Bool {
     /// The true value (`true`).
     @inlinable
     public static var `true`: Bool? { true }
@@ -30,9 +30,9 @@ extension Optional: TernaryLogic where Wrapped == Bool {
 }
 
 extension Optional where Wrapped == Bool {
-    public init<T: TernaryLogic>(
+    public init<T: TernaryLogic.`Protocol`>(
         _ t: T
-    ){
+    ) {
         self = T.from(t)
     }
 }

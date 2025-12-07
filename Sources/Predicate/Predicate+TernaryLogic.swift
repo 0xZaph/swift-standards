@@ -45,7 +45,7 @@ extension Predicate {
     /// - Parameter value: An optional value to test (container semantics).
     /// - Returns: A truth value: `.true`, `.false`, or `.unknown` if input is `nil`.
     @inlinable
-    public func callAsFunction<L: TernaryLogic>(_ value: T?) -> L {
+    public func callAsFunction<L: TernaryLogic.`Protocol`>(_ value: T?) -> L {
         guard let value else { return .unknown }
         return evaluate(value) ? .true : .false
     }

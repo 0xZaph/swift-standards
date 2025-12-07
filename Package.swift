@@ -22,6 +22,7 @@ let package = Package(
         .library(
             name: "Standards",
             targets: [
+                "Standards",
                 "StandardLibraryExtensions",
                 "Formatting",
                 "StandardTime",
@@ -111,10 +112,33 @@ let package = Package(
     ],
     targets: [
         .target(
+            name: "Standards",
+            dependencies: [
+                "StandardLibraryExtensions",
+                "Formatting",
+                "StandardTime",
+                "Locale",
+                "Algebra",
+                "Binary",
+                "Dimension",
+                "Positioning",
+                "Angle",
+                "Symmetry",
+                "Region",
+                "Geometry",
+                "Layout",
+                "TernaryLogic",
+                "Predicate",
+            ]
+        ),
+        .target(
             name: "StandardLibraryExtensions"
         ),
         .target(
-            name: "Formatting"
+            name: "Formatting",
+            dependencies: [
+                "StandardLibraryExtensions"
+            ]
         ),
         .target(
             name: "StandardTime",
@@ -186,7 +210,10 @@ let package = Package(
             ]
         ),
         .target(
-            name: "TernaryLogic"
+            name: "TernaryLogic",
+            dependencies: [
+                "StandardLibraryExtensions",
+            ]
         ),
         .target(
             name: "Predicate",

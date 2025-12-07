@@ -116,6 +116,17 @@ extension Format.BinaryInteger {
 // MARK: - Format.BinaryInteger Static Properties
 
 extension Format.BinaryInteger {
+    /// Formats the binary integer as a number (decimal, base 10).
+    ///
+    /// This is the default numeric format, equivalent to `.decimal`.
+    ///
+    /// ```swift
+    /// 42.formatted(.number)  // "42"
+    /// ```
+    public static var number: Self {
+        .decimal
+    }
+
     /// Formats the binary integer as decimal (base 10).
     public static var decimal: Self {
         .init(radix: 10, prefix: "", signStrategy: .automatic, minWidth: nil)

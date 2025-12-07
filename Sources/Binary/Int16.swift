@@ -12,7 +12,7 @@
 //     ///   - bytes: Collection of bytes representing the integer
 //     ///   - endianness: Byte order of the input bytes (defaults to little-endian)
 //     /// - Returns: Integer decoded from bytes, or nil if byte count doesn't match size
-//     public init?<C: Collection>(bytes: C, endianness: [UInt8].Endianness = .little)
+//     public init?<C: Collection>(bytes: C, endianness: Binary.Endianness = .little)
 //     where C.Element == UInt8 {
 //         guard bytes.count == MemoryLayout<Self>.size else { return nil }
 //         let byteArray: [UInt8] = .init(bytes)
@@ -45,7 +45,7 @@
 //     /// Int16(-1).bytes(endianness: .little)      // [0xFF, 0xFF]
 //     /// ```
 //     @inlinable
-//     public func bytes(endianness: [UInt8].Endianness = .little) -> [UInt8] {
+//     public func bytes(endianness: Binary.Endianness = .little) -> [UInt8] {
 //         let value: Self
 //         switch endianness {
 //         case .little:

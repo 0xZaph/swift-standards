@@ -1,6 +1,8 @@
 // Format.FloatingPoint.swift
 // Formatting for FloatingPoint types.
 
+import StandardLibraryExtensions
+
 extension Format {
     /// A format for formatting any FloatingPoint value.
     ///
@@ -67,7 +69,13 @@ extension Format.FloatingPoint {
             workingValue = (workingValue * multiplier).rounded() / multiplier
         }
 
-        let result = "\(workingValue)"
+        var result = "\(workingValue)"
+
+        // Strip trailing ".0" for whole numbers (e.g., "10.0" -> "10")
+        if result.hasSuffix(".0") {
+            result.removeLast(2)
+        }
+
         return isPercent ? result + "%" : result
     }
 }
@@ -75,6 +83,15 @@ extension Format.FloatingPoint {
 // MARK: - Format.FloatingPoint Static Properties
 
 extension Format.FloatingPoint {
+    /// Formats the floating point value as a number.
+    ///
+    /// ```swift
+    /// 3.14159.formatted(.number)  // "3.14159"
+    /// ```
+    public static var number: Self {
+        .init(isPercent: false, shouldRound: false, precisionDigits: nil)
+    }
+
     /// Formats the floating point value as a percentage.
     public static var percent: Self {
         .init(isPercent: true, shouldRound: false, precisionDigits: nil)
@@ -120,33 +137,5 @@ extension Swift.FloatingPoint {
     /// - Returns: The formatted representation of this floating point value.
     public func formatted(_ format: Format.FloatingPoint) -> String {
         format.format(self)
-    }
-}
-
-// MARK: - FloatingPoint.power (internal helper)
-
-extension Swift.FloatingPoint {
-    /// Raises self to an integer power.
-    @inlinable
-    internal func power(_ exponent: Int) -> Self {
-        if exponent == 0 { return 1 }
-        if exponent == 1 { return self }
-        if exponent < 0 {
-            return (1 / self).power(-exponent)
-        }
-
-        var result: Self = 1
-        var base = self
-        var exp = exponent
-
-        while exp > 0 {
-            if exp % 2 == 1 {
-                result *= base
-            }
-            base *= base
-            exp /= 2
-        }
-
-        return result
     }
 }

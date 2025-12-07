@@ -87,7 +87,7 @@ extension FixedWidthInteger {
     /// x.bytes(endianness: .big)     // [0x12, 0x34]
     /// x.bytes(endianness: .little)  // [0x34, 0x12]
     /// ```
-    public func bytes(endianness: Endianness = .little) -> [UInt8] {
+    public func bytes(endianness: Binary.Endianness = .little) -> [UInt8] {
         let converted: Self
         switch endianness {
         case .little:
@@ -117,7 +117,7 @@ extension FixedWidthInteger {
     ///   - bytes: Byte array to deserialize
     ///   - endianness: Byte order of the input bytes (defaults to little-endian)
     /// - Returns: Integer value, or nil if byte count doesn't match type size
-    public init?(bytes: [UInt8], endianness: Endianness = .little) {
+    public init?(bytes: [UInt8], endianness: Binary.Endianness = .little) {
         guard bytes.count == MemoryLayout<Self>.size else { return nil }
 
         let value = bytes.withUnsafeBytes { $0.load(as: Self.self) }
@@ -146,7 +146,7 @@ extension Array where Element: FixedWidthInteger {
     /// let bytes: [UInt8] = [0x01, 0x00, 0x02, 0x00]
     /// let values = [UInt16](bytes: bytes)  // [1, 2]
     /// ```
-    public init?<C: Collection>(bytes: C, endianness: Endianness = .little)
+    public init?<C: Collection>(bytes: C, endianness: Binary.Endianness = .little)
     where C.Element == UInt8 {
         let elementSize = MemoryLayout<Element>.size
         guard bytes.count % elementSize == 0 else { return nil }

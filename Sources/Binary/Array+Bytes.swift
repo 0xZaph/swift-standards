@@ -15,7 +15,7 @@ extension [UInt8] {
     /// let int32Bytes = [UInt8](Int32(256), endianness: .little)  // [0, 1, 0, 0]
     /// let int32BytesBE = [UInt8](Int32(256), endianness: .big)   // [0, 0, 1, 0]
     /// ```
-    public init<T: FixedWidthInteger>(_ value: T, endianness: Endianness = .little) {
+    public init<T: FixedWidthInteger>(_ value: T, endianness: Binary.Endianness = .little) {
         let converted: T
         switch endianness {
         case .little:
@@ -41,7 +41,7 @@ extension [UInt8] {
     /// let bytes = [UInt8](serializing: [Int16(1), Int16(2)], endianness: .little)
     /// // [1, 0, 2, 0] (4 bytes total)
     /// ```
-    public init<C: Collection>(serializing values: C, endianness: Endianness = .little)
+    public init<C: Collection>(serializing values: C, endianness: Binary.Endianness = .little)
     where C.Element: FixedWidthInteger {
         var result: [UInt8] = []
         result.reserveCapacity(values.count * MemoryLayout<C.Element>.size)
@@ -117,42 +117,42 @@ extension [UInt8] {
 
 extension [UInt8] {
     /// Appends a 16-bit integer as bytes with specified endianness.
-    public mutating func append(_ value: UInt16, endianness: Endianness = .little) {
+    public mutating func append(_ value: UInt16, endianness: Binary.Endianness = .little) {
         append(contentsOf: value.bytes(endianness: endianness))
     }
 
     /// Appends a 32-bit integer as bytes with specified endianness.
-    public mutating func append(_ value: UInt32, endianness: Endianness = .little) {
+    public mutating func append(_ value: UInt32, endianness: Binary.Endianness = .little) {
         append(contentsOf: value.bytes(endianness: endianness))
     }
 
     /// Appends a 64-bit integer as bytes with specified endianness.
-    public mutating func append(_ value: UInt64, endianness: Endianness = .little) {
+    public mutating func append(_ value: UInt64, endianness: Binary.Endianness = .little) {
         append(contentsOf: value.bytes(endianness: endianness))
     }
 
     /// Appends a signed 16-bit integer as bytes with specified endianness.
-    public mutating func append(_ value: Int16, endianness: Endianness = .little) {
+    public mutating func append(_ value: Int16, endianness: Binary.Endianness = .little) {
         append(contentsOf: value.bytes(endianness: endianness))
     }
 
     /// Appends a signed 32-bit integer as bytes with specified endianness.
-    public mutating func append(_ value: Int32, endianness: Endianness = .little) {
+    public mutating func append(_ value: Int32, endianness: Binary.Endianness = .little) {
         append(contentsOf: value.bytes(endianness: endianness))
     }
 
     /// Appends a signed 64-bit integer as bytes with specified endianness.
-    public mutating func append(_ value: Int64, endianness: Endianness = .little) {
+    public mutating func append(_ value: Int64, endianness: Binary.Endianness = .little) {
         append(contentsOf: value.bytes(endianness: endianness))
     }
 
     /// Appends a platform-sized integer as bytes with specified endianness.
-    public mutating func append(_ value: Int, endianness: Endianness = .little) {
+    public mutating func append(_ value: Int, endianness: Binary.Endianness = .little) {
         append(contentsOf: value.bytes(endianness: endianness))
     }
 
     /// Appends an unsigned platform-sized integer as bytes with specified endianness.
-    public mutating func append(_ value: UInt, endianness: Endianness = .little) {
+    public mutating func append(_ value: UInt, endianness: Binary.Endianness = .little) {
         append(contentsOf: value.bytes(endianness: endianness))
     }
 }

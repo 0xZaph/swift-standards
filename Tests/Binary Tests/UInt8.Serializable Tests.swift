@@ -127,7 +127,7 @@ struct SerializableBasicTests {
     func staticSerialize() {
         let greeting = Greeting(name: "API")
 
-        // Static function style (compatible with UInt8.ASCII.Serializable)
+        // Static function style (compatible with Binary.ASCII.Serializable)
         let bytes: [UInt8] = Greeting.serialize(greeting)
 
         #expect(bytes == Array("Hello, API!".utf8))
