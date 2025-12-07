@@ -18,9 +18,31 @@ let package = Package(
         .visionOS(.v26),
     ],
     products: [
+        // Umbrella product - includes all modules
         .library(
             name: "Standards",
-            targets: ["Standards"]
+            targets: [
+                "StandardLibraryExtensions",
+                "Formatting",
+                "StandardTime",
+                "Locale",
+                "Algebra",
+                "Binary",
+                "Dimension",
+                "Positioning",
+                "Angle",
+                "Symmetry",
+                "Region",
+                "Geometry",
+                "Layout",
+                "TernaryLogic",
+                "Predicate",
+            ]
+        ),
+        // Individual modules
+        .library(
+            name: "StandardLibraryExtensions",
+            targets: ["StandardLibraryExtensions"]
         ),
         .library(
             name: "Formatting",
@@ -30,10 +52,10 @@ let package = Package(
             name: "StandardTime",
             targets: ["StandardTime"]
         ),
-//        .library(
-//            name: "Locale",
-//            targets: ["Locale"]
-//        ),
+        .library(
+            name: "Locale",
+            targets: ["Locale"]
+        ),
         .library(
             name: "Algebra",
             targets: ["Algebra"]
@@ -89,7 +111,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "Standards"
+            name: "StandardLibraryExtensions"
         ),
         .target(
             name: "Formatting"
@@ -97,15 +119,15 @@ let package = Package(
         .target(
             name: "StandardTime",
             dependencies: [
-                "Standards"
+                "StandardLibraryExtensions"
             ]
         ),
-//        .target(
-//            name: "Locale",
-//            dependencies: [
-//                "Standards"
-//            ]
-//        ),
+        .target(
+            name: "Locale",
+            dependencies: [
+                "StandardLibraryExtensions"
+            ]
+        ),
         .target(
             name: "Algebra"
         ),
@@ -175,14 +197,13 @@ let package = Package(
         .target(
             name: "StandardsTestSupport",
             dependencies: [
-                "Standards",
                 .product(name: "TestingPerformance", package: "swift-testing-performance"),
             ]
         ),
         .testTarget(
-            name: "Standards".tests,
+            name: "StandardLibraryExtensions".tests,
             dependencies: [
-                "Standards",
+                "StandardLibraryExtensions",
                 "StandardsTestSupport",
             ]
         ),
@@ -200,13 +221,13 @@ let package = Package(
                 "StandardsTestSupport",
             ]
         ),
-//        .testTarget(
-//            name: "Locale".tests,
-//            dependencies: [
-//                "Locale",
-//                "StandardsTestSupport",
-//            ]
-//        ),
+        .testTarget(
+            name: "Locale".tests,
+            dependencies: [
+                "Locale",
+                "StandardsTestSupport",
+            ]
+        ),
         .testTarget(
             name: "Algebra".tests,
             dependencies: [

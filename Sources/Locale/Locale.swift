@@ -3,7 +3,7 @@
 //
 // Foundation locale representation for all locale standards
 
-import Standards
+import StandardLibraryExtensions
 
 /// Foundation locale type
 ///

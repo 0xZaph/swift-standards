@@ -1,7 +1,7 @@
 // LocaleTests.swift
 // Locale Tests
 
-import Standards
+import StandardLibraryExtensions
 import Testing
 
 @testable import Locale
