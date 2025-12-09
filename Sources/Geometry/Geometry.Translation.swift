@@ -66,11 +66,13 @@ extension Geometry.Translation where Scalar: AdditiveArithmetic {
 
 extension Geometry.Translation: AdditiveArithmetic where Scalar: AdditiveArithmetic {
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
     }
 
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }

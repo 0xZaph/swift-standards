@@ -150,6 +150,7 @@ extension Geometry.Point where Scalar: AdditiveArithmetic {
     /// - Note: `Point + Point` is intentionally not provided as it has no
     ///   mathematical meaning in affine geometry. Use `Point + Vector` instead.
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Geometry.Vector<N> {
         var result = InlineArray<N, Scalar>(repeating: lhs.coordinates[0] - rhs.coordinates[0])
         for i in 1..<N {
@@ -162,6 +163,7 @@ extension Geometry.Point where Scalar: AdditiveArithmetic {
     ///
     /// This is the fundamental affine operation: displacing a point by a vector.
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Geometry.Vector<N>) -> Self {
         var result = lhs.coordinates
         for i in 0..<N {
@@ -172,6 +174,7 @@ extension Geometry.Point where Scalar: AdditiveArithmetic {
 
     /// Translate a point backwards by a vector (generic N-dimensional).
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Geometry.Vector<N>) -> Self {
         var result = lhs.coordinates
         for i in 0..<N {

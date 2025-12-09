@@ -143,6 +143,7 @@ extension Geometry.Vector where Scalar: AdditiveArithmetic {
 extension Geometry.Vector: AdditiveArithmetic where Scalar: AdditiveArithmetic {
     /// Add two vectors
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         var result = lhs.components
         for i in 0..<N {
@@ -153,6 +154,7 @@ extension Geometry.Vector: AdditiveArithmetic where Scalar: AdditiveArithmetic {
 
     /// Subtract two vectors
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         var result = lhs.components
         for i in 0..<N {
@@ -167,6 +169,7 @@ extension Geometry.Vector: AdditiveArithmetic where Scalar: AdditiveArithmetic {
 extension Geometry.Vector where Scalar: SignedNumeric {
     /// Negate vector
     @inlinable
+    @_disfavoredOverload
     public static prefix func - (value: borrowing Self) -> Self {
         var result = value.components
         for i in 0..<N {
@@ -181,6 +184,7 @@ extension Geometry.Vector where Scalar: SignedNumeric {
 extension Geometry.Vector where Scalar: FloatingPoint {
     /// Scale vector by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: borrowing Self, rhs: Scalar) -> Self {
         var result = lhs.components
         for i in 0..<N {
@@ -191,6 +195,7 @@ extension Geometry.Vector where Scalar: FloatingPoint {
 
     /// Scale vector by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: Scalar, rhs: borrowing Self) -> Self {
         var result = rhs.components
         for i in 0..<N {
@@ -201,6 +206,7 @@ extension Geometry.Vector where Scalar: FloatingPoint {
 
     /// Divide vector by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func / (lhs: borrowing Self, rhs: Scalar) -> Self {
         var result = lhs.components
         for i in 0..<N {

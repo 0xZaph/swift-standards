@@ -33,10 +33,6 @@
 // typealias PageGrid<C> = Layout<Points>.Grid<C>
 // ```
 
-public import Dimension
-public import Geometry
-public import Positioning
-
 /// The Layout namespace for layout primitives.
 ///
 /// Parameterized by the spacing type used for gaps between elements.

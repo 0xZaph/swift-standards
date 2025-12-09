@@ -31,11 +31,13 @@ extension Degree: AdditiveArithmetic {
     public static var zero: Self { Self(0) }
 
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value + rhs.value)
     }
 
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value - rhs.value)
     }
@@ -93,12 +95,14 @@ extension Degree: SignedNumeric {
 extension Degree {
     /// Divide by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func / (lhs: borrowing Self, rhs: Double) -> Self {
         Self(lhs.value / rhs)
     }
 
     /// Divide angle by angle (returns scalar ratio)
     @inlinable
+    @_disfavoredOverload
     public static func / (lhs: borrowing Self, rhs: borrowing Self) -> Double {
         lhs.value / rhs.value
     }

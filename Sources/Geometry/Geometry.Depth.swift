@@ -43,11 +43,13 @@ extension Geometry.Depth: AdditiveArithmetic where Scalar: AdditiveArithmetic {
     }
 
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value + rhs.value)
     }
 
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value - rhs.value)
     }
@@ -57,6 +59,7 @@ extension Geometry.Depth: AdditiveArithmetic where Scalar: AdditiveArithmetic {
 
 extension Geometry.Depth: Comparable where Scalar: Comparable {
     @inlinable
+    @_disfavoredOverload
     public static func < (lhs: borrowing Self, rhs: borrowing Self) -> Bool {
         lhs.value < rhs.value
     }
@@ -95,18 +98,21 @@ extension Geometry.Depth where Scalar: SignedNumeric {
 extension Geometry.Depth where Scalar: FloatingPoint {
     /// Multiply by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value * rhs)
     }
 
     /// Multiply scalar by value
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: Scalar, rhs: borrowing Self) -> Self {
         Self(lhs * rhs.value)
     }
 
     /// Divide by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func / (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value / rhs)
     }

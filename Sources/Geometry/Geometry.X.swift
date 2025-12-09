@@ -43,35 +43,41 @@ extension Geometry.X: AdditiveArithmetic where Scalar: AdditiveArithmetic {
     }
 
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value + rhs.value)
     }
 
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value - rhs.value)
     }
 
     /// Add a raw scalar to X
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value + rhs)
     }
 
     /// Add X to a raw scalar
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: Scalar, rhs: borrowing Self) -> Self {
         Self(lhs + rhs.value)
     }
 
     /// Subtract a raw scalar from X
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value - rhs)
     }
 
     /// Subtract X from a raw scalar
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: Scalar, rhs: borrowing Self) -> Self {
         Self(lhs - rhs.value)
     }
@@ -120,18 +126,21 @@ extension Geometry.X where Scalar: SignedNumeric {
 extension Geometry.X where Scalar: FloatingPoint {
     /// Multiply by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value * rhs)
     }
 
     /// Multiply scalar by value
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: Scalar, rhs: borrowing Self) -> Self {
         Self(lhs * rhs.value)
     }
 
     /// Divide by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func / (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value / rhs)
     }

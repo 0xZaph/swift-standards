@@ -96,7 +96,7 @@ extension Instant {
     }
 
     /// Private initializer that bypasses validation
-    private init(
+    public init(
         __unchecked: Void,
         secondsSinceUnixEpoch: Int64,
         nanosecondFraction: Int32
@@ -149,6 +149,8 @@ extension Instant {
     ///   - lhs: The instant
     ///   - rhs: The duration to add
     /// - Returns: A new instant advanced by the duration
+    @inlinable
+    @_disfavoredOverload
     public static func + (lhs: Instant, rhs: Duration) -> Instant {
         let (durationSeconds, attoseconds) = rhs.components
 
@@ -170,7 +172,8 @@ extension Instant {
             totalNanos += 1_000_000_000
         }
 
-        return .unchecked(
+        return .init(
+            __unchecked: (),
             secondsSinceUnixEpoch: totalSeconds,
             nanosecondFraction: Int32(totalNanos)
         )
@@ -185,6 +188,8 @@ extension Instant {
     ///   - lhs: The instant
     ///   - rhs: The duration to subtract
     /// - Returns: A new instant moved back by the duration
+    @inlinable
+    @_disfavoredOverload
     public static func - (lhs: Instant, rhs: Duration) -> Instant {
         let (durationSeconds, attoseconds) = rhs.components
 
@@ -205,7 +210,8 @@ extension Instant {
             totalNanos += 1_000_000_000
         }
 
-        return .unchecked(
+        return .init(
+            __unchecked: (),
             secondsSinceUnixEpoch: totalSeconds,
             nanosecondFraction: Int32(totalNanos)
         )

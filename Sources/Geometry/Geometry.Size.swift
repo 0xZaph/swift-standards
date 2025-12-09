@@ -133,6 +133,7 @@ extension Geometry.Size: AdditiveArithmetic where Scalar: AdditiveArithmetic {
 
     /// Add two sizes component-wise
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         var result = InlineArray<N, Scalar>(repeating: .zero)
         for i in 0..<N {
@@ -143,6 +144,7 @@ extension Geometry.Size: AdditiveArithmetic where Scalar: AdditiveArithmetic {
 
     /// Subtract two sizes component-wise
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         var result = InlineArray<N, Scalar>(repeating: .zero)
         for i in 0..<N {
@@ -157,6 +159,7 @@ extension Geometry.Size: AdditiveArithmetic where Scalar: AdditiveArithmetic {
 extension Geometry.Size where Scalar: SignedNumeric {
     /// Negate all dimensions
     @inlinable
+    @_disfavoredOverload
     public static prefix func - (value: borrowing Self) -> Self {
         var result = InlineArray<N, Scalar>(repeating: .zero)
         for i in 0..<N {
@@ -191,6 +194,7 @@ extension Geometry.Size where Scalar: Numeric {
 extension Geometry.Size where Scalar: FloatingPoint {
     /// Divide all dimensions by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func / (lhs: borrowing Self, rhs: Scalar) -> Self {
         var result = lhs.dimensions
         for i in 0..<N {

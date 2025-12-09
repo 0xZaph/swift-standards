@@ -2,7 +2,7 @@
 // A sequential arrangement of content along an axis.
 
 public import Dimension
-public import Geometry
+import Geometry
 
 extension Layout {
     /// A sequential arrangement of content along an axis.

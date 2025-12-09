@@ -37,9 +37,9 @@
 // typealias Transform = Geometry<Points>.AffineTransform
 // ```
 
-public import Angle
-public import Dimension
-public import Region
+import Angle
+import Dimension
+import Region
 
 /// The Geometry namespace for affine geometry primitives.
 ///

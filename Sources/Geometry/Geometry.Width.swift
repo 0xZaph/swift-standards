@@ -43,35 +43,41 @@ extension Geometry.Width: AdditiveArithmetic where Scalar: AdditiveArithmetic {
     }
 
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value + rhs.value)
     }
 
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value - rhs.value)
     }
 
     /// Add a raw scalar to Width
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value + rhs)
     }
 
     /// Add Width to a raw scalar
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: Scalar, rhs: borrowing Self) -> Self {
         Self(lhs + rhs.value)
     }
 
     /// Subtract a raw scalar from Width
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value - rhs)
     }
 
     /// Subtract Width from a raw scalar
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: Scalar, rhs: borrowing Self) -> Self {
         Self(lhs - rhs.value)
     }
@@ -121,18 +127,21 @@ extension Geometry.Width where Scalar: SignedNumeric {
 extension Geometry.Width where Scalar: FloatingPoint {
     /// Multiply by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value * rhs)
     }
 
     /// Multiply scalar by value
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: Scalar, rhs: borrowing Self) -> Self {
         Self(lhs * rhs.value)
     }
 
     /// Divide by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func / (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value / rhs)
     }

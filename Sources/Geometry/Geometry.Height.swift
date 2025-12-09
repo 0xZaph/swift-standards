@@ -43,35 +43,41 @@ extension Geometry.Height: AdditiveArithmetic where Scalar: AdditiveArithmetic {
     }
 
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value + rhs.value)
     }
 
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value - rhs.value)
     }
 
     /// Add a raw scalar to Height
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value + rhs)
     }
 
     /// Add Height to a raw scalar
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: Scalar, rhs: borrowing Self) -> Self {
         Self(lhs + rhs.value)
     }
 
     /// Subtract a raw scalar from Height
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value - rhs)
     }
 
     /// Subtract Height from a raw scalar
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: Scalar, rhs: borrowing Self) -> Self {
         Self(lhs - rhs.value)
     }
@@ -133,6 +139,7 @@ extension Geometry.Height where Scalar: FloatingPoint {
 
     /// Divide by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func / (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value / rhs)
     }

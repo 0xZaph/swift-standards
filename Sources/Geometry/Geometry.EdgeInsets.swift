@@ -85,6 +85,7 @@ extension Geometry.EdgeInsets: AdditiveArithmetic where Scalar: AdditiveArithmet
 
     /// Add two edge insets component-wise
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(
             top: lhs.top + rhs.top,
@@ -96,6 +97,7 @@ extension Geometry.EdgeInsets: AdditiveArithmetic where Scalar: AdditiveArithmet
 
     /// Subtract two edge insets component-wise
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(
             top: lhs.top - rhs.top,
@@ -111,6 +113,7 @@ extension Geometry.EdgeInsets: AdditiveArithmetic where Scalar: AdditiveArithmet
 extension Geometry.EdgeInsets where Scalar: SignedNumeric {
     /// Negate all insets
     @inlinable
+    @_disfavoredOverload
     public static prefix func - (value: borrowing Self) -> Self {
         Self(top: -value.top, leading: -value.leading, bottom: -value.bottom, trailing: -value.trailing)
     }

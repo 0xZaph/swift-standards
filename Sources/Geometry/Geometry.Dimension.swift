@@ -34,11 +34,13 @@ extension Geometry.Dimension: AdditiveArithmetic where Scalar: AdditiveArithmeti
     }
 
     @inlinable
+    @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value + rhs.value)
     }
 
     @inlinable
+    @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
         Self(lhs.value - rhs.value)
     }
@@ -48,6 +50,7 @@ extension Geometry.Dimension: AdditiveArithmetic where Scalar: AdditiveArithmeti
 
 extension Geometry.Dimension: Comparable where Scalar: Comparable {
     @inlinable
+    @_disfavoredOverload
     public static func < (lhs: borrowing Self, rhs: borrowing Self) -> Bool {
         lhs.value < rhs.value
     }
@@ -98,6 +101,7 @@ extension Geometry.Dimension where Scalar: FloatingPoint {
 
     /// Divide by a scalar
     @inlinable
+    @_disfavoredOverload
     public static func / (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value / rhs)
     }
