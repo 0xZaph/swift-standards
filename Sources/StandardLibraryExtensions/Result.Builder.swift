@@ -146,8 +146,7 @@ extension Result {
             // MARK: - Expression Building
 
             @inlinable
-            public static func buildExpression(_ expression: Success) -> Result<[Success], Failure>
-            {
+            public static func buildExpression(_ expression: Success) -> Result<[Success], Failure> {
                 .success([expression])
             }
 

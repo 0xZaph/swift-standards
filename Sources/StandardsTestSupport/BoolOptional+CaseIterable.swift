@@ -28,10 +28,7 @@ extension [(Bool?, Bool?, Bool?)] {
 /// All combinations of four optional boolean values.
 extension [(Bool?, Bool?, Bool?, Bool?)] {
     /// All 81 combinations of four three-valued booleans.
-    public static let allCases: Self = [(Bool?, Bool?, Bool?)].allCases.flatMap {
-        first,
-        second,
-        third in
+    public static let allCases: Self = [(Bool?, Bool?, Bool?)].allCases.flatMap { first, second, third in
         Bool?.allCases.map { fourth in (first, second, third, fourth) }
     }
 }
@@ -39,11 +36,7 @@ extension [(Bool?, Bool?, Bool?, Bool?)] {
 /// All combinations of five optional boolean values.
 extension [(Bool?, Bool?, Bool?, Bool?, Bool?)] {
     /// All 243 combinations of five three-valued booleans.
-    public static let allCases: Self = [(Bool?, Bool?, Bool?, Bool?)].allCases.flatMap {
-        first,
-        second,
-        third,
-        fourth in
+    public static let allCases: Self = [(Bool?, Bool?, Bool?, Bool?)].allCases.flatMap { first, second, third, fourth in
         Bool?.allCases.map { fifth in (first, second, third, fourth, fifth) }
     }
 }
@@ -51,12 +44,7 @@ extension [(Bool?, Bool?, Bool?, Bool?, Bool?)] {
 /// All combinations of six optional boolean values.
 extension [(Bool?, Bool?, Bool?, Bool?, Bool?, Bool?)] {
     /// All 729 combinations of six three-valued booleans.
-    public static let allCases: Self = [(Bool?, Bool?, Bool?, Bool?, Bool?)].allCases.flatMap {
-        first,
-        second,
-        third,
-        fourth,
-        fifth in
+    public static let allCases: Self = [(Bool?, Bool?, Bool?, Bool?, Bool?)].allCases.flatMap { first, second, third, fourth, fifth in
         Bool?.allCases.map { sixth in (first, second, third, fourth, fifth, sixth) }
     }
 }
