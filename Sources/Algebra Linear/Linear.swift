@@ -63,4 +63,14 @@ extension Linear {
     ///
     /// Displacements are vector components, distinct from coordinates.
     public typealias Dw = Tagged<Index.W.Displacement, Scalar>
+
+    /// A scalar magnitude (length, distance, radius).
+    ///
+    /// Magnitudes are non-directional scalar quantities representing the "size"
+    /// of something: vector norms (`vector.length`), distances between points,
+    /// radii, arc lengths, line thicknesses, etc.
+    ///
+    /// Unlike displacements which have direction (X, Y, Z), magnitudes are
+    /// the result of "collapsing" directional information into a scalar.
+    public typealias Magnitude = Tagged<Index.Magnitude, Scalar>
 }

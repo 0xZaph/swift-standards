@@ -354,23 +354,23 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
 extension Geometry.Ellipse {
     /// Create an ellipse by transforming the coordinates of another ellipse
     @inlinable
-    public init<U, E: Error>(
+    public init<U>(
         _ other: borrowing Geometry<U>.Ellipse,
-        _ transform: (U) throws(E) -> Scalar
-    ) throws(E) {
+        _ transform: (U) throws -> Scalar
+    ) rethrows {
         self.init(
             center: try Geometry.Point<2>(other.center, transform),
-            semiMajor: try Geometry.Length(other.semiMajor, transform),
-            semiMinor: try Geometry.Length(other.semiMinor, transform),
+            semiMajor: try other.semiMajor.map(transform),
+            semiMinor: try other.semiMinor.map(transform),
             rotation: other.rotation
         )
     }
 
     /// Transform coordinates using the given closure
     @inlinable
-    public func map<Result, E: Error>(
-        _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.Ellipse {
+    public func map<Result>(
+        _ transform: (Scalar) throws -> Result
+    ) rethrows -> Geometry<Result>.Ellipse {
         Geometry<Result>.Ellipse(
             center: try center.map(transform),
             semiMajor: try semiMajor.map(transform),

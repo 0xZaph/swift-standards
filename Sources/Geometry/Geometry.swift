@@ -68,6 +68,12 @@ extension Geometry {
     /// Type-safe height (vertical displacement) - typealias to `Linear<Scalar>.Dy`
     public typealias Height = Linear<Scalar>.Dy
 
+    /// A scalar magnitude (length, distance, radius) - typealias to `Linear<Scalar>.Magnitude`
+    ///
+    /// Use for measurements that aren't specifically horizontal or vertical,
+    /// such as distances, radii, arc lengths, or line thicknesses.
+    public typealias Length = Linear<Scalar>.Magnitude
+
     /// A 2D translation - typealias to `Affine<Scalar>.Translation`
     public typealias Translation = Affine<Scalar>.Translation
 

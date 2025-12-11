@@ -60,4 +60,11 @@ public enum Index {
         /// Tag for W displacements.
         public enum Displacement {}
     }
+
+    /// Phantom type for scalar magnitudes (lengths, distances, radii).
+    ///
+    /// Unlike coordinates (positions) and displacements (directed extents),
+    /// magnitudes are non-directional scalar quantities representing the
+    /// "size" of something: vector norms, distances between points, radii, etc.
+    public enum Magnitude {}
 }

@@ -73,3 +73,24 @@ extension Tagged where Tag == Index.W.Displacement, RawValue: BinaryFloatingPoin
         format.format(S.FormatInput(value))
     }
 }
+
+// MARK: - Tagged<Index.Magnitude, _> + formatted()
+
+extension Tagged where Tag == Index.Magnitude, RawValue: BinaryFloatingPoint {
+    /// Format this magnitude (length/distance/radius) using the given format style.
+    ///
+    /// - Parameter format: The format style to use
+    /// - Returns: The formatted output
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let length: Linear<Double>.Magnitude = 100.5
+    /// length.formatted(.number)  // "100.5"
+    /// ```
+    @inlinable
+    public func formatted<S>(_ format: S) -> S.FormatOutput
+    where S: FormatStyle, S.FormatInput: BinaryFloatingPoint {
+        format.format(S.FormatInput(value))
+    }
+}

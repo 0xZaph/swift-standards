@@ -425,13 +425,13 @@ extension Geometry.Arc where Scalar: Real & BinaryFloatingPoint {
 extension Geometry.Arc {
     /// Create an arc by transforming the coordinates of another arc
     @inlinable
-    public init<U, E: Error>(
+    public init<U>(
         _ other: borrowing Geometry<U>.Arc,
-        _ transform: (U) throws(E) -> Scalar
-    ) throws(E) {
+        _ transform: (U) throws -> Scalar
+    ) rethrows {
         self.init(
             center: try Geometry.Point<2>(other.center, transform),
-            radius: try Geometry.Length(other.radius, transform),
+            radius: try other.radius.map(transform),
             startAngle: other.startAngle,
             endAngle: other.endAngle
         )
@@ -439,9 +439,9 @@ extension Geometry.Arc {
 
     /// Transform coordinates using the given closure
     @inlinable
-    public func map<Result, E: Error>(
-        _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.Arc {
+    public func map<Result>(
+        _ transform: (Scalar) throws -> Result
+    ) rethrows -> Geometry<Result>.Arc {
         Geometry<Result>.Arc(
             center: try center.map(transform),
             radius: try radius.map(transform),

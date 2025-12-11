@@ -250,10 +250,13 @@ struct `Scalar Wrapper Operators` {
     @Test
     func `Length multiplication and division`() {
         let len: Geometry<Double>.Length = 10
-        #expect((len * 2) == 20)
-        #expect((2 * len) == 20)
-        #expect((len / 2) == 5)
-        #expect((-len) == -10)
+        let scaled: Geometry<Double>.Length = len * 2.0  // Explicit type
+        #expect(scaled.value == 20)
+        let scaled2: Geometry<Double>.Length = 2.0 * len
+        #expect(scaled2.value == 20)
+        let divided: Geometry<Double>.Length = len / 2.0
+        #expect(divided.value == 5)
+        #expect((-len).value == -10)
     }
 
     @Test
