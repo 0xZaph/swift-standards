@@ -338,8 +338,7 @@ extension Predicate {
     /// let isAdult = Predicate<Person>.where(\.age, Predicate<Int>.greater.thanOrEqualTo(18))
     /// ```
     @inlinable
-    public static func `where`<V>(_ keyPath: KeyPath<T, V>, _ predicate: Predicate<V>) -> Predicate
-    {
+    public static func `where`<V>(_ keyPath: KeyPath<T, V>, _ predicate: Predicate<V>) -> Predicate {
         predicate.pullback(keyPath)
     }
 

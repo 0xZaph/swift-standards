@@ -10,8 +10,7 @@ import Testing
 
 /// A custom unit type for testing
 struct TestUnit: AdditiveArithmetic, Comparable, Codable, Hashable,
-    ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral
-{
+    ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral {
     let value: Double
 
     init(_ value: Double) {

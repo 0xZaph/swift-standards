@@ -11,8 +11,7 @@ import Testing
 
 /// A custom spacing type for testing
 struct TestSpacing: AdditiveArithmetic, Comparable, Codable, Hashable,
-    ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral
-{
+    ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral {
     let value: Double
 
     init(_ value: Double) {

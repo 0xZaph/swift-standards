@@ -79,8 +79,7 @@ struct `Strideable Conformance Tests` {
     @Test
     func `Width stride through`() {
         var values: [Geometry<Double>.Width] = []
-        for w in stride(from: Geometry<Double>.Width(0), through: Geometry<Double>.Width(10), by: 2)
-        {
+        for w in stride(from: Geometry<Double>.Width(0), through: Geometry<Double>.Width(10), by: 2) {
             values.append(w)
         }
         #expect(values.count == 6)

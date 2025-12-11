@@ -104,14 +104,16 @@ extension Tagged: ExpressibleByFloatLiteral where RawValue: ExpressibleByFloatLi
     }
 }
 
-extension Tagged: ExpressibleByUnicodeScalarLiteral where RawValue: ExpressibleByUnicodeScalarLiteral {
+extension Tagged: ExpressibleByUnicodeScalarLiteral
+where RawValue: ExpressibleByUnicodeScalarLiteral {
     @inlinable
     public init(unicodeScalarLiteral value: RawValue.UnicodeScalarLiteralType) {
         self.rawValue = RawValue(unicodeScalarLiteral: value)
     }
 }
 
-extension Tagged: ExpressibleByExtendedGraphemeClusterLiteral where RawValue: ExpressibleByExtendedGraphemeClusterLiteral {
+extension Tagged: ExpressibleByExtendedGraphemeClusterLiteral
+where RawValue: ExpressibleByExtendedGraphemeClusterLiteral {
     @inlinable
     public init(extendedGraphemeClusterLiteral value: RawValue.ExtendedGraphemeClusterLiteralType) {
         self.rawValue = RawValue(extendedGraphemeClusterLiteral: value)

@@ -320,8 +320,9 @@ extension Geometry.Ngon where Scalar: FloatingPoint {
 
         for i in 0..<N {
             let j = (i + 1) % N
-            let cross = vertices[i].x.value * vertices[j].y.value
-                      - vertices[j].x.value * vertices[i].y.value
+            let cross =
+                vertices[i].x.value * vertices[j].y.value
+                - vertices[j].x.value * vertices[i].y.value
             cx += (vertices[i].x.value + vertices[j].x.value) * cross
             cy += (vertices[i].y.value + vertices[j].y.value) * cross
         }
@@ -629,7 +630,6 @@ extension Geometry.Ngon where N == 3 {
     }
 }
 
-
 // MARK: - Triangle Side Lengths
 
 extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
@@ -643,7 +643,6 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
         )
     }
 }
-
 
 // MARK: - Triangle Incircle
 
@@ -781,9 +780,18 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
     /// - Returns: The barycentric coordinates (u, v, w) where P = u*A + v*B + w*C, or nil if degenerate
     @inlinable
     public func barycentric(_ point: Geometry.Point<2>) -> (u: Scalar, v: Scalar, w: Scalar)? {
-        let v0: Geometry.Vector<2> = Geometry.Vector(dx: vertices[2].x - vertices[0].x, dy: vertices[2].y - vertices[0].y)
-        let v1: Geometry.Vector<2> = Geometry.Vector(dx: vertices[1].x - vertices[0].x, dy: vertices[1].y - vertices[0].y)
-        let v2: Geometry.Vector<2> = Geometry.Vector(dx: point.x - vertices[0].x, dy: point.y - vertices[0].y)
+        let v0: Geometry.Vector<2> = Geometry.Vector(
+            dx: vertices[2].x - vertices[0].x,
+            dy: vertices[2].y - vertices[0].y
+        )
+        let v1: Geometry.Vector<2> = Geometry.Vector(
+            dx: vertices[1].x - vertices[0].x,
+            dy: vertices[1].y - vertices[0].y
+        )
+        let v2: Geometry.Vector<2> = Geometry.Vector(
+            dx: point.x - vertices[0].x,
+            dy: point.y - vertices[0].y
+        )
 
         let dot00: Scalar = v0.dot(v0)
         let dot01: Scalar = v0.dot(v1)
@@ -936,7 +944,9 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
     public var centroid: Geometry.Point<2> {
         let three: Scalar = Scalar(3)
         return Geometry.Point(
-            x: Geometry.X((vertices[0].x.value + vertices[1].x.value + vertices[2].x.value) / three),
+            x: Geometry.X(
+                (vertices[0].x.value + vertices[1].x.value + vertices[2].x.value) / three
+            ),
             y: Geometry.Y((vertices[0].y.value + vertices[1].y.value + vertices[2].y.value) / three)
         )
     }
@@ -949,7 +959,6 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
         scaled(by: factor, about: centroid)
     }
 }
-
 
 // MARK: - Triangle Typealias
 
