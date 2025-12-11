@@ -13,8 +13,8 @@ import Testing
 // MARK: - Test Unit Type
 
 /// A custom unit type for testing
-struct TestUnit: AdditiveArithmetic, Comparable, Codable, Hashable,
-    ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral
+struct TestUnit: AdditiveArithmetic, Comparable, Codable, Hashable, ExpressibleByIntegerLiteral,
+    ExpressibleByFloatLiteral
 {
     let value: Double
 

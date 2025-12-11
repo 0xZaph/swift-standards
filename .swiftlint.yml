@@ -14,6 +14,8 @@ disabled_rules:
   - implicit_optional_initialization  # Allow explicit = nil initialization
   - function_body_length  # Allow longer inline functions
   - file_length  # Allow longer files
+  - closure_parameter_position  # Conflicts with swift-format line breaking
+  - opening_brace  # Conflicts with swift-format for long declarations
 
 opt_in_rules:
   - explicit_init

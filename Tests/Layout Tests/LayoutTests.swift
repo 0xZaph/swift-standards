@@ -10,8 +10,8 @@ import Testing
 // MARK: - Test Spacing Type
 
 /// A custom spacing type for testing
-struct TestSpacing: AdditiveArithmetic, Comparable, Codable, Hashable,
-    ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral
+struct TestSpacing: AdditiveArithmetic, Comparable, Codable, Hashable, ExpressibleByIntegerLiteral,
+    ExpressibleByFloatLiteral
 {
     let value: Double
 

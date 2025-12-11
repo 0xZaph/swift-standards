@@ -50,6 +50,7 @@ extension [(Bool, Bool, Bool, Bool, Bool)] {
 
 /// All combinations of six boolean values.
 extension [(Bool, Bool, Bool, Bool, Bool, Bool)] {
+    // swiftlint:disable closure_parameter_position
     /// All 64 combinations of six booleans.
     public static let allCases: Self = [(Bool, Bool, Bool, Bool, Bool)].allCases.flatMap {
         first,
@@ -59,4 +60,5 @@ extension [(Bool, Bool, Bool, Bool, Bool, Bool)] {
         fifth in
         Bool.allCases.map { sixth in (first, second, third, fourth, fifth, sixth) }
     }
+    // swiftlint:enable closure_parameter_position
 }
