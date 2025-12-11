@@ -226,37 +226,28 @@ struct `Scalar Wrapper Operators` {
     @Test
     func `Width multiplication and division`() {
         let w: Geometry<Double>.Width = 10
-        let scaled: Geometry<Double>.Width = w * 2.0  // Explicit type
-        #expect(scaled.value == 20)
-        let scaled2: Geometry<Double>.Width = 2.0 * w
-        #expect(scaled2.value == 20)
-        let divided: Geometry<Double>.Width = w / 2.0
-        #expect(divided.value == 5)
-        #expect((-w).value == -10)
+        #expect(w * 2 == 20)
+        #expect(2 * w == 20)
+        #expect(w / 2 == 5)
+        #expect(-w == -10)
     }
 
     @Test
     func `Height multiplication and division`() {
         let h: Geometry<Double>.Height = 10
-        let scaled: Geometry<Double>.Height = h * 2.0  // Explicit type
-        #expect(scaled.value == 20)
-        let scaled2: Geometry<Double>.Height = 2.0 * h
-        #expect(scaled2.value == 20)
-        let divided: Geometry<Double>.Height = h / 2.0
-        #expect(divided.value == 5)
-        #expect((-h).value == -10)
+        #expect(h * 2 == 20)
+        #expect(2 * h == 20)
+        #expect(h / 2 == 5)
+        #expect(-h == -10)
     }
 
     @Test
     func `Length multiplication and division`() {
         let len: Geometry<Double>.Length = 10
-        let scaled: Geometry<Double>.Length = len * 2.0  // Explicit type
-        #expect(scaled.value == 20)
-        let scaled2: Geometry<Double>.Length = 2.0 * len
-        #expect(scaled2.value == 20)
-        let divided: Geometry<Double>.Length = len / 2.0
-        #expect(divided.value == 5)
-        #expect((-len).value == -10)
+        #expect(len * 2 == 20)
+        #expect(2 * len == 20)
+        #expect(len / 2 == 5)
+        #expect(-len == -10)
     }
 
     @Test

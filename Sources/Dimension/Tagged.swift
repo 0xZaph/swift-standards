@@ -242,7 +242,6 @@ extension Tagged where RawValue: FloatingPoint {
 
     /// Multiply scalar by value
     @inlinable
-    @_disfavoredOverload
     public static func * (lhs: RawValue, rhs: Self) -> Self {
         Self(lhs * rhs.rawValue)
     }
@@ -261,6 +260,7 @@ extension Tagged where RawValue: Numeric {
     ///
     /// Useful for distance calculations: `dx*dx + dy*dy`
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: Self, rhs: Self) -> RawValue {
         lhs.rawValue * rhs.rawValue
     }
@@ -273,6 +273,7 @@ extension Tagged where RawValue: FloatingPoint {
     ///
     /// Useful for normalization: `dx / length`
     @inlinable
+    @_disfavoredOverload
     public static func / (lhs: Self, rhs: Self) -> RawValue {
         lhs.rawValue / rhs.rawValue
     }
@@ -328,12 +329,14 @@ extension Tagged where RawValue: FloatingPoint {
 extension Tagged where Tag == Index.X.Displacement, RawValue: Numeric {
     /// Multiply Dx by Dy to get a scalar (area).
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: Self, rhs: Tagged<Index.Y.Displacement, RawValue>) -> RawValue {
         lhs.rawValue * rhs.rawValue
     }
 
     /// Multiply Dx by Dz to get a scalar.
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: Self, rhs: Tagged<Index.Z.Displacement, RawValue>) -> RawValue {
         lhs.rawValue * rhs.rawValue
     }
@@ -342,12 +345,14 @@ extension Tagged where Tag == Index.X.Displacement, RawValue: Numeric {
 extension Tagged where Tag == Index.Y.Displacement, RawValue: Numeric {
     /// Multiply Dy by Dx to get a scalar (area).
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: Self, rhs: Tagged<Index.X.Displacement, RawValue>) -> RawValue {
         lhs.rawValue * rhs.rawValue
     }
 
     /// Multiply Dy by Dz to get a scalar.
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: Self, rhs: Tagged<Index.Z.Displacement, RawValue>) -> RawValue {
         lhs.rawValue * rhs.rawValue
     }
@@ -356,12 +361,14 @@ extension Tagged where Tag == Index.Y.Displacement, RawValue: Numeric {
 extension Tagged where Tag == Index.Z.Displacement, RawValue: Numeric {
     /// Multiply Dz by Dx to get a scalar.
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: Self, rhs: Tagged<Index.X.Displacement, RawValue>) -> RawValue {
         lhs.rawValue * rhs.rawValue
     }
 
     /// Multiply Dz by Dy to get a scalar.
     @inlinable
+    @_disfavoredOverload
     public static func * (lhs: Self, rhs: Tagged<Index.Y.Displacement, RawValue>) -> RawValue {
         lhs.rawValue * rhs.rawValue
     }
