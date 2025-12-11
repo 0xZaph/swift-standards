@@ -1,4 +1,6 @@
 // Polarity.swift
+public import Dimension
+
 // Electric-style polarity.
 
 /// Polarity: positive, negative, or neutral.

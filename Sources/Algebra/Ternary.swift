@@ -1,4 +1,6 @@
 // Ternary.swift
+public import Dimension
+
 // Balanced ternary digit (-1, 0, +1).
 
 /// A balanced ternary digit: negative, zero, or positive.

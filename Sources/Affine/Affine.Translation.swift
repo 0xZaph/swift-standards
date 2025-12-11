@@ -3,6 +3,7 @@
 
 public import Algebra
 public import Algebra_Linear
+public import Dimension
 
 extension Affine {
     /// A 2D translation (displacement) in an affine space.
@@ -14,20 +15,20 @@ extension Affine {
     /// ## Example
     ///
     /// ```swift
-    /// let offset: Affine<Double>.Translation = .init(x: 72, y: 144)
+    /// let offset: Affine<Double>.Translation = .init(dx: 72, dy: 144)
     /// ```
     public struct Translation {
         /// Horizontal displacement
-        public var x: Affine.X
+        public var dx: Linear<Scalar>.Dx
 
         /// Vertical displacement
-        public var y: Affine.Y
+        public var dy: Linear<Scalar>.Dy
 
-        /// Create a translation with typed X and Y components
+        /// Create a translation with typed displacement components
         @inlinable
-        public init(x: Affine.X, y: Affine.Y) {
-            self.x = x
-            self.y = y
+        public init(dx: Linear<Scalar>.Dx, dy: Linear<Scalar>.Dy) {
+            self.dx = dx
+            self.dy = dy
         }
     }
 }
@@ -42,17 +43,16 @@ extension Affine.Translation: Codable where Scalar: Codable {}
 extension Affine.Translation {
     /// Create a translation from raw scalar values
     @inlinable
-    public init(x: Scalar, y: Scalar) {
-        self.x = Affine.X(x)
-        self.y = Affine.Y(y)
+    public init(dx: Scalar, dy: Scalar) {
+        self.dx = Linear<Scalar>.Dx(dx)
+        self.dy = Linear<Scalar>.Dy(dy)
     }
 
     /// Create a translation from a vector
     @inlinable
     public init(_ vector: Linear<Scalar>.Vector<2>) {
-        // Linear.X and Affine.X are both Tagged<Algebra.X, Scalar>
-        self.x = vector.dx
-        self.y = vector.dy
+        self.dx = vector.dx
+        self.dy = vector.dy
     }
 }
 
@@ -62,7 +62,7 @@ extension Affine.Translation where Scalar: AdditiveArithmetic {
     /// Zero translation (no displacement)
     @inlinable
     public static var zero: Self {
-        Self(x: .zero, y: .zero)
+        Self(dx: .zero, dy: .zero)
     }
 }
 
@@ -72,13 +72,13 @@ extension Affine.Translation: AdditiveArithmetic where Scalar: AdditiveArithmeti
     @inlinable
     @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
-        Self(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+        Self(dx: lhs.dx + rhs.dx, dy: lhs.dy + rhs.dy)
     }
 
     @inlinable
     @_disfavoredOverload
     public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
-        Self(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
+        Self(dx: lhs.dx - rhs.dx, dy: lhs.dy - rhs.dy)
     }
 }
 
@@ -88,7 +88,7 @@ extension Affine.Translation where Scalar: SignedNumeric {
     /// Negate the translation
     @inlinable
     public static prefix func - (value: borrowing Self) -> Self {
-        Self(x: -value.x, y: -value.y)
+        Self(dx: -value.dx, dy: -value.dy)
     }
 }
 
@@ -98,6 +98,6 @@ extension Affine.Translation {
     /// Convert to a 2D vector
     @inlinable
     public var vector: Linear<Scalar>.Vector<2> {
-        Linear<Scalar>.Vector(dx: x, dy: y)
+        Linear<Scalar>.Vector(dx: dx, dy: dy)
     }
 }

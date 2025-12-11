@@ -3,6 +3,7 @@
 
 public import Algebra
 public import Dimension
+public import Dimension
 
 extension Region {
     /// Corner of a rectangle.

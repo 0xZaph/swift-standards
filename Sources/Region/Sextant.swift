@@ -2,6 +2,7 @@
 // Six angular regions (60-degree sectors).
 
 public import Algebra
+public import Dimension
 
 extension Region {
     /// Sextant of the plane (60-degree angular sector).

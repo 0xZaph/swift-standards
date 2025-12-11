@@ -3,6 +3,7 @@
 
 public import Algebra
 public import Angle
+public import Dimension
 public import RealModule
 
 // MARK: - Angle from Vector
@@ -21,15 +22,15 @@ extension Linear.Vector where N == 2, Scalar: Real & BinaryFloatingPoint {
     /// Create a unit vector at the given angle
     @inlinable
     public static func unit(at angle: Radian) -> Self {
-        Self(dx: Linear.X(Scalar(angle.cos)), dy: Linear.Y(Scalar(angle.sin)))
+        Self(dx: Linear.Dx(Scalar(angle.cos)), dy: Linear.Dy(Scalar(angle.sin)))
     }
 
     /// Create a vector with given length at the given angle (polar coordinates)
     @inlinable
     public static func polar(length: Scalar, angle: Radian) -> Self {
         Self(
-            dx: Linear.X(length * Scalar(angle.cos)),
-            dy: Linear.Y(length * Scalar(angle.sin))
+            dx: Linear.Dx(length * Scalar(angle.cos)),
+            dy: Linear.Dy(length * Scalar(angle.sin))
         )
     }
 }
@@ -70,8 +71,8 @@ extension Linear.Vector where N == 2, Scalar: Real & BinaryFloatingPoint {
         let x = dx.value
         let y = dy.value
         return Self(
-            dx: Linear.X(x * c - y * s),
-            dy: Linear.Y(x * s + y * c)
+            dx: Linear.Dx(x * c - y * s),
+            dy: Linear.Dy(x * s + y * c)
         )
     }
 

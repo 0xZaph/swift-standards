@@ -1,8 +1,6 @@
 // Axis+CaseIterable.swift
 // CaseIterable conformance for Axis<N> via Enumerable.
 
-public import Algebra
-
 // MARK: - Axis: Enumerable
 
 /// Extends `Axis` with `Enumerable` and `CaseIterable` conformance.

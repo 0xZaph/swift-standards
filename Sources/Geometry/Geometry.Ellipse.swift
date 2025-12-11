@@ -5,6 +5,7 @@ public import Angle
 public import Algebra
 public import Affine
 public import Algebra_Linear
+public import Dimension
 
 extension Geometry {
     /// An ellipse in 2D space defined by center, semi-axes, and rotation.

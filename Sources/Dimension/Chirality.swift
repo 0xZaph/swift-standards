@@ -1,8 +1,6 @@
 // Chirality.swift
 // Handedness (left or right).
 
-public import Algebra
-
 /// Handedness or chirality: left or right.
 ///
 /// Describes asymmetry that distinguishes mirror images, used in:

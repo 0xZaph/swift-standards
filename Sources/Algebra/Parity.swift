@@ -1,4 +1,6 @@
 // Parity.swift
+public import Dimension
+
 // Classification of integers by divisibility by 2.
 
 /// Classification of integers as even or odd.

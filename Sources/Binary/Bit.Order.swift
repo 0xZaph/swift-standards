@@ -2,6 +2,7 @@
 // Bit significance order within a byte.
 
 public import Algebra
+public import Dimension
 
 /// Bit significance order within a byte.
 ///

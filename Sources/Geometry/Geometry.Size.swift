@@ -1,6 +1,8 @@
 // Size.swift
 // A fixed-size dimensions with compile-time known number of dimensions.
 
+public import Dimension
+
 extension Geometry {
     /// A fixed-size dimensions with compile-time known number of dimensions.
     ///

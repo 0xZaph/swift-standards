@@ -1,4 +1,6 @@
 // Comparison.swift
+public import Dimension
+
 // Three-way comparison result.
 
 /// Result of a three-way comparison: less, equal, or greater.

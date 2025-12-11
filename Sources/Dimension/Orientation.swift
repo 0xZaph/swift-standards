@@ -1,8 +1,6 @@
 // Orientation.swift
 // The abstract theory of binary orientation.
 
-public import Algebra
-
 /// A type with exactly two values that are opposites of each other.
 ///
 /// `Orientation` captures the abstract structure shared by all binary

@@ -1,4 +1,6 @@
 // Endpoint.swift
+public import Dimension
+
 // Sequence endpoint position.
 
 /// Position in a sequence: start or end.

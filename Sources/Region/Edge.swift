@@ -2,6 +2,7 @@
 // Rectangle edges.
 
 public import Algebra
+public import Dimension
 
 extension Region {
     /// Edge of a rectangle.

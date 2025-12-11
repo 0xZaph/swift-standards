@@ -1,4 +1,6 @@
 // Gradient.swift
+public import Dimension
+
 // Direction of change.
 
 /// Direction of change: ascending or descending.

@@ -2,6 +2,7 @@
 // Cartesian plane quadrants.
 
 public import Algebra
+public import Dimension
 
 extension Region {
     /// Quadrant of the Cartesian plane.

@@ -1,4 +1,6 @@
 // Sign.swift
+public import Dimension
+
 // Three-valued sign classification.
 
 /// Three-valued sign: positive, negative, or zero.

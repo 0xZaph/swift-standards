@@ -1,6 +1,9 @@
 // Binary.Serializable.swift
 // Streaming byte serialization protocol.
 
+import Algebra
+public import Dimension
+
 /// Protocol for types that serialize to byte streams.
 ///
 /// Conforming types can write their byte representation directly into
@@ -215,3 +218,17 @@ extension Binary.Serializable where Self: RawRepresentable, Self.RawValue == [UI
         buffer.append(contentsOf: serializable.rawValue)
     }
 }
+
+// MARK: - Tagged Conformance
+
+extension Tagged: Binary.Serializable where RawValue: Binary.Serializable {
+    /// Serialize a tagged value by serializing its underlying raw value.
+    @inlinable
+    public static func serialize<Buffer: RangeReplaceableCollection>(
+        _ value: Self,
+        into buffer: inout Buffer
+    ) where Buffer.Element == UInt8 {
+        RawValue.serialize(value.rawValue, into: &buffer)
+    }
+}
+

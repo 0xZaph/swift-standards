@@ -2,6 +2,7 @@
 // Cardinal directions (compass points).
 
 public import Algebra
+public import Dimension
 
 extension Region {
     /// Cardinal direction (primary compass point).

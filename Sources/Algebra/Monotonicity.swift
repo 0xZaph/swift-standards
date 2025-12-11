@@ -1,4 +1,6 @@
 // Monotonicity.swift
+public import Dimension
+
 // Function monotonic behavior.
 
 /// Monotonic behavior: increasing, decreasing, or constant.

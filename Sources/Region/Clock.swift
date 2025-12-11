@@ -2,6 +2,7 @@
 // Twelve angular regions (30-degree sectors, like clock positions).
 
 public import Algebra
+public import Dimension
 
 extension Region {
     /// Clock position (30-degree angular sector).

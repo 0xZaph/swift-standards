@@ -1,4 +1,6 @@
 // Bit.swift
+public import Dimension
+
 // Binary digit (0 or 1).
 
 // A single binary digit: zero or one.

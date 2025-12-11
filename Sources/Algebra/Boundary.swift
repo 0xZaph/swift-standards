@@ -1,4 +1,6 @@
 // Boundary.swift
+public import Dimension
+
 // Interval endpoint inclusivity.
 
 /// Inclusivity of an interval endpoint: open or closed.

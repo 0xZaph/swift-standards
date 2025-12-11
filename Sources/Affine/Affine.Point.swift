@@ -3,6 +3,7 @@
 
 public import Algebra
 public import Algebra_Linear
+public import Dimension
 
 extension Affine {
     /// A fixed-size coordinate/position with compile-time known dimensions.

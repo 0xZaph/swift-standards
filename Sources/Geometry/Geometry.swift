@@ -40,8 +40,8 @@
 public import Algebra
 public import Affine
 public import Algebra_Linear
+public import Dimension
 import Angle
-import Dimension
 import Region
 
 /// The Geometry namespace for affine geometry primitives.
@@ -61,6 +61,12 @@ extension Geometry {
 
     /// Type-safe Y coordinate - typealias to `Affine<Scalar>.Y`
     public typealias Y = Affine<Scalar>.Y
+
+    /// Type-safe width (horizontal displacement) - typealias to `Linear<Scalar>.Dx`
+    public typealias Width = Linear<Scalar>.Dx
+
+    /// Type-safe height (vertical displacement) - typealias to `Linear<Scalar>.Dy`
+    public typealias Height = Linear<Scalar>.Dy
 
     /// A 2D translation - typealias to `Affine<Scalar>.Translation`
     public typealias Translation = Affine<Scalar>.Translation

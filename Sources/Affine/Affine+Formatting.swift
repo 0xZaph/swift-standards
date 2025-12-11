@@ -2,11 +2,12 @@
 // Formatting extensions for Affine types.
 
 public import Algebra
+public import Dimension
 public import Formatting
 
-// MARK: - Tagged<Algebra.X, _> + formatted()
+// MARK: - Tagged<Index.X.Coordinate, _> + formatted()
 
-extension Tagged where Tag == Algebra.X, RawValue: BinaryFloatingPoint {
+extension Tagged where Tag == Index.X.Coordinate, RawValue: BinaryFloatingPoint {
     /// Format this X coordinate using the given format style.
     ///
     /// - Parameter format: The format style to use
@@ -26,9 +27,9 @@ extension Tagged where Tag == Algebra.X, RawValue: BinaryFloatingPoint {
     }
 }
 
-// MARK: - Tagged<Algebra.Y, _> + formatted()
+// MARK: - Tagged<Index.Y.Coordinate, _> + formatted()
 
-extension Tagged where Tag == Algebra.Y, RawValue: BinaryFloatingPoint {
+extension Tagged where Tag == Index.Y.Coordinate, RawValue: BinaryFloatingPoint {
     /// Format this Y coordinate using the given format style.
     ///
     /// - Parameter format: The format style to use
@@ -47,9 +48,9 @@ extension Tagged where Tag == Algebra.Y, RawValue: BinaryFloatingPoint {
     }
 }
 
-// MARK: - Tagged<Algebra.Z, _> + formatted()
+// MARK: - Tagged<Index.Z.Coordinate, _> + formatted()
 
-extension Tagged where Tag == Algebra.Z, RawValue: BinaryFloatingPoint {
+extension Tagged where Tag == Index.Z.Coordinate, RawValue: BinaryFloatingPoint {
     /// Format this Z coordinate using the given format style.
     ///
     /// - Parameter format: The format style to use

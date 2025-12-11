@@ -2,6 +2,7 @@
 // 3D space octants.
 
 public import Algebra
+public import Dimension
 
 extension Region {
     /// Octant of 3D Cartesian space.

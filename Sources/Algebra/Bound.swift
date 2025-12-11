@@ -1,4 +1,6 @@
 // Bound.swift
+public import Dimension
+
 // Interval endpoint position.
 
 /// Position of an interval endpoint: lower or upper.

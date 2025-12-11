@@ -3,6 +3,7 @@
 
 public import Algebra
 public import Algebra_Linear
+public import Dimension
 public import Angle
 public import RealModule
 
@@ -148,16 +149,16 @@ extension Affine.Transform {
 
     /// Translation x component (type-safe)
     @inlinable
-    public var tx: Affine.X {
-        get { translation.x }
-        set { translation.x = newValue }
+    public var tx: Linear<Scalar>.Dx {
+        get { translation.dx }
+        set { translation.dx = newValue }
     }
 
     /// Translation y component (type-safe)
     @inlinable
-    public var ty: Affine.Y {
-        get { translation.y }
-        set { translation.y = newValue }
+    public var ty: Linear<Scalar>.Dy {
+        get { translation.dy }
+        set { translation.dy = newValue }
     }
 }
 
@@ -172,7 +173,7 @@ extension Affine.Transform {
     @inlinable
     public init(a: Scalar, b: Scalar, c: Scalar, d: Scalar, tx: Scalar, ty: Scalar) {
         self.linear = Linear<Scalar>.Matrix(a: a, b: b, c: c, d: d)
-        self.translation = Affine.Translation(x: tx, y: ty)
+        self.translation = Affine.Translation(dx: tx, dy: ty)
     }
 
     /// Create an affine transform with typed translation components
@@ -181,9 +182,9 @@ extension Affine.Transform {
     ///   - a, b, c, d: Dimensionless linear transformation coefficients
     ///   - tx, ty: Translation in coordinate units (type-safe)
     @inlinable
-    public init(a: Scalar, b: Scalar, c: Scalar, d: Scalar, tx: Affine.X, ty: Affine.Y) {
+    public init(a: Scalar, b: Scalar, c: Scalar, d: Scalar, tx: Linear<Scalar>.Dx, ty: Linear<Scalar>.Dy) {
         self.linear = Linear<Scalar>.Matrix(a: a, b: b, c: c, d: d)
-        self.translation = Affine.Translation(x: tx, y: ty)
+        self.translation = Affine.Translation(dx: tx, dy: ty)
     }
 }
 
@@ -199,14 +200,14 @@ extension Affine.Transform where Scalar: FloatingPoint {
         let newLinear = linear.multiplied(by: other.linear)
 
         // Translation part: apply self's linear to other's translation, then add self's translation
-        let otherTx = other.translation.x.value
-        let otherTy = other.translation.y.value
-        let newTx = linear.a * otherTx + linear.b * otherTy + translation.x.value
-        let newTy = linear.c * otherTx + linear.d * otherTy + translation.y.value
+        let otherTx = other.translation.dx.value
+        let otherTy = other.translation.dy.value
+        let newTx = linear.a * otherTx + linear.b * otherTy + translation.dx.value
+        let newTy = linear.c * otherTx + linear.d * otherTy + translation.dy.value
 
         return Self(
             linear: newLinear,
-            translation: Affine.Translation(x: newTx, y: newTy)
+            translation: Affine.Translation(dx: newTx, dy: newTy)
         )
     }
 }
@@ -217,7 +218,7 @@ extension Affine.Transform where Scalar: FloatingPoint & ExpressibleByIntegerLit
     /// Create a translation transform
     @inlinable
     public static func translation(x: Scalar, y: Scalar) -> Self {
-        Self(linear: .identity, translation: Affine.Translation(x: x, y: y))
+        Self(linear: .identity, translation: Affine.Translation(dx: x, dy: y))
     }
 
     /// Create a translation transform from a vector
@@ -326,14 +327,14 @@ extension Affine.Transform where Scalar: FloatingPoint {
         guard let invLinear = linear.inverse else { return nil }
 
         // inv(T) = -inv(L) * t
-        let tx = translation.x.value
-        let ty = translation.y.value
+        let tx = translation.dx.value
+        let ty = translation.dy.value
         let newTx = -(invLinear.a * tx + invLinear.b * ty)
         let newTy = -(invLinear.c * tx + invLinear.d * ty)
 
         return Self(
             linear: invLinear,
-            translation: Affine.Translation(x: newTx, y: newTy)
+            translation: Affine.Translation(dx: newTx, dy: newTy)
         )
     }
 }
@@ -346,8 +347,10 @@ extension Affine.Transform where Scalar: FloatingPoint {
     public func apply(to point: Affine.Point<2>) -> Affine.Point<2> {
         let px = point.x.value
         let py = point.y.value
-        let newX = linear.a * px + linear.b * py + translation.x.value
-        let newY = linear.c * px + linear.d * py + translation.y.value
+        let txVal = translation.dx.value
+        let tyVal = translation.dy.value
+        let newX = linear.a * px + linear.b * py + txVal
+        let newY = linear.c * px + linear.d * py + tyVal
         return Affine.Point(x: Affine.X(newX), y: Affine.Y(newY))
     }
 
@@ -359,7 +362,7 @@ extension Affine.Transform where Scalar: FloatingPoint {
         let vy = vector.dy.value
         let newDx = linear.a * vx + linear.b * vy
         let newDy = linear.c * vx + linear.d * vy
-        return Linear<Scalar>.Vector(dx: Linear<Scalar>.X(newDx), dy: Linear<Scalar>.Y(newDy))
+        return Linear<Scalar>.Vector(dx: Linear<Scalar>.Dx(newDx), dy: Linear<Scalar>.Dy(newDy))
     }
 }
 

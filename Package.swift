@@ -165,7 +165,10 @@ let package = Package(
             ]
         ),
         .target(
-            name: "Algebra"
+            name: "Algebra",
+            dependencies: [
+                "Dimension",
+            ]
         ),
         .target(
             name: "Algebra Linear",
@@ -191,10 +194,7 @@ let package = Package(
             ]
         ),
         .target(
-            name: "Dimension",
-            dependencies: [
-                "Algebra",
-            ]
+            name: "Dimension"
         ),
         .target(
             name: "Positioning"

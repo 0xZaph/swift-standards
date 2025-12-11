@@ -1,4 +1,6 @@
 // Phase.swift
+public import Dimension
+
 // Discrete rotational phases (Z₄ group).
 
 /// Discrete rotational phases: 0°, 90°, 180°, 270°.

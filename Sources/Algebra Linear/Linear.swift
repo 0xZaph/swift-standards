@@ -14,7 +14,7 @@
 //
 // - `Vector<N>`: An N-dimensional vector (element of vector space)
 // - `Matrix<M, N>`: An M×N matrix (linear map from N-dim to M-dim space)
-// - `X`, `Y`, `Z`: Type-safe coordinate components
+// - `Dx`, `Dy`, `Dz`: Type-safe displacement components
 //
 // ## Usage
 //
@@ -27,6 +27,7 @@
 // ```
 
 public import Algebra
+public import Dimension
 
 /// The Linear namespace for vector space primitives.
 ///
@@ -37,30 +38,29 @@ public enum Linear<Scalar: ~Copyable>: ~Copyable {}
 extension Linear: Copyable where Scalar: Copyable {}
 extension Linear: Sendable where Scalar: Sendable {}
 
-// MARK: - Coordinate Type Aliases
+// MARK: - Displacement Type Aliases
 
 extension Linear {
-    /// A type-safe horizontal displacement component.
+    /// A type-safe horizontal displacement (vector X-component).
     ///
-    /// Uses `Tagged` with `Algebra.X` phantom type for compile-time
-    /// distinction from Y, Z, and W components.
-    public typealias X = Tagged<Algebra.X, Scalar>
+    /// Displacements are vector components, distinct from coordinates.
+    /// Use for widths, horizontal changes, or vector X-components.
+    public typealias Dx = Tagged<Index.X.Displacement, Scalar>
 
-    /// A type-safe vertical displacement component.
+    /// A type-safe vertical displacement (vector Y-component).
     ///
-    /// Uses `Tagged` with `Algebra.Y` phantom type for compile-time
-    /// distinction from X, Z, and W components.
-    public typealias Y = Tagged<Algebra.Y, Scalar>
+    /// Displacements are vector components, distinct from coordinates.
+    /// Use for heights, vertical changes, or vector Y-components.
+    public typealias Dy = Tagged<Index.Y.Displacement, Scalar>
 
-    /// A type-safe depth displacement component.
+    /// A type-safe depth displacement (vector Z-component).
     ///
-    /// Uses `Tagged` with `Algebra.Z` phantom type for compile-time
-    /// distinction from X, Y, and W components.
-    public typealias Z = Tagged<Algebra.Z, Scalar>
+    /// Displacements are vector components, distinct from coordinates.
+    /// Use for depths, Z-axis changes, or vector Z-components.
+    public typealias Dz = Tagged<Index.Z.Displacement, Scalar>
 
-    /// A type-safe homogeneous displacement component.
+    /// A type-safe homogeneous displacement (vector W-component).
     ///
-    /// Uses `Tagged` with `Algebra.W` phantom type for compile-time
-    /// distinction from X, Y, and Z components.
-    public typealias W = Tagged<Algebra.W, Scalar>
+    /// Displacements are vector components, distinct from coordinates.
+    public typealias Dw = Tagged<Index.W.Displacement, Scalar>
 }

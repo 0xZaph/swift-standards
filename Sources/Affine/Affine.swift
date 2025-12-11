@@ -34,6 +34,7 @@
 // ```
 
 public import Algebra
+public import Dimension
 
 /// The Affine namespace for affine space primitives.
 ///
@@ -47,27 +48,26 @@ extension Affine: Sendable where Scalar: Sendable {}
 // MARK: - Coordinate Type Aliases
 
 extension Affine {
-    /// A type-safe horizontal coordinate (x-projection).
+    /// A type-safe horizontal coordinate (x-position).
     ///
-    /// Uses `Tagged` with `Algebra.X` phantom type for compile-time
-    /// distinction from Y and Z coordinates.
-    public typealias X = Tagged<Algebra.X, Scalar>
+    /// Coordinates are point components, distinct from displacements.
+    /// Use for horizontal positions or point X-components.
+    public typealias X = Tagged<Index.X.Coordinate, Scalar>
 
-    /// A type-safe vertical coordinate (y-projection).
+    /// A type-safe vertical coordinate (y-position).
     ///
-    /// Uses `Tagged` with `Algebra.Y` phantom type for compile-time
-    /// distinction from X and Z coordinates.
-    public typealias Y = Tagged<Algebra.Y, Scalar>
+    /// Coordinates are point components, distinct from displacements.
+    /// Use for vertical positions or point Y-components.
+    public typealias Y = Tagged<Index.Y.Coordinate, Scalar>
 
-    /// A type-safe depth coordinate (z-projection).
+    /// A type-safe depth coordinate (z-position).
     ///
-    /// Uses `Tagged` with `Algebra.Z` phantom type for compile-time
-    /// distinction from X, Y, and W coordinates.
-    public typealias Z = Tagged<Algebra.Z, Scalar>
+    /// Coordinates are point components, distinct from displacements.
+    /// Use for depth positions or point Z-components.
+    public typealias Z = Tagged<Index.Z.Coordinate, Scalar>
 
-    /// A type-safe homogeneous coordinate (w-projection).
+    /// A type-safe homogeneous coordinate (w-position).
     ///
-    /// Uses `Tagged` with `Algebra.W` phantom type for compile-time
-    /// distinction from X, Y, and Z coordinates.
-    public typealias W = Tagged<Algebra.W, Scalar>
+    /// Coordinates are point components, distinct from displacements.
+    public typealias W = Tagged<Index.W.Coordinate, Scalar>
 }
