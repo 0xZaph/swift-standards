@@ -15,7 +15,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Polygon initialization`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 4, y: 0),
             .init(x: 4, y: 3),
@@ -29,7 +29,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Valid polygon`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 0),
             .init(x: 0, y: 1),
@@ -39,7 +39,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Invalid polygon with 2 vertices`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 0),
         ])
@@ -50,7 +50,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Edges of triangle`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 4, y: 0),
             .init(x: 2, y: 3),
@@ -69,7 +69,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Edges of square`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 0),
             .init(x: 1, y: 1),
@@ -83,7 +83,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Area of unit square`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 0),
             .init(x: 1, y: 1),
@@ -94,7 +94,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Area of rectangle`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 4, y: 0),
             .init(x: 4, y: 3),
@@ -105,7 +105,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Area of triangle`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 4, y: 0),
             .init(x: 0, y: 3),
@@ -115,7 +115,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Signed area CCW is positive`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 0),
             .init(x: 1, y: 1),
@@ -126,7 +126,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Signed area CW is negative`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 0, y: 1),
             .init(x: 1, y: 1),
@@ -139,7 +139,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Perimeter of unit square`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 0),
             .init(x: 1, y: 1),
@@ -150,7 +150,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Perimeter of 3-4-5 triangle`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 3, y: 0),
             .init(x: 0, y: 4),
@@ -162,7 +162,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Centroid of square`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 2, y: 0),
             .init(x: 2, y: 2),
@@ -176,7 +176,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Centroid of triangle`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 6, y: 0),
             .init(x: 0, y: 6),
@@ -190,7 +190,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Bounding box`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 1, y: 2),
             .init(x: 5, y: 3),
             .init(x: 4, y: 7),
@@ -207,7 +207,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Square is convex`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 0),
             .init(x: 1, y: 1),
@@ -218,7 +218,7 @@ struct `Polygon Tests` {
 
     @Test
     func `L-shape is not convex`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 2, y: 0),
             .init(x: 2, y: 1),
@@ -231,7 +231,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Triangle is always convex`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 5, y: 0),
             .init(x: 2, y: 4),
@@ -243,7 +243,7 @@ struct `Polygon Tests` {
 
     @Test
     func `isCounterClockwise`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 0),
             .init(x: 1, y: 1),
@@ -255,7 +255,7 @@ struct `Polygon Tests` {
 
     @Test
     func `isClockwise`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 0, y: 1),
             .init(x: 1, y: 1),
@@ -267,7 +267,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Reversed polygon`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 0),
             .init(x: 1, y: 1),
@@ -281,31 +281,31 @@ struct `Polygon Tests` {
 
     @Test
     func `Contains interior point`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 4, y: 0),
             .init(x: 4, y: 4),
             .init(x: 0, y: 4),
         ])
-        let point: Geometry<Double>.Point<2> = .init(x: 2, y: 2)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 2, y: 2)
         #expect(polygon.contains(point))
     }
 
     @Test
     func `Does not contain exterior point`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 4, y: 0),
             .init(x: 4, y: 4),
             .init(x: 0, y: 4),
         ])
-        let point: Geometry<Double>.Point<2> = .init(x: 10, y: 10)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 10, y: 10)
         #expect(!polygon.contains(point))
     }
 
     @Test
     func `Contains point in L-shape`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 2, y: 0),
             .init(x: 2, y: 1),
@@ -314,26 +314,26 @@ struct `Polygon Tests` {
             .init(x: 0, y: 2),
         ])
         // Point in the bottom-left corner of the L
-        let inside: Geometry<Double>.Point<2> = .init(x: 0.5, y: 0.5)
+        let inside: Geometry<Double, Void>.Point<2> = .init(x: 0.5, y: 0.5)
         #expect(polygon.contains(inside))
 
         // Point in the "cut-out" area
-        let outside: Geometry<Double>.Point<2> = .init(x: 1.5, y: 1.5)
+        let outside: Geometry<Double, Void>.Point<2> = .init(x: 1.5, y: 1.5)
         #expect(!polygon.contains(outside))
     }
 
     @Test
     func `isOnBoundary`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 4, y: 0),
             .init(x: 4, y: 4),
             .init(x: 0, y: 4),
         ])
-        let onEdge: Geometry<Double>.Point<2> = .init(x: 2, y: 0)
+        let onEdge: Geometry<Double, Void>.Point<2> = .init(x: 2, y: 0)
         #expect(polygon.isOnBoundary(onEdge))
 
-        let inside: Geometry<Double>.Point<2> = .init(x: 2, y: 2)
+        let inside: Geometry<Double, Void>.Point<2> = .init(x: 2, y: 2)
         #expect(!polygon.isOnBoundary(inside))
     }
 
@@ -341,7 +341,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Translation`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 0),
             .init(x: 0, y: 1),
@@ -353,7 +353,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Scaling about centroid`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 2, y: 0),
             .init(x: 2, y: 2),
@@ -371,7 +371,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Scaling about point`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 0),
             .init(x: 1, y: 1),
@@ -388,7 +388,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Triangulate triangle`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 4, y: 0),
             .init(x: 2, y: 3),
@@ -399,7 +399,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Triangulate square`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 4, y: 0),
             .init(x: 4, y: 4),
@@ -415,7 +415,7 @@ struct `Polygon Tests` {
 
     @Test
     func `Triangulate pentagon`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 4, y: 0),
             .init(x: 5, y: 3),
@@ -433,12 +433,12 @@ struct `Polygon Tests` {
 
     @Test
     func `Polygon map`() {
-        let polygon: Geometry<Double>.Polygon = .init(vertices: [
+        let polygon: Geometry<Double, Void>.Polygon = .init(vertices: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 0),
             .init(x: 0, y: 1),
         ])
-        let mapped: Geometry<Float>.Polygon = polygon.map { Float($0) }
+        let mapped: Geometry<Float, Void>.Polygon = polygon.map { Float($0) }
         #expect(mapped.vertices.count == 3)
         #expect(mapped.vertices[0].x.value == 0)
         #expect(mapped.vertices[1].x.value == 1)

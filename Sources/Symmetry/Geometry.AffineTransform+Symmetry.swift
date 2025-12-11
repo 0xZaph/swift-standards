@@ -6,7 +6,7 @@ import Geometry
 
 // MARK: - AffineTransform from Rotation
 
-extension Affine.Transform where Scalar == Double {
+extension Affine.Transform where Scalar == Double, Space == Void {
     /// Creates an affine transform from a 2D rotation.
     @inlinable
     public init(_ rotation: Rotation<2>) {

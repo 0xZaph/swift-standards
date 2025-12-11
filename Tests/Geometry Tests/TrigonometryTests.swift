@@ -98,8 +98,8 @@ struct `Trigonometry Tests` {
 
     @Test
     func `AffineTransform rotation from Radian`() {
-        let transform = Geometry<Double>.AffineTransform.rotation(.pi(over: 2))
-        let point = Geometry<Double>.Point(x: 1.0, y: 0.0)
+        let transform = Geometry<Double, Void>.AffineTransform.rotation(.pi(over: 2))
+        let point = Geometry<Double, Void>.Point(x: 1.0, y: 0.0)
         let rotated = transform.apply(to: point)
 
         #expect(abs(rotated.x.value) < 1e-10)
@@ -108,8 +108,8 @@ struct `Trigonometry Tests` {
 
     @Test
     func `AffineTransform rotation from Degree`() {
-        let transform = Geometry<Double>.AffineTransform.rotation(Degree.rightAngle)
-        let point = Geometry<Double>.Point(x: 1.0, y: 0.0)
+        let transform = Geometry<Double, Void>.AffineTransform.rotation(Degree.rightAngle)
+        let point = Geometry<Double, Void>.Point(x: 1.0, y: 0.0)
         let rotated = transform.apply(to: point)
 
         #expect(abs(rotated.x.value) < 1e-10)
@@ -120,19 +120,19 @@ struct `Trigonometry Tests` {
 
     @Test
     func `Vector angle`() {
-        let v1 = Geometry<Double>.Vector(dx: 1.0, dy: 0.0)
+        let v1 = Geometry<Double, Void>.Vector(dx: 1.0, dy: 0.0)
         #expect(abs(v1.angle) < 1e-10)
 
-        let v2 = Geometry<Double>.Vector(dx: 0.0, dy: 1.0)
+        let v2 = Geometry<Double, Void>.Vector(dx: 0.0, dy: 1.0)
         #expect(abs(v2.angle - .pi / 2) < 1e-10)
 
-        let v3 = Geometry<Double>.Vector(dx: 1.0, dy: 1.0)
+        let v3 = Geometry<Double, Void>.Vector(dx: 1.0, dy: 1.0)
         #expect(abs(v3.angle - .pi / 4) < 1e-10)
     }
 
     @Test
     func `Vector unit at angle`() {
-        let v = Geometry<Double>.Vector.unit(at: .pi(over: 4))
+        let v = Geometry<Double, Void>.Vector.unit(at: .pi(over: 4))
         let expected = 1.0 / Double.sqrt(2.0)
         #expect(abs(v.dx.value - expected) < 1e-10)
         #expect(abs(v.dy.value - expected) < 1e-10)
@@ -140,22 +140,22 @@ struct `Trigonometry Tests` {
 
     @Test
     func `Vector polar`() {
-        let v = Geometry<Double>.Vector.polar(length: 2.0, angle: .pi(over: 6))
+        let v = Geometry<Double, Void>.Vector.polar(length: 2.0, angle: .pi(over: 6))
         #expect(abs(v.dx.value - Double.sqrt(3.0)) < 1e-10)
         #expect(abs(v.dy.value - 1.0) < 1e-10)
     }
 
     @Test
     func `Vector angle between`() {
-        let v1 = Geometry<Double>.Vector(dx: 1.0, dy: 0.0)
-        let v2 = Geometry<Double>.Vector(dx: 0.0, dy: 1.0)
+        let v1 = Geometry<Double, Void>.Vector(dx: 1.0, dy: 0.0)
+        let v2 = Geometry<Double, Void>.Vector(dx: 0.0, dy: 1.0)
         let angle = v1.angle(to: v2)
         #expect(abs(angle - .pi / 2) < 1e-10)
     }
 
     @Test
     func `Vector rotation`() {
-        let v = Geometry<Double>.Vector(dx: 1.0, dy: 0.0)
+        let v = Geometry<Double, Void>.Vector(dx: 1.0, dy: 0.0)
         let rotated = v.rotated(by: .pi(over: 2))
         #expect(abs(rotated.dx.value) < 1e-10)
         #expect(abs(rotated.dy.value - 1.0) < 1e-10)
@@ -165,23 +165,23 @@ struct `Trigonometry Tests` {
 
     @Test
     func `Point polar coordinates`() {
-        let p = Geometry<Double>.Point.polar(radius: 2.0, angle: .pi(over: 3))
+        let p = Geometry<Double, Void>.Point.polar(radius: 2.0, angle: .pi(over: 3))
         #expect(abs(p.x.value - 1.0) < 1e-10)
         #expect(abs(p.y.value - Double.sqrt(3.0)) < 1e-10)
     }
 
     @Test
     func `Point angle and radius`() {
-        let p = Geometry<Double>.Point(x: 3.0, y: 4.0)
+        let p = Geometry<Double, Void>.Point(x: 3.0, y: 4.0)
         #expect(abs(p.radius - 5.0) < 1e-10)
 
-        let p2 = Geometry<Double>.Point(x: 1.0, y: 1.0)
+        let p2 = Geometry<Double, Void>.Point(x: 1.0, y: 1.0)
         #expect(abs(p2.angle - .pi / 4) < 1e-10)
     }
 
     @Test
     func `Point rotation around origin`() {
-        let p = Geometry<Double>.Point(x: 1.0, y: 0.0)
+        let p = Geometry<Double, Void>.Point(x: 1.0, y: 0.0)
         let rotated = p.rotated(by: .pi(over: 2))
         #expect(abs(rotated.x.value) < 1e-10)
         #expect(abs(rotated.y.value - 1.0) < 1e-10)
@@ -189,8 +189,8 @@ struct `Trigonometry Tests` {
 
     @Test
     func `Point rotation around center`() {
-        let p = Geometry<Double>.Point(x: 2.0, y: 0.0)
-        let center = Geometry<Double>.Point(x: 1.0, y: 0.0)
+        let p = Geometry<Double, Void>.Point(x: 2.0, y: 0.0)
+        let center = Geometry<Double, Void>.Point(x: 1.0, y: 0.0)
         let rotated = p.rotated(by: .pi(over: 2), around: center)
         #expect(abs(rotated.x.value - 1.0) < 1e-10)
         #expect(abs(rotated.y.value - 1.0) < 1e-10)

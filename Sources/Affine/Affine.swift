@@ -2,7 +2,7 @@
 // Affine geometry namespace for affine spaces and transformations.
 //
 // This module provides type-safe affine geometry primitives.
-// Types are parameterized by their scalar type (the field).
+// Types are parameterized by their scalar type and coordinate space.
 //
 // ## Category Theory Perspective
 //
@@ -26,30 +26,34 @@
 // ## Usage
 //
 // ```swift
-// typealias Point2D = Affine<Double>.Point<2>
+// typealias Point2D = Affine<Double, Void>.Point<2>
 //
 // let p: Point2D = .init(x: 1, y: 2)
 // let q: Point2D = .init(x: 4, y: 6)
-// let v = q - p  // Linear<Double>.Vector<2>
+// let v = q - p  // Linear<Double, Void>.Vector<2>
 // ```
 
 public import Algebra
 public import Dimension
 
-/// Namespace for affine space primitives parameterized by scalar type.
+/// Namespace for affine space primitives parameterized by scalar type and coordinate space.
 ///
 /// Affine spaces represent geometry where points have position but no canonical origin.
 /// This differs from vector spaces which have a distinguished zero point.
+/// The `Space` parameter is a phantom type that distinguishes points in different coordinate systems.
 ///
 /// ## Example
 ///
 /// ```swift
-/// typealias Point2D = Affine<Double>.Point<2>
-/// let p = Point2D(x: 1, y: 2)
-/// let q = Point2D(x: 4, y: 6)
-/// let displacement = q - p  // Vector, not another Point
+/// // Points in different coordinate spaces are type-incompatible
+/// typealias UserPoint = Affine<Double, UserSpace>.Point<2>
+/// typealias DevicePoint = Affine<Double, DeviceSpace>.Point<2>
+///
+/// let p = UserPoint(x: 1, y: 2)
+/// let q = UserPoint(x: 4, y: 6)
+/// let displacement = q - p  // Linear<Double, UserSpace>.Vector<2>
 /// ```
-public enum Affine<Scalar: ~Copyable>: ~Copyable {}
+public enum Affine<Scalar: ~Copyable, Space>: ~Copyable {}
 
 extension Affine: Copyable where Scalar: Copyable {}
 extension Affine: Sendable where Scalar: Sendable {}
@@ -57,23 +61,27 @@ extension Affine: Sendable where Scalar: Sendable {}
 // MARK: - Coordinate Type Aliases
 
 extension Affine {
-    /// Type-safe horizontal coordinate representing absolute position on the x-axis.
+    /// Type-safe horizontal coordinate representing absolute position on the x-axis,
+    /// parameterized by coordinate space.
     ///
     /// Distinguishes position coordinates from displacement vectors for type safety.
-    public typealias X = Tagged<Index.X.Coordinate, Scalar>
+    public typealias X = Tagged<Index.X.Coordinate<Space>, Scalar>
 
-    /// Type-safe vertical coordinate representing absolute position on the y-axis.
+    /// Type-safe vertical coordinate representing absolute position on the y-axis,
+    /// parameterized by coordinate space.
     ///
     /// Distinguishes position coordinates from displacement vectors for type safety.
-    public typealias Y = Tagged<Index.Y.Coordinate, Scalar>
+    public typealias Y = Tagged<Index.Y.Coordinate<Space>, Scalar>
 
-    /// Type-safe depth coordinate representing absolute position on the z-axis.
+    /// Type-safe depth coordinate representing absolute position on the z-axis,
+    /// parameterized by coordinate space.
     ///
     /// Distinguishes position coordinates from displacement vectors for type safety.
-    public typealias Z = Tagged<Index.Z.Coordinate, Scalar>
+    public typealias Z = Tagged<Index.Z.Coordinate<Space>, Scalar>
 
-    /// Type-safe homogeneous coordinate for projective transformations.
+    /// Type-safe homogeneous coordinate for projective transformations,
+    /// parameterized by coordinate space.
     ///
     /// Used in 4D homogeneous coordinates where `w=1` represents standard 3D points.
-    public typealias W = Tagged<Index.W.Coordinate, Scalar>
+    public typealias W = Tagged<Index.W.Coordinate<Space>, Scalar>
 }

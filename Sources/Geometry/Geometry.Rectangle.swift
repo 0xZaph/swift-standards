@@ -1,13 +1,12 @@
 // Rectangle.swift
-// A rectangle defined by corner coordinates, parameterized by unit type.
+// A rectangle defined by corner coordinates, parameterized by unit type and coordinate space.
 
 public import Affine
-public import Algebra
 public import Algebra_Linear
 public import Dimension
 
 extension Geometry {
-    /// A rectangle parameterized by its unit type.
+    /// A rectangle parameterized by its unit type and coordinate space.
     ///
     /// Rectangles are defined by their lower-left (ll) and upper-right (ur) corners,
     /// following the convention used in PDF and many graphics systems.
@@ -15,7 +14,10 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// let bounds: Geometry.Rectangle<Double> = .init(x: 0, y: 0, width: 612, height: 792)
+    /// let bounds: Geometry<Double, Void>.Rectangle = .init(
+    ///     x: .init(0), y: .init(0),
+    ///     width: .init(612), height: .init(792)
+    /// )
     /// ```
     public struct Rectangle {
         /// Lower-left x coordinate
@@ -37,6 +39,7 @@ extension Geometry {
         ///   - lly: Lower-left y coordinate
         ///   - urx: Upper-right x coordinate
         ///   - ury: Upper-right y coordinate
+        @inlinable
         public init(
             llx: consuming Geometry.X,
             lly: consuming Geometry.Y,
@@ -59,7 +62,8 @@ extension Geometry.Rectangle: Hashable where Scalar: Hashable {}
 #if Codable
     extension Geometry.Rectangle: Codable where Scalar: Codable {}
 #endif
-// MARK: - AdditiveArithmetic Convenience
+
+// MARK: - Origin/Size Initializers
 
 extension Geometry.Rectangle where Scalar: AdditiveArithmetic {
     /// Create a rectangle from origin and size
@@ -70,113 +74,53 @@ extension Geometry.Rectangle where Scalar: AdditiveArithmetic {
     ///   - width: Width of the rectangle
     ///   - height: Height of the rectangle
     @inlinable
-    public init(x: Geometry.X, y: Geometry.Y, width: Geometry.Width, height: Geometry.Height) {
+    public init(
+        x: Geometry.X,
+        y: Geometry.Y,
+        width: Geometry.Width,
+        height: Geometry.Height
+    ) {
         self.llx = x
         self.lly = y
-        self.urx = .init(x.value + width.value)
-        self.ury = .init(y.value + height.value)
-    }
-
-    /// Create a rectangle from raw scalar values
-    ///
-    /// - Parameters:
-    ///   - x: Lower-left x coordinate
-    ///   - y: Lower-left y coordinate
-    ///   - width: Width of the rectangle
-    ///   - height: Height of the rectangle
-    @_disfavoredOverload
-    @inlinable
-    public init(x: Scalar, y: Scalar, width: Scalar, height: Scalar) {
-        self.llx = .init(x)
-        self.lly = .init(y)
-        self.urx = .init(x + width)
-        self.ury = .init(y + height)
+        self.urx = x + width
+        self.ury = y + height
     }
 
     /// Width of the rectangle
     @inlinable
     public var width: Geometry.Width {
-        get { .init(urx.value - llx.value) }
-        set { urx = .init(llx.value + newValue.value) }
+        get { urx - llx }
+        set { urx = llx + newValue }
     }
 
     /// Height of the rectangle
     @inlinable
     public var height: Geometry.Height {
-        get { .init(ury.value - lly.value) }
-        set { ury = .init(lly.value + newValue.value) }
-    }
-
-    /// Size of the rectangle
-    @inlinable
-    public var size: Geometry.Size<2> {
-        get { Geometry.Size(width: width, height: height) }
-        set {
-            urx = .init(llx.value + newValue.width.value)
-            ury = .init(lly.value + newValue.height.value)
-        }
-    }
-
-    /// Origin (lower-left corner) of the rectangle
-    @inlinable
-    public var origin: Geometry.Point<2> {
-        get { Geometry.Point(x: llx, y: lly) }
-        set {
-            let w = width
-            let h = height
-            llx = newValue.x
-            lly = newValue.y
-            urx = .init(newValue.x.value + w.value)
-            ury = .init(newValue.y.value + h.value)
-        }
-    }
-    /// Create a rectangle from origin point and size
-    ///
-    /// - Parameters:
-    ///   - origin: Lower-left corner point
-    ///   - size: Width and height of the rectangle
-    @inlinable
-    public init(origin: Geometry.Point<2>, size: Geometry.Size<2>) {
-        self.llx = origin.x
-        self.lly = origin.y
-        self.urx = origin.x + size.width.value
-        self.ury = origin.y + size.height.value
+        get { ury - lly }
+        set { ury = lly + newValue }
     }
 }
 
 // MARK: - Corner Access
 
 extension Geometry.Rectangle {
-    /// Lower edge corners
-    public enum LowerEdge {
-        case left, right
-    }
-
-    /// Upper edge corners
-    public enum UpperEdge {
-        case left, right
-    }
-
-    /// All four corners
-    public enum Corner {
-        case lowerLeft, lowerRight, upperLeft, upperRight
-    }
-
     /// Get a corner coordinate
     ///
     /// - Parameter corner: The corner to retrieve
     /// - Returns: The corner as a Point
     @inlinable
-    public func corner(_ corner: Corner) -> Geometry.Point<2> {
+    public func corner(_ corner: Region.Corner) -> Geometry.Point<2> {
         switch corner {
-        case .lowerLeft:
+        case .bottomLeft:
             return Geometry.Point(x: llx, y: lly)
-        case .lowerRight:
+        case .bottomRight:
             return Geometry.Point(x: urx, y: lly)
-        case .upperLeft:
+        case .topLeft:
             return Geometry.Point(x: llx, y: ury)
-        case .upperRight:
+        case .topRight:
             return Geometry.Point(x: urx, y: ury)
+        default:
+            fatalError("Invalid corner")
         }
     }
 }
@@ -212,29 +156,23 @@ extension Geometry.Rectangle {
 // MARK: - Translation
 
 extension Geometry.Rectangle where Scalar: AdditiveArithmetic {
-    /// Translate the rectangle by the given amounts.
+    /// Translate the rectangle by the given displacements.
     ///
     /// - Parameters:
-    ///   - dx: Horizontal translation
-    ///   - dy: Vertical translation
+    ///   - dx: Horizontal displacement
+    ///   - dy: Vertical displacement
     /// - Returns: A new rectangle with translated origin
     @inlinable
-    public func translated(dx: Scalar, dy: Scalar) -> Self {
+    public func translated(
+        dx: Geometry.Width,
+        dy: Geometry.Height
+    ) -> Self {
         Self(
-            llx: .init(llx.value + dx),
-            lly: .init(lly.value + dy),
-            urx: .init(urx.value + dx),
-            ury: .init(ury.value + dy)
+            llx: llx + dx,
+            lly: lly + dy,
+            urx: urx + dx,
+            ury: ury + dy
         )
-    }
-
-    /// Translate the rectangle by a vector.
-    ///
-    /// - Parameter vector: The translation vector
-    /// - Returns: A new rectangle with translated origin
-    @inlinable
-    public func translated(by vector: Geometry.Vector<2>) -> Self {
-        translated(dx: vector.dx.value, dy: vector.dy.value)
     }
 }
 
@@ -272,7 +210,8 @@ extension Geometry.Rectangle where Scalar: Comparable {
     /// Check if the rectangle contains a point
     @inlinable
     public func contains(_ point: Geometry.Point<2>) -> Bool {
-        point.x >= minX && point.x <= maxX && point.y >= minY && point.y <= maxY
+        point.x >= minX && point.x <= maxX &&
+        point.y >= minY && point.y <= maxY
     }
 
     /// Check if this rectangle contains another rectangle
@@ -316,13 +255,13 @@ extension Geometry.Rectangle where Scalar: Comparable {
 extension Geometry.Rectangle where Scalar: FloatingPoint {
     /// Center x coordinate
     @inlinable
-    public var midX: Geometry.X { (llx + urx) / 2 }
+    public var midX: Geometry.X { .init((llx.value + urx.value) / 2) }
 
     /// Center y coordinate
     @inlinable
-    public var midY: Geometry.Y { lly + ury / 2 }
+    public var midY: Geometry.Y { .init((lly.value + ury.value) / 2) }
 
-    /// Center point
+    /// Center point of the rectangle
     @inlinable
     public var center: Geometry.Point<2> {
         Geometry.Point(x: midX, y: midY)
@@ -330,51 +269,11 @@ extension Geometry.Rectangle where Scalar: FloatingPoint {
 
     /// Return a rectangle inset by the given amounts
     @inlinable
-    public func insetBy(dx: Scalar, dy: Scalar) -> Self {
-        Self(llx: llx + dx, lly: lly + dy, urx: urx - dx, ury: ury - dy)
-    }
-
-    /// Return a rectangle inset by edge insets.
-    ///
-    /// Uses upward (standard Cartesian) orientation where "top" affects `ury`.
-    /// For screen coordinates where Y increases downward, use `inset(by:y:)`.
-    @inlinable
-    public func inset(by insets: Geometry.EdgeInsets) -> Self {
-        inset(by: insets, y: .upward)
-    }
-
-    /// Return a rectangle inset by edge insets with explicit Y-axis direction.
-    ///
-    /// - Parameters:
-    ///   - insets: The edge insets to apply
-    ///   - y: The vertical axis direction
-    /// - Returns: A new rectangle with the insets applied
-    ///
-    /// ## Axis Direction Effects
-    ///
-    /// - `.upward` (Cartesian): top→ury, bottom→lly
-    /// - `.downward` (screen): top→lly, bottom→ury
-    @inlinable
-    public func inset(
-        by insets: Geometry.EdgeInsets,
-        y: Axis<2>.Vertical
+    public func insetBy(
+        dx: Geometry.Width,
+        dy: Geometry.Height
     ) -> Self {
-        switch y {
-        case .upward:
-            return Self(
-                llx: llx + insets.leading,
-                lly: lly + insets.bottom,
-                urx: urx - insets.trailing,
-                ury: ury - insets.top
-            )
-        case .downward:
-            return Self(
-                llx: llx + insets.leading,
-                lly: lly + insets.top,
-                urx: urx - insets.trailing,
-                ury: ury - insets.bottom
-            )
-        }
+        Self(llx: llx + dx, lly: lly + dy, urx: urx - dx, ury: ury - dy)
     }
 }
 
@@ -418,7 +317,7 @@ extension Geometry.Rectangle {
     /// Create a rectangle by transforming each coordinate of another rectangle
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Geometry<U>.Rectangle,
+        _ other: borrowing Geometry<U, Space>.Rectangle,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         self.init(
@@ -433,28 +332,12 @@ extension Geometry.Rectangle {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.Rectangle {
-        Geometry<Result>.Rectangle(
+    ) throws(E) -> Geometry<Result, Space>.Rectangle {
+        Geometry<Result, Space>.Rectangle(
             llx: .init(try transform(llx.value)),
             lly: .init(try transform(lly.value)),
             urx: .init(try transform(urx.value)),
             ury: .init(try transform(ury.value))
         )
-    }
-}
-
-// MARK: - Bifunctor
-
-extension Geometry.Rectangle where Scalar: AdditiveArithmetic {
-    /// Create a rectangle by independently transforming origin and size
-    @inlinable
-    public init<U>(
-        _ other: Geometry<U>.Rectangle,
-        transformOrigin: (Geometry<U>.Point<2>) -> Geometry.Point<2>,
-        transformSize: (Geometry<U>.Size<2>) -> Geometry.Size<2>
-    ) where U: AdditiveArithmetic {
-        let newOrigin = transformOrigin(other.origin)
-        let newSize = transformSize(other.size)
-        self.init(origin: newOrigin, size: newSize)
     }
 }

@@ -7,8 +7,8 @@ import Testing
 
 @Suite("Affine Coordinate Tests")
 struct CoordinateTests {
-    typealias X = Affine<Double>.X
-    typealias Y = Affine<Double>.Y
+    typealias X = Affine<Double, Void>.X
+    typealias Y = Affine<Double, Void>.Y
 
     // MARK: - X Construction
 
@@ -204,14 +204,14 @@ struct CoordinateTests {
     @Test("X map")
     func xMap() throws {
         let x = X(3.0)
-        let doubled: Affine<Int>.X = try x.map { Int($0 * 2) }
+        let doubled: Affine<Int, Void>.X = try x.map { Int($0 * 2) }
         #expect(doubled.value == 6)
     }
 
     @Test("Y map")
     func yMap() throws {
         let y = Y(4.0)
-        let doubled: Affine<Int>.Y = try y.map { Int($0 * 2) }
+        let doubled: Affine<Int, Void>.Y = try y.map { Int($0 * 2) }
         #expect(doubled.value == 8)
     }
 }

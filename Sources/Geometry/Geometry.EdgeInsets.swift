@@ -135,7 +135,7 @@ extension Geometry.EdgeInsets {
     /// Create edge insets by transforming each value of another edge insets
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Geometry<U>.EdgeInsets,
+        _ other: borrowing Geometry<U, Space>.EdgeInsets,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         self.init(
@@ -150,8 +150,8 @@ extension Geometry.EdgeInsets {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.EdgeInsets {
-        Geometry<Result>.EdgeInsets(
+    ) throws(E) -> Geometry<Result, Space>.EdgeInsets {
+        Geometry<Result, Space>.EdgeInsets(
             top: try transform(top),
             leading: try transform(leading),
             bottom: try transform(bottom),

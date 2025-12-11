@@ -17,7 +17,7 @@ extension Geometry {
     ///
     /// ```swift
     /// // Quarter circle arc
-    /// let arc = Geometry<Double>.Arc(
+    /// let arc = Geometry<Double, Void>.Arc(
     ///     center: .init(x: 0, y: 0),
     ///     radius: 10,
     ///     startAngle: .zero,
@@ -30,7 +30,7 @@ extension Geometry {
         public var center: Point<2>
 
         /// The radius of the arc
-        public var radius: Length
+        public var radius: Radius
 
         /// The starting angle (from positive x-axis, counter-clockwise)
         public var startAngle: Radian
@@ -42,7 +42,7 @@ extension Geometry {
         @inlinable
         public init(
             center: consuming Point<2>,
-            radius: consuming Length,
+            radius: consuming Radius,
             startAngle: consuming Radian,
             endAngle: consuming Radian
         ) {
@@ -67,7 +67,7 @@ extension Geometry.Arc: Hashable where Scalar: Hashable {}
 extension Geometry.Arc {
     /// Create a full circle arc
     @inlinable
-    public static func fullCircle(center: Geometry.Point<2>, radius: Geometry.Length) -> Self {
+    public static func fullCircle(center: Geometry.Point<2>, radius: Geometry.Radius) -> Self {
         Self(center: center, radius: radius, startAngle: .zero, endAngle: .twoPi)
     }
 
@@ -75,7 +75,7 @@ extension Geometry.Arc {
     @inlinable
     public static func semicircle(
         center: Geometry.Point<2>,
-        radius: Geometry.Length,
+        radius: Geometry.Radius,
         startAngle: Radian = .zero
     ) -> Self {
         Self(center: center, radius: radius, startAngle: startAngle, endAngle: startAngle + .pi)
@@ -85,7 +85,7 @@ extension Geometry.Arc {
     @inlinable
     public static func quarterCircle(
         center: Geometry.Point<2>,
-        radius: Geometry.Length,
+        radius: Geometry.Radius,
         startAngle: Radian = .zero
     ) -> Self {
         Self(center: center, radius: radius, startAngle: startAngle, endAngle: startAngle + .halfPi)
@@ -121,8 +121,8 @@ extension Geometry.Arc where Scalar: Real & BinaryFloatingPoint {
     @inlinable
     public var startPoint: Geometry.Point<2> {
         Geometry.Point(
-            x: Geometry.X(center.x.value + radius.value * Scalar(startAngle.cos)),
-            y: Geometry.Y(center.y.value + radius.value * Scalar(startAngle.sin))
+            x: Affine<Scalar, Space>.X(center.x.value + radius.value * Scalar(startAngle.cos)),
+            y: Affine<Scalar, Space>.Y(center.y.value + radius.value * Scalar(startAngle.sin))
         )
     }
 
@@ -130,8 +130,8 @@ extension Geometry.Arc where Scalar: Real & BinaryFloatingPoint {
     @inlinable
     public var endPoint: Geometry.Point<2> {
         Geometry.Point(
-            x: Geometry.X(center.x.value + radius.value * Scalar(endAngle.cos)),
-            y: Geometry.Y(center.y.value + radius.value * Scalar(endAngle.sin))
+            x: Affine<Scalar, Space>.X(center.x.value + radius.value * Scalar(endAngle.cos)),
+            y: Affine<Scalar, Space>.Y(center.y.value + radius.value * Scalar(endAngle.sin))
         )
     }
 
@@ -140,8 +140,8 @@ extension Geometry.Arc where Scalar: Real & BinaryFloatingPoint {
     public var midPoint: Geometry.Point<2> {
         let midAngle = (startAngle + endAngle) / 2.0
         return Geometry.Point(
-            x: Geometry.X(center.x.value + radius.value * Scalar(midAngle.cos)),
-            y: Geometry.Y(center.y.value + radius.value * Scalar(midAngle.sin))
+            x: Affine<Scalar, Space>.X(center.x.value + radius.value * Scalar(midAngle.cos)),
+            y: Affine<Scalar, Space>.Y(center.y.value + radius.value * Scalar(midAngle.sin))
         )
     }
 }
@@ -157,8 +157,8 @@ extension Geometry.Arc where Scalar: Real & BinaryFloatingPoint {
     public func point(at t: Scalar) -> Geometry.Point<2> {
         let angle = Radian(startAngle.value + Double(t) * sweep.value)
         return Geometry.Point(
-            x: Geometry.X(center.x.value + radius.value * Scalar(angle.cos)),
-            y: Geometry.Y(center.y.value + radius.value * Scalar(angle.sin))
+            x: Affine<Scalar, Space>.X(center.x.value + radius.value * Scalar(angle.cos)),
+            y: Affine<Scalar, Space>.Y(center.y.value + radius.value * Scalar(angle.sin))
         )
     }
 
@@ -172,8 +172,8 @@ extension Geometry.Arc where Scalar: Real & BinaryFloatingPoint {
         // Tangent is perpendicular to radius, in direction of sweep
         let sign: Scalar = sweep.value >= 0 ? 1 : -1
         return Geometry.Vector(
-            dx: Geometry.Width(-sign * Scalar(angle.sin)),
-            dy: Geometry.Height(sign * Scalar(angle.cos))
+            dx: Linear<Scalar, Space>.Dx(-sign * Scalar(angle.sin)),
+            dy: Linear<Scalar, Space>.Dy(sign * Scalar(angle.cos))
         )
     }
 }
@@ -183,8 +183,8 @@ extension Geometry.Arc where Scalar: Real & BinaryFloatingPoint {
 extension Geometry.Arc where Scalar: Real & BinaryFloatingPoint {
     /// The arc length
     @inlinable
-    public var length: Scalar {
-        Scalar(abs(sweep.value)) * radius.value
+    public var length: Geometry.ArcLength {
+        radius * Scalar(abs(sweep.value))
     }
 }
 
@@ -312,9 +312,9 @@ extension Array {
     ///
     /// - Parameter arc: The arc to approximate
     @inlinable
-    public init<Scalar: Real & BinaryFloatingPoint>(
-        arc: Geometry<Scalar>.Arc
-    ) where Element == Geometry<Scalar>.Bezier {
+    public init<Scalar: Real & BinaryFloatingPoint, Space>(
+        arc: Geometry<Scalar, Space>.Arc
+    ) where Element == Geometry<Scalar, Space>.Bezier {
         let sweepValue = arc.sweep.value
         guard abs(sweepValue) > 0 else {
             self = []
@@ -328,7 +328,7 @@ extension Array {
         let segmentCount = Int((abs(sweepValue) / maxAngle).rounded(.up))
         let segmentAngle = sweepValue / Double(segmentCount)
 
-        var beziers: [Geometry<Scalar>.Bezier] = []
+        var beziers: [Geometry<Scalar, Space>.Bezier] = []
         beziers.reserveCapacity(segmentCount)
 
         var currentAngle = arc.startAngle
@@ -352,25 +352,28 @@ extension Array {
 
     /// Convert a single arc segment (≤90°) to a cubic Bezier
     @inlinable
-    internal static func arcSegmentToBezier<Scalar: Real & BinaryFloatingPoint>(
-        arc: Geometry<Scalar>.Arc,
+    internal static func arcSegmentToBezier<
+        Scalar: Real & BinaryFloatingPoint,
+        Space
+    >(
+        arc: Geometry<Scalar, Space>.Arc,
         from startAngle: Radian,
         to endAngle: Radian
-    ) -> Geometry<Scalar>.Bezier where Element == Geometry<Scalar>.Bezier {
+    ) -> Geometry<Scalar, Space>.Bezier where Element == Geometry<Scalar, Space>.Bezier {
         let sweep = endAngle - startAngle
         let halfSweep = sweep.value / 2
 
         // Control point distance factor
         let k = Scalar(4.0 / 3.0) * Scalar.tan(Scalar(halfSweep / 2))
 
-        let p0 = Geometry<Scalar>.Point(
-            x: Geometry<Scalar>.X(arc.center.x.value + arc.radius.value * Scalar(startAngle.cos)),
-            y: Geometry<Scalar>.Y(arc.center.y.value + arc.radius.value * Scalar(startAngle.sin))
+        let p0 = Geometry<Scalar, Space>.Point(
+            x: Geometry<Scalar, Space>.X(arc.center.x.value + arc.radius.value * Scalar(startAngle.cos)),
+            y: Geometry<Scalar, Space>.Y(arc.center.y.value + arc.radius.value * Scalar(startAngle.sin))
         )
 
-        let p3 = Geometry<Scalar>.Point(
-            x: Geometry<Scalar>.X(arc.center.x.value + arc.radius.value * Scalar(endAngle.cos)),
-            y: Geometry<Scalar>.Y(arc.center.y.value + arc.radius.value * Scalar(endAngle.sin))
+        let p3 = Geometry<Scalar, Space>.Point(
+            x: Geometry<Scalar, Space>.X(arc.center.x.value + arc.radius.value * Scalar(endAngle.cos)),
+            y: Geometry<Scalar, Space>.Y(arc.center.y.value + arc.radius.value * Scalar(endAngle.sin))
         )
 
         // Tangent directions at start and end
@@ -379,17 +382,22 @@ extension Array {
         let t1x = -Scalar(endAngle.sin)
         let t1y = Scalar(endAngle.cos)
 
-        let p1 = Geometry<Scalar>.Point(
-            x: Geometry<Scalar>.X(p0.x.value + k * arc.radius.value * t0x),
-            y: Geometry<Scalar>.Y(p0.y.value + k * arc.radius.value * t0y)
+        let p1 = Geometry<Scalar, Space>.Point(
+            x: Geometry<Scalar, Space>.X(p0.x.value + k * arc.radius.value * t0x),
+            y: Geometry<Scalar, Space>.Y(p0.y.value + k * arc.radius.value * t0y)
         )
 
-        let p2 = Geometry<Scalar>.Point(
-            x: Geometry<Scalar>.X(p3.x.value - k * arc.radius.value * t1x),
-            y: Geometry<Scalar>.Y(p3.y.value - k * arc.radius.value * t1y)
+        let p2 = Geometry<Scalar, Space>.Point(
+            x: Geometry<Scalar, Space>.X(p3.x.value - k * arc.radius.value * t1x),
+            y: Geometry<Scalar, Space>.Y(p3.y.value - k * arc.radius.value * t1y)
         )
 
-        return .cubic(from: p0, control1: p1, control2: p2, to: p3)
+        return .cubic(
+            from: p0,
+            control1: p1,
+            control2: p2,
+            to: p3
+        )
     }
 }
 
@@ -407,7 +415,7 @@ extension Geometry.Arc where Scalar: Real & BinaryFloatingPoint {
     public func scaled(by factor: Scalar) -> Self {
         Self(
             center: center,
-            radius: Geometry.Length(radius.value * factor),
+            radius: radius * factor,
             startAngle: startAngle,
             endAngle: endAngle
         )
@@ -426,7 +434,7 @@ extension Geometry.Arc {
     /// Create an arc by transforming the coordinates of another arc
     @inlinable
     public init<U>(
-        _ other: borrowing Geometry<U>.Arc,
+        _ other: borrowing Geometry<U, Space>.Arc,
         _ transform: (U) throws -> Scalar
     ) rethrows {
         self.init(
@@ -441,8 +449,8 @@ extension Geometry.Arc {
     @inlinable
     public func map<Result>(
         _ transform: (Scalar) throws -> Result
-    ) rethrows -> Geometry<Result>.Arc {
-        Geometry<Result>.Arc(
+    ) rethrows -> Geometry<Result, Space>.Arc {
+        Geometry<Result, Space>.Arc(
             center: try center.map(transform),
             radius: try radius.map(transform),
             startAngle: startAngle,

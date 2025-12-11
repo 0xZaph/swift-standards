@@ -19,7 +19,7 @@ extension Geometry {
     ///
     /// ```swift
     /// // A quadrilateral (4 vertices)
-    /// let quad: Geometry<Double>.Ngon<4> = .init(vertices: [
+    /// let quad: Geometry<Double, Void>.Ngon<4, Void> = .init(vertices: [
     ///     .init(x: 0, y: 0),
     ///     .init(x: 1, y: 0),
     ///     .init(x: 1, y: 1),
@@ -299,13 +299,13 @@ extension Geometry.Ngon where Scalar: FloatingPoint {
 
     /// The perimeter of the polygon
     @inlinable
-    public var perimeter: Scalar {
+    public var perimeter: Geometry.Perimeter {
         var sum: Scalar = .zero
         for i in 0..<N {
             let j = (i + 1) % N
             sum += vertices[i].distance(to: vertices[j])
         }
-        return sum
+        return Geometry.Perimeter(sum)
     }
 }
 
@@ -355,7 +355,12 @@ extension Geometry.Ngon where Scalar: Comparable {
             maxY = max(maxY, vertices[i].y)
         }
 
-        return Geometry.Rectangle(llx: minX, lly: minY, urx: maxX, ury: maxY)
+        return Geometry.Rectangle(
+            llx: minX,
+            lly: minY,
+            urx: maxX,
+            ury: maxY
+        )
     }
 }
 
@@ -504,8 +509,8 @@ extension Geometry.Ngon where Scalar: BinaryFloatingPoint {
     /// ## Example
     ///
     /// ```swift
-    /// let hexagon = Geometry<Double>.Hexagon.regular(sideLength: 10)
-    /// let pentagon = Geometry<Double>.Pentagon.regular(sideLength: 5, at: .init(x: 10, y: 10))
+    /// let hexagon = Geometry<Double, Void>.Hexagon.regular(sideLength: 10)
+    /// let pentagon = Geometry<Double, Void>.Pentagon.regular(sideLength: 5, at: .init(x: 10, y: 10))
     /// ```
     @inlinable
     public static func regular(
@@ -601,7 +606,7 @@ extension Geometry.Ngon {
     /// Create an N-gon by transforming the coordinates of another N-gon
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Geometry<U>.Ngon<N>,
+        _ other: borrowing Geometry<U, Space>.Ngon<N>,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         let first = try Geometry.Point<2>(other.vertices[0], transform)
@@ -616,13 +621,13 @@ extension Geometry.Ngon {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.Ngon<N> {
+    ) throws(E) -> Geometry<Result, Space>.Ngon<N> {
         let first = try vertices[0].map(transform)
-        var result = InlineArray<N, Geometry<Result>.Point<2>>(repeating: first)
+        var result = InlineArray<N, Geometry<Result, Space>.Point<2>>(repeating: first)
         for i in 1..<N {
             result[i] = try vertices[i].map(transform)
         }
-        return Geometry<Result>.Ngon<N>(result)
+        return Geometry<Result, Space>.Ngon<N>(result)
     }
 }
 
@@ -756,30 +761,29 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
     @inlinable
     public var incircle: Geometry.Circle? {
         let sides = sideLengths
-        let ab: Scalar = sides.ab
-        let bc: Scalar = sides.bc
-        let ca: Scalar = sides.ca
-        let two: Scalar = Scalar(2)
-        let s: Scalar = (ab + bc + ca) / two  // semi-perimeter
-        guard s > Scalar(0) else { return nil }
+        let ab = sides.ab
+        let bc = sides.bc
+        let ca = sides.ca
 
-        // Incenter coordinates (weighted by opposite side lengths)
-        let totalWeight: Scalar = ab + bc + ca
-        let ax: Scalar = vertices[0].x.value
-        let ay: Scalar = vertices[0].y.value
-        let bx: Scalar = vertices[1].x.value
-        let by: Scalar = vertices[1].y.value
-        let cx: Scalar = vertices[2].x.value
-        let cy: Scalar = vertices[2].y.value
-        let ix: Scalar = (bc * ax + ca * bx + ab * cx) / totalWeight
-        let iy: Scalar = (bc * ay + ca * by + ab * cy) / totalWeight
+        let perimeter = ab + bc + ca
+        guard perimeter > 0 else { return nil }
+        let semiPerimeter = perimeter / 2
+
+        // Incenter is the weighted centroid with weights = opposite side lengths
+        // Using affine combination: I = A + w_b*(B-A) + w_c*(C-A)
+        let w_b = ca / perimeter
+        let w_c = ab / perimeter
+
+        let toB = vertices[1] - vertices[0]  // Vector from A to B
+        let toC = vertices[2] - vertices[0]  // Vector from A to C
+        let center = vertices[0] + toB * w_b + toC * w_c
 
         // Inradius = Area / semi-perimeter
-        let r: Scalar = area / s
+        let inradius = area / semiPerimeter
 
         return Geometry.Circle(
-            center: Geometry.Point(x: Geometry.X(ix), y: Geometry.Y(iy)),
-            radius: Geometry.Length(r)
+            center: center,
+            radius: Geometry.Length(inradius)
         )
     }
 }

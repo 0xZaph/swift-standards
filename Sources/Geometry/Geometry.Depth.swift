@@ -10,7 +10,7 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// func drawCircle(center: Geometry<Points>.Point<2>, radius: Geometry<Points>.Depth) {
+    /// func drawCircle(center: Geometry<Points, Void>.Point<2>, radius: Geometry<Points, Void>.Depth) {
     ///     // ...
     /// }
     /// ```
@@ -140,7 +140,7 @@ extension Geometry.Depth {
     /// Create a Depth by transforming the value of another Depth
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Geometry<U>.Depth,
+        _ other: borrowing Geometry<U, Space>.Depth,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         self.init(try transform(other.value))
@@ -150,7 +150,7 @@ extension Geometry.Depth {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.Depth {
-        Geometry<Result>.Depth(try transform(value))
+    ) throws(E) -> Geometry<Result, Space>.Depth {
+        Geometry<Result, Space>.Depth(try transform(value))
     }
 }

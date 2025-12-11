@@ -18,7 +18,7 @@ extension Geometry {
     ///
     /// ```swift
     /// // Cubic Bezier curve
-    /// let curve = Geometry<Double>.Bezier(controlPoints: [
+    /// let curve = Geometry<Double, Void>.Bezier(controlPoints: [
     ///     .init(x: 0, y: 0),
     ///     .init(x: 1, y: 2),
     ///     .init(x: 3, y: 2),
@@ -293,7 +293,7 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
     /// - Parameter segments: Number of segments for approximation (default 100)
     /// - Returns: Approximate arc length
     @inlinable
-    public func length(segments: Int = 100) -> Scalar {
+    public func length(segments: Int = 100) -> Geometry.ArcLength {
         let points = subdivide(into: segments)
         guard points.count >= 2 else { return .zero }
 
@@ -301,7 +301,7 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
         for i in 0..<(points.count - 1) {
             len += points[i].distance(to: points[i + 1])
         }
-        return len
+        return .init(len)
     }
 }
 
@@ -425,7 +425,7 @@ extension Geometry.Bezier {
     /// Create a curve by transforming the coordinates of another curve
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Geometry<U>.Bezier,
+        _ other: borrowing Geometry<U, Space>.Bezier,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         var result: [Geometry.Point<2>] = []
@@ -440,12 +440,12 @@ extension Geometry.Bezier {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.Bezier {
-        var result: [Geometry<Result>.Point<2>] = []
+    ) throws(E) -> Geometry<Result, Space>.Bezier {
+        var result: [Geometry<Result, Space>.Point<2>] = []
         result.reserveCapacity(controlPoints.count)
         for point in controlPoints {
             result.append(try point.map(transform))
         }
-        return Geometry<Result>.Bezier(controlPoints: result)
+        return Geometry<Result, Space>.Bezier(controlPoints: result)
     }
 }

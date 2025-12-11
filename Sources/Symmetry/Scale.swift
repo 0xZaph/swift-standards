@@ -228,7 +228,7 @@ extension Scale {
 extension Scale where N == 2 {
     /// Converts to a 2D linear transformation matrix.
     @inlinable
-    public var linear: Linear<Double>.Matrix<2, 2> {
+    public var linear: Linear<Double, Void>.Matrix<2, 2> {
         .init(a: x, b: 0, c: 0, d: y)
     }
 }

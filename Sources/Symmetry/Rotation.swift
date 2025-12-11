@@ -18,13 +18,13 @@ public import Angle
 /// ```
 public struct Rotation<let N: Int>: Sendable {
     /// Orthogonal matrix representation with determinant +1.
-    public var matrix: Linear<Double>.Matrix<N, N>
+    public var matrix: Linear<Double, Void>.Matrix<N, N>
 
     /// Creates a rotation from an orthogonal matrix.
     ///
     /// - Precondition: Matrix must be orthogonal with determinant +1 (not validated).
     @inlinable
-    public init(matrix: Linear<Double>.Matrix<N, N>) {
+    public init(matrix: Linear<Double, Void>.Matrix<N, N>) {
         self.matrix = matrix
     }
 }
@@ -58,7 +58,7 @@ extension Rotation: Hashable where N == 2 {
 
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            let matrix = try container.decode(Linear<Double>.Matrix<2, 2>.self, forKey: .matrix)
+            let matrix = try container.decode(Linear<Double, Void>.Matrix<2, 2>.self, forKey: .matrix)
             self.init(matrix: matrix)
         }
 

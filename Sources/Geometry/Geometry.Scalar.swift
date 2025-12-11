@@ -9,7 +9,7 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// let value = Geometry<Double>.Scalar(72.0)
+    /// let value = Geometry<Double, Void>.Scalar(72.0)
     /// // value.value == 72.0
     /// ```
     public struct Scalar {
@@ -100,7 +100,7 @@ extension Geometry.Scalar {
     /// Creates a scalar by transforming another scalar's value.
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Geometry<U>.Scalar,
+        _ other: borrowing Geometry<U, Space>.Scalar,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         self.init(try transform(other.value))
@@ -110,8 +110,8 @@ extension Geometry.Scalar {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.Scalar {
-        Geometry<Result>.Scalar(try transform(value))
+    ) throws(E) -> Geometry<Result, Space>.Scalar {
+        Geometry<Result, Space>.Scalar(try transform(value))
     }
 }
 

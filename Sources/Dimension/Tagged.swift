@@ -304,117 +304,158 @@ extension Tagged where RawValue: FloatingPoint {
 // MARK: - Cross-Axis Displacement Multiplication
 
 // Displacement cross products: Dx × Dy = Area (scalar), Width × Height = scalar
+// These are free functions generic over Space to work with any coordinate system.
 
-extension Tagged where Tag == Index.X.Displacement, RawValue: Numeric {
-    /// Multiplies X-displacement by Y-displacement, returning area (scalar).
-    @inlinable
-    @_disfavoredOverload
-    public static func * (lhs: Self, rhs: Tagged<Index.Y.Displacement, RawValue>) -> RawValue {
-        lhs.rawValue * rhs.rawValue
-    }
-
-    /// Multiplies X-displacement by Z-displacement, returning a scalar.
-    @inlinable
-    @_disfavoredOverload
-    public static func * (lhs: Self, rhs: Tagged<Index.Z.Displacement, RawValue>) -> RawValue {
-        lhs.rawValue * rhs.rawValue
-    }
+/// Multiplies X-displacement by Y-displacement, returning area (scalar).
+@inlinable
+@_disfavoredOverload
+public func * <Space, Scalar: Numeric>(
+    lhs: Tagged<Index.X.Displacement<Space>, Scalar>,
+    rhs: Tagged<Index.Y.Displacement<Space>, Scalar>
+) -> Scalar {
+    lhs.rawValue * rhs.rawValue
 }
 
-extension Tagged where Tag == Index.Y.Displacement, RawValue: Numeric {
-    /// Multiplies Y-displacement by X-displacement, returning area (scalar).
-    @inlinable
-    @_disfavoredOverload
-    public static func * (lhs: Self, rhs: Tagged<Index.X.Displacement, RawValue>) -> RawValue {
-        lhs.rawValue * rhs.rawValue
-    }
-
-    /// Multiplies Y-displacement by Z-displacement, returning a scalar.
-    @inlinable
-    @_disfavoredOverload
-    public static func * (lhs: Self, rhs: Tagged<Index.Z.Displacement, RawValue>) -> RawValue {
-        lhs.rawValue * rhs.rawValue
-    }
+/// Multiplies X-displacement by Z-displacement, returning a scalar.
+@inlinable
+@_disfavoredOverload
+public func * <Space, Scalar: Numeric>(
+    lhs: Tagged<Index.X.Displacement<Space>, Scalar>,
+    rhs: Tagged<Index.Z.Displacement<Space>, Scalar>
+) -> Scalar {
+    lhs.rawValue * rhs.rawValue
 }
 
-extension Tagged where Tag == Index.Z.Displacement, RawValue: Numeric {
-    /// Multiplies Z-displacement by X-displacement, returning a scalar.
-    @inlinable
-    @_disfavoredOverload
-    public static func * (lhs: Self, rhs: Tagged<Index.X.Displacement, RawValue>) -> RawValue {
-        lhs.rawValue * rhs.rawValue
-    }
+/// Multiplies Y-displacement by X-displacement, returning area (scalar).
+@inlinable
+@_disfavoredOverload
+public func * <Space, Scalar: Numeric>(
+    lhs: Tagged<Index.Y.Displacement<Space>, Scalar>,
+    rhs: Tagged<Index.X.Displacement<Space>, Scalar>
+) -> Scalar {
+    lhs.rawValue * rhs.rawValue
+}
 
-    /// Multiplies Z-displacement by Y-displacement, returning a scalar.
-    @inlinable
-    @_disfavoredOverload
-    public static func * (lhs: Self, rhs: Tagged<Index.Y.Displacement, RawValue>) -> RawValue {
-        lhs.rawValue * rhs.rawValue
-    }
+/// Multiplies Y-displacement by Z-displacement, returning a scalar.
+@inlinable
+@_disfavoredOverload
+public func * <Space, Scalar: Numeric>(
+    lhs: Tagged<Index.Y.Displacement<Space>, Scalar>,
+    rhs: Tagged<Index.Z.Displacement<Space>, Scalar>
+) -> Scalar {
+    lhs.rawValue * rhs.rawValue
+}
+
+/// Multiplies Z-displacement by X-displacement, returning a scalar.
+@inlinable
+@_disfavoredOverload
+public func * <Space, Scalar: Numeric>(
+    lhs: Tagged<Index.Z.Displacement<Space>, Scalar>,
+    rhs: Tagged<Index.X.Displacement<Space>, Scalar>
+) -> Scalar {
+    lhs.rawValue * rhs.rawValue
+}
+
+/// Multiplies Z-displacement by Y-displacement, returning a scalar.
+@inlinable
+@_disfavoredOverload
+public func * <Space, Scalar: Numeric>(
+    lhs: Tagged<Index.Z.Displacement<Space>, Scalar>,
+    rhs: Tagged<Index.Y.Displacement<Space>, Scalar>
+) -> Scalar {
+    lhs.rawValue * rhs.rawValue
 }
 
 // MARK: - Mixed Coordinate/Displacement Arithmetic
 
 // Affine geometry: Point + Vector = Point, Point - Point = Vector, Point - Vector = Point
+// These are free functions generic over Space to work with any coordinate system.
 
-extension Tagged where Tag == Index.X.Coordinate, RawValue: AdditiveArithmetic {
-    /// Adds a displacement to a coordinate, returning a coordinate.
-    @inlinable
-    public static func + (lhs: Self, rhs: Tagged<Index.X.Displacement, RawValue>) -> Self {
-        Self(lhs.rawValue + rhs.rawValue)
-    }
+// MARK: X Axis
 
-    /// Subtracts two coordinates, returning a displacement.
-    @inlinable
-    public static func - (lhs: Self, rhs: Self) -> Tagged<Index.X.Displacement, RawValue> {
-        Tagged<Index.X.Displacement, RawValue>(lhs.rawValue - rhs.rawValue)
-    }
-
-    /// Subtracts a displacement from a coordinate, returning a coordinate.
-    @inlinable
-    public static func - (lhs: Self, rhs: Tagged<Index.X.Displacement, RawValue>) -> Self {
-        Self(lhs.rawValue - rhs.rawValue)
-    }
+/// Adds a displacement to an X coordinate, returning a coordinate.
+@inlinable
+public func + <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.X.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.X.Displacement<Space>, Scalar>
+) -> Tagged<Index.X.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue + rhs.rawValue)
 }
 
-extension Tagged where Tag == Index.Y.Coordinate, RawValue: AdditiveArithmetic {
-    /// Adds a displacement to a coordinate, returning a coordinate.
-    @inlinable
-    public static func + (lhs: Self, rhs: Tagged<Index.Y.Displacement, RawValue>) -> Self {
-        Self(lhs.rawValue + rhs.rawValue)
-    }
-
-    /// Subtracts two coordinates, returning a displacement.
-    @inlinable
-    public static func - (lhs: Self, rhs: Self) -> Tagged<Index.Y.Displacement, RawValue> {
-        Tagged<Index.Y.Displacement, RawValue>(lhs.rawValue - rhs.rawValue)
-    }
-
-    /// Subtracts a displacement from a coordinate, returning a coordinate.
-    @inlinable
-    public static func - (lhs: Self, rhs: Tagged<Index.Y.Displacement, RawValue>) -> Self {
-        Self(lhs.rawValue - rhs.rawValue)
-    }
+/// Subtracts two X coordinates, returning a displacement.
+@inlinable
+public func - <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.X.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.X.Coordinate<Space>, Scalar>
+) -> Tagged<Index.X.Displacement<Space>, Scalar> {
+    Tagged(lhs.rawValue - rhs.rawValue)
 }
 
-extension Tagged where Tag == Index.Z.Coordinate, RawValue: AdditiveArithmetic {
-    /// Adds a displacement to a coordinate, returning a coordinate.
-    @inlinable
-    public static func + (lhs: Self, rhs: Tagged<Index.Z.Displacement, RawValue>) -> Self {
-        Self(lhs.rawValue + rhs.rawValue)
-    }
+/// Subtracts a displacement from an X coordinate, returning a coordinate.
+@inlinable
+public func - <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.X.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.X.Displacement<Space>, Scalar>
+) -> Tagged<Index.X.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue - rhs.rawValue)
+}
 
-    /// Subtracts two coordinates, returning a displacement.
-    @inlinable
-    public static func - (lhs: Self, rhs: Self) -> Tagged<Index.Z.Displacement, RawValue> {
-        Tagged<Index.Z.Displacement, RawValue>(lhs.rawValue - rhs.rawValue)
-    }
+// MARK: Y Axis
 
-    /// Subtracts a displacement from a coordinate, returning a coordinate.
-    @inlinable
-    public static func - (lhs: Self, rhs: Tagged<Index.Z.Displacement, RawValue>) -> Self {
-        Self(lhs.rawValue - rhs.rawValue)
-    }
+/// Adds a displacement to a Y coordinate, returning a coordinate.
+@inlinable
+public func + <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Y.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.Y.Displacement<Space>, Scalar>
+) -> Tagged<Index.Y.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue + rhs.rawValue)
+}
+
+/// Subtracts two Y coordinates, returning a displacement.
+@inlinable
+public func - <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Y.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.Y.Coordinate<Space>, Scalar>
+) -> Tagged<Index.Y.Displacement<Space>, Scalar> {
+    Tagged(lhs.rawValue - rhs.rawValue)
+}
+
+/// Subtracts a displacement from a Y coordinate, returning a coordinate.
+@inlinable
+public func - <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Y.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.Y.Displacement<Space>, Scalar>
+) -> Tagged<Index.Y.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue - rhs.rawValue)
+}
+
+// MARK: Z Axis
+
+/// Adds a displacement to a Z coordinate, returning a coordinate.
+@inlinable
+public func + <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Z.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.Z.Displacement<Space>, Scalar>
+) -> Tagged<Index.Z.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue + rhs.rawValue)
+}
+
+/// Subtracts two Z coordinates, returning a displacement.
+@inlinable
+public func - <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Z.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.Z.Coordinate<Space>, Scalar>
+) -> Tagged<Index.Z.Displacement<Space>, Scalar> {
+    Tagged(lhs.rawValue - rhs.rawValue)
+}
+
+/// Subtracts a displacement from a Z coordinate, returning a coordinate.
+@inlinable
+public func - <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Z.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.Z.Displacement<Space>, Scalar>
+) -> Tagged<Index.Z.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue - rhs.rawValue)
 }
 
 // MARK: - Strideable

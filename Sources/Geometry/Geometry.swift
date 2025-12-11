@@ -1,9 +1,9 @@
 // Geometry
 //
-// Affine geometry primitives parameterized by scalar type.
+// Affine geometry primitives parameterized by scalar type and coordinate space.
 //
 // This module provides type-safe geometry primitives for affine spaces.
-// Types are parameterized by their scalar type (the coordinate unit).
+// Types are parameterized by their scalar type and coordinate space.
 //
 // ## Structure
 //
@@ -14,7 +14,7 @@
 // Related modules (import separately):
 // - **Symmetry**: Lie group transformations (`Rotation`, `Scale`, `Shear`)
 //
-// ## Spatial Types (Geometry<Scalar>)
+// ## Spatial Types (Geometry<Scalar, Space>)
 //
 // - `Point<N>`: An N-dimensional position
 // - `Vector<N>`: An N-dimensional displacement
@@ -27,14 +27,15 @@
 //
 // ## Usage
 //
-// Specialize with your scalar type:
+// Specialize with your scalar type and coordinate space:
 //
 // ```swift
 // struct Points: AdditiveArithmetic { ... }
+// enum PageSpace {}
 //
-// typealias Coordinate = Geometry<Points>.Point<2>
-// typealias PageSize = Geometry<Points>.Size<2>
-// typealias Transform = Geometry<Points>.AffineTransform
+// typealias Coordinate = Geometry<Points, PageSpace>.Point<2>
+// typealias PageSize = Geometry<Points, PageSpace>.Size<2>
+// typealias Transform = Geometry<Points, PageSpace>.AffineTransform
 // ```
 
 public import Affine
@@ -42,21 +43,28 @@ public import Algebra
 public import Algebra_Linear
 import Angle
 public import Dimension
-import Region
 
 /// Namespace for affine geometry primitives.
 ///
-/// All geometry types are parameterized by scalar type for coordinates and measurements.
-/// Supports both copyable and non-copyable scalar types.
+/// All geometry types are parameterized by scalar type and coordinate space.
+/// The `Space` parameter is a phantom type that ensures type safety across coordinate systems.
+/// Use `Void` for applications that don't need space separation.
 ///
 /// ## Example
 ///
 /// ```swift
-/// typealias Points = Double
-/// let rect = Geometry<Points>.Rectangle(x: 0, y: 0, width: 100, height: 200)
-/// let circle = Geometry<Points>.Circle(center: .init(x: 50, y: 50), radius: 25)
+/// // Simple usage with Void space
+/// let rect = Geometry<Double, Void>.Rectangle(x: 0, y: 0, width: 100, height: 200)
+/// let circle = Geometry<Double, Void>.Circle(center: .init(x: 50, y: 50), radius: 25)
+///
+/// // Type-safe coordinate spaces
+/// enum UserSpace {}
+/// enum DeviceSpace {}
+/// let userPoint: Geometry<Double, UserSpace>.Point<2> = .init(x: 10, y: 20)
+/// let devicePoint: Geometry<Double, DeviceSpace>.Point<2> = .init(x: 100, y: 200)
+/// // userPoint + devicePoint  // Compile error: different spaces
 /// ```
-public enum Geometry<Scalar: ~Copyable>: ~Copyable {}
+public enum Geometry<Scalar: ~Copyable, Space>: ~Copyable {}
 
 extension Geometry: Copyable where Scalar: Copyable {}
 extension Geometry: Sendable where Scalar: Sendable {}
@@ -65,29 +73,59 @@ extension Geometry: Sendable where Scalar: Sendable {}
 
 extension Geometry {
     /// See ``Affine/X``
-    public typealias X = Affine<Scalar>.X
+    public typealias X = Affine<Scalar, Space>.X
 
     /// See ``Affine/Y``
-    public typealias Y = Affine<Scalar>.Y
+    public typealias Y = Affine<Scalar, Space>.Y
 
     /// See ``Linear/Dx``
-    public typealias Width = Linear<Scalar>.Dx
+    public typealias Width = Linear<Scalar, Space>.Dx
 
     /// See ``Linear/Dy``
-    public typealias Height = Linear<Scalar>.Dy
+    public typealias Height = Linear<Scalar, Space>.Dy
 
     /// See ``Linear/Magnitude``
-    public typealias Length = Linear<Scalar>.Magnitude
+    public typealias Length = Linear<Scalar, Space>.Magnitude
+
+    /// Radius of a circle or arc (non-directional magnitude).
+    ///
+    /// Semantically identical to `Length` but provides clearer intent for circular geometry.
+    public typealias Radius = Linear<Scalar, Space>.Magnitude
+
+    /// Diameter of a circle (non-directional magnitude).
+    ///
+    /// Semantically identical to `Length` but provides clearer intent for circular geometry.
+    public typealias Diameter = Linear<Scalar, Space>.Magnitude
+
+    /// Distance between two points (non-directional magnitude).
+    ///
+    /// Semantically identical to `Length` but provides clearer intent for point-to-point measurements.
+    public typealias Distance = Linear<Scalar, Space>.Magnitude
+
+    /// Circumference of a circle (non-directional magnitude).
+    ///
+    /// Semantically identical to `Length` but provides clearer intent for circular perimeter.
+    public typealias Circumference = Linear<Scalar, Space>.Magnitude
+
+    /// Perimeter of a closed shape (non-directional magnitude).
+    ///
+    /// Semantically identical to `Length` but provides clearer intent for boundary length.
+    public typealias Perimeter = Linear<Scalar, Space>.Magnitude
+
+    /// Arc length along a curve (non-directional magnitude).
+    ///
+    /// Semantically identical to `Length` but provides clearer intent for curved paths.
+    public typealias ArcLength = Linear<Scalar, Space>.Magnitude
 
     /// See ``Affine/Translation``
-    public typealias Translation = Affine<Scalar>.Translation
+    public typealias Translation = Affine<Scalar, Space>.Translation
 
     /// See ``Affine/Transform``
-    public typealias AffineTransform = Affine<Scalar>.Transform
+    public typealias AffineTransform = Affine<Scalar, Space>.Transform
 
     /// See ``Affine/Point``
-    public typealias Point<let N: Int> = Affine<Scalar>.Point<N>
+    public typealias Point<let N: Int> = Affine<Scalar, Space>.Point<N>
 
     /// See ``Linear/Vector``
-    public typealias Vector<let N: Int> = Linear<Scalar>.Vector<N>
+    public typealias Vector<let N: Int> = Linear<Scalar, Space>.Vector<N>
 }

@@ -16,7 +16,7 @@ struct BezierTests {
 
     @Test
     func `Bezier initialization`() {
-        let bezier: Geometry<Double>.Bezier = .init(controlPoints: [
+        let bezier: Geometry<Double, Void>.Bezier = .init(controlPoints: [
             .init(x: 0, y: 0),
             .init(x: 1, y: 2),
             .init(x: 3, y: 2),
@@ -27,7 +27,7 @@ struct BezierTests {
 
     @Test
     func `Linear Bezier`() {
-        let bezier: Geometry<Double>.Bezier = .linear(
+        let bezier: Geometry<Double, Void>.Bezier = .linear(
             from: .init(x: 0, y: 0),
             to: .init(x: 10, y: 10)
         )
@@ -37,7 +37,7 @@ struct BezierTests {
 
     @Test
     func `Quadratic Bezier`() {
-        let bezier: Geometry<Double>.Bezier = .quadratic(
+        let bezier: Geometry<Double, Void>.Bezier = .quadratic(
             from: .init(x: 0, y: 0),
             control: .init(x: 5, y: 10),
             to: .init(x: 10, y: 0)
@@ -48,7 +48,7 @@ struct BezierTests {
 
     @Test
     func `Cubic Bezier`() {
-        let bezier: Geometry<Double>.Bezier = .cubic(
+        let bezier: Geometry<Double, Void>.Bezier = .cubic(
             from: .init(x: 0, y: 0),
             control1: .init(x: 1, y: 2),
             control2: .init(x: 3, y: 2),
@@ -62,13 +62,13 @@ struct BezierTests {
 
     @Test
     func `Degree`() {
-        let linear: Geometry<Double>.Bezier = .linear(
+        let linear: Geometry<Double, Void>.Bezier = .linear(
             from: .zero,
             to: .init(x: 1, y: 1)
         )
         #expect(linear.degree == 1)
 
-        let cubic: Geometry<Double>.Bezier = .cubic(
+        let cubic: Geometry<Double, Void>.Bezier = .cubic(
             from: .zero,
             control1: .init(x: 1, y: 1),
             control2: .init(x: 2, y: 1),
@@ -79,19 +79,19 @@ struct BezierTests {
 
     @Test
     func `isValid`() {
-        let valid: Geometry<Double>.Bezier = .linear(
+        let valid: Geometry<Double, Void>.Bezier = .linear(
             from: .zero,
             to: .init(x: 1, y: 1)
         )
         #expect(valid.isValid)
 
-        let invalid: Geometry<Double>.Bezier = .init(controlPoints: [.zero])
+        let invalid: Geometry<Double, Void>.Bezier = .init(controlPoints: [.zero])
         #expect(!invalid.isValid)
     }
 
     @Test
     func `Start and end points`() {
-        let bezier: Geometry<Double>.Bezier = .cubic(
+        let bezier: Geometry<Double, Void>.Bezier = .cubic(
             from: .init(x: 1, y: 2),
             control1: .init(x: 3, y: 4),
             control2: .init(x: 5, y: 6),
@@ -107,7 +107,7 @@ struct BezierTests {
 
     @Test
     func `Point at t=0`() {
-        let bezier: Geometry<Double>.Bezier = .cubic(
+        let bezier: Geometry<Double, Void>.Bezier = .cubic(
             from: .init(x: 0, y: 0),
             control1: .init(x: 1, y: 2),
             control2: .init(x: 3, y: 2),
@@ -121,7 +121,7 @@ struct BezierTests {
 
     @Test
     func `Point at t=1`() {
-        let bezier: Geometry<Double>.Bezier = .cubic(
+        let bezier: Geometry<Double, Void>.Bezier = .cubic(
             from: .init(x: 0, y: 0),
             control1: .init(x: 1, y: 2),
             control2: .init(x: 3, y: 2),
@@ -135,7 +135,7 @@ struct BezierTests {
 
     @Test
     func `Point at t=0.5 for linear`() {
-        let bezier: Geometry<Double>.Bezier = .linear(
+        let bezier: Geometry<Double, Void>.Bezier = .linear(
             from: .init(x: 0, y: 0),
             to: .init(x: 10, y: 10)
         )
@@ -146,7 +146,7 @@ struct BezierTests {
 
     @Test
     func `Point at t=0.5 for quadratic`() {
-        let bezier: Geometry<Double>.Bezier = .quadratic(
+        let bezier: Geometry<Double, Void>.Bezier = .quadratic(
             from: .init(x: 0, y: 0),
             control: .init(x: 2, y: 4),
             to: .init(x: 4, y: 0)
@@ -162,7 +162,7 @@ struct BezierTests {
 
     @Test
     func `Derivative of linear`() {
-        let bezier: Geometry<Double>.Bezier = .linear(
+        let bezier: Geometry<Double, Void>.Bezier = .linear(
             from: .init(x: 0, y: 0),
             to: .init(x: 10, y: 20)
         )
@@ -174,7 +174,7 @@ struct BezierTests {
 
     @Test
     func `Tangent is unit vector`() {
-        let bezier: Geometry<Double>.Bezier = .cubic(
+        let bezier: Geometry<Double, Void>.Bezier = .cubic(
             from: .init(x: 0, y: 0),
             control1: .init(x: 1, y: 2),
             control2: .init(x: 3, y: 2),
@@ -186,7 +186,7 @@ struct BezierTests {
 
     @Test
     func `Normal perpendicular to tangent`() {
-        let bezier: Geometry<Double>.Bezier = .cubic(
+        let bezier: Geometry<Double, Void>.Bezier = .cubic(
             from: .init(x: 0, y: 0),
             control1: .init(x: 1, y: 2),
             control2: .init(x: 3, y: 2),
@@ -202,7 +202,7 @@ struct BezierTests {
 
     @Test
     func `Split at t=0.5`() {
-        let bezier: Geometry<Double>.Bezier = .cubic(
+        let bezier: Geometry<Double, Void>.Bezier = .cubic(
             from: .init(x: 0, y: 0),
             control1: .init(x: 0, y: 10),
             control2: .init(x: 10, y: 10),
@@ -226,7 +226,7 @@ struct BezierTests {
 
     @Test
     func `Subdivide into segments`() {
-        let bezier: Geometry<Double>.Bezier = .cubic(
+        let bezier: Geometry<Double, Void>.Bezier = .cubic(
             from: .init(x: 0, y: 0),
             control1: .init(x: 1, y: 2),
             control2: .init(x: 3, y: 2),
@@ -245,7 +245,7 @@ struct BezierTests {
 
     @Test
     func `Conservative bounding box`() {
-        let bezier: Geometry<Double>.Bezier = .cubic(
+        let bezier: Geometry<Double, Void>.Bezier = .cubic(
             from: .init(x: 0, y: 0),
             control1: .init(x: 1, y: 10),
             control2: .init(x: 3, y: 10),
@@ -262,7 +262,7 @@ struct BezierTests {
 
     @Test
     func `Length of linear Bezier`() {
-        let bezier: Geometry<Double>.Bezier = .linear(
+        let bezier: Geometry<Double, Void>.Bezier = .linear(
             from: .init(x: 0, y: 0),
             to: .init(x: 3, y: 4)
         )
@@ -272,7 +272,7 @@ struct BezierTests {
 
     @Test
     func `Length approximation`() {
-        let bezier: Geometry<Double>.Bezier = .cubic(
+        let bezier: Geometry<Double, Void>.Bezier = .cubic(
             from: .init(x: 0, y: 0),
             control1: .init(x: 0, y: 10),
             control2: .init(x: 10, y: 10),
@@ -288,7 +288,7 @@ struct BezierTests {
 
     @Test
     func `Translation`() {
-        let bezier: Geometry<Double>.Bezier = .linear(
+        let bezier: Geometry<Double, Void>.Bezier = .linear(
             from: .init(x: 0, y: 0),
             to: .init(x: 10, y: 10)
         )
@@ -301,7 +301,7 @@ struct BezierTests {
 
     @Test
     func `Scaling about point`() {
-        let bezier: Geometry<Double>.Bezier = .linear(
+        let bezier: Geometry<Double, Void>.Bezier = .linear(
             from: .init(x: 0, y: 0),
             to: .init(x: 10, y: 0)
         )
@@ -312,7 +312,7 @@ struct BezierTests {
 
     @Test
     func `Reversed curve`() {
-        let bezier: Geometry<Double>.Bezier = .cubic(
+        let bezier: Geometry<Double, Void>.Bezier = .cubic(
             from: .init(x: 0, y: 0),
             control1: .init(x: 1, y: 2),
             control2: .init(x: 3, y: 2),
@@ -327,8 +327,8 @@ struct BezierTests {
 
     @Test
     func `Approximating unit circle`() {
-        let circle: Geometry<Double>.Circle = .unit
-        let beziers = Geometry<Double>.Bezier.approximating(circle)
+        let circle: Geometry<Double, Void>.Circle = .unit
+        let beziers = Geometry<Double, Void>.Bezier.approximating(circle)
         #expect(beziers.count == 4)
 
         // Each bezier should be cubic
@@ -347,8 +347,8 @@ struct BezierTests {
 
     @Test
     func `Approximating ellipse`() {
-        let ellipse: Geometry<Double>.Ellipse = .init(semiMajor: 10, semiMinor: 5)
-        let beziers = Geometry<Double>.Bezier.approximating(ellipse)
+        let ellipse: Geometry<Double, Void>.Ellipse = .init(semiMajor: 10, semiMinor: 5)
+        let beziers = Geometry<Double, Void>.Bezier.approximating(ellipse)
         #expect(beziers.count == 4)
 
         // First bezier starts at (10, 0) - rightmost point
@@ -362,12 +362,12 @@ struct BezierTests {
 
     @Test
     func `Bezier approximation is continuous`() {
-        let ellipse: Geometry<Double>.Ellipse = .init(
+        let ellipse: Geometry<Double, Void>.Ellipse = .init(
             center: .init(x: 5, y: 5),
             semiMajor: 10,
             semiMinor: 5
         )
-        let beziers = Geometry<Double>.Bezier.approximating(ellipse)
+        let beziers = Geometry<Double, Void>.Bezier.approximating(ellipse)
 
         // Each bezier should connect to the next
         for i in 0..<3 {
@@ -388,11 +388,11 @@ struct BezierTests {
 
     @Test
     func `Bezier map`() {
-        let bezier: Geometry<Double>.Bezier = .linear(
+        let bezier: Geometry<Double, Void>.Bezier = .linear(
             from: .init(x: 0, y: 0),
             to: .init(x: 10, y: 20)
         )
-        let mapped: Geometry<Float>.Bezier = bezier.map { Float($0) }
+        let mapped: Geometry<Float, Void>.Bezier = bezier.map { Float($0) }
         #expect(mapped.startPoint?.x.value == 0)
         #expect(mapped.endPoint?.x.value == 10)
     }

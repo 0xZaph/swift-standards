@@ -18,13 +18,13 @@ extension Geometry {
     ///
     /// ```swift
     /// // Line through origin with direction (1, 1)
-    /// let diagonal = Geometry<Double>.Line(
+    /// let diagonal = Geometry<Double, Void>.Line(
     ///     point: .init(x: 0, y: 0),
     ///     direction: .init(dx: 1, dy: 1)
     /// )
     ///
     /// // Line through two points
-    /// let line = Geometry<Double>.Line(
+    /// let line = Geometry<Double, Void>.Line(
     ///     from: .init(x: 0, y: 0),
     ///     to: .init(x: 10, y: 10)
     /// )
@@ -93,12 +93,12 @@ extension Geometry.Line where Scalar: FloatingPoint {
     ///
     /// - Returns: The perpendicular distance, or `nil` if the line has zero-length direction vector.
     @inlinable
-    public func distance(to other: Geometry.Point<2>) -> Scalar? {
+    public func distance(to other: Geometry.Point<2>) -> Geometry.Distance? {
         let len = direction.length
         guard len != 0 else { return nil }
         let v = Geometry.Vector(dx: other.x - point.x, dy: other.y - point.y)
         let cross = direction.dx * v.dy - direction.dy * v.dx
-        return abs(cross) / len
+        return Geometry.Distance(abs(cross) / len)
     }
 
     /// Find the intersection point with another line.
@@ -196,7 +196,7 @@ extension Geometry.Line {
     /// ## Example
     ///
     /// ```swift
-    /// let segment = Geometry<Double>.Line.Segment(
+    /// let segment = Geometry<Double, Void>.Line.Segment(
     ///     start: .init(x: 0, y: 0),
     ///     end: .init(x: 100, y: 100)
     /// )
@@ -265,8 +265,8 @@ extension Geometry.Line.Segment where Scalar: FloatingPoint {
 
     /// The length of the segment
     @inlinable
-    public var length: Scalar {
-        vector.length
+    public var length: Geometry.Length {
+        Geometry.Length(vector.length)
     }
 
     /// The midpoint of the segment
@@ -338,15 +338,15 @@ extension Geometry.Line.Segment where Scalar: FloatingPoint {
     /// - Parameter point: The point to measure from
     /// - Returns: The distance to the closest point on the segment
     @inlinable
-    public func distance(to other: Geometry.Point<2>) -> Scalar {
+    public func distance(to other: Geometry.Point<2>) -> Geometry.Distance {
         let v = vector
         let lenSq = v.dx * v.dx + v.dy * v.dy
 
         // Degenerate segment (point)
         if lenSq == 0 {
-            let dx = other.x.value - start.x.value
-            let dy = other.y.value - start.y.value
-            return (dx * dx + dy * dy).squareRoot()
+            let dx = other.x - start.x
+            let dy = other.y - start.y
+            return .init((dx * dx + dy * dy).squareRoot())
         }
 
         // Project point onto line, clamping to segment
@@ -354,9 +354,9 @@ extension Geometry.Line.Segment where Scalar: FloatingPoint {
         let t = max(0, min(1, (v.dx * w.dx + v.dy * w.dy) / lenSq))
 
         let closest = point(at: t)
-        let dx = other.x.value - closest.x.value
-        let dy = other.y.value - closest.y.value
-        return (dx * dx + dy * dy).squareRoot()
+        let dx = other.x - closest.x
+        let dy = other.y - closest.y
+        return .init((dx * dx + dy * dy).squareRoot())
     }
 
     /// Find intersection points with an N-gon.
@@ -393,7 +393,7 @@ extension Geometry.Line {
     /// Create a line by transforming the coordinates of another line
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Geometry<U>.Line,
+        _ other: borrowing Geometry<U, Space>.Line,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         self.init(
@@ -406,8 +406,8 @@ extension Geometry.Line {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.Line {
-        Geometry<Result>.Line(
+    ) throws(E) -> Geometry<Result, Space>.Line {
+        Geometry<Result, Space>.Line(
             point: try point.map(transform),
             direction: try direction.map(transform)
         )
@@ -420,7 +420,7 @@ extension Geometry.Line.Segment {
     /// Create a segment by transforming the coordinates of another segment
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Geometry<U>.Line.Segment,
+        _ other: borrowing Geometry<U, Space>.Line.Segment,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         self.init(
@@ -433,8 +433,8 @@ extension Geometry.Line.Segment {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.Line.Segment {
-        Geometry<Result>.Line.Segment(
+    ) throws(E) -> Geometry<Result, Space>.Line.Segment {
+        Geometry<Result, Space>.Line.Segment(
             start: try start.map(transform),
             end: try end.map(transform)
         )

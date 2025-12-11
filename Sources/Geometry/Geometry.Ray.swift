@@ -15,7 +15,7 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// let ray = Geometry<Double>.Ray(
+    /// let ray = Geometry<Double, Void>.Ray(
     ///     origin: .init(x: 0, y: 0),
     ///     direction: .init(dx: 1, dy: 1)
     /// )
@@ -131,18 +131,17 @@ extension Geometry.Ray where Scalar: FloatingPoint {
     /// - Parameter point: The point to measure from
     /// - Returns: The distance to the closest point on the ray
     @inlinable
-    public func distance(to point: Geometry.Point<2>) -> Scalar {
+    public func distance(to point: Geometry.Point<2>) -> Geometry.Distance {
         let lenSq = direction.lengthSquared
         guard lenSq > 0 else {
-            return origin.distance(to: point)
+            return .init(origin.distance(to: point))
         }
 
-        let vx = point.x.value - origin.x.value
-        let vy = point.y.value - origin.y.value
-        let t = max(0, (direction.dx.value * vx + direction.dy.value * vy) / lenSq)
+        let v = Geometry.Vector(dx: point.x - origin.x, dy: point.y - origin.y)
+        let t = max(0, (direction.dx * v.dx + direction.dy * v.dy) / lenSq)
 
         let closest = self.point(at: t)
-        return point.distance(to: closest)
+        return .init(point.distance(to: closest))
     }
 
     /// Get the closest point on the ray to a given point.
@@ -293,7 +292,7 @@ extension Geometry.Ray {
     /// Create a ray by transforming the coordinates of another ray
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Geometry<U>.Ray,
+        _ other: borrowing Geometry<U, Space>.Ray,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         self.init(
@@ -306,8 +305,8 @@ extension Geometry.Ray {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.Ray {
-        Geometry<Result>.Ray(
+    ) throws(E) -> Geometry<Result, Space>.Ray {
+        Geometry<Result, Space>.Ray(
             origin: try origin.map(transform),
             direction: try direction.map(transform)
         )

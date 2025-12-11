@@ -9,9 +9,9 @@ import Angle
 
 @Suite("Affine.Transform Tests")
 struct TransformTests {
-    typealias Transform = Affine<Double>.Transform
-    typealias Point2 = Affine<Double>.Point<2>
-    typealias Vec2 = Linear<Double>.Vector<2>
+    typealias Transform = Affine<Double, Void>.Transform
+    typealias Point2 = Affine<Double, Void>.Point<2>
+    typealias Vec2 = Linear<Double, Void>.Vector<2>
 
     // MARK: - Identity
 

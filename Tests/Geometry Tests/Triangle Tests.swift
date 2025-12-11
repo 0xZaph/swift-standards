@@ -15,7 +15,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Triangle initialization`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 4, y: 0),
             c: .init(x: 2, y: 3)
@@ -30,12 +30,12 @@ struct `Triangle Tests` {
 
     @Test
     func `Triangle init from vertices array`() {
-        let vertices: [Geometry<Double>.Point<2>] = [
+        let vertices: [Geometry<Double, Void>.Point<2>] = [
             .init(x: 0, y: 0),
             .init(x: 3, y: 0),
             .init(x: 0, y: 4),
         ]
-        let triangle = Geometry<Double>.Triangle(vertices: vertices)
+        let triangle = Geometry<Double, Void>.Triangle(vertices: vertices)
         #expect(triangle != nil)
         #expect(triangle!.a.x == 0)
         #expect(triangle!.b.x == 3)
@@ -44,11 +44,11 @@ struct `Triangle Tests` {
 
     @Test
     func `Triangle init from wrong size array is nil`() {
-        let twoVertices: [Geometry<Double>.Point<2>] = [
+        let twoVertices: [Geometry<Double, Void>.Point<2>] = [
             .init(x: 0, y: 0),
             .init(x: 3, y: 0),
         ]
-        let triangle = Geometry<Double>.Triangle(vertices: twoVertices)
+        let triangle = Geometry<Double, Void>.Triangle(vertices: twoVertices)
         #expect(triangle == nil)
     }
 
@@ -56,7 +56,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Right triangle factory`() {
-        let triangle: Geometry<Double>.Triangle = .right(base: 3, height: 4)
+        let triangle: Geometry<Double, Void>.Triangle = .right(base: 3, height: 4)
         #expect(triangle.a.x == 0)
         #expect(triangle.a.y == 0)
         #expect(triangle.b.x == 3)
@@ -69,8 +69,8 @@ struct `Triangle Tests` {
 
     @Test
     func `Right triangle at origin`() {
-        let origin: Geometry<Double>.Point<2> = .init(x: 5, y: 10)
-        let triangle: Geometry<Double>.Triangle = .right(base: 3, height: 4, at: origin)
+        let origin: Geometry<Double, Void>.Point<2> = .init(x: 5, y: 10)
+        let triangle: Geometry<Double, Void>.Triangle = .right(base: 3, height: 4, at: origin)
         #expect(triangle.a.x == 5)
         #expect(triangle.a.y == 10)
         #expect(triangle.b.x == 8)
@@ -79,7 +79,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Equilateral triangle factory`() {
-        let triangle: Geometry<Double>.Triangle = .equilateral(sideLength: 6)
+        let triangle: Geometry<Double, Void>.Triangle = .equilateral(sideLength: 6)
         // All sides should be equal to 6
         let sides = triangle.sideLengths
         #expect(abs(sides.ab - 6) < 1e-10)
@@ -89,15 +89,15 @@ struct `Triangle Tests` {
 
     @Test
     func `Equilateral triangle at origin`() {
-        let origin: Geometry<Double>.Point<2> = .init(x: 10, y: 20)
-        let triangle: Geometry<Double>.Triangle = .equilateral(sideLength: 4, at: origin)
+        let origin: Geometry<Double, Void>.Point<2> = .init(x: 10, y: 20)
+        let triangle: Geometry<Double, Void>.Triangle = .equilateral(sideLength: 4, at: origin)
         #expect(triangle.a.x == 10)
         #expect(triangle.a.y == 20)
     }
 
     @Test
     func `Isosceles triangle factory`() {
-        let triangle = Geometry<Double>.Triangle.isosceles(base: 6, leg: 5)
+        let triangle = Geometry<Double, Void>.Triangle.isosceles(base: 6, leg: 5)
         #expect(triangle != nil)
         // Base should be 6
         let sides = triangle!.sideLengths
@@ -110,7 +110,7 @@ struct `Triangle Tests` {
     @Test
     func `Isosceles triangle impossible returns nil`() {
         // Leg too short to reach apex
-        let triangle = Geometry<Double>.Triangle.isosceles(base: 10, leg: 2)
+        let triangle = Geometry<Double, Void>.Triangle.isosceles(base: 10, leg: 2)
         #expect(triangle == nil)
     }
 
@@ -118,7 +118,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Vertices array`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 1, y: 0),
             c: .init(x: 0, y: 1)
@@ -132,7 +132,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Edges tuple`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 4, y: 0),
             c: .init(x: 0, y: 3)
@@ -150,7 +150,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Area of right triangle`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 4, y: 0),
             c: .init(x: 0, y: 3)
@@ -161,7 +161,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Signed area CCW`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 4, y: 0),
             c: .init(x: 0, y: 3)
@@ -171,7 +171,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Signed area CW`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 0, y: 3),
             c: .init(x: 4, y: 0)
@@ -183,7 +183,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Perimeter of 3-4-5 triangle`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 3, y: 0),
             c: .init(x: 0, y: 4)
@@ -196,7 +196,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Centroid`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 6, y: 0),
             c: .init(x: 0, y: 6)
@@ -210,7 +210,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Circumcircle of right triangle`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 4, y: 0),
             c: .init(x: 0, y: 3)
@@ -226,7 +226,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Circumcircle passes through all vertices`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 5, y: 0),
             c: .init(x: 2, y: 4)
@@ -247,7 +247,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Incircle of 3-4-5 triangle`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 3, y: 0),
             c: .init(x: 0, y: 4)
@@ -262,7 +262,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Contains centroid`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 4, y: 0),
             c: .init(x: 2, y: 3)
@@ -272,7 +272,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Contains vertex`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 4, y: 0),
             c: .init(x: 2, y: 3)
@@ -282,12 +282,12 @@ struct `Triangle Tests` {
 
     @Test
     func `Does not contain exterior point`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 4, y: 0),
             c: .init(x: 2, y: 3)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: 10, y: 10)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 10, y: 10)
         #expect(!triangle.contains(point))
     }
 
@@ -295,7 +295,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Barycentric of vertex a`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 4, y: 0),
             c: .init(x: 0, y: 3)
@@ -309,7 +309,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Barycentric of centroid`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 3, y: 0),
             c: .init(x: 0, y: 3)
@@ -324,12 +324,12 @@ struct `Triangle Tests` {
 
     @Test
     func `Barycentric sum is 1`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 5, y: 0),
             c: .init(x: 2, y: 4)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: 2, y: 1)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 2, y: 1)
         let bary = triangle.barycentric(point)!
         #expect(abs(bary.u + bary.v + bary.w - 1) < 1e-10)
     }
@@ -338,7 +338,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Point from barycentric vertex`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 4, y: 0),
             c: .init(x: 0, y: 3)
@@ -350,7 +350,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Point from barycentric centroid`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 6, y: 0),
             c: .init(x: 0, y: 6)
@@ -364,7 +364,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Bounding box`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 1, y: 2),
             b: .init(x: 5, y: 3),
             c: .init(x: 3, y: 7)
@@ -380,7 +380,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Translation`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 1, y: 0),
             c: .init(x: 0, y: 1)
@@ -394,7 +394,7 @@ struct `Triangle Tests` {
 
     @Test
     func `Scaling`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 2, y: 0),
             c: .init(x: 0, y: 2)
@@ -410,12 +410,12 @@ struct `Triangle Tests` {
 
     @Test
     func `Triangle map`() {
-        let triangle: Geometry<Double>.Triangle = .init(
+        let triangle: Geometry<Double, Void>.Triangle = .init(
             a: .init(x: 0, y: 0),
             b: .init(x: 1, y: 0),
             c: .init(x: 0, y: 1)
         )
-        let mapped: Geometry<Float>.Triangle = triangle.map { Float($0) }
+        let mapped: Geometry<Float, Void>.Triangle = triangle.map { Float($0) }
         #expect(mapped.a.x.value == 0)
         #expect(mapped.b.x.value == 1)
         #expect(mapped.c.y.value == 1)

@@ -16,7 +16,7 @@ extension Geometry {
     ///
     /// ```swift
     /// // A square
-    /// let square = Geometry<Double>.Polygon(vertices: [
+    /// let square = Geometry<Double, Void>.Polygon(vertices: [
     ///     .init(x: 0, y: 0),
     ///     .init(x: 1, y: 0),
     ///     .init(x: 1, y: 1),
@@ -104,7 +104,7 @@ extension Geometry.Polygon where Scalar: FloatingPoint {
 
     /// The perimeter of the polygon
     @inlinable
-    public var perimeter: Scalar {
+    public var perimeter: Geometry.Perimeter {
         guard vertices.count >= 2 else { return .zero }
 
         var sum: Scalar = .zero
@@ -112,7 +112,7 @@ extension Geometry.Polygon where Scalar: FloatingPoint {
             let j = (i + 1) % vertices.count
             sum += vertices[i].distance(to: vertices[j])
         }
-        return sum
+        return .init(sum)
     }
 }
 
@@ -392,7 +392,7 @@ extension Geometry.Polygon {
     /// Create a polygon by transforming the coordinates of another polygon
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Geometry<U>.Polygon,
+        _ other: borrowing Geometry<U, Space>.Polygon,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         var result: [Geometry.Point<2>] = []
@@ -407,12 +407,12 @@ extension Geometry.Polygon {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.Polygon {
-        var result: [Geometry<Result>.Point<2>] = []
+    ) throws(E) -> Geometry<Result, Space>.Polygon {
+        var result: [Geometry<Result, Space>.Point<2>] = []
         result.reserveCapacity(vertices.count)
         for vertex in vertices {
             result.append(try vertex.map(transform))
         }
-        return Geometry<Result>.Polygon(vertices: result)
+        return Geometry<Result, Space>.Polygon(vertices: result)
     }
 }

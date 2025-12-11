@@ -8,15 +8,15 @@ import Testing
 
 @Suite("Affine.Point Tests")
 struct PointTests {
-    typealias Point2 = Affine<Double>.Point<2>
-    typealias Point3 = Affine<Double>.Point<3>
-    typealias Vec2 = Linear<Double>.Vector<2>
+    typealias Point2 = Affine<Double, Void>.Point<2>
+    typealias Point3 = Affine<Double, Void>.Point<3>
+    typealias Vec2 = Linear<Double, Void>.Vector<2>
 
     // MARK: - Construction
 
     @Test("2D point construction with X/Y")
     func point2DConstructionTyped() {
-        let p = Point2(x: Affine<Double>.X(3.0), y: Affine<Double>.Y(4.0))
+        let p = Point2(x: Affine<Double, Void>.X(3.0), y: Affine<Double, Void>.Y(4.0))
         #expect(p.x.value == 3.0)
         #expect(p.y.value == 4.0)
     }
@@ -31,9 +31,9 @@ struct PointTests {
     @Test("3D point construction")
     func point3DConstruction() {
         let p = Point3(
-            x: Affine<Double>.X(1.0),
-            y: Affine<Double>.Y(2.0),
-            z: Affine<Double>.Z(3.0)
+            x: Affine<Double, Void>.X(1.0),
+            y: Affine<Double, Void>.Y(2.0),
+            z: Affine<Double, Void>.Z(3.0)
         )
         #expect(p.x == 1.0)
         #expect(p.y == 2.0)

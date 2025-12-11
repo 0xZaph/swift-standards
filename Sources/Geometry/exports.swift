@@ -5,3 +5,4 @@
 @_exported import Algebra
 @_exported import Algebra_Linear
 @_exported import Dimension
+@_exported import Region

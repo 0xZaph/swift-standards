@@ -13,7 +13,7 @@ extension Linear {
     ///
     /// ```swift
     /// let m = Linear<Double>.Matrix<2, 3>(rows: [[1, 2, 3], [4, 5, 6]])
-    /// let v = Linear<Double>.Vector<3>(dx: .init(1), dy: .init(2), dz: .init(3))
+    /// let v = Linear<Double>.Vector<3, Space>(dx: .init(1), dy: .init(2), dz: .init(3))
     /// let result = m * v  // Vector<2> with values [14, 32]
     /// ```
     public struct Matrix<let Rows: Int, let Columns: Int> {
@@ -469,7 +469,7 @@ extension Linear.Matrix {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Linear<Result>.Matrix<Rows, Columns> {
+    ) throws(E) -> Linear<Result, Space>.Matrix<Rows, Columns> {
         var result = InlineArray<Rows, InlineArray<Columns, Result>>(
             repeating: InlineArray(repeating: try transform(rows[0][0]))
         )
@@ -478,6 +478,6 @@ extension Linear.Matrix {
                 result[i][j] = try transform(rows[i][j])
             }
         }
-        return Linear<Result>.Matrix<Rows, Columns>(rows: result)
+        return Linear<Result, Space>.Matrix<Rows, Columns>(rows: result)
     }
 }

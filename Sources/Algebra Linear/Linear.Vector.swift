@@ -107,7 +107,7 @@ extension Linear.Vector {
     /// Creates a vector by transforming components from another vector.
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Linear<U>.Vector<N>,
+        _ other: borrowing Linear<U, Space>.Vector<N>,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         var comps = InlineArray<N, Scalar>(repeating: try transform(other.components[0]))
@@ -121,12 +121,12 @@ extension Linear.Vector {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Linear<Result>.Vector<N> {
+    ) throws(E) -> Linear<Result, Space>.Vector<N> {
         var result = InlineArray<N, Result>(repeating: try transform(components[0]))
         for i in 1..<N {
             result[i] = try transform(components[i])
         }
-        return Linear<Result>.Vector<N>(result)
+        return Linear<Result, Space>.Vector<N>(result)
     }
 }
 

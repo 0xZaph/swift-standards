@@ -13,12 +13,12 @@ struct `Line Intersection Tests` {
     @Test
     func `Intersecting lines`() {
         // Line y = x (through origin, slope 1)
-        let line1: Geometry<Double>.Line = .init(
+        let line1: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 0),
             direction: .init(dx: 1, dy: 1)
         )
         // Line y = -x + 2 (through (0,2) and (2,0), slope -1)
-        let line2: Geometry<Double>.Line = .init(
+        let line2: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 2),
             direction: .init(dx: 1, dy: -1)
         )
@@ -31,11 +31,11 @@ struct `Line Intersection Tests` {
 
     @Test
     func `Parallel lines do not intersect`() {
-        let line1: Geometry<Double>.Line = .init(
+        let line1: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 0),
             direction: .init(dx: 1, dy: 0)
         )
-        let line2: Geometry<Double>.Line = .init(
+        let line2: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 5),
             direction: .init(dx: 1, dy: 0)
         )
@@ -46,11 +46,11 @@ struct `Line Intersection Tests` {
 
     @Test
     func `Coincident lines do not intersect (special case)`() {
-        let line1: Geometry<Double>.Line = .init(
+        let line1: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 0),
             direction: .init(dx: 1, dy: 1)
         )
-        let line2: Geometry<Double>.Line = .init(
+        let line2: Geometry<Double, Void>.Line = .init(
             point: .init(x: 1, y: 1),
             direction: .init(dx: 2, dy: 2)
         )
@@ -62,11 +62,11 @@ struct `Line Intersection Tests` {
 
     @Test
     func `Perpendicular lines`() {
-        let horizontal: Geometry<Double>.Line = .init(
+        let horizontal: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 5),
             direction: .init(dx: 1, dy: 0)
         )
-        let vertical: Geometry<Double>.Line = .init(
+        let vertical: Geometry<Double, Void>.Line = .init(
             point: .init(x: 3, y: 0),
             direction: .init(dx: 0, dy: 1)
         )
@@ -82,11 +82,11 @@ struct `Line Intersection Tests` {
 struct `Line Segment Intersection Tests` {
     @Test
     func `Intersecting segments`() {
-        let seg1: Geometry<Double>.Line.Segment = .init(
+        let seg1: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 0),
             end: .init(x: 10, y: 10)
         )
-        let seg2: Geometry<Double>.Line.Segment = .init(
+        let seg2: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 10),
             end: .init(x: 10, y: 0)
         )
@@ -99,11 +99,11 @@ struct `Line Segment Intersection Tests` {
 
     @Test
     func `Non-intersecting segments (parallel)`() {
-        let seg1: Geometry<Double>.Line.Segment = .init(
+        let seg1: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 0),
             end: .init(x: 10, y: 0)
         )
-        let seg2: Geometry<Double>.Line.Segment = .init(
+        let seg2: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 5),
             end: .init(x: 10, y: 5)
         )
@@ -114,11 +114,11 @@ struct `Line Segment Intersection Tests` {
 
     @Test
     func `Non-intersecting segments (would intersect if extended)`() {
-        let seg1: Geometry<Double>.Line.Segment = .init(
+        let seg1: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 0),
             end: .init(x: 2, y: 2)
         )
-        let seg2: Geometry<Double>.Line.Segment = .init(
+        let seg2: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 10),
             end: .init(x: 2, y: 8)
         )
@@ -130,11 +130,11 @@ struct `Line Segment Intersection Tests` {
 
     @Test
     func `T-junction intersection`() {
-        let horizontal: Geometry<Double>.Line.Segment = .init(
+        let horizontal: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 5),
             end: .init(x: 10, y: 5)
         )
-        let vertical: Geometry<Double>.Line.Segment = .init(
+        let vertical: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 5, y: 0),
             end: .init(x: 5, y: 5)
         )
@@ -147,11 +147,11 @@ struct `Line Segment Intersection Tests` {
 
     @Test
     func `Segment intersection at endpoint`() {
-        let seg1: Geometry<Double>.Line.Segment = .init(
+        let seg1: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 0),
             end: .init(x: 5, y: 5)
         )
-        let seg2: Geometry<Double>.Line.Segment = .init(
+        let seg2: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 5, y: 5),
             end: .init(x: 10, y: 0)
         )
@@ -167,11 +167,11 @@ struct `Line Segment Intersection Tests` {
 struct `Line Projection and Reflection Tests` {
     @Test
     func `Point projection onto horizontal line`() {
-        let line: Geometry<Double>.Line = .init(
+        let line: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 0),
             direction: .init(dx: 1, dy: 0)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: 5, y: 7)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 5, y: 7)
 
         let projection = line.projection(of: point)
         #expect(projection != nil)
@@ -181,11 +181,11 @@ struct `Line Projection and Reflection Tests` {
 
     @Test
     func `Point projection onto vertical line`() {
-        let line: Geometry<Double>.Line = .init(
+        let line: Geometry<Double, Void>.Line = .init(
             point: .init(x: 3, y: 0),
             direction: .init(dx: 0, dy: 1)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: 7, y: 5)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 7, y: 5)
 
         let projection = line.projection(of: point)
         #expect(projection != nil)
@@ -195,11 +195,11 @@ struct `Line Projection and Reflection Tests` {
 
     @Test
     func `Point projection onto diagonal line`() {
-        let line: Geometry<Double>.Line = .init(
+        let line: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 0),
             direction: .init(dx: 1, dy: 1)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: 0, y: 4)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 0, y: 4)
 
         let projection = line.projection(of: point)
         #expect(projection != nil)
@@ -210,11 +210,11 @@ struct `Line Projection and Reflection Tests` {
 
     @Test
     func `Point reflection across horizontal line`() {
-        let line: Geometry<Double>.Line = .init(
+        let line: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 0),
             direction: .init(dx: 1, dy: 0)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: 5, y: 3)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 5, y: 3)
 
         let reflection = line.reflection(of: point)
         #expect(reflection != nil)
@@ -224,11 +224,11 @@ struct `Line Projection and Reflection Tests` {
 
     @Test
     func `Point reflection across vertical line`() {
-        let line: Geometry<Double>.Line = .init(
+        let line: Geometry<Double, Void>.Line = .init(
             point: .init(x: 5, y: 0),
             direction: .init(dx: 0, dy: 1)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: 3, y: 7)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 3, y: 7)
 
         let reflection = line.reflection(of: point)
         #expect(reflection != nil)
@@ -238,11 +238,11 @@ struct `Line Projection and Reflection Tests` {
 
     @Test
     func `Point on line has same projection`() {
-        let line: Geometry<Double>.Line = .init(
+        let line: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 0),
             direction: .init(dx: 1, dy: 1)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: 3, y: 3)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 3, y: 3)
 
         let projection = line.projection(of: point)
         #expect(projection != nil)
@@ -252,11 +252,11 @@ struct `Line Projection and Reflection Tests` {
 
     @Test
     func `Zero direction line returns nil`() {
-        let line: Geometry<Double>.Line = .init(
+        let line: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 0),
             direction: .init(dx: 0, dy: 0)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: 5, y: 5)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 5, y: 5)
 
         #expect(line.projection(of: point) == nil)
         #expect(line.reflection(of: point) == nil)
@@ -267,44 +267,44 @@ struct `Line Projection and Reflection Tests` {
 struct `Line Segment Distance Tests` {
     @Test
     func `Distance to point on segment`() {
-        let segment: Geometry<Double>.Line.Segment = .init(
+        let segment: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 0),
             end: .init(x: 10, y: 0)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: 5, y: 0)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 5, y: 0)
 
         #expect(abs(segment.distance(to: point)) < 1e-10)
     }
 
     @Test
     func `Distance to point near segment`() {
-        let segment: Geometry<Double>.Line.Segment = .init(
+        let segment: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 0),
             end: .init(x: 10, y: 0)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: 5, y: 3)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 5, y: 3)
 
         #expect(abs(segment.distance(to: point) - 3) < 1e-10)
     }
 
     @Test
     func `Distance to point past segment end`() {
-        let segment: Geometry<Double>.Line.Segment = .init(
+        let segment: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 0),
             end: .init(x: 10, y: 0)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: 15, y: 0)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 15, y: 0)
 
         #expect(abs(segment.distance(to: point) - 5) < 1e-10)
     }
 
     @Test
     func `Distance to point before segment start`() {
-        let segment: Geometry<Double>.Line.Segment = .init(
+        let segment: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 0),
             end: .init(x: 10, y: 0)
         )
-        let point: Geometry<Double>.Point<2> = .init(x: -3, y: 4)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: -3, y: 4)
 
         // Distance to (0, 0) should be 5 (3-4-5 triangle)
         #expect(abs(segment.distance(to: point) - 5) < 1e-10)

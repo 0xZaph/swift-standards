@@ -13,8 +13,8 @@ import Testing
 struct `Vector Projection Tests` {
     @Test
     func `Projection onto parallel vector`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 4, dy: 0)
-        let onto: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 0)
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 4, dy: 0)
+        let onto: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 0)
 
         let projection = v.projection(onto: onto)
         #expect(abs(projection.dx.value - 4) < 1e-10)
@@ -23,8 +23,8 @@ struct `Vector Projection Tests` {
 
     @Test
     func `Projection onto perpendicular vector`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 4, dy: 0)
-        let onto: Geometry<Double>.Vector<2> = .init(dx: 0, dy: 1)
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 4, dy: 0)
+        let onto: Geometry<Double, Void>.Vector<2> = .init(dx: 0, dy: 1)
 
         let projection = v.projection(onto: onto)
         #expect(abs(projection.dx.value) < 1e-10)
@@ -33,8 +33,8 @@ struct `Vector Projection Tests` {
 
     @Test
     func `Projection onto diagonal vector`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 3, dy: 0)
-        let onto: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 1)
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 3, dy: 0)
+        let onto: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 1)
 
         // Projection of (3,0) onto (1,1) should be (1.5, 1.5)
         let projection = v.projection(onto: onto)
@@ -44,8 +44,8 @@ struct `Vector Projection Tests` {
 
     @Test
     func `Projection onto zero vector`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 3, dy: 4)
-        let onto: Geometry<Double>.Vector<2> = .zero
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 3, dy: 4)
+        let onto: Geometry<Double, Void>.Vector<2> = .zero
 
         let projection = v.projection(onto: onto)
         #expect(abs(projection.dx.value) < 1e-10)
@@ -57,8 +57,8 @@ struct `Vector Projection Tests` {
 struct `Vector Rejection Tests` {
     @Test
     func `Rejection from parallel vector`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 4, dy: 0)
-        let from: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 0)
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 4, dy: 0)
+        let from: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 0)
 
         let rejection = v.rejection(from: from)
         #expect(abs(rejection.dx.value) < 1e-10)
@@ -67,8 +67,8 @@ struct `Vector Rejection Tests` {
 
     @Test
     func `Rejection from perpendicular vector`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 4, dy: 0)
-        let from: Geometry<Double>.Vector<2> = .init(dx: 0, dy: 1)
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 4, dy: 0)
+        let from: Geometry<Double, Void>.Vector<2> = .init(dx: 0, dy: 1)
 
         let rejection = v.rejection(from: from)
         #expect(abs(rejection.dx.value - 4) < 1e-10)
@@ -77,8 +77,8 @@ struct `Vector Rejection Tests` {
 
     @Test
     func `Rejection from diagonal vector`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 3, dy: 0)
-        let from: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 1)
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 3, dy: 0)
+        let from: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 1)
 
         // Rejection should be (3,0) - (1.5, 1.5) = (1.5, -1.5)
         let rejection = v.rejection(from: from)
@@ -88,8 +88,8 @@ struct `Vector Rejection Tests` {
 
     @Test
     func `Projection plus rejection equals original`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 5, dy: 7)
-        let onto: Geometry<Double>.Vector<2> = .init(dx: 3, dy: 4)
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 5, dy: 7)
+        let onto: Geometry<Double, Void>.Vector<2> = .init(dx: 3, dy: 4)
 
         let projection = v.projection(onto: onto)
         let rejection = v.rejection(from: onto)
@@ -101,8 +101,8 @@ struct `Vector Rejection Tests` {
 
     @Test
     func `Projection and rejection are perpendicular`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 5, dy: 7)
-        let onto: Geometry<Double>.Vector<2> = .init(dx: 3, dy: 4)
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 5, dy: 7)
+        let onto: Geometry<Double, Void>.Vector<2> = .init(dx: 3, dy: 4)
 
         let projection = v.projection(onto: onto)
         let rejection = v.rejection(from: onto)
@@ -116,8 +116,8 @@ struct `Vector Rejection Tests` {
 struct `Vector Angle Tests` {
     @Test
     func `Angle to perpendicular vector`() {
-        let v1: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 0)
-        let v2: Geometry<Double>.Vector<2> = .init(dx: 0, dy: 1)
+        let v1: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 0)
+        let v2: Geometry<Double, Void>.Vector<2> = .init(dx: 0, dy: 1)
 
         let angle = v1.angle(to: v2)
         #expect(abs(angle.value - Double.pi / 2) < 1e-10)
@@ -125,8 +125,8 @@ struct `Vector Angle Tests` {
 
     @Test
     func `Angle to same direction`() {
-        let v1: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 0)
-        let v2: Geometry<Double>.Vector<2> = .init(dx: 2, dy: 0)
+        let v1: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 0)
+        let v2: Geometry<Double, Void>.Vector<2> = .init(dx: 2, dy: 0)
 
         let angle = v1.angle(to: v2)
         #expect(abs(angle.value) < 1e-10)
@@ -134,8 +134,8 @@ struct `Vector Angle Tests` {
 
     @Test
     func `Angle to opposite direction`() {
-        let v1: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 0)
-        let v2: Geometry<Double>.Vector<2> = .init(dx: -1, dy: 0)
+        let v1: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 0)
+        let v2: Geometry<Double, Void>.Vector<2> = .init(dx: -1, dy: 0)
 
         let angle = v1.angle(to: v2)
         #expect(abs(angle.value - Double.pi) < 1e-10)
@@ -143,8 +143,8 @@ struct `Vector Angle Tests` {
 
     @Test
     func `Angle is symmetric in magnitude`() {
-        let v1: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 0)
-        let v2: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 1)
+        let v1: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 0)
+        let v2: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 1)
 
         let angle1 = v1.angle(to: v2)
         let angle2 = v2.angle(to: v1)
@@ -155,8 +155,8 @@ struct `Vector Angle Tests` {
 
     @Test
     func `Signed angle counter-clockwise`() {
-        let v1: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 0)
-        let v2: Geometry<Double>.Vector<2> = .init(dx: 0, dy: 1)
+        let v1: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 0)
+        let v2: Geometry<Double, Void>.Vector<2> = .init(dx: 0, dy: 1)
 
         let angle = v1.signedAngle(to: v2)
         #expect(angle.value > 0)  // CCW is positive
@@ -165,8 +165,8 @@ struct `Vector Angle Tests` {
 
     @Test
     func `Signed angle clockwise`() {
-        let v1: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 0)
-        let v2: Geometry<Double>.Vector<2> = .init(dx: 0, dy: -1)
+        let v1: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 0)
+        let v2: Geometry<Double, Void>.Vector<2> = .init(dx: 0, dy: -1)
 
         let angle = v1.signedAngle(to: v2)
         #expect(angle.value < 0)  // CW is negative
@@ -178,8 +178,8 @@ struct `Vector Angle Tests` {
 struct `Vector Distance Tests` {
     @Test
     func `Distance to parallel vectors`() {
-        let v1: Geometry<Double>.Vector<2> = .init(dx: 3, dy: 0)
-        let v2: Geometry<Double>.Vector<2> = .init(dx: 7, dy: 0)
+        let v1: Geometry<Double, Void>.Vector<2> = .init(dx: 3, dy: 0)
+        let v2: Geometry<Double, Void>.Vector<2> = .init(dx: 7, dy: 0)
 
         let dist = v1.distance(to: v2)
         #expect(abs(dist - 4) < 1e-10)
@@ -187,8 +187,8 @@ struct `Vector Distance Tests` {
 
     @Test
     func `Distance to perpendicular vectors`() {
-        let v1: Geometry<Double>.Vector<2> = .init(dx: 3, dy: 0)
-        let v2: Geometry<Double>.Vector<2> = .init(dx: 0, dy: 4)
+        let v1: Geometry<Double, Void>.Vector<2> = .init(dx: 3, dy: 0)
+        let v2: Geometry<Double, Void>.Vector<2> = .init(dx: 0, dy: 4)
 
         let dist = v1.distance(to: v2)
         #expect(abs(dist - 5) < 1e-10)
@@ -196,7 +196,7 @@ struct `Vector Distance Tests` {
 
     @Test
     func `Distance to self is zero`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 3, dy: 4)
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 3, dy: 4)
 
         let dist = v.distance(to: v)
         #expect(abs(dist) < 1e-10)
@@ -207,9 +207,9 @@ struct `Vector Distance Tests` {
 struct `Vector 3D Cross Product Tests` {
     @Test
     func `Cross product of unit vectors`() {
-        let i: Geometry<Double>.Vector<3> = .init(dx: 1, dy: 0, dz: 0)
-        let j: Geometry<Double>.Vector<3> = .init(dx: 0, dy: 1, dz: 0)
-        let k: Geometry<Double>.Vector<3> = .init(dx: 0, dy: 0, dz: 1)
+        let i: Geometry<Double, Void>.Vector<3> = .init(dx: 1, dy: 0, dz: 0)
+        let j: Geometry<Double, Void>.Vector<3> = .init(dx: 0, dy: 1, dz: 0)
+        let k: Geometry<Double, Void>.Vector<3> = .init(dx: 0, dy: 0, dz: 1)
 
         let iCrossJ = i.cross(j)
         #expect(abs(iCrossJ.dx) < 1e-10)
@@ -229,8 +229,8 @@ struct `Vector 3D Cross Product Tests` {
 
     @Test
     func `Cross product anticommutative`() {
-        let v1: Geometry<Double>.Vector<3> = .init(dx: 1, dy: 2, dz: 3)
-        let v2: Geometry<Double>.Vector<3> = .init(dx: 4, dy: 5, dz: 6)
+        let v1: Geometry<Double, Void>.Vector<3> = .init(dx: 1, dy: 2, dz: 3)
+        let v2: Geometry<Double, Void>.Vector<3> = .init(dx: 4, dy: 5, dz: 6)
 
         let cross1 = v1.cross(v2)
         let cross2 = v2.cross(v1)
@@ -242,8 +242,8 @@ struct `Vector 3D Cross Product Tests` {
 
     @Test
     func `Cross product perpendicular to both vectors`() {
-        let v1: Geometry<Double>.Vector<3> = .init(dx: 1, dy: 2, dz: 3)
-        let v2: Geometry<Double>.Vector<3> = .init(dx: 4, dy: 5, dz: 6)
+        let v1: Geometry<Double, Void>.Vector<3> = .init(dx: 1, dy: 2, dz: 3)
+        let v2: Geometry<Double, Void>.Vector<3> = .init(dx: 4, dy: 5, dz: 6)
 
         let cross = v1.cross(v2)
 
@@ -253,8 +253,8 @@ struct `Vector 3D Cross Product Tests` {
 
     @Test
     func `Cross product of parallel vectors is zero`() {
-        let v1: Geometry<Double>.Vector<3> = .init(dx: 1, dy: 2, dz: 3)
-        let v2: Geometry<Double>.Vector<3> = .init(dx: 2, dy: 4, dz: 6)
+        let v1: Geometry<Double, Void>.Vector<3> = .init(dx: 1, dy: 2, dz: 3)
+        let v2: Geometry<Double, Void>.Vector<3> = .init(dx: 2, dy: 4, dz: 6)
 
         let cross = v1.cross(v2)
 

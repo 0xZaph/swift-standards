@@ -13,7 +13,7 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// let ellipse = Geometry<Double>.Ellipse(
+    /// let ellipse = Geometry<Double, Void>.Ellipse(
     ///     center: .init(x: 0, y: 0),
     ///     semiMajor: 10,
     ///     semiMinor: 5,
@@ -71,7 +71,7 @@ extension Geometry.Ellipse where Scalar: AdditiveArithmetic {
 extension Geometry.Ellipse where Scalar: FloatingPoint {
     /// Create a circle as a special case of ellipse
     @inlinable
-    public static func circle(center: Geometry.Point<2>, radius: Geometry.Length) -> Self {
+    public static func circle(center: Geometry.Point<2>, radius: Geometry.Radius) -> Self {
         Self(center: center, semiMajor: radius, semiMinor: radius, rotation: .zero)
     }
 }
@@ -81,14 +81,14 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
 extension Geometry.Ellipse where Scalar: FloatingPoint {
     /// The major axis length (2 * semiMajor)
     @inlinable
-    public var majorAxis: Scalar {
-        semiMajor.value * 2
+    public var majorAxis: Geometry.Length {
+        semiMajor * 2
     }
 
     /// The minor axis length (2 * semiMinor)
     @inlinable
-    public var minorAxis: Scalar {
-        semiMinor.value * 2
+    public var minorAxis: Geometry.Length {
+        semiMinor * 2
     }
 
     /// The eccentricity of the ellipse (0 = circle, approaching 1 = more elongated)
@@ -103,12 +103,10 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
 
     /// The linear eccentricity (distance from center to focus)
     @inlinable
-    public var focalDistance: Scalar {
-        let a: Scalar = semiMajor.value
-        let b: Scalar = semiMinor.value
-        let aSq: Scalar = a * a
-        let bSq: Scalar = b * b
-        return (aSq - bSq).squareRoot()
+    public var focalDistance: Geometry.Length {
+        let aSq: Scalar = semiMajor * semiMajor
+        let bSq: Scalar = semiMinor * semiMinor
+        return Geometry.Length((aSq - bSq).squareRoot())
     }
 }
 
@@ -118,24 +116,21 @@ extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
     /// The two foci of the ellipse
     @inlinable
     public var foci: (f1: Geometry.Point<2>, f2: Geometry.Point<2>) {
-        let c: Scalar = focalDistance
+        let c: Scalar = focalDistance.value
         let cosVal: Scalar = Scalar(rotation.cos)
         let sinVal: Scalar = Scalar(rotation.sin)
 
         let dx: Scalar = c * cosVal
         let dy: Scalar = c * sinVal
 
-        let cx: Scalar = center.x.value
-        let cy: Scalar = center.y.value
-
         return (
             Geometry.Point(
-                x: Geometry.X(cx - dx),
-                y: Geometry.Y(cy - dy)
+                x: center.x - Geometry.Width(dx),
+                y: center.y - Geometry.Height(dy)
             ),
             Geometry.Point(
-                x: Geometry.X(cx + dx),
-                y: Geometry.Y(cy + dy)
+                x: center.x + Geometry.Width(dx),
+                y: center.y + Geometry.Height(dy)
             )
         )
     }
@@ -154,18 +149,14 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
 
     /// The approximate perimeter using Ramanujan's approximation
     @inlinable
-    public var perimeter: Scalar {
+    public var perimeter: Geometry.Perimeter {
         let a: Scalar = semiMajor.value
         let b: Scalar = semiMinor.value
         let diff: Scalar = a - b
         let sum: Scalar = a + b
         let h: Scalar = (diff * diff) / (sum * sum)
-        let four: Scalar = Scalar(4)
-        let three: Scalar = Scalar(3)
-        let ten: Scalar = Scalar(10)
-        let one: Scalar = Scalar(1)
-        let sqrtTerm: Scalar = (four - three * h).squareRoot()
-        return Scalar.pi * sum * (one + three * h / (ten + sqrtTerm))
+        let sqrtTerm: Scalar = (4 - 3 * h).squareRoot()
+        return Geometry.Length(Scalar.pi * sum * (1 + 3 * h / (10 + sqrtTerm)))
     }
 
     /// Whether this ellipse is actually a circle
@@ -202,8 +193,8 @@ extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
         let cy: Scalar = center.y.value
 
         return Geometry.Point(
-            x: Geometry.X(cx + x * cosR - y * sinR),
-            y: Geometry.Y(cy + x * sinR + y * cosR)
+            x: Affine<Scalar, Space>.X(cx + x * cosR - y * sinR),
+            y: Affine<Scalar, Space>.Y(cy + x * sinR + y * cosR)
         )
     }
 
@@ -227,8 +218,8 @@ extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
         let sinR: Scalar = Scalar(rotation.sin)
 
         return Geometry.Vector(
-            dx: Geometry.Width(dx * cosR - dy * sinR),
-            dy: Geometry.Height(dx * sinR + dy * cosR)
+            dx: Linear<Scalar, Space>.Dx(dx * cosR - dy * sinR),
+            dy: Linear<Scalar, Space>.Dy(dx * sinR + dy * cosR)
         )
     }
 }
@@ -331,8 +322,8 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
     public func scaled(by factor: Scalar) -> Self {
         Self(
             center: center,
-            semiMajor: Geometry.Length(semiMajor.value * factor),
-            semiMinor: Geometry.Length(semiMinor.value * factor),
+            semiMajor: semiMajor * factor,
+            semiMinor: semiMinor * factor,
             rotation: rotation
         )
     }
@@ -355,7 +346,7 @@ extension Geometry.Ellipse {
     /// Create an ellipse by transforming the coordinates of another ellipse
     @inlinable
     public init<U>(
-        _ other: borrowing Geometry<U>.Ellipse,
+        _ other: borrowing Geometry<U, Space>.Ellipse,
         _ transform: (U) throws -> Scalar
     ) rethrows {
         self.init(
@@ -370,8 +361,8 @@ extension Geometry.Ellipse {
     @inlinable
     public func map<Result>(
         _ transform: (Scalar) throws -> Result
-    ) rethrows -> Geometry<Result>.Ellipse {
-        Geometry<Result>.Ellipse(
+    ) rethrows -> Geometry<Result, Space>.Ellipse {
+        Geometry<Result, Space>.Ellipse(
             center: try center.map(transform),
             semiMajor: try semiMajor.map(transform),
             semiMinor: try semiMinor.map(transform),

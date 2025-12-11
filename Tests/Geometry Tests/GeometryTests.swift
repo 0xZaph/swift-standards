@@ -3,6 +3,7 @@
 import Affine
 import Algebra_Linear
 import Angle
+import Region
 import Symmetry
 @testable import Algebra
 import Testing
@@ -49,13 +50,13 @@ struct TestUnit: AdditiveArithmetic, Comparable, Codable, Hashable,
 struct GeometryUnitTests {
     @Test
     func `Double conforms to Geometry Unit`() {
-        let point: Geometry<Double>.Point<2> = .init(x: 10, y: 20)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 10, y: 20)
         #expect(point.x == 10)
     }
 
     @Test
     func `Custom type conforms to Geometry Unit`() {
-        let point: Geometry<TestUnit>.Point<2> = .init(x: 10, y: 20)
+        let point: Geometry<TestUnit, Void>.Point<2> = .init(x: 10, y: 20)
         #expect(point.x == 10)
     }
 }
@@ -66,8 +67,8 @@ struct GeometryUnitTests {
 struct ScalarTests {
     @Test
     func `Scalar basic operations`() {
-        let a: Geometry<Double>.Scalar = 10.0
-        let b: Geometry<Double>.Scalar = 5.0
+        let a: Geometry<Double, Void>.Scalar = 10.0
+        let b: Geometry<Double, Void>.Scalar = 5.0
 
         #expect((a + b) == 15)
         #expect((a - b) == 5)
@@ -78,8 +79,8 @@ struct ScalarTests {
 
     @Test
     func `Scalar comparison`() {
-        let a: Geometry<Double>.Scalar = 10.0
-        let b: Geometry<Double>.Scalar = 20.0
+        let a: Geometry<Double, Void>.Scalar = 10.0
+        let b: Geometry<Double, Void>.Scalar = 20.0
 
         #expect(a < b)
         #expect(b > a)
@@ -87,8 +88,8 @@ struct ScalarTests {
 
     @Test
     func `Scalar with custom unit`() {
-        let a: Geometry<TestUnit>.Scalar = 10
-        let b: Geometry<TestUnit>.Scalar = 5
+        let a: Geometry<TestUnit, Void>.Scalar = 10
+        let b: Geometry<TestUnit, Void>.Scalar = 5
         let sum = a + b
         #expect(sum == 15)
     }
@@ -100,14 +101,14 @@ struct ScalarTests {
 struct PointTests {
     @Test
     func `Creates point with coordinates`() {
-        let point: Geometry<TestUnit>.Point<2> = .init(x: 10, y: 20)
+        let point: Geometry<TestUnit, Void>.Point<2> = .init(x: 10, y: 20)
         #expect(point.x == 10)
         #expect(point.y == 20)
     }
 
     @Test
     func `Zero point`() {
-        let zero: Geometry<TestUnit>.Point<2> = .zero
+        let zero: Geometry<TestUnit, Void>.Point<2> = .zero
         #expect(zero.x == 0)
         #expect(zero.y == 0)
     }
@@ -115,16 +116,16 @@ struct PointTests {
     @Test
     func `Point subtraction returns Vector`() {
         // In affine geometry, Point - Point = Vector (the displacement)
-        let a: Geometry<TestUnit>.Point<2> = .init(x: 10, y: 20)
-        let b: Geometry<TestUnit>.Point<2> = .init(x: 5, y: 15)
-        let displacement: Geometry<TestUnit>.Vector<2> = a - b
+        let a: Geometry<TestUnit, Void>.Point<2> = .init(x: 10, y: 20)
+        let b: Geometry<TestUnit, Void>.Point<2> = .init(x: 5, y: 15)
+        let displacement: Geometry<TestUnit, Void>.Vector<2> = a - b
         #expect(displacement.dx == 5)
         #expect(displacement.dy == 5)
     }
 
     @Test
     func `Double point translation`() {
-        let point: Geometry<Double>.Point<2> = .init(x: 10, y: 20)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 10, y: 20)
         let moved = point.translated(dx: 5, dy: 10)
         #expect(moved.x == 15)
         #expect(moved.y == 30)
@@ -132,15 +133,15 @@ struct PointTests {
 
     @Test
     func `Double point distance`() {
-        let a: Geometry<Double>.Point<2> = .init(x: 0, y: 0)
-        let b: Geometry<Double>.Point<2> = .init(x: 3, y: 4)
+        let a: Geometry<Double, Void>.Point<2> = .init(x: 0, y: 0)
+        let b: Geometry<Double, Void>.Point<2> = .init(x: 3, y: 4)
         #expect(a.distance(to: b) == 5)
     }
 
     @Test
     func `Point plus vector`() {
-        let point: Geometry<Double>.Point<2> = .init(x: 10, y: 20)
-        let vector: Geometry<Double>.Vector<2> = .init(dx: 5, dy: 10)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 10, y: 20)
+        let vector: Geometry<Double, Void>.Vector<2> = .init(dx: 5, dy: 10)
         let result = point + vector
         #expect(result.x == 15)
         #expect(result.y == 30)
@@ -153,43 +154,43 @@ struct PointTests {
 struct VectorTests {
     @Test
     func `Creates vector`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 3, dy: 4)
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 3, dy: 4)
         #expect(v.dx == 3)
         #expect(v.dy == 4)
     }
 
     @Test
     func `Vector length`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 3, dy: 4)
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 3, dy: 4)
         #expect(v.length == 5)
         #expect(v.lengthSquared == 25)
     }
 
     @Test
     func `Vector normalization`() {
-        let v: Geometry<Double>.Vector<2> = .init(dx: 3, dy: 4)
+        let v: Geometry<Double, Void>.Vector<2> = .init(dx: 3, dy: 4)
         let n = v.normalized
         #expect(abs(n.length - 1.0) < 0.0001)
     }
 
     @Test
     func `Vector dot product`() {
-        let a: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 0)
-        let b: Geometry<Double>.Vector<2> = .init(dx: 0, dy: 1)
+        let a: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 0)
+        let b: Geometry<Double, Void>.Vector<2> = .init(dx: 0, dy: 1)
         #expect(a.dot(b) == 0)  // perpendicular
     }
 
     @Test
     func `Vector cross product`() {
-        let a: Geometry<Double>.Vector<2> = .init(dx: 1, dy: 0)
-        let b: Geometry<Double>.Vector<2> = .init(dx: 0, dy: 1)
+        let a: Geometry<Double, Void>.Vector<2> = .init(dx: 1, dy: 0)
+        let b: Geometry<Double, Void>.Vector<2> = .init(dx: 0, dy: 1)
         #expect(a.cross(b) == 1)  // counter-clockwise
     }
 
     @Test
     func `Vector arithmetic`() {
-        let a: Geometry<Double>.Vector<2> = .init(dx: 10, dy: 20)
-        let b: Geometry<Double>.Vector<2> = .init(dx: 5, dy: 10)
+        let a: Geometry<Double, Void>.Vector<2> = .init(dx: 10, dy: 20)
+        let b: Geometry<Double, Void>.Vector<2> = .init(dx: 5, dy: 10)
 
         #expect((a + b).dx == 15)
         #expect((a - b).dx == 5)
@@ -204,14 +205,14 @@ struct VectorTests {
 struct SizeTests {
     @Test
     func `Creates size with dimensions`() {
-        let size: Geometry<TestUnit>.Size<2> = .init(width: 100, height: 200)
+        let size: Geometry<TestUnit, Void>.Size<2> = .init(width: 100, height: 200)
         #expect(size.width == 100)
         #expect(size.height == 200)
     }
 
     @Test
     func `Zero size`() {
-        let zero: Geometry<TestUnit>.Size<2> = .zero
+        let zero: Geometry<TestUnit, Void>.Size<2> = .zero
         #expect(zero.width == 0)
         #expect(zero.height == 0)
     }
@@ -223,7 +224,7 @@ struct SizeTests {
 struct RectangleTests {
     @Test
     func `Creates rectangle from corners`() {
-        let rect: Geometry<TestUnit>.Rectangle = .init(llx: 10, lly: 20, urx: 110, ury: 220)
+        let rect: Geometry<TestUnit, Void>.Rectangle = .init(llx: 10, lly: 20, urx: 110, ury: 220)
         #expect(rect.llx == 10)
         #expect(rect.lly == 20)
         #expect(rect.urx == 110)
@@ -232,7 +233,7 @@ struct RectangleTests {
 
     @Test
     func `Creates rectangle from origin and size`() {
-        let rect: Geometry<TestUnit>.Rectangle = .init(x: 10, y: 20, width: 100, height: 200)
+        let rect: Geometry<TestUnit, Void>.Rectangle = .init(x: 10, y: 20, width: 100, height: 200)
         #expect(rect.llx == 10)
         #expect(rect.lly == 20)
         #expect(rect.width == 100)
@@ -241,9 +242,9 @@ struct RectangleTests {
 
     @Test
     func `Rectangle contains point`() {
-        let rect: Geometry<Double>.Rectangle = .init(x: 0, y: 0, width: 100, height: 100)
-        let inside: Geometry<Double>.Point<2> = .init(x: 50, y: 50)
-        let outside: Geometry<Double>.Point<2> = .init(x: 150, y: 150)
+        let rect: Geometry<Double, Void>.Rectangle = .init(x: 0, y: 0, width: 100, height: 100)
+        let inside: Geometry<Double, Void>.Point<2> = .init(x: 50, y: 50)
+        let outside: Geometry<Double, Void>.Point<2> = .init(x: 150, y: 150)
 
         #expect(rect.contains(inside))
         #expect(!rect.contains(outside))
@@ -251,8 +252,8 @@ struct RectangleTests {
 
     @Test
     func `Rectangle intersection`() {
-        let a: Geometry<Double>.Rectangle = .init(x: 0, y: 0, width: 100, height: 100)
-        let b: Geometry<Double>.Rectangle = .init(x: 50, y: 50, width: 100, height: 100)
+        let a: Geometry<Double, Void>.Rectangle = .init(x: 0, y: 0, width: 100, height: 100)
+        let b: Geometry<Double, Void>.Rectangle = .init(x: 50, y: 50, width: 100, height: 100)
 
         #expect(a.intersects(b))
 
@@ -265,8 +266,8 @@ struct RectangleTests {
 
     @Test
     func `Rectangle union`() {
-        let a: Geometry<Double>.Rectangle = .init(x: 0, y: 0, width: 50, height: 50)
-        let b: Geometry<Double>.Rectangle = .init(x: 50, y: 50, width: 50, height: 50)
+        let a: Geometry<Double, Void>.Rectangle = .init(x: 0, y: 0, width: 50, height: 50)
+        let b: Geometry<Double, Void>.Rectangle = .init(x: 50, y: 50, width: 50, height: 50)
 
         let union = a.union(b)
         #expect(union.minX == 0)
@@ -277,7 +278,7 @@ struct RectangleTests {
 
     @Test
     func `Rectangle inset`() {
-        let rect: Geometry<Double>.Rectangle = .init(x: 0, y: 0, width: 100, height: 100)
+        let rect: Geometry<Double, Void>.Rectangle = .init(x: 0, y: 0, width: 100, height: 100)
         let inset = rect.insetBy(dx: 10, dy: 20)
 
         #expect(inset.llx == 10)
@@ -288,7 +289,7 @@ struct RectangleTests {
 
     @Test
     func `Rectangle center`() {
-        let rect: Geometry<Double>.Rectangle = .init(x: 0, y: 0, width: 100, height: 100)
+        let rect: Geometry<Double, Void>.Rectangle = .init(x: 0, y: 0, width: 100, height: 100)
         #expect(rect.midX == 50)
         #expect(rect.midY == 50)
         #expect(rect.center.x == 50)
@@ -297,13 +298,13 @@ struct RectangleTests {
 
     @Test
     func `Rectangle corners`() {
-        let rect: Geometry<TestUnit>.Rectangle = .init(x: 10, y: 20, width: 100, height: 200)
+        let rect: Geometry<TestUnit, Void>.Rectangle = .init(x: 10, y: 20, width: 100, height: 200)
 
-        let ll = rect.corner(.lowerLeft)
+        let ll = rect.corner(.bottomLeft)
         #expect(ll.x == 10)
         #expect(ll.y == 20)
 
-        let ur = rect.corner(.upperRight)
+        let ur = rect.corner(.topRight)
         #expect(ur.x == 110)
         #expect(ur.y == 220)
     }
@@ -373,8 +374,8 @@ struct DegreeTests {
 struct AffineTransformTests {
     @Test
     func `Identity transform`() {
-        let transform: Geometry<Double>.AffineTransform = .identity
-        let point: Geometry<Double>.Point<2> = .init(x: 10, y: 20)
+        let transform: Geometry<Double, Void>.AffineTransform = .identity
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 10, y: 20)
         let result = transform.apply(to: point)
 
         #expect(result.x == 10)
@@ -383,8 +384,8 @@ struct AffineTransformTests {
 
     @Test
     func `Translation transform`() {
-        let transform: Geometry<Double>.AffineTransform = .translation(x: 100, y: 50)
-        let point: Geometry<Double>.Point<2> = .init(x: 10, y: 20)
+        let transform: Geometry<Double, Void>.AffineTransform = .translation(x: 100, y: 50)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 10, y: 20)
         let result = transform.apply(to: point)
 
         #expect(result.x == 110)
@@ -393,8 +394,8 @@ struct AffineTransformTests {
 
     @Test
     func `Scale transform`() {
-        let transform: Geometry<Double>.AffineTransform = .scale(2)
-        let point: Geometry<Double>.Point<2> = .init(x: 10, y: 20)
+        let transform: Geometry<Double, Void>.AffineTransform = .scale(2)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 10, y: 20)
         let result = transform.apply(to: point)
 
         #expect(result.x == 20)
@@ -404,8 +405,8 @@ struct AffineTransformTests {
     @Test
     func `Rotation transform`() {
         // 90 degree rotation
-        let transform: Geometry<Double>.AffineTransform = .rotation(.halfPi)
-        let point: Geometry<Double>.Point<2> = .init(x: 1, y: 0)
+        let transform: Geometry<Double, Void>.AffineTransform = .rotation(.halfPi)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 1, y: 0)
         let result = transform.apply(to: point)
 
         #expect(abs(result.x.value - 0) < 0.0001)
@@ -414,13 +415,13 @@ struct AffineTransformTests {
 
     @Test
     func `Transform concatenation`() {
-        let translate: Geometry<Double>.AffineTransform = .translation(x: 10, y: 0)
-        let scale: Geometry<Double>.AffineTransform = .scale(2)
+        let translate: Geometry<Double, Void>.AffineTransform = .translation(x: 10, y: 0)
+        let scale: Geometry<Double, Void>.AffineTransform = .scale(2)
 
         // Scale first, then translate
         let combined = translate.concatenating(scale)
 
-        let point: Geometry<Double>.Point<2> = .init(x: 5, y: 5)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 5, y: 5)
         let result = combined.apply(to: point)
 
         // 5 * 2 = 10, then + 10 = 20
@@ -430,10 +431,10 @@ struct AffineTransformTests {
 
     @Test
     func `Transform inversion`() {
-        let transform: Geometry<Double>.AffineTransform = .translation(x: 100, y: 50)
+        let transform: Geometry<Double, Void>.AffineTransform = .translation(x: 100, y: 50)
         let inverse = transform.inverted!
 
-        let point: Geometry<Double>.Point<2> = .init(x: 110, y: 70)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 110, y: 70)
         let result = inverse.apply(to: point)
 
         #expect(abs(result.x.value - 10) < 0.0001)
@@ -447,7 +448,7 @@ struct AffineTransformTests {
 struct LineSegmentTests {
     @Test
     func `Line segment length`() {
-        let segment: Geometry<Double>.LineSegment = .init(
+        let segment: Geometry<Double, Void>.LineSegment = .init(
             start: .init(x: 0, y: 0),
             end: .init(x: 3, y: 4)
         )
@@ -456,7 +457,7 @@ struct LineSegmentTests {
 
     @Test
     func `Line segment midpoint`() {
-        let segment: Geometry<Double>.LineSegment = .init(
+        let segment: Geometry<Double, Void>.LineSegment = .init(
             start: .init(x: 0, y: 0),
             end: .init(x: 10, y: 10)
         )
@@ -466,7 +467,7 @@ struct LineSegmentTests {
 
     @Test
     func `Line segment point at parameter`() {
-        let segment: Geometry<Double>.LineSegment = .init(
+        let segment: Geometry<Double, Void>.LineSegment = .init(
             start: .init(x: 0, y: 0),
             end: .init(x: 10, y: 10)
         )
@@ -478,7 +479,7 @@ struct LineSegmentTests {
 
     @Test
     func `Line segment vector`() {
-        let segment: Geometry<Double>.LineSegment = .init(
+        let segment: Geometry<Double, Void>.LineSegment = .init(
             start: .init(x: 10, y: 20),
             end: .init(x: 30, y: 50)
         )
@@ -493,7 +494,7 @@ struct LineSegmentTests {
 struct LineTests {
     @Test
     func `Line from point and direction`() {
-        let line: Geometry<Double>.Line = .init(
+        let line: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 0),
             direction: .init(dx: 1, dy: 1)
         )
@@ -505,7 +506,7 @@ struct LineTests {
 
     @Test
     func `Line from two points`() {
-        let line: Geometry<Double>.Line = .init(
+        let line: Geometry<Double, Void>.Line = .init(
             from: .init(x: 0, y: 0),
             to: .init(x: 10, y: 20)
         )
@@ -517,7 +518,7 @@ struct LineTests {
 
     @Test
     func `Line point at parameter`() {
-        let line: Geometry<Double>.Line = .init(
+        let line: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 0),
             direction: .init(dx: 10, dy: 10)
         )
@@ -529,16 +530,16 @@ struct LineTests {
     @Test
     func `Line distance to point`() {
         // Horizontal line y = 0
-        let line: Geometry<Double>.Line = .init(
+        let line: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 0),
             direction: .init(dx: 1, dy: 0)
         )
         // Point at (5, 3) should be distance 3 from line
-        let point: Geometry<Double>.Point<2> = .init(x: 5, y: 3)
+        let point: Geometry<Double, Void>.Point<2> = .init(x: 5, y: 3)
         #expect(line.distance(to: point) == 3)
 
         // Zero direction vector returns nil
-        let degenerateLine: Geometry<Double>.Line = .init(
+        let degenerateLine: Geometry<Double, Void>.Line = .init(
             point: .init(x: 0, y: 0),
             direction: .init(dx: 0, dy: 0)
         )
@@ -548,7 +549,7 @@ struct LineTests {
     @Test
     func `Line Segment via nested type`() {
         // Test that Line.Segment works the same as LineSegment
-        let segment: Geometry<Double>.Line.Segment = .init(
+        let segment: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 0, y: 0),
             end: .init(x: 3, y: 4)
         )
@@ -557,7 +558,7 @@ struct LineTests {
 
     @Test
     func `Segment to Line conversion`() {
-        let segment: Geometry<Double>.Line.Segment = .init(
+        let segment: Geometry<Double, Void>.Line.Segment = .init(
             start: .init(x: 10, y: 20),
             end: .init(x: 30, y: 50)
         )
@@ -575,7 +576,7 @@ struct LineTests {
 struct EdgeInsetsTests {
     @Test
     func `Creates edge insets`() {
-        let insets: Geometry<TestUnit>.EdgeInsets = .init(
+        let insets: Geometry<TestUnit, Void>.EdgeInsets = .init(
             top: 10,
             leading: 20,
             bottom: 30,
@@ -589,7 +590,7 @@ struct EdgeInsetsTests {
 
     @Test
     func `Creates uniform edge insets`() {
-        let insets: Geometry<TestUnit>.EdgeInsets = .init(all: 10)
+        let insets: Geometry<TestUnit, Void>.EdgeInsets = .init(all: 10)
         #expect(insets.top == 10)
         #expect(insets.leading == 10)
         #expect(insets.bottom == 10)
@@ -598,7 +599,7 @@ struct EdgeInsetsTests {
 
     @Test
     func `Zero edge insets`() {
-        let zero: Geometry<TestUnit>.EdgeInsets = .zero
+        let zero: Geometry<TestUnit, Void>.EdgeInsets = .zero
         #expect(zero.top == 0)
         #expect(zero.leading == 0)
         #expect(zero.bottom == 0)
@@ -612,49 +613,49 @@ struct EdgeInsetsTests {
 struct DimensionTests {
     @Test
     func `Width comparison`() {
-        let a: Geometry<TestUnit>.Width = .init(10)
-        let b: Geometry<TestUnit>.Width = .init(20)
+        let a: Geometry<TestUnit, Void>.Width = .init(10)
+        let b: Geometry<TestUnit, Void>.Width = .init(20)
         #expect(a < b)
     }
 
     @Test
     func `Height addition`() {
-        let a: Geometry<TestUnit>.Height = .init(10)
-        let b: Geometry<TestUnit>.Height = .init(20)
+        let a: Geometry<TestUnit, Void>.Height = .init(10)
+        let b: Geometry<TestUnit, Void>.Height = .init(20)
         let sum = a + b
         #expect(sum == 30)
     }
 
     @Test
     func `Length zero`() {
-        let zero: Geometry<TestUnit>.Length = .zero
+        let zero: Geometry<TestUnit, Void>.Length = .zero
         #expect(zero == 0)
     }
 
     @Test
     func `Width literals`() {
-        let w: Geometry<Double>.Width = 100.0
+        let w: Geometry<Double, Void>.Width = 100.0
         #expect(w == 100)
 
-        let wInt: Geometry<Double>.Width = 50
+        let wInt: Geometry<Double, Void>.Width = 50
         #expect(wInt == 50)
     }
 
     @Test
     func `Height negation`() {
-        let h: Geometry<Double>.Height = .init(10)
+        let h: Geometry<Double, Void>.Height = .init(10)
         let neg = -h
         #expect(neg == -10)
     }
 
     @Test
     func `Length multiplication and division`() {
-        let len: Geometry<Double>.Length = .init(10)
-        let scaled: Geometry<Double>.Length = len * 2.0  // Explicit type
+        let len: Geometry<Double, Void>.Length = .init(10)
+        let scaled: Geometry<Double, Void>.Length = len * 2.0  // Explicit type
         #expect(scaled.value == 20)
-        let scaled2: Geometry<Double>.Length = 2.0 * len
+        let scaled2: Geometry<Double, Void>.Length = 2.0 * len
         #expect(scaled2.value == 20)
-        let divided: Geometry<Double>.Length = len / 2.0
+        let divided: Geometry<Double, Void>.Length = len / 2.0
         #expect(divided.value == 5)
     }
 
@@ -662,7 +663,7 @@ struct DimensionTests {
 
     @Test
     func `X negation and multiplication`() {
-        let x: Geometry<Double>.X = .init(10)
+        let x: Geometry<Double, Void>.X = .init(10)
         #expect((-x) == -10)
         #expect((x * 2.0) == 20)
         #expect((x / 2.0) == 5)
@@ -670,7 +671,7 @@ struct DimensionTests {
 
     @Test
     func `Y negation and multiplication`() {
-        let y: Geometry<Double>.Y = .init(10)
+        let y: Geometry<Double, Void>.Y = .init(10)
         #expect((-y) == -10)
         #expect((y * 2.0) == 20)
         #expect((y / 2.0) == 5)
@@ -683,8 +684,8 @@ struct DimensionTests {
 struct AffineTransformGenericTests {
     @Test
     func `Float AffineTransform`() {
-        let transform: Geometry<Float>.AffineTransform = .identity
-        let point: Geometry<Float>.Point<2> = .init(x: 10, y: 20)
+        let transform: Geometry<Float, Void>.AffineTransform = .identity
+        let point: Geometry<Float, Void>.Point<2> = .init(x: 10, y: 20)
         let result = transform.apply(to: point)
         #expect(result.x == 10)
         #expect(result.y.value == 20)
@@ -692,8 +693,8 @@ struct AffineTransformGenericTests {
 
     @Test
     func `Float rotation`() {
-        let transform: Geometry<Float>.AffineTransform = .rotation(.halfPi)
-        let point: Geometry<Float>.Point<2> = .init(x: 1, y: 0)
+        let transform: Geometry<Float, Void>.AffineTransform = .rotation(.halfPi)
+        let point: Geometry<Float, Void>.Point<2> = .init(x: 1, y: 0)
         let result = transform.apply(to: point)
         #expect(abs(result.x.value) < 0.0001)
         #expect(abs(result.y.value - 1) < 0.0001)
@@ -704,7 +705,7 @@ struct AffineTransformGenericTests {
 
 @Suite
 struct LinearTransformTests {
-    typealias Matrix2x2 = Linear<Double>.Matrix<2, 2>
+    typealias Matrix2x2 = Linear<Double, Void>.Matrix<2, 2>
 
     @Test
     func `Linear identity`() {

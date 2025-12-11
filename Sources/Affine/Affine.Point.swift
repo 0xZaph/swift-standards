@@ -14,9 +14,9 @@ extension Affine {
     /// ## Example
     ///
     /// ```swift
-    /// let origin: Affine<Double>.Point<2> = .zero
-    /// let p = Affine<Double>.Point(x: 72.0, y: 144.0)
-    /// let displacement = p - origin  // Returns Linear<Double>.Vector<2>
+    /// let origin: Affine<Double>.Point<2, MySpace> = .zero
+    /// let p = Affine<Double>.Point<2, MySpace>(x: .init(72.0), y: .init(144.0))
+    /// let displacement = p - origin  // Returns Linear<Double>.Vector<2, Space, MySpace>
     /// ```
     public struct Point<let N: Int> {
         /// Coordinate values stored as inline array for performance.
@@ -109,7 +109,7 @@ extension Affine.Point {
     /// Creates a point by transforming each coordinate of another point.
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Affine<U>.Point<N>,
+        _ other: borrowing Affine<U, Space>.Point<N>,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         var coords = InlineArray<N, Scalar>(repeating: try transform(other.coordinates[0]))
@@ -123,12 +123,12 @@ extension Affine.Point {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Affine<Result>.Point<N> {
+    ) throws(E) -> Affine<Result, Space>.Point<N> {
         var result = InlineArray<N, Result>(repeating: try transform(coordinates[0]))
         for i in 1..<N {
             result[i] = try transform(coordinates[i])
         }
-        return Affine<Result>.Point<N>(result)
+        return Affine<Result, Space>.Point<N>(result)
     }
 }
 
@@ -163,12 +163,12 @@ extension Affine.Point where Scalar: AdditiveArithmetic {
     /// ```
     @inlinable
     @_disfavoredOverload
-    public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Linear<Scalar>.Vector<N> {
+    public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Linear<Scalar, Space>.Vector<N> {
         var result = InlineArray<N, Scalar>(repeating: lhs.coordinates[0] - rhs.coordinates[0])
         for i in 1..<N {
             result[i] = lhs.coordinates[i] - rhs.coordinates[i]
         }
-        return Linear<Scalar>.Vector(result)
+        return Linear<Scalar, Space>.Vector(result)
     }
 
     /// Translates point by adding displacement vector.
@@ -176,7 +176,7 @@ extension Affine.Point where Scalar: AdditiveArithmetic {
     /// Fundamental affine operation moving a position by a directional displacement.
     @inlinable
     @_disfavoredOverload
-    public static func + (lhs: borrowing Self, rhs: borrowing Linear<Scalar>.Vector<N>) -> Self {
+    public static func + (lhs: borrowing Self, rhs: borrowing Linear<Scalar, Space>.Vector<N>) -> Self {
         var result = lhs.coordinates
         for i in 0..<N {
             result[i] = lhs.coordinates[i] + rhs.components[i]
@@ -187,7 +187,7 @@ extension Affine.Point where Scalar: AdditiveArithmetic {
     /// Translates point by subtracting displacement vector.
     @inlinable
     @_disfavoredOverload
-    public static func - (lhs: borrowing Self, rhs: borrowing Linear<Scalar>.Vector<N>) -> Self {
+    public static func - (lhs: borrowing Self, rhs: borrowing Linear<Scalar, Space>.Vector<N>) -> Self {
         var result = lhs.coordinates
         for i in 0..<N {
             result[i] = lhs.coordinates[i] - rhs.components[i]
@@ -252,7 +252,7 @@ extension Affine.Point where N == 3 {
 
     /// Creates 3D point by extending 2D point with depth coordinate.
     @inlinable
-    public init(_ point2: Affine.Point<2>, z: Affine.Z) {
+    public init(_ point2: Affine.Point2, z: Affine.Z) {
         self.init(x: point2.x, y: point2.y, z: z)
     }
 }
@@ -296,7 +296,7 @@ extension Affine.Point where N == 4 {
 
     /// Creates 4D point by extending 3D point with homogeneous coordinate.
     @inlinable
-    public init(_ point3: Affine.Point<3>, w: Affine.W) {
+    public init(_ point3: Affine.Point3, w: Affine.W) {
         self.init(x: point3.x, y: point3.y, z: point3.z, w: w)
     }
 }
@@ -326,14 +326,14 @@ extension Affine.Point where N == 2, Scalar: AdditiveArithmetic {
 
     /// Returns point translated by displacement vector.
     @inlinable
-    public func translated(by vector: Linear<Scalar>.Vector<2>) -> Self {
+    public func translated(by vector: Linear<Scalar, Space>.Vector<2>) -> Self {
         Self(x: x + vector.dx, y: y + vector.dy)
     }
 
     /// Computes displacement vector from this point to another.
     @inlinable
-    public func vector(to other: Self) -> Linear<Scalar>.Vector<2> {
-        Linear<Scalar>.Vector(dx: other.x - x, dy: other.y - y)
+    public func vector(to other: Self) -> Linear<Scalar, Space>.Vector<2> {
+        Linear<Scalar, Space>.Vector(dx: other.x - x, dy: other.y - y)
     }
 }
 
@@ -384,20 +384,20 @@ extension Affine.Point where N == 2, Scalar: FloatingPoint {
 extension Affine.Point where N == 3, Scalar: AdditiveArithmetic {
     /// Returns point translated by displacement components.
     @inlinable
-    public func translated(dx: Affine.X, dy: Affine.Y, dz: Affine.Z) -> Self {
+    public func translated(dx: Linear<Scalar, Space>.Dx, dy: Linear<Scalar, Space>.Dy, dz: Linear<Scalar, Space>.Dz) -> Self {
         Self(x: x + dx, y: y + dy, z: z + dz)
     }
 
     /// Returns point translated by displacement vector.
     @inlinable
-    public func translated(by vector: Linear<Scalar>.Vector<3>) -> Self {
+    public func translated(by vector: Linear<Scalar, Space>.Vector<3>) -> Self {
         Self(x: x + vector.dx, y: y + vector.dy, z: z + vector.dz)
     }
 
     /// Computes displacement vector from this point to another.
     @inlinable
-    public func vector(to other: Self) -> Linear<Scalar>.Vector<3> {
-        Linear<Scalar>.Vector(dx: other.x - x, dy: other.y - y, dz: other.z - z)
+    public func vector(to other: Self) -> Linear<Scalar, Space>.Vector<3> {
+        Linear<Scalar, Space>.Vector(dx: other.x - x, dy: other.y - y, dz: other.z - z)
     }
 }
 

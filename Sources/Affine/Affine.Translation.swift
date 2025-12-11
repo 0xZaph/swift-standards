@@ -20,14 +20,14 @@ extension Affine {
     /// ```
     public struct Translation {
         /// Horizontal displacement component.
-        public var dx: Linear<Scalar>.Dx
+        public var dx: Linear<Scalar, Space>.Dx
 
         /// Vertical displacement component.
-        public var dy: Linear<Scalar>.Dy
+        public var dy: Linear<Scalar, Space>.Dy
 
         /// Creates translation from type-safe displacement components.
         @inlinable
-        public init(dx: Linear<Scalar>.Dx, dy: Linear<Scalar>.Dy) {
+        public init(dx: Linear<Scalar, Space>.Dx, dy: Linear<Scalar, Space>.Dy) {
             self.dx = dx
             self.dy = dy
         }
@@ -47,14 +47,17 @@ extension Affine.Translation: Hashable where Scalar: Hashable {}
 extension Affine.Translation {
     /// Creates translation from raw scalar displacement values.
     @inlinable
-    public init(dx: Scalar, dy: Scalar) {
-        self.dx = Linear<Scalar>.Dx(dx)
-        self.dy = Linear<Scalar>.Dy(dy)
+    public init(
+        dx: Scalar,
+        dy: Scalar
+    ) {
+        self.dx = Linear<Scalar, Space>.Dx(dx)
+        self.dy = Linear<Scalar, Space>.Dy(dy)
     }
 
     /// Creates translation from 2D displacement vector.
     @inlinable
-    public init(_ vector: Linear<Scalar>.Vector<2>) {
+    public init(_ vector: Linear<Scalar, Space>.Vector<2>) {
         self.dx = vector.dx
         self.dy = vector.dy
     }
@@ -101,7 +104,7 @@ extension Affine.Translation where Scalar: SignedNumeric {
 extension Affine.Translation {
     /// Converts translation to 2D displacement vector.
     @inlinable
-    public var vector: Linear<Scalar>.Vector<2> {
-        Linear<Scalar>.Vector(dx: dx, dy: dy)
+    public var vector: Linear<Scalar, Space>.Vector<2> {
+        Linear<Scalar, Space>.Vector(dx: dx, dy: dy)
     }
 }

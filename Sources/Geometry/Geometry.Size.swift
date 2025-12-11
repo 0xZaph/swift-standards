@@ -1,6 +1,7 @@
 // Size.swift
 // A fixed-size dimensions with compile-time known number of dimensions.
 
+public import Algebra_Linear
 public import Dimension
 
 extension Geometry {
@@ -15,8 +16,9 @@ extension Geometry {
     /// ## Example
     ///
     /// ```swift
-    /// let pageSize: Geometry.Size<2> = .init(width: 612, height: 792)
-    /// let boxSize: Geometry.Size<3, Double> = .init(width: 10, height: 20, depth: 30)
+    /// let pageSize: Geometry<Double, Void>.Size<2, Void> = .init(
+    ///     width: .init(612), height: .init(792)
+    /// )
     /// ```
     public struct Size<let N: Int> {
         /// The size dimensions stored inline
@@ -55,16 +57,6 @@ extension Geometry.Size: Hashable where Scalar: Hashable {
             hasher.combine(dimensions[i])
         }
     }
-}
-
-// MARK: - Typealiases
-
-extension Geometry {
-    /// A 2D size
-    public typealias Size2 = Size<2>
-
-    /// A 3D size
-    public typealias Size3 = Size<3>
 }
 
 // MARK: - Codable
@@ -106,7 +98,7 @@ extension Geometry.Size {
     /// Create a size by transforming each dimension of another size
     @inlinable
     public init<U, E: Error>(
-        _ other: borrowing Geometry<U>.Size<N>,
+        _ other: borrowing Geometry<U, Space>.Size<N>,
         _ transform: (U) throws(E) -> Scalar
     ) throws(E) {
         var dims = InlineArray<N, Scalar>(repeating: try transform(other.dimensions[0]))
@@ -120,12 +112,12 @@ extension Geometry.Size {
     @inlinable
     public func map<Result, E: Error>(
         _ transform: (Scalar) throws(E) -> Result
-    ) throws(E) -> Geometry<Result>.Size<N> {
+    ) throws(E) -> Geometry<Result, Space>.Size<N> {
         var result = InlineArray<N, Result>(repeating: try transform(dimensions[0]))
         for i in 1..<N {
             result[i] = try transform(dimensions[i])
         }
-        return Geometry<Result>.Size<N>(result)
+        return Geometry<Result, Space>.Size<N>(result)
     }
 }
 
@@ -176,10 +168,10 @@ extension Geometry.Size where Scalar: SignedNumeric {
     }
 }
 
-// MARK: - Scalar Multiplication
+// MARK: - Scalar Multiplication (dimensionless scale factors)
 
 extension Geometry.Size where Scalar: Numeric {
-    /// Multiply all dimensions by a scalar
+    /// Multiply all dimensions by a scalar (scale factor)
     @inlinable
     @_disfavoredOverload
     public static func * (lhs: borrowing Self, rhs: Scalar) -> Self {
@@ -190,7 +182,7 @@ extension Geometry.Size where Scalar: Numeric {
         return Self(result)
     }
 
-    /// Multiply scalar by size
+    /// Multiply scalar by size (scale factor)
     @inlinable
     @_disfavoredOverload
     public static func * (lhs: Scalar, rhs: borrowing Self) -> Self {
@@ -198,10 +190,10 @@ extension Geometry.Size where Scalar: Numeric {
     }
 }
 
-// MARK: - Scalar Division
+// MARK: - Scalar Division (dimensionless scale factors)
 
 extension Geometry.Size where Scalar: FloatingPoint {
-    /// Divide all dimensions by a scalar
+    /// Divide all dimensions by a scalar (scale factor)
     @inlinable
     @_disfavoredOverload
     public static func / (lhs: borrowing Self, rhs: Scalar) -> Self {
@@ -229,12 +221,6 @@ extension Geometry.Size where N == 2 {
         get { Geometry.Height(dimensions[1]) }
         set { dimensions[1] = newValue.value }
     }
-    //
-    //    /// Create a 2D size with the given dimensions (raw scalar values)
-    //    @inlinable
-    //    public init(width: Scalar, height: Scalar) {
-    //        self.init([width, height])
-    //    }
 
     /// Create a 2D size from typed Width and Height values
     @inlinable
@@ -260,23 +246,23 @@ extension Geometry.Size where N == 3 {
         set { dimensions[1] = newValue.value }
     }
 
-    /// Depth (third dimension)
+    /// Depth (third dimension) - raw scalar as we don't have typed Dz
     @inlinable
     public var depth: Scalar {
         get { dimensions[2] }
         set { dimensions[2] = newValue }
     }
 
-    /// Create a 3D size with the given dimensions
+    /// Create a 3D size from typed values with raw depth
     @inlinable
-    public init(width: Scalar, height: Scalar, depth: Scalar) {
-        self.init([width, height, depth])
+    public init(width: Geometry.Width, height: Geometry.Height, depth: Scalar) {
+        self.init([width.value, height.value, depth])
     }
 
     /// Create a 3D size from a 2D size with depth
     @inlinable
     public init(_ size2: Geometry.Size<2>, depth: Scalar) {
-        self.init(width: size2.width.value, height: size2.height.value, depth: depth)
+        self.init(width: size2.width, height: size2.height, depth: depth)
     }
 }
 

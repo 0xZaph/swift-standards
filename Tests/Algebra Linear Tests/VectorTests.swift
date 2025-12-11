@@ -7,9 +7,9 @@ import Testing
 
 @Suite("Linear.Vector Tests")
 struct VectorTests {
-    typealias Vec2 = Linear<Double>.Vector<2>
-    typealias Vec3 = Linear<Double>.Vector<3>
-    typealias Vec4 = Linear<Double>.Vector<4>
+    typealias Vec2 = Linear<Double, Void>.Vector<2>
+    typealias Vec3 = Linear<Double, Void>.Vector<3>
+    typealias Vec4 = Linear<Double, Void>.Vector<4>
 
     // MARK: - Construction
 
@@ -195,8 +195,8 @@ struct VectorTests {
 
     @Test("Functorial map")
     func mapFunction() throws {
-        let v = Linear<Int>.Vector<2>([1, 2])
-        let doubled: Linear<Int>.Vector<2> = try v.map { $0 * 2 }
+        let v = Linear<Int, Void>.Vector<2>([1, 2])
+        let doubled: Linear<Int, Void>.Vector<2> = try v.map { $0 * 2 }
         #expect(doubled[0] == 2)
         #expect(doubled[1] == 4)
     }

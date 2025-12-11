@@ -7,9 +7,9 @@ import Testing
 
 @Suite("Linear.Matrix Tests")
 struct MatrixTests {
-    typealias Mat2x2 = Linear<Double>.Matrix2x2
-    typealias Mat3x3 = Linear<Double>.Matrix3x3
-    typealias Vec2 = Linear<Double>.Vector<2>
+    typealias Mat2x2 = Linear<Double, Void>.Matrix2x2
+    typealias Mat3x3 = Linear<Double, Void>.Matrix3x3
+    typealias Vec2 = Linear<Double, Void>.Vector<2>
 
     // MARK: - Construction
 
@@ -257,16 +257,16 @@ struct MatrixTests {
     @Test("Non-square matrix multiplication")
     func nonSquareMultiplication() {
         // 2x3 matrix multiplied by 3x2 gives 2x2
-        let m23: Linear<Double>.Matrix<2, 3> = .init(rows: [
+        let m23: Linear<Double, Void>.Matrix<2, 3> = .init(rows: [
             [1, 2, 3],
             [4, 5, 6]
         ])
-        let m32: Linear<Double>.Matrix<3, 2> = .init(rows: [
+        let m32: Linear<Double, Void>.Matrix<3, 2> = .init(rows: [
             [1, 2],
             [3, 4],
             [5, 6]
         ])
-        let result: Linear<Double>.Matrix<2, 2> = m23.multiplied(by: m32)
+        let result: Linear<Double, Void>.Matrix<2, 2> = m23.multiplied(by: m32)
         // [1 2 3] * [1 2]   = [1*1+2*3+3*5  1*2+2*4+3*6] = [22 28]
         // [4 5 6]   [3 4]     [4*1+5*3+6*5  4*2+5*4+6*6]   [49 64]
         //           [5 6]
