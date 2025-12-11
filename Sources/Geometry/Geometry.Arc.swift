@@ -59,9 +59,9 @@ extension Geometry.Arc: Equatable where Scalar: Equatable {}
 extension Geometry.Arc: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
-
+#if Codable
 extension Geometry.Arc: Codable where Scalar: Codable {}
-
+#endif
 // MARK: - Factory Methods
 
 extension Geometry.Arc {

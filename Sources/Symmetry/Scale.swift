@@ -53,6 +53,7 @@ extension Scale: Hashable {
 
 // MARK: - Codable
 
+#if Codable
 extension Scale: Codable {
     public init(from decoder: any Decoder) throws {
         var container = try decoder.unkeyedContainer()
@@ -70,6 +71,7 @@ extension Scale: Codable {
         }
     }
 }
+#endif
 
 // MARK: - Subscript
 

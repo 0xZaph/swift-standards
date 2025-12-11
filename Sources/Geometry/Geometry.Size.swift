@@ -69,6 +69,7 @@ extension Geometry {
 
 // MARK: - Codable
 
+#if Codable
 extension Geometry.Size: Codable where Scalar: Codable {
     public init(from decoder: any Decoder) throws {
         var container = try decoder.unkeyedContainer()
@@ -86,6 +87,7 @@ extension Geometry.Size: Codable where Scalar: Codable {
         }
     }
 }
+#endif
 
 // MARK: - Subscript
 

@@ -65,7 +65,9 @@ extension Layout.Grid {
 extension Layout.Grid.Gaps: Sendable where Spacing: Sendable {}
 extension Layout.Grid.Gaps: Equatable where Spacing: Equatable {}
 extension Layout.Grid.Gaps: Hashable where Spacing: Hashable {}
+#if Codable
 extension Layout.Grid.Gaps: Codable where Spacing: Codable {}
+#endif
 
 extension Layout.Grid.Gaps where Spacing: AdditiveArithmetic {
     /// Create uniform spacing (same for rows and columns).
@@ -88,8 +90,9 @@ extension Layout.Grid: Equatable where Spacing: Equatable, Content: Equatable {}
 extension Layout.Grid: Hashable where Spacing: Hashable, Content: Hashable {}
 
 // MARK: - Codable
-
+#if Codable
 extension Layout.Grid: Codable where Spacing: Codable, Content: Codable {}
+#endif
 
 // MARK: - Convenience Initializers
 

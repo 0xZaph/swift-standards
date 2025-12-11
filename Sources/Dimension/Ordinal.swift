@@ -119,6 +119,7 @@ extension Ordinal: Comparable {
 
 // MARK: - Codable
 
+#if Codable
 extension Ordinal: Codable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -140,6 +141,7 @@ extension Ordinal: Codable {
         try container.encode(rawValue)
     }
 }
+#endif
 
 // MARK: - Conversion
 

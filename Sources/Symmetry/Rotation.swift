@@ -55,6 +55,7 @@ extension Rotation: Hashable where N == 2 {
 
 // MARK: - Codable (2D)
 
+#if Codable
 extension Rotation: Codable where N == 2 {
     private enum CodingKeys: String, CodingKey {
         case matrix
@@ -71,6 +72,7 @@ extension Rotation: Codable where N == 2 {
         try container.encode(matrix, forKey: .matrix)
     }
 }
+#endif
 
 // MARK: - Identity
 

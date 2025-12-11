@@ -59,6 +59,7 @@ public struct Axis<let N: Int>: Sendable, Hashable {
 
 // MARK: - Codable
 
+#if Codable
 extension Axis: Codable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -79,6 +80,7 @@ extension Axis: Codable {
         try container.encode(rawValue)
     }
 }
+#endif
 
 // MARK: - 1D
 

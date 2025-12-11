@@ -27,7 +27,7 @@ extension Time {
         ///
         /// - Parameter value: Month value (1-12)
         /// - Throws: `Month.Error` if value is not 1-12
-        public init(_ value: Int) throws {
+        public init(_ value: Int) throws(Error) {
             guard (1...12).contains(value) else {
                 throw Error.invalidMonth(value)
             }

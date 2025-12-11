@@ -16,7 +16,7 @@ extension Time {
         ///
         /// - Parameter value: Second value (0-60, allowing leap second)
         /// - Throws: `Second.Error` if value is not 0-60
-        public init(_ value: Int) throws {
+        public init(_ value: Int) throws(Error) {
             guard (0...60).contains(value) else {
                 throw Error.invalidSecond(value)
             }

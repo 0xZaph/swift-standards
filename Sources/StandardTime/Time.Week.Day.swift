@@ -125,7 +125,7 @@ extension Time.Weekday {
     /// let weekday = try Time.Weekday(year: 2024, month: 1, day: 15)
     /// // weekday == .monday
     /// ```
-    public init(year: Int, month: Int, day: Int) throws {
+    public init(year: Int, month: Int, day: Int) throws(Error) {
         let y = Time.Year(year)
 
         guard let m = try? Time.Month(month) else {

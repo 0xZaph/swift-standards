@@ -74,9 +74,9 @@ extension Layout.Stack: Equatable where Spacing: Equatable, Content: Equatable {
 extension Layout.Stack: Hashable where Spacing: Hashable, Content: Hashable {}
 
 // MARK: - Codable
-
+#if Codable
 extension Layout.Stack: Codable where Spacing: Codable, Content: Codable {}
-
+#endif
 // MARK: - Convenience Initializers
 
 extension Layout.Stack {

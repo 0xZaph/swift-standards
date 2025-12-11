@@ -174,7 +174,7 @@ extension Time {
         millisecond: Int = 0,
         microsecond: Int = 0,
         nanosecond: Int = 0
-    ) throws {
+    ) throws(Error) {
         let y = Time.Year(year)
 
         guard let m = try? Time.Month(month) else {
@@ -256,7 +256,7 @@ extension Time {
     ///   - secondsSinceEpoch: Seconds since Unix epoch (UTC)
     ///   - nanoseconds: Nanosecond fraction (0-999,999,999)
     /// - Throws: `Time.Error.nanosecondOutOfRange` if nanoseconds is invalid
-    public init(secondsSinceEpoch: Int, nanoseconds: Int) throws {
+    public init(secondsSinceEpoch: Int, nanoseconds: Int) throws(Error) {
         guard nanoseconds >= 0 && nanoseconds < 1_000_000_000 else {
             throw Error.nanosecondOutOfRange(nanoseconds)
         }
@@ -416,6 +416,7 @@ extension Time {
 
 // MARK: - Codable
 
+#if Codable
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 extension Time: Codable {
     public init(from decoder: any Decoder) throws {
@@ -427,3 +428,4 @@ extension Time: Codable {
         try Instant(self).encode(to: encoder)
     }
 }
+#endif

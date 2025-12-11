@@ -43,9 +43,9 @@ extension Geometry.Polygon: Equatable where Scalar: Equatable {}
 extension Geometry.Polygon: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
-
+#if Codable
 extension Geometry.Polygon: Codable where Scalar: Codable {}
-
+#endif
 // MARK: - Basic Properties
 
 extension Geometry.Polygon {

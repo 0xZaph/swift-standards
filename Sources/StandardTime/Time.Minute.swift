@@ -15,7 +15,7 @@ extension Time {
         ///
         /// - Parameter value: Minute value (0-59)
         /// - Throws: `Minute.Error` if value is not 0-59
-        public init(_ value: Int) throws {
+        public init(_ value: Int) throws(Error) {
             guard (0...59).contains(value) else {
                 throw Error.invalidMinute(value)
             }

@@ -56,9 +56,9 @@ extension Geometry.Rectangle: Equatable where Scalar: Equatable {}
 extension Geometry.Rectangle: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
-
+#if Codable
 extension Geometry.Rectangle: Codable where Scalar: Codable {}
-
+#endif
 // MARK: - AdditiveArithmetic Convenience
 
 extension Geometry.Rectangle where Scalar: AdditiveArithmetic {

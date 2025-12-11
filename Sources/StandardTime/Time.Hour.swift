@@ -15,7 +15,7 @@ extension Time {
         ///
         /// - Parameter value: Hour value (0-23)
         /// - Throws: `Hour.Error` if value is not 0-23
-        public init(_ value: Int) throws {
+        public init(_ value: Int) throws(Error) {
             guard (0...23).contains(value) else {
                 throw Error.invalidHour(value)
             }

@@ -73,6 +73,7 @@ extension Linear {
 
 // MARK: - Codable
 
+#if Codable
 extension Linear.Vector: Codable where Scalar: Codable {
     public init(from decoder: any Decoder) throws {
         var container = try decoder.unkeyedContainer()
@@ -90,6 +91,7 @@ extension Linear.Vector: Codable where Scalar: Codable {
         }
     }
 }
+#endif
 
 // MARK: - Subscript
 

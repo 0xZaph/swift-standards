@@ -36,7 +36,10 @@ extension Affine {
 extension Affine.Translation: Sendable where Scalar: Sendable {}
 extension Affine.Translation: Equatable where Scalar: Equatable {}
 extension Affine.Translation: Hashable where Scalar: Hashable {}
+
+#if Codable
 extension Affine.Translation: Codable where Scalar: Codable {}
+#endif
 
 // MARK: - Convenience Initializers
 

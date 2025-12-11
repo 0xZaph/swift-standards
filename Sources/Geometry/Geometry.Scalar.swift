@@ -29,9 +29,9 @@ extension Geometry.Scalar: Equatable where Scalar: Equatable {}
 extension Geometry.Scalar: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
-
+#if Codable
 extension Geometry.Scalar: Codable where Scalar: Codable {}
-
+#endif
 // MARK: - Zero
 
 extension Geometry.Scalar where Scalar: AdditiveArithmetic {

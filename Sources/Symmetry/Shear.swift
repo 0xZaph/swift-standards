@@ -58,6 +58,7 @@ extension Shear: Hashable where N == 2 {
 
 // MARK: - Codable (2D)
 
+#if Codable
 extension Shear: Codable where N == 2 {
     private enum CodingKeys: String, CodingKey {
         case x, y
@@ -76,6 +77,7 @@ extension Shear: Codable where N == 2 {
         try container.encode(y, forKey: .y)
     }
 }
+#endif
 
 // MARK: - Identity
 

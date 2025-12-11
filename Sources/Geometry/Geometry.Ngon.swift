@@ -69,6 +69,7 @@ extension Geometry.Ngon: Hashable where Scalar: Hashable {
 
 // MARK: - Codable
 
+#if Codable
 extension Geometry.Ngon: Codable where Scalar: Codable {
     public init(from decoder: any Decoder) throws {
         var container = try decoder.unkeyedContainer()
@@ -87,6 +88,7 @@ extension Geometry.Ngon: Codable where Scalar: Codable {
         }
     }
 }
+#endif
 
 // MARK: - Typealiases
 

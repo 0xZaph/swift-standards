@@ -1,5 +1,8 @@
 // Tagged.swift
 // A phantom-type wrapper for type-safe value distinction.
+//
+// Inspired by swift-tagged by Point-Free (https://github.com/pointfreeco/swift-tagged)
+// This implementation extends the concept with coordinate/displacement arithmetic.
 
 /// A value distinguished by a phantom type tag.
 ///
@@ -58,7 +61,10 @@ public struct Tagged<Tag, RawValue> {
 extension Tagged: Sendable where RawValue: Sendable {}
 extension Tagged: Equatable where RawValue: Equatable {}
 extension Tagged: Hashable where RawValue: Hashable {}
+
+#if Codable
 extension Tagged: Codable where RawValue: Codable {}
+#endif
 extension Tagged: Comparable where RawValue: Comparable {
     @inlinable
     public static func < (lhs: Tagged, rhs: Tagged) -> Bool {

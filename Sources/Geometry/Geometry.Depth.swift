@@ -31,9 +31,9 @@ extension Geometry.Depth: Equatable where Scalar: Equatable {}
 extension Geometry.Depth: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
-
+#if Codable
 extension Geometry.Depth: Codable where Scalar: Codable {}
-
+#endif
 // MARK: - AdditiveArithmetic
 
 extension Geometry.Depth: AdditiveArithmetic where Scalar: AdditiveArithmetic {

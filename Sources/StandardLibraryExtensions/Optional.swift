@@ -16,7 +16,7 @@ extension Optional {
     /// ```swift
     /// let value = try maybeValue.unwrap(or: MyError.notFound)
     /// ```
-    public func unwrap(or error: any Error) throws -> Wrapped {
+    public func unwrap<E: Error>(or error: E) throws(E) -> Wrapped {
         guard let value = self else { throw error }
         return value
     }

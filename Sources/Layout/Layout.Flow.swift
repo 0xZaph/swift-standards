@@ -82,7 +82,9 @@ extension Layout.Flow {
 extension Layout.Flow.Gaps: Sendable where Spacing: Sendable {}
 extension Layout.Flow.Gaps: Equatable where Spacing: Equatable {}
 extension Layout.Flow.Gaps: Hashable where Spacing: Hashable {}
+#if Codable
 extension Layout.Flow.Gaps: Codable where Spacing: Codable {}
+#endif
 
 extension Layout.Flow.Gaps where Spacing: AdditiveArithmetic {
     /// Create uniform spacing (same for items and lines).
@@ -135,8 +137,9 @@ extension Layout.Flow: Equatable where Spacing: Equatable, Content: Equatable {}
 extension Layout.Flow: Hashable where Spacing: Hashable, Content: Hashable {}
 
 // MARK: - Codable
-
+#if Codable
 extension Layout.Flow: Codable where Spacing: Codable, Content: Codable {}
+#endif
 
 // MARK: - Convenience Initializers
 

@@ -28,7 +28,7 @@ extension Time.Month {
         ///   - month: The month
         ///   - year: The year
         /// - Throws: `Day.Error` if day is invalid for the month/year
-        public init(_ value: Int, in month: Time.Month, year: Time.Year) throws {
+        public init(_ value: Int, in month: Time.Month, year: Time.Year) throws(Error) {
             let maxDay = month.days(in: year)
             guard (1...maxDay).contains(value) else {
                 throw Error.invalidDay(value, month: month, year: year)

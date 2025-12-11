@@ -50,7 +50,7 @@ public struct Instant: Sendable, Equatable, Hashable, Comparable, Codable {
     public init(
         secondsSinceUnixEpoch: Int64,
         nanosecondFraction: Int32 = 0
-    ) throws {
+    ) throws(Error) {
         guard nanosecondFraction >= 0 && nanosecondFraction < 1_000_000_000 else {
             throw Error.nanosecondOutOfRange(nanosecondFraction)
         }

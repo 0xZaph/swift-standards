@@ -42,9 +42,9 @@ extension Geometry.Ray: Equatable where Scalar: Equatable {}
 extension Geometry.Ray: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
-
+#if Codable
 extension Geometry.Ray: Codable where Scalar: Codable {}
-
+#endif
 // MARK: - Factory Methods
 
 extension Geometry.Ray where Scalar: AdditiveArithmetic {

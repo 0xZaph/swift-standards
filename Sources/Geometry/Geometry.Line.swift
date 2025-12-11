@@ -50,9 +50,9 @@ extension Geometry.Line: Equatable where Scalar: Equatable {}
 extension Geometry.Line: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
-
+#if Codable
 extension Geometry.Line: Codable where Scalar: Codable {}
-
+#endif
 // MARK: - Factory Methods (AdditiveArithmetic)
 
 extension Geometry.Line where Scalar: AdditiveArithmetic {
@@ -223,9 +223,9 @@ extension Geometry.Line.Segment: Equatable where Scalar: Equatable {}
 extension Geometry.Line.Segment: Hashable where Scalar: Hashable {}
 
 // MARK: - Segment Codable
-
+#if Codable
 extension Geometry.Line.Segment: Codable where Scalar: Codable {}
-
+#endif
 // MARK: - Segment Reversed
 
 extension Geometry.Line.Segment {

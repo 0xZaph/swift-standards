@@ -361,6 +361,7 @@ extension Linear.Matrix where Rows == 2, Columns == 2, Scalar: FloatingPoint {
 
 // MARK: - 2×2 Codable
 
+#if Codable
 extension Linear.Matrix: Codable where Rows == 2, Columns == 2, Scalar: Codable {
     private enum CodingKeys: String, CodingKey {
         case a, b, c, d
@@ -383,6 +384,7 @@ extension Linear.Matrix: Codable where Rows == 2, Columns == 2, Scalar: Codable 
         try container.encode(d, forKey: .d)
     }
 }
+#endif
 
 // MARK: - 2×2 Factory Methods
 

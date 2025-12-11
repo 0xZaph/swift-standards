@@ -78,6 +78,7 @@ extension Affine {
 
 // MARK: - Codable
 
+#if Codable
 extension Affine.Point: Codable where Scalar: Codable {
     public init(from decoder: any Decoder) throws {
         var container = try decoder.unkeyedContainer()
@@ -95,6 +96,7 @@ extension Affine.Point: Codable where Scalar: Codable {
         }
     }
 }
+#endif
 
 // MARK: - Subscript
 

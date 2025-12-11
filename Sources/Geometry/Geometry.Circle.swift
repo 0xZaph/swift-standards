@@ -41,9 +41,9 @@ extension Geometry.Circle: Equatable where Scalar: Equatable {}
 extension Geometry.Circle: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
-
+#if Codable
 extension Geometry.Circle: Codable where Scalar: Codable {}
-
+#endif
 // MARK: - Convenience Initializers
 
 extension Geometry.Circle {

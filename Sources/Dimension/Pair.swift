@@ -57,7 +57,9 @@ public struct Pair<First, Second> {
 extension Pair: Sendable where First: Sendable, Second: Sendable {}
 extension Pair: Equatable where First: Equatable, Second: Equatable {}
 extension Pair: Hashable where First: Hashable, Second: Hashable {}
+#if Codable
 extension Pair: Codable where First: Codable, Second: Codable {}
+#endif
 
 // MARK: - Functor
 

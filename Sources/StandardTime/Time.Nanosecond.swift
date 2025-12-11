@@ -20,7 +20,7 @@ extension Time {
         ///
         /// - Parameter value: Nanosecond value (0-999)
         /// - Throws: `Nanosecond.Error` if value is not 0-999
-        public init(_ value: Int) throws {
+        public init(_ value: Int) throws(Error) {
             guard (0...999).contains(value) else {
                 throw Error.invalidNanosecond(value)
             }

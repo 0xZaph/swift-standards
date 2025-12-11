@@ -43,9 +43,9 @@ extension Geometry.Bezier: Equatable where Scalar: Equatable {}
 extension Geometry.Bezier: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
-
+#if Codable
 extension Geometry.Bezier: Codable where Scalar: Codable {}
-
+#endif
 // MARK: - Basic Properties
 
 extension Geometry.Bezier {

@@ -61,6 +61,7 @@ extension Affine.Transform: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
 
+#if Codable
 extension Affine.Transform: Codable where Scalar: Codable {
     private enum CodingKeys: String, CodingKey {
         case a, b, c, d, tx, ty
@@ -87,6 +88,7 @@ extension Affine.Transform: Codable where Scalar: Codable {
         try container.encode(ty.value, forKey: .ty)
     }
 }
+#endif
 
 // MARK: - Identity
 
