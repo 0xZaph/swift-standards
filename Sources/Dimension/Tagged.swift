@@ -400,6 +400,25 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     Tagged(lhs.rawValue - rhs.rawValue)
 }
 
+/// Adds an X coordinate to a displacement, returning a coordinate (commutative).
+@inlinable
+public func + <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.X.Displacement<Space>, Scalar>,
+    rhs: Tagged<Index.X.Coordinate<Space>, Scalar>
+) -> Tagged<Index.X.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue + rhs.rawValue)
+}
+
+/// Subtracts an X coordinate from a displacement, returning a coordinate.
+/// Useful for coordinate system conversions (e.g., pageWidth - x).
+@inlinable
+public func - <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.X.Displacement<Space>, Scalar>,
+    rhs: Tagged<Index.X.Coordinate<Space>, Scalar>
+) -> Tagged<Index.X.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue - rhs.rawValue)
+}
+
 // MARK: Y Axis
 
 /// Adds a displacement to a Y coordinate, returning a coordinate.
@@ -425,6 +444,25 @@ public func - <Space, Scalar: AdditiveArithmetic>(
 public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Tagged<Index.Y.Coordinate<Space>, Scalar>,
     rhs: Tagged<Index.Y.Displacement<Space>, Scalar>
+) -> Tagged<Index.Y.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue - rhs.rawValue)
+}
+
+/// Adds a Y coordinate to a displacement, returning a coordinate (commutative).
+@inlinable
+public func + <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Y.Displacement<Space>, Scalar>,
+    rhs: Tagged<Index.Y.Coordinate<Space>, Scalar>
+) -> Tagged<Index.Y.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue + rhs.rawValue)
+}
+
+/// Subtracts a Y coordinate from a displacement, returning a coordinate.
+/// Useful for coordinate system conversions (e.g., pageHeight - y).
+@inlinable
+public func - <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Y.Displacement<Space>, Scalar>,
+    rhs: Tagged<Index.Y.Coordinate<Space>, Scalar>
 ) -> Tagged<Index.Y.Coordinate<Space>, Scalar> {
     Tagged(lhs.rawValue - rhs.rawValue)
 }
@@ -458,6 +496,25 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     Tagged(lhs.rawValue - rhs.rawValue)
 }
 
+/// Adds a Z coordinate to a displacement, returning a coordinate (commutative).
+@inlinable
+public func + <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Z.Displacement<Space>, Scalar>,
+    rhs: Tagged<Index.Z.Coordinate<Space>, Scalar>
+) -> Tagged<Index.Z.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue + rhs.rawValue)
+}
+
+/// Subtracts a Z coordinate from a displacement, returning a coordinate.
+/// Useful for coordinate system conversions (e.g., pageDepth - z).
+@inlinable
+public func - <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Z.Displacement<Space>, Scalar>,
+    rhs: Tagged<Index.Z.Coordinate<Space>, Scalar>
+) -> Tagged<Index.Z.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue - rhs.rawValue)
+}
+
 // MARK: - Strideable
 
 extension Tagged: Strideable where RawValue: Strideable {
@@ -471,5 +528,12 @@ extension Tagged: Strideable where RawValue: Strideable {
     @inlinable
     public func advanced(by n: Stride) -> Self {
         Self(rawValue.advanced(by: n))
+    }
+}
+
+
+extension Tagged where RawValue: BinaryFloatingPoint {
+    public init<I: BinaryInteger>(_ value: I) {
+        self.init(RawValue(value))
     }
 }

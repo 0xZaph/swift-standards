@@ -40,24 +40,24 @@ extension Geometry.Scalar where Scalar: AdditiveArithmetic {
     public static var zero: Self { Self(.zero) }
 }
 
-// MARK: - AdditiveArithmetic
-
-extension Geometry.Scalar: AdditiveArithmetic where Scalar: AdditiveArithmetic {
-    @inlinable
-    @_disfavoredOverload
-    public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
-        Self(lhs.value + rhs.value)
-    }
-
-    @inlinable
-    @_disfavoredOverload
-    public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
-        Self(lhs.value - rhs.value)
-    }
-}
-
-// MARK: - Comparable
-
+//// MARK: - AdditiveArithmetic
+//
+//extension Geometry.Scalar: AdditiveArithmetic where Scalar: AdditiveArithmetic {
+//    @inlinable
+//    @_disfavoredOverload
+//    public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
+//        Self(lhs.value + rhs.value)
+//    }
+//
+//    @inlinable
+//    @_disfavoredOverload
+//    public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
+//        Self(lhs.value - rhs.value)
+//    }
+//}
+//
+//// MARK: - Comparable
+//
 extension Geometry.Scalar: Comparable where Scalar: Comparable {
     @inlinable
     @_disfavoredOverload

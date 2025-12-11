@@ -237,16 +237,16 @@ extension Affine.Transform where Scalar: FloatingPoint & ExpressibleByIntegerLit
     ///
     /// Scale factors are dimensionless ratios.
     @inlinable
-    public static func scale(x: Scalar, y: Scalar) -> Self {
-        Self(linear: Linear<Scalar, Space>.Matrix(a: x, b: 0, c: 0, d: y))
+    public static func scale(x: Affine.X, y: Affine.Y) -> Self {
+        Self(linear: Linear<Scalar, Space>.Matrix(a: x.value, b: 0, c: 0, d: y.value))
     }
 
     /// Creates shear transform with horizontal and vertical shear factors.
     ///
     /// Shear factors are dimensionless ratios.
     @inlinable
-    public static func shear(x: Scalar, y: Scalar) -> Self {
-        Self(linear: Linear<Scalar, Space>.Matrix(a: 1, b: x, c: y, d: 1))
+    public static func shear(x: Affine.X, y: Affine.Y) -> Self {
+        Self(linear: Linear<Scalar, Space>.Matrix(a: 1, b: x.value, c: y.value, d: 1))
     }
 }
 
@@ -300,7 +300,7 @@ extension Affine.Transform where Scalar: FloatingPoint & ExpressibleByIntegerLit
 
     /// Returns new transform with additional non-uniform scaling applied.
     @inlinable
-    public func scaled(x: Scalar, y: Scalar) -> Self {
+    public func scaled(x: Affine.X, y: Affine.Y) -> Self {
         concatenating(.scale(x: x, y: y))
     }
 }
