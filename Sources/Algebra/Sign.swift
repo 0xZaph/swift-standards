@@ -17,7 +17,7 @@
 /// Use `Sign.Value<T>` to pair a value with its sign:
 ///
 /// ```swift
-/// let delta: Sign.Value<Double> = .init(tag: .negative, value: 3.14)
+/// let delta: Sign.Value<Double> = .init(.negative, 3.14)
 /// ```
 public enum Sign: Sendable, Hashable, Codable, CaseIterable {
     /// Greater than zero.
@@ -84,5 +84,5 @@ extension Sign {
 
 extension Sign {
     /// A value paired with its sign.
-    public typealias Value<Payload> = Tagged<Sign, Payload>
+    public typealias Value<Payload> = Pair<Sign, Payload>
 }

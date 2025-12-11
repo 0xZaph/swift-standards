@@ -127,7 +127,6 @@ extension Geometry.Width where Scalar: SignedNumeric {
 extension Geometry.Width where Scalar: FloatingPoint {
     /// Multiply by a scalar
     @inlinable
-    @_disfavoredOverload
     public static func * (lhs: borrowing Self, rhs: Scalar) -> Self {
         Self(lhs.value * rhs)
     }

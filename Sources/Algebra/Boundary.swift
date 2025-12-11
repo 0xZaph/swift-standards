@@ -20,7 +20,7 @@
 /// Use `Boundary.Value<T>` to pair a value with its inclusivity:
 ///
 /// ```swift
-/// let endpoint: Boundary.Value<Double> = .init(tag: .closed, value: 1.0)
+/// let endpoint: Boundary.Value<Double> = .init(.closed, 1.0)
 /// ```
 public enum Boundary: Sendable, Hashable, Codable, CaseIterable {
     /// Endpoint is included (≤ or ≥).
@@ -69,5 +69,5 @@ extension Boundary {
 
 extension Boundary {
     /// A value paired with its boundary type.
-    public typealias Value<Payload> = Tagged<Boundary, Payload>
+    public typealias Value<Payload> = Pair<Boundary, Payload>
 }

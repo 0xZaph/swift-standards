@@ -20,12 +20,12 @@ public import Algebra
 /// - Related to sign of angular velocity
 /// - Determines polygon vertex order (convexity tests)
 ///
-/// ## Tagged Values
+/// ## Paired Values
 ///
 /// Use `Winding.Value<T>` to pair a rotation with its direction:
 ///
 /// ```swift
-/// let rotation: Winding.Value<Angle> = .init(tag: .counterclockwise, value: .degrees(45))
+/// let rotation: Winding.Value<Angle> = .init(.counterclockwise, .degrees(45))
 /// ```
 public enum Winding: Sendable, Hashable, Codable, CaseIterable {
     /// Rotation in the direction of clock hands (negative angular direction).
@@ -64,9 +64,9 @@ extension Winding {
     public static var ccw: Winding { .counterclockwise }
 }
 
-// MARK: - Tagged Value
+// MARK: - Paired Value
 
 extension Winding {
     /// A value paired with its winding direction.
-    public typealias Value<Payload> = Tagged<Winding, Payload>
+    public typealias Value<Payload> = Pair<Winding, Payload>
 }

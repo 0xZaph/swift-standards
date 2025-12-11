@@ -26,7 +26,7 @@ extension Region {
     /// Use `Corner.Value<T>` to pair a value with its corner:
     ///
     /// ```swift
-    /// let radius: Region.Corner.Value<CGFloat> = .init(tag: .topLeft, value: 8)
+    /// let radius: Region.Corner.Value<CGFloat> = .init(.topLeft, 8)
     /// ```
     public struct Corner: Sendable, Hashable, Codable {
         /// The horizontal position (leftward or rightward).
@@ -120,9 +120,9 @@ extension Region.Corner {
     }
 }
 
-// MARK: - Tagged Value
+// MARK: - Paired Value
 
 extension Region.Corner {
     /// A value paired with its corner.
-    public typealias Value<Payload> = Tagged<Region.Corner, Payload>
+    public typealias Value<Payload> = Pair<Region.Corner, Payload>
 }

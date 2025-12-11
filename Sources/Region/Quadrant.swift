@@ -26,7 +26,7 @@ extension Region {
     /// Use `Quadrant.Value<T>` to pair a point with its quadrant:
     ///
     /// ```swift
-    /// let point: Region.Quadrant.Value<Point> = .init(tag: .I, value: p)
+    /// let point: Region.Quadrant.Value<Point> = .init(.I, p)
     /// ```
     public enum Quadrant: Int, Sendable, Hashable, Codable, CaseIterable {
         /// First quadrant: x > 0, y > 0.
@@ -87,9 +87,9 @@ extension Region.Quadrant {
     }
 }
 
-// MARK: - Tagged Value
+// MARK: - Paired Value
 
 extension Region.Quadrant {
     /// A value paired with its quadrant.
-    public typealias Value<Payload> = Tagged<Region.Quadrant, Payload>
+    public typealias Value<Payload> = Pair<Region.Quadrant, Payload>
 }

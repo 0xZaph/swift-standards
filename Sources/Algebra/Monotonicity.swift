@@ -16,7 +16,7 @@
 /// Use `Monotonicity.Value<T>` to pair a function with its behavior:
 ///
 /// ```swift
-/// let trend: Monotonicity.Value<Slope> = .init(tag: .increasing, value: 0.5)
+/// let trend: Monotonicity.Value<Slope> = .init(.increasing, 0.5)
 /// ```
 public enum Monotonicity: Sendable, Hashable, Codable, CaseIterable {
     /// Output increases as input increases.
@@ -91,5 +91,5 @@ extension Monotonicity {
 
 extension Monotonicity {
     /// A value paired with its monotonicity.
-    public typealias Value<Payload> = Tagged<Monotonicity, Payload>
+    public typealias Value<Payload> = Pair<Monotonicity, Payload>
 }

@@ -15,7 +15,7 @@
 /// Use `Bound.Value<T>` to pair a value with its bound position:
 ///
 /// ```swift
-/// let limit: Bound.Value<Double> = .init(tag: .lower, value: 0.0)
+/// let limit: Bound.Value<Double> = .init(.lower, 0.0)
 /// ```
 public enum Bound: Sendable, Hashable, Codable, CaseIterable {
     /// Lower bound (minimum, left endpoint).
@@ -64,5 +64,5 @@ extension Bound {
 
 extension Bound {
     /// A value paired with its bound position.
-    public typealias Value<Payload> = Tagged<Bound, Payload>
+    public typealias Value<Payload> = Pair<Bound, Payload>
 }

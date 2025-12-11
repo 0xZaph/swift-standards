@@ -54,16 +54,16 @@ struct VerticalTests {
 struct VerticalValueTests {
     @Test
     func `Vertical Value holds direction and value`() {
-        let v = Vertical.Value(direction: .upward, value: 10.0)
-        #expect(v.direction == .upward)
-        #expect(v.value == 10.0)
+        let v: Vertical.Value<Double> = .init(.upward, 10.0)
+        #expect(v.first == .upward)
+        #expect(v.second == 10.0)
     }
 
     @Test
     func `Vertical Value Equatable`() {
-        let v1 = Vertical.Value(direction: .upward, value: 10.0)
-        let v2 = Vertical.Value(direction: .upward, value: 10.0)
-        let v3 = Vertical.Value(direction: .downward, value: 10.0)
+        let v1: Vertical.Value<Double> = .init(.upward, 10.0)
+        let v2: Vertical.Value<Double> = .init(.upward, 10.0)
+        let v3: Vertical.Value<Double> = .init(.downward, 10.0)
         #expect(v1 == v2)
         #expect(v1 != v3)
     }

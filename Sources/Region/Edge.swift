@@ -14,7 +14,7 @@ extension Region {
     /// Use `Edge.Value<T>` to pair an offset with its edge:
     ///
     /// ```swift
-    /// let inset: Region.Edge.Value<CGFloat> = .init(tag: .top, value: 20)
+    /// let inset: Region.Edge.Value<CGFloat> = .init(.top, 20)
     /// ```
     public enum Edge: Sendable, Hashable, Codable, CaseIterable {
         /// Top edge.
@@ -83,9 +83,9 @@ extension Region.Edge {
     }
 }
 
-// MARK: - Tagged Value
+// MARK: - Paired Value
 
 extension Region.Edge {
     /// A value paired with its edge.
-    public typealias Value<Payload> = Tagged<Region.Edge, Payload>
+    public typealias Value<Payload> = Pair<Region.Edge, Payload>
 }

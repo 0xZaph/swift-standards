@@ -17,12 +17,12 @@ public import Algebra
 /// - Mirror operation swaps chirality
 /// - Related to determinant sign of transformation matrices
 ///
-/// ## Tagged Values
+/// ## Paired Values
 ///
 /// Use `Chirality.Value<T>` to pair a value with its handedness:
 ///
 /// ```swift
-/// let hand: Chirality.Value<Coordinate> = .init(tag: .right, value: coord)
+/// let hand: Chirality.Value<Coordinate> = .init(.right, coord)
 /// ```
 public enum Chirality: Sendable, Hashable, Codable, CaseIterable {
     /// Left-handed (sinistral).
@@ -65,9 +65,9 @@ extension Chirality {
     public static var directX: Chirality { .left }
 }
 
-// MARK: - Tagged Value
+// MARK: - Paired Value
 
 extension Chirality {
     /// A value paired with its chirality.
-    public typealias Value<Payload> = Tagged<Chirality, Payload>
+    public typealias Value<Payload> = Pair<Chirality, Payload>
 }

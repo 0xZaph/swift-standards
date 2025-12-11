@@ -76,9 +76,9 @@ struct QuadrantTests {
 
     @Test
     func `Quadrant Value typealias`() {
-        let tagged: Region.Quadrant.Value<String> = .init(tag: .I, value: "first")
-        #expect(tagged.tag == .I)
-        #expect(tagged.value == "first")
+        let paired: Region.Quadrant.Value<String> = .init(.I, "first")
+        #expect(paired.first == .I)
+        #expect(paired.second == "first")
     }
 }
 
@@ -136,9 +136,9 @@ struct OctantTests {
 
     @Test
     func `Octant Value typealias`() {
-        let tagged: Region.Octant.Value<Int> = .init(tag: .ppp, value: 1)
-        #expect(tagged.tag == .ppp)
-        #expect(tagged.value == 1)
+        let paired: Region.Octant.Value<Int> = .init(.ppp, 1)
+        #expect(paired.first == .ppp)
+        #expect(paired.second == 1)
     }
 }
 
@@ -209,9 +209,9 @@ struct CardinalTests {
 
     @Test
     func `Cardinal Value typealias`() {
-        let tagged: Region.Cardinal.Value<Double> = .init(tag: .north, value: 100.0)
-        #expect(tagged.tag == .north)
-        #expect(tagged.value == 100.0)
+        let paired: Region.Cardinal.Value<Double> = .init(.north, 100.0)
+        #expect(paired.first == .north)
+        #expect(paired.second == 100.0)
     }
 }
 
@@ -277,9 +277,9 @@ struct CornerTests {
 
     @Test
     func `Corner Value typealias`() {
-        let tagged: Region.Corner.Value<Double> = .init(tag: .topLeft, value: 8.0)
-        #expect(tagged.tag == .topLeft)
-        #expect(tagged.value == 8.0)
+        let paired: Region.Corner.Value<Double> = .init(.topLeft, 8.0)
+        #expect(paired.first == .topLeft)
+        #expect(paired.second == 8.0)
     }
 }
 
@@ -351,9 +351,9 @@ struct EdgeTests {
 
     @Test
     func `Edge Value typealias`() {
-        let tagged: Region.Edge.Value<Double> = .init(tag: .top, value: 20.0)
-        #expect(tagged.tag == .top)
-        #expect(tagged.value == 20.0)
+        let paired: Region.Edge.Value<Double> = .init(.top, 20.0)
+        #expect(paired.first == .top)
+        #expect(paired.second == 20.0)
     }
 }
 
@@ -384,9 +384,9 @@ struct CurvatureTests {
 
     @Test
     func `Curvature Value typealias`() {
-        let tagged: Curvature.Value<Double> = .init(tag: .convex, value: 0.5)
-        #expect(tagged.tag == .convex)
-        #expect(tagged.value == 0.5)
+        let paired: Curvature.Value<Double> = .init(.convex, 0.5)
+        #expect(paired.first == .convex)
+        #expect(paired.second == 0.5)
     }
 
     @Test

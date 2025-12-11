@@ -16,7 +16,7 @@
 /// Use `Parity.Value<T>` to pair a value with its known parity:
 ///
 /// ```swift
-/// let evenCount: Parity.Value<Int> = .init(tag: .even, value: 42)
+/// let evenCount: Parity.Value<Int> = .init(.even, 42)
 /// ```
 public enum Parity: Sendable, Hashable, Codable, CaseIterable {
     /// Divisible by 2 (remainder 0).
@@ -81,5 +81,5 @@ extension Parity {
 
 extension Parity {
     /// A value paired with its parity.
-    public typealias Value<Payload> = Tagged<Parity, Payload>
+    public typealias Value<Payload> = Pair<Parity, Payload>
 }

@@ -23,7 +23,7 @@ extension Region {
     /// Use `Cardinal.Value<T>` to pair a distance with its direction:
     ///
     /// ```swift
-    /// let travel: Region.Cardinal.Value<Distance> = .init(tag: .north, value: 100)
+    /// let travel: Region.Cardinal.Value<Distance> = .init(.north, 100)
     /// ```
     public enum Cardinal: Sendable, Hashable, Codable, CaseIterable {
         /// Upward / toward top.
@@ -99,9 +99,9 @@ extension Region.Cardinal {
     }
 }
 
-// MARK: - Tagged Value
+// MARK: - Paired Value
 
 extension Region.Cardinal {
     /// A value paired with its cardinal direction.
-    public typealias Value<Payload> = Tagged<Region.Cardinal, Payload>
+    public typealias Value<Payload> = Pair<Region.Cardinal, Payload>
 }

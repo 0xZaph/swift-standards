@@ -16,7 +16,7 @@
 /// Use `Comparison.Value<T>` to pair a value with a comparison result:
 ///
 /// ```swift
-/// let delta: Comparison.Value<Int> = .init(tag: .less, value: -5)
+/// let delta: Comparison.Value<Int> = .init(.less, -5)
 /// ```
 public enum Comparison: Sendable, Hashable, Codable, CaseIterable {
     /// First value is less than second.
@@ -93,5 +93,5 @@ extension Comparison {
 
 extension Comparison {
     /// A value paired with a comparison result.
-    public typealias Value<Payload> = Tagged<Comparison, Payload>
+    public typealias Value<Payload> = Pair<Comparison, Payload>
 }

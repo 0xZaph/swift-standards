@@ -16,7 +16,7 @@
 /// Use `Endpoint.Value<T>` to pair an index with its position:
 ///
 /// ```swift
-/// let position: Endpoint.Value<Index> = .init(tag: .start, value: index)
+/// let position: Endpoint.Value<Index> = .init(.start, index)
 /// ```
 public enum Endpoint: Sendable, Hashable, Codable, CaseIterable {
     /// Beginning of the sequence.
@@ -65,5 +65,5 @@ extension Endpoint {
 
 extension Endpoint {
     /// A value paired with its endpoint position.
-    public typealias Value<Payload> = Tagged<Endpoint, Payload>
+    public typealias Value<Payload> = Pair<Endpoint, Payload>
 }

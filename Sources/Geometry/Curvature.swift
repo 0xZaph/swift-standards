@@ -22,7 +22,7 @@ public import Algebra
 /// Use `Curvature.Value<T>` to pair a curvature magnitude with its sign:
 ///
 /// ```swift
-/// let curve: Curvature.Value<Double> = .init(tag: .convex, value: 0.5)
+/// let curve: Curvature.Value<Double> = .init(.convex, 0.5)
 /// ```
 public enum Curvature: Sendable, Hashable, Codable, CaseIterable {
     /// Curves outward (positive curvature in standard convention).
@@ -51,9 +51,9 @@ extension Curvature {
     }
 }
 
-// MARK: - Tagged Value
+// MARK: - Paired Value
 
 extension Curvature {
     /// A value paired with its curvature direction.
-    public typealias Value<Payload> = Tagged<Curvature, Payload>
+    public typealias Value<Payload> = Pair<Curvature, Payload>
 }

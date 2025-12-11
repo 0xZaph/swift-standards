@@ -18,7 +18,7 @@
 /// Use `Phase.Value<T>` to pair a value with a phase:
 ///
 /// ```swift
-/// let signal: Phase.Value<Complex> = .init(tag: .quarter, value: z)
+/// let signal: Phase.Value<Complex> = .init(.quarter, z)
 /// ```
 public enum Phase: Int, Sendable, Hashable, Codable, CaseIterable {
     /// 0° (identity, no rotation).
@@ -100,5 +100,5 @@ extension Phase {
 
 extension Phase {
     /// A value paired with a phase.
-    public typealias Value<Payload> = Tagged<Phase, Payload>
+    public typealias Value<Payload> = Pair<Phase, Payload>
 }

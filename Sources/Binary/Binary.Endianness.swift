@@ -30,7 +30,7 @@ public import Algebra
 /// Use `Endianness.Value<S>` to pair byte data with its endianness:
 ///
 /// ```swift
-/// let packet: Binary.Endianness.Value<[UInt8]> = .init(tag: .big, value: bytes)
+/// let packet: Binary.Endianness.Value<[UInt8]> = .init(.big, bytes)
 /// ```
 ///
 extension Binary {

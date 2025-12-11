@@ -54,16 +54,16 @@ struct HorizontalTests {
 struct HorizontalValueTests {
     @Test
     func `Horizontal Value holds direction and value`() {
-        let h = Horizontal.Value(direction: .rightward, value: 10.0)
-        #expect(h.direction == .rightward)
-        #expect(h.value == 10.0)
+        let h: Horizontal.Value<Double> = .init(.rightward, 10.0)
+        #expect(h.first == .rightward)
+        #expect(h.second == 10.0)
     }
 
     @Test
     func `Horizontal Value Equatable`() {
-        let h1 = Horizontal.Value(direction: .rightward, value: 10.0)
-        let h2 = Horizontal.Value(direction: .rightward, value: 10.0)
-        let h3 = Horizontal.Value(direction: .leftward, value: 10.0)
+        let h1: Horizontal.Value<Double> = .init(.rightward, 10.0)
+        let h2: Horizontal.Value<Double> = .init(.rightward, 10.0)
+        let h3: Horizontal.Value<Double> = .init(.leftward, 10.0)
         #expect(h1 == h2)
         #expect(h1 != h3)
     }

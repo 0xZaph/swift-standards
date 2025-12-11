@@ -38,9 +38,9 @@ struct WindingTests {
 
     @Test
     func `Winding Value typealias`() {
-        let tagged: Winding.Value<Double> = .init(tag: .clockwise, value: .pi)
-        #expect(tagged.tag == .clockwise)
-        #expect(tagged.value == .pi)
+        let paired: Winding.Value<Double> = .init(.clockwise, .pi)
+        #expect(paired.first == .clockwise)
+        #expect(paired.second == .pi)
     }
 
     @Test

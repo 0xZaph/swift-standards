@@ -16,7 +16,7 @@
 // Use `Bit.Value<T>` to pair a value with a bit flag:
 //
 // ```swift
-// let weighted: Bit.Value<Double> = .init(tag: .one, value: 0.5)
+// let weighted: Bit.Value<Double> = .init(.one, 0.5)
 // ```
 // public enum Bit: UInt8, Sendable, Hashable, Codable, CaseIterable {
 //    /// Binary zero (false, off, low).
@@ -97,5 +97,5 @@ extension Bit {
 
 extension Bit {
     /// A value paired with a bit flag.
-    public typealias Value<Payload> = Tagged<Bit, Payload>
+    public typealias Value<Payload> = Pair<Bit, Payload>
 }

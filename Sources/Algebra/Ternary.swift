@@ -17,7 +17,7 @@
 /// Use `Ternary.Value<T>` to pair a value with a ternary digit:
 ///
 /// ```swift
-/// let coefficient: Ternary.Value<Double> = .init(tag: .positive, value: 1.0)
+/// let coefficient: Ternary.Value<Double> = .init(.positive, 1.0)
 /// ```
 public enum Ternary: Int, Sendable, Hashable, Codable, CaseIterable {
     /// Negative one (-1).
@@ -82,5 +82,5 @@ extension Ternary {
 
 extension Ternary {
     /// A value paired with a ternary digit.
-    public typealias Value<Payload> = Tagged<Ternary, Payload>
+    public typealias Value<Payload> = Pair<Ternary, Payload>
 }

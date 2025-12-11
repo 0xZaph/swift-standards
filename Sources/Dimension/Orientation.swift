@@ -102,35 +102,18 @@ extension Orientation {
 
 /// A value paired with an orientation.
 ///
-/// `Oriented` is a specialization of `Tagged` for orientation types,
-/// providing the `direction` property as an alias for `tag`.
+/// `Oriented` is a specialization of `Pair` for orientation types.
+/// Access the orientation via `.0` and the scalar via `.1`.
 ///
 /// ## Usage
 ///
 /// ```swift
-/// let velocity: Oriented<Vertical, Double> = Oriented(direction: .upward, value: 9.8)
-/// print(velocity.direction)  // .upward
-/// print(velocity.value)      // 9.8
+/// let velocity: Oriented<Vertical, Double> = Product(.upward, 9.8)
+/// print(velocity.0)  // .upward
+/// print(velocity.1)  // 9.8
 /// ```
 ///
-public typealias Oriented<O: Orientation, Scalar> = Tagged<O, Scalar>
-
-// MARK: - Orientation-specific API
-
-extension Tagged where Tag: Orientation {
-    /// The orientation (alias for `tag`).
-    @inlinable
-    public var direction: Tag {
-        get { tag }
-        set { tag = newValue }
-    }
-
-    /// Creates an oriented value.
-    @inlinable
-    public init(direction: Tag, value: Value) {
-        self.init(tag: direction, value: value)
-    }
-}
+public typealias Oriented<O: Orientation, Scalar> = Pair<O, Scalar>
 
 extension Orientation {
     public typealias Value<Scalar> = Oriented<Self, Scalar>

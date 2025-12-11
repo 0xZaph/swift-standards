@@ -15,7 +15,7 @@
 /// Use `Gradient.Value<T>` to pair a slope with its direction:
 ///
 /// ```swift
-/// let slope: Gradient.Value<Double> = .init(tag: .ascending, value: 0.5)
+/// let slope: Gradient.Value<Double> = .init(.ascending, 0.5)
 /// ```
 public enum Gradient: Sendable, Hashable, Codable, CaseIterable {
     /// Values are increasing (positive slope).
@@ -64,5 +64,5 @@ extension Gradient {
 
 extension Gradient {
     /// A value paired with its gradient direction.
-    public typealias Value<Payload> = Tagged<Gradient, Payload>
+    public typealias Value<Payload> = Pair<Gradient, Payload>
 }

@@ -19,7 +19,7 @@
 /// Use `Polarity.Value<T>` to pair a magnitude with its polarity:
 ///
 /// ```swift
-/// let charge: Polarity.Value<Double> = .init(tag: .positive, value: 1.6e-19)
+/// let charge: Polarity.Value<Double> = .init(.positive, 1.6e-19)
 /// ```
 public enum Polarity: Sendable, Hashable, Codable, CaseIterable {
     /// Positive polarity (anode, north-seeking).
@@ -76,5 +76,5 @@ extension Polarity {
 
 extension Polarity {
     /// A value paired with its polarity.
-    public typealias Value<Payload> = Tagged<Polarity, Payload>
+    public typealias Value<Payload> = Pair<Polarity, Payload>
 }

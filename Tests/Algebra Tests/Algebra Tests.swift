@@ -43,9 +43,9 @@ struct ParityTests {
 
     @Test
     func `Parity Value typealias`() {
-        let tagged: Parity.Value<Int> = .init(tag: .even, value: 42)
-        #expect(tagged.tag == .even)
-        #expect(tagged.value == 42)
+        let paired: Parity.Value<Int> = .init(.even, 42)
+        #expect(paired.first == .even)
+        #expect(paired.second == 42)
     }
 }
 
@@ -100,9 +100,9 @@ struct SignTests {
 
     @Test
     func `Sign Value typealias`() {
-        let tagged: Sign.Value<Double> = .init(tag: .positive, value: 3.14)
-        #expect(tagged.tag == .positive)
-        #expect(tagged.value == 3.14)
+        let paired: Sign.Value<Double> = .init(.positive, 3.14)
+        #expect(paired.first == .positive)
+        #expect(paired.second == 3.14)
     }
 }
 
@@ -154,9 +154,9 @@ struct ComparisonTests {
 
     @Test
     func `Comparison Value typealias`() {
-        let tagged: Comparison.Value<String> = .init(tag: .equal, value: "match")
-        #expect(tagged.tag == .equal)
-        #expect(tagged.value == "match")
+        let paired: Comparison.Value<String> = .init(.equal, "match")
+        #expect(paired.first == .equal)
+        #expect(paired.second == "match")
     }
 }
 
@@ -221,9 +221,9 @@ struct BitTests {
 
     @Test
     func `Bit Value typealias`() {
-        let tagged: Bit.Value<String> = .init(tag: .one, value: "set")
-        #expect(tagged.tag == .one)
-        #expect(tagged.value == "set")
+        let paired: Bit.Value<String> = .init(.one, "set")
+        #expect(paired.first == .one)
+        #expect(paired.second == "set")
     }
 }
 
@@ -277,9 +277,9 @@ struct TernaryTests {
 
     @Test
     func `Ternary Value typealias`() {
-        let tagged: Ternary.Value<Double> = .init(tag: .positive, value: 1.0)
-        #expect(tagged.tag == .positive)
-        #expect(tagged.value == 1.0)
+        let paired: Ternary.Value<Double> = .init(.positive, 1.0)
+        #expect(paired.first == .positive)
+        #expect(paired.second == 1.0)
     }
 }
 
@@ -355,9 +355,9 @@ struct PhaseTests {
 
     @Test
     func `Phase Value typealias`() {
-        let tagged: Phase.Value<Int> = .init(tag: .quarter, value: 90)
-        #expect(tagged.tag == .quarter)
-        #expect(tagged.value == 90)
+        let paired: Phase.Value<Int> = .init(.quarter, 90)
+        #expect(paired.first == .quarter)
+        #expect(paired.second == 90)
     }
 }
 
@@ -387,9 +387,9 @@ struct BoundTests {
 
     @Test
     func `Bound Value typealias`() {
-        let tagged: Bound.Value<Int> = .init(tag: .lower, value: 0)
-        #expect(tagged.tag == .lower)
-        #expect(tagged.value == 0)
+        let paired: Bound.Value<Int> = .init(.lower, 0)
+        #expect(paired.first == .lower)
+        #expect(paired.second == 0)
     }
 }
 
@@ -427,9 +427,9 @@ struct BoundaryTests {
 
     @Test
     func `Boundary Value typealias`() {
-        let tagged: Boundary.Value<Double> = .init(tag: .closed, value: 1.0)
-        #expect(tagged.tag == .closed)
-        #expect(tagged.value == 1.0)
+        let paired: Boundary.Value<Double> = .init(.closed, 1.0)
+        #expect(paired.first == .closed)
+        #expect(paired.second == 1.0)
     }
 }
 
@@ -459,9 +459,9 @@ struct EndpointTests {
 
     @Test
     func `Endpoint Value typealias`() {
-        let tagged: Endpoint.Value<String> = .init(tag: .start, value: "begin")
-        #expect(tagged.tag == .start)
-        #expect(tagged.value == "begin")
+        let paired: Endpoint.Value<String> = .init(.start, "begin")
+        #expect(paired.first == .start)
+        #expect(paired.second == "begin")
     }
 }
 
@@ -510,9 +510,9 @@ struct MonotonicityTests {
 
     @Test
     func `Monotonicity Value typealias`() {
-        let tagged: Monotonicity.Value<String> = .init(tag: .increasing, value: "growth")
-        #expect(tagged.tag == .increasing)
-        #expect(tagged.value == "growth")
+        let paired: Monotonicity.Value<String> = .init(.increasing, "growth")
+        #expect(paired.first == .increasing)
+        #expect(paired.second == "growth")
     }
 }
 
@@ -542,9 +542,9 @@ struct GradientTests {
 
     @Test
     func `Gradient Value typealias`() {
-        let tagged: Gradient.Value<Double> = .init(tag: .ascending, value: 0.5)
-        #expect(tagged.tag == .ascending)
-        #expect(tagged.value == 0.5)
+        let paired: Gradient.Value<Double> = .init(.ascending, 0.5)
+        #expect(paired.first == .ascending)
+        #expect(paired.second == 0.5)
     }
 }
 
@@ -576,8 +576,8 @@ struct PolarityTests {
 
     @Test
     func `Polarity Value typealias`() {
-        let tagged: Polarity.Value<Int> = .init(tag: .positive, value: 1)
-        #expect(tagged.tag == .positive)
-        #expect(tagged.value == 1)
+        let paired: Polarity.Value<Int> = .init(.positive, 1)
+        #expect(paired.first == .positive)
+        #expect(paired.second == 1)
     }
 }

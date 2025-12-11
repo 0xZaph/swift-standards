@@ -1,106 +1,133 @@
 // Tagged.swift
-// A value paired with a classifying tag.
+// A phantom-type wrapper for type-safe value distinction.
 
-/// A value paired with a classifying tag.
+/// A value distinguished by a phantom type tag.
 ///
-/// `Tagged` captures the general pattern of associating a value with
-/// a discrete classifier. This is the product type `Tag × Value` in
-/// category-theoretic terms.
+/// `Tagged` wraps a raw value with a phantom type parameter that exists
+/// only at compile-time. This allows the type system to distinguish
+/// otherwise identical types without runtime overhead.
 ///
 /// ## Examples
 ///
-/// Many domain-specific types follow this pattern:
-///
 /// ```swift
-/// // An orientation paired with a magnitude
-/// typealias Oriented<O: Orientation, S> = Tagged<O, S>
-/// let velocity: Oriented<Vertical, Double> = Tagged(tag: .upward, value: 9.8)
+/// // Define phantom types for different ID domains
+/// enum UserIDTag {}
+/// enum OrderIDTag {}
 ///
-/// // A bound paired with a limit value
-/// typealias Bounded<S> = Tagged<Bound, S>
-/// let lower: Bounded<Int> = Tagged(tag: .lower, value: 0)
+/// typealias UserID = Tagged<UserIDTag, Int>
+/// typealias OrderID = Tagged<OrderIDTag, Int>
 ///
-/// // A boundary type paired with an endpoint
-/// typealias Endpoint<S> = Tagged<Boundary, S>
-/// let open: Endpoint<Double> = Tagged(tag: .open, value: 1.0)
+/// let userId: UserID = Tagged(42)
+/// let orderId: OrderID = Tagged(42)
+///
+/// // These are different types despite both wrapping Int:
+/// // userId == orderId  // Compile error: cannot compare UserID with OrderID
 /// ```
 ///
-/// ## Mathematical Background
+/// ## Use Cases
 ///
-/// In type theory, `Tagged<Tag, Value>` is the dependent pair (Σ-type)
-/// where the second component doesn't depend on the first. This is
-/// simply the cartesian product `Tag × Value`.
+/// - **Type-safe identifiers**: Prevent mixing user IDs with order IDs
+/// - **Units**: Distinguish meters from feet at the type level
+/// - **Domain boundaries**: Mark validated vs unvalidated strings
 ///
-/// When `Tag` is a finite type (like an enum), `Tagged<Tag, Value>`
-/// can be seen as a coproduct (sum type) where each variant carries
-/// the same payload type — but represented as a product for efficiency.
+/// ## Note
 ///
-public struct Tagged<Tag, Value> {
-    /// The classifying tag.
-    public var tag: Tag
-
-    /// The associated value.
-    public var value: Value
+/// Unlike `Pair<Tag, Value>` which stores both components, `Tagged`
+/// only stores the raw value. The tag is purely a compile-time marker
+/// with zero runtime cost.
+///
+public struct Tagged<Tag, RawValue> {
+    /// The underlying value.
+    public var rawValue: RawValue
 
     /// Creates a tagged value.
     @inlinable
-    public init(tag: Tag, value: Value) {
-        self.tag = tag
-        self.value = value
+    public init(_ rawValue: RawValue) {
+        self.rawValue = rawValue
+    }
+
+    /// Creates a tagged value.
+    @inlinable
+    public init(rawValue: RawValue) {
+        self.rawValue = rawValue
     }
 }
 
 // MARK: - Conditional Conformances
 
-extension Tagged: Sendable where Tag: Sendable, Value: Sendable {}
-extension Tagged: Equatable where Tag: Equatable, Value: Equatable {}
-extension Tagged: Hashable where Tag: Hashable, Value: Hashable {}
-extension Tagged: Codable where Tag: Codable, Value: Codable {}
+extension Tagged: Sendable where RawValue: Sendable {}
+extension Tagged: Equatable where RawValue: Equatable {}
+extension Tagged: Hashable where RawValue: Hashable {}
+extension Tagged: Codable where RawValue: Codable {}
+extension Tagged: Comparable where RawValue: Comparable {
+    @inlinable
+    public static func < (lhs: Tagged, rhs: Tagged) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+}
 
 // MARK: - Functor
 
 extension Tagged {
-    /// Transform the value while preserving the tag.
+    /// Transform the raw value while preserving the tag.
     ///
     /// This is the functorial map for `Tagged<Tag, _>`.
     @inlinable
-    public func map<NewValue>(
-        _ transform: (Value) throws -> NewValue
-    ) rethrows -> Tagged<Tag, NewValue> {
-        Tagged<Tag, NewValue>(tag: tag, value: try transform(value))
+    public func map<NewRawValue>(
+        _ transform: (RawValue) throws -> NewRawValue
+    ) rethrows -> Tagged<Tag, NewRawValue> {
+        Tagged<Tag, NewRawValue>(try transform(rawValue))
     }
 
-    /// Transform the tag while preserving the value.
+    /// Change the tag type while preserving the raw value.
     ///
-    /// This is the functorial map for `Tagged<_, Value>`.
+    /// This is a zero-cost type conversion since the tag is phantom.
     @inlinable
-    public func mapTag<NewTag>(
-        _ transform: (Tag) throws -> NewTag
-    ) rethrows -> Tagged<NewTag, Value> {
-        Tagged<NewTag, Value>(tag: try transform(tag), value: value)
-    }
-
-    /// Transform both the tag and value.
-    ///
-    /// This is the bifunctorial map.
-    @inlinable
-    public func bimap<NewTag, NewValue>(
-        tag tagTransform: (Tag) throws -> NewTag,
-        value valueTransform: (Value) throws -> NewValue
-    ) rethrows -> Tagged<NewTag, NewValue> {
-        Tagged<NewTag, NewValue>(
-            tag: try tagTransform(tag),
-            value: try valueTransform(value)
-        )
+    public func retag<NewTag>(_: NewTag.Type = NewTag.self) -> Tagged<NewTag, RawValue> {
+        Tagged<NewTag, RawValue>(rawValue)
     }
 }
 
-// MARK: - Enumerable Tags
+// MARK: - ExpressibleBy Literals
 
-extension Tagged where Tag: CaseIterable {
-    /// All possible tags for this tagged type.
+extension Tagged: ExpressibleByIntegerLiteral where RawValue: ExpressibleByIntegerLiteral {
     @inlinable
-    public static var allTags: Tag.AllCases {
-        Tag.allCases
+    public init(integerLiteral value: RawValue.IntegerLiteralType) {
+        self.rawValue = RawValue(integerLiteral: value)
+    }
+}
+
+extension Tagged: ExpressibleByFloatLiteral where RawValue: ExpressibleByFloatLiteral {
+    @inlinable
+    public init(floatLiteral value: RawValue.FloatLiteralType) {
+        self.rawValue = RawValue(floatLiteral: value)
+    }
+}
+
+extension Tagged: ExpressibleByUnicodeScalarLiteral where RawValue: ExpressibleByUnicodeScalarLiteral {
+    @inlinable
+    public init(unicodeScalarLiteral value: RawValue.UnicodeScalarLiteralType) {
+        self.rawValue = RawValue(unicodeScalarLiteral: value)
+    }
+}
+
+extension Tagged: ExpressibleByExtendedGraphemeClusterLiteral where RawValue: ExpressibleByExtendedGraphemeClusterLiteral {
+    @inlinable
+    public init(extendedGraphemeClusterLiteral value: RawValue.ExtendedGraphemeClusterLiteralType) {
+        self.rawValue = RawValue(extendedGraphemeClusterLiteral: value)
+    }
+}
+
+extension Tagged: ExpressibleByStringLiteral where RawValue: ExpressibleByStringLiteral {
+    @inlinable
+    public init(stringLiteral value: RawValue.StringLiteralType) {
+        self.rawValue = RawValue(stringLiteral: value)
+    }
+}
+
+extension Tagged: ExpressibleByBooleanLiteral where RawValue: ExpressibleByBooleanLiteral {
+    @inlinable
+    public init(booleanLiteral value: RawValue.BooleanLiteralType) {
+        self.rawValue = RawValue(booleanLiteral: value)
     }
 }

@@ -23,7 +23,7 @@ extension Region {
     /// Use `Octant.Value<T>` to pair a point with its octant:
     ///
     /// ```swift
-    /// let point: Region.Octant.Value<Point3D> = .init(tag: .ppp, value: p)
+    /// let point: Region.Octant.Value<Point3D> = .init(.ppp, p)
     /// ```
     public enum Octant: Sendable, Hashable, Codable, CaseIterable {
         /// x > 0, y > 0, z > 0
@@ -101,9 +101,9 @@ extension Region.Octant {
     }
 }
 
-// MARK: - Tagged Value
+// MARK: - Paired Value
 
 extension Region.Octant {
     /// A value paired with its octant.
-    public typealias Value<Payload> = Tagged<Region.Octant, Payload>
+    public typealias Value<Payload> = Pair<Region.Octant, Payload>
 }

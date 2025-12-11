@@ -44,9 +44,9 @@ struct ChiralityTests {
 
     @Test
     func `Chirality Value typealias`() {
-        let tagged: Chirality.Value<String> = .init(tag: .left, value: "hand")
-        #expect(tagged.tag == .left)
-        #expect(tagged.value == "hand")
+        let paired: Chirality.Value<String> = .init(.left, "hand")
+        #expect(paired.first == .left)
+        #expect(paired.second == "hand")
     }
 
     @Test
