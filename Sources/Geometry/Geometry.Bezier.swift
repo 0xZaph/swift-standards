@@ -251,9 +251,9 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
     }
 }
 
-// MARK: - Bounding Box (Comparable)
+// MARK: - Bounding Box (FloatingPoint)
 
-extension Geometry.Bezier where Scalar: Comparable {
+extension Geometry.Bezier where Scalar: FloatingPoint {
     /// A conservative bounding box (control point hull).
     ///
     /// This is the axis-aligned bounding box of the control points,

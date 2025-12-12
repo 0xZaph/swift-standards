@@ -337,9 +337,9 @@ extension Geometry.Ngon where Scalar: FloatingPoint {
     }
 }
 
-// MARK: - Bounding Box (Comparable)
+// MARK: - Bounding Box (FloatingPoint)
 
-extension Geometry.Ngon where Scalar: Comparable {
+extension Geometry.Ngon where Scalar: FloatingPoint {
     /// The axis-aligned bounding box of the polygon.
     @inlinable
     public var boundingBox: Geometry.Rectangle {

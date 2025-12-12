@@ -1,5 +1,5 @@
-// Circle.swift
-// A circle defined by center and radius, parameterized by coordinate space.
+// Geometry.Ball.swift
+// N-dimensional ball (hypersphere) defined by center and radius.
 
 public import Affine
 public import Algebra_Linear
@@ -7,89 +7,93 @@ public import Angle
 public import Dimension
 
 extension Geometry {
-    /// Circle in 2D space defined by center and radius.
+    /// N-dimensional ball (hypersphere) — all points within radius of center.
     ///
-    /// Use for circular shapes, collision detection, and geometric calculations involving circles.
+    /// A ball is the set of points whose distance from a center point is at most
+    /// the radius. In 2D this is a disk (circle), in 3D a sphere.
+    ///
+    /// - `Ball<2>` = Circle (disk)
+    /// - `Ball<3>` = Sphere (3-ball)
     ///
     /// ## Example
     ///
     /// ```swift
-    /// let circle = Geometry<Double, Void>.Circle(
+    /// let circle = Geometry<Double, Void>.Ball<2>(
     ///     center: .init(x: .init(100), y: .init(100)),
     ///     radius: .init(50)
     /// )
-    /// print(circle.area)           // 7853.98...
-    /// print(circle.circumference)  // 314.16...
+    /// print(circle.area)           // Area measure
+    /// print(circle.circumference)  // Perimeter
     /// ```
-    public struct Circle {
+    public struct Ball<let N: Int> {
         /// Center point.
-        public var center: Point<2>
+        public var center: Point<N>
 
-        /// Radius (distance from center to edge).
+        /// Radius (distance from center to boundary).
         public var radius: Radius
 
-        /// Creates a circle with the given center and radius.
+        /// Creates a ball with the given center and radius.
         @inlinable
-        public init(center: consuming Point<2>, radius: consuming Radius) {
+        public init(center: consuming Point<N>, radius: consuming Radius) {
             self.center = center
             self.radius = radius
         }
     }
 }
 
-extension Geometry.Circle: Sendable where Scalar: Sendable {}
-extension Geometry.Circle: Equatable where Scalar: Equatable {}
-extension Geometry.Circle: Hashable where Scalar: Hashable {}
+// MARK: - Typealiases
 
-// MARK: - Codable
+extension Geometry {
+    /// 2-dimensional ball (disk/circle).
+    public typealias Circle = Ball<2>
+
+    /// 3-dimensional ball (sphere).
+    public typealias Sphere = Ball<3>
+}
+
+// MARK: - Conformances
+
+extension Geometry.Ball: Sendable where Scalar: Sendable {}
+extension Geometry.Ball: Equatable where Scalar: Equatable {}
+extension Geometry.Ball: Hashable where Scalar: Hashable {}
+
 #if Codable
-    extension Geometry.Circle: Codable where Scalar: Codable {}
+extension Geometry.Ball: Codable where Scalar: Codable {}
 #endif
 
 // MARK: - Convenience Initializers
 
-extension Geometry.Circle {
-    /// Creates a circle centered at origin with given radius.
+extension Geometry.Ball where Scalar: AdditiveArithmetic {
+    /// Creates a ball centered at origin with given radius.
     @inlinable
-    public init(radius: Geometry.Radius) where Scalar: AdditiveArithmetic {
+    public init(radius: Geometry.Radius) {
         self.init(center: .zero, radius: radius)
-    }
-}
-
-// MARK: - Circle from Ellipse
-
-extension Geometry.Circle where Scalar: FloatingPoint {
-    /// Creates a circle from an ellipse if the ellipse is circular.
-    ///
-    /// - Parameter ellipse: The ellipse to convert.
-    /// - Returns: A circle if the ellipse has equal semi-major and semi-minor axes, `nil` otherwise.
-    @inlinable
-    public init?(_ ellipse: Geometry.Ellipse) {
-        let diff: Scalar = ellipse.semiMajor.value - ellipse.semiMinor.value
-        guard abs(diff) < Scalar.ulpOfOne else { return nil }
-        self.init(center: ellipse.center, radius: ellipse.semiMajor)
     }
 }
 
 // MARK: - Static Properties
 
-extension Geometry.Circle where Scalar: ExpressibleByIntegerLiteral & AdditiveArithmetic {
-    /// Unit circle centered at origin with radius 1.
+extension Geometry.Ball where Scalar: ExpressibleByIntegerLiteral & AdditiveArithmetic {
+    /// Unit ball centered at origin with radius 1.
     @inlinable
     public static var unit: Self {
         Self(center: .zero, radius: .init(1))
     }
 }
 
-// MARK: - Properties (FloatingPoint)
+// MARK: - Common Properties (All Dimensions)
 
-extension Geometry.Circle where Scalar: FloatingPoint {
-    /// Diameter (2 × radius).
+extension Geometry.Ball where Scalar: FloatingPoint {
+    /// Diameter (2 × radius) with projections to Width/Height.
     @inlinable
     public var diameter: Geometry.Magnitude {
         Geometry.Magnitude(radius * 2)
     }
+}
 
+// MARK: - 2D Properties (Circle)
+
+extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
     /// Circumference (2π × radius).
     @inlinable
     public var circumference: Geometry.Circumference {
@@ -98,38 +102,66 @@ extension Geometry.Circle where Scalar: FloatingPoint {
 
     /// Area (π × radius²).
     @inlinable
-    public var area: Scalar {
-        Scalar.pi * radius.value * radius.value
+    public var area: Geometry.Area {
+        Geometry.Area(Scalar.pi * (radius * radius))
     }
 
     /// Axis-aligned bounding rectangle.
     @inlinable
     public var boundingBox: Geometry.Rectangle {
-        let r = radius.value
-        let cx = center.x.value
-        let cy = center.y.value
-        return Geometry.Rectangle(
-            llx: Geometry.X(cx - r),
-            lly: Geometry.Y(cy - r),
-            urx: Geometry.X(cx + r),
-            ury: Geometry.Y(cy + r)
+        Geometry.Rectangle(
+            llx: center.x - radius,
+            lly: center.y - radius,
+            urx: center.x + radius,
+            ury: center.y + radius
         )
     }
 }
 
-// MARK: - Containment (FloatingPoint)
+// MARK: - 3D Properties (Sphere)
 
-extension Geometry.Circle where Scalar: FloatingPoint {
+extension Geometry.Ball where N == 3, Scalar: FloatingPoint {
+    /// Surface area (4π × radius²).
+    @inlinable
+    public var surfaceArea: Scalar {
+        4 * Scalar.pi * (radius * radius)
+    }
+
+    /// Volume (4/3 × π × radius³).
+    @inlinable
+    public var volume: Scalar {
+        (4 / 3) * Scalar.pi * (radius * radius) * radius.rawValue
+    }
+}
+
+// MARK: - 2D Circle from Ellipse
+
+extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
+    /// Creates a circle from an ellipse if the ellipse is circular.
+    ///
+    /// - Parameter ellipse: The ellipse to convert.
+    /// - Returns: A circle if the ellipse has equal semi-major and semi-minor axes, `nil` otherwise.
+    @inlinable
+    public init?(_ ellipse: Geometry.Ellipse) {
+        let diff: Scalar = ellipse.semiMajor.rawValue - ellipse.semiMinor.rawValue
+        guard abs(diff) < Scalar.ulpOfOne else { return nil }
+        self.init(center: ellipse.center, radius: ellipse.semiMajor)
+    }
+}
+
+// MARK: - 2D Containment
+
+extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
     /// Checks if point is inside or on the circle boundary.
     @inlinable
     public func contains(_ point: Geometry.Point<2>) -> Bool {
-        center.distanceSquared(to: point) <= radius.value * radius.value
+        center.distanceSquared(to: point) <= radius * radius
     }
 
     /// Checks if point is strictly inside (not on boundary).
     @inlinable
     public func containsInterior(_ point: Geometry.Point<2>) -> Bool {
-        center.distanceSquared(to: point) < radius.value * radius.value
+        center.distanceSquared(to: point) < radius * radius
     }
 
     /// Checks if another circle is entirely contained within this circle.
@@ -139,18 +171,18 @@ extension Geometry.Circle where Scalar: FloatingPoint {
     }
 }
 
-// MARK: - Point on Circle (BinaryFloatingPoint)
+// MARK: - 2D Point on Circle
 
-extension Geometry.Circle where Scalar: BinaryFloatingPoint {
+extension Geometry.Ball where N == 2, Scalar: BinaryFloatingPoint {
     /// Returns point on circle at given angle from positive x-axis.
     @inlinable
     public func point(at angle: Radian) -> Geometry.Point<2> {
         let c = Scalar(angle.cos)
         let s = Scalar(angle.sin)
-        let r = radius.value
+        let r = radius.rawValue
         return Geometry.Point(
-            x: Affine<Scalar, Space>.X(center.x.value + r * c),
-            y: Affine<Scalar, Space>.Y(center.y.value + r * s)
+            x: Affine<Scalar, Space>.X(center.x.rawValue + r * c),
+            y: Affine<Scalar, Space>.Y(center.y.rawValue + r * s)
         )
     }
 
@@ -168,28 +200,27 @@ extension Geometry.Circle where Scalar: BinaryFloatingPoint {
     /// Returns closest point on circle boundary to given point.
     @inlinable
     public func closestPoint(to point: Geometry.Point<2>) -> Geometry.Point<2> {
-        let vx = point.x.value - center.x.value
-        let vy = point.y.value - center.y.value
+        let vx = point.x.rawValue - center.x.rawValue
+        let vy = point.y.rawValue - center.y.rawValue
         let len = (vx * vx + vy * vy).squareRoot()
-        let r = radius.value
+        let r = radius.rawValue
         guard len > 0 else {
-            // Point is at center, return any point on circle
             return Geometry.Point(
-                x: Affine<Scalar, Space>.X(center.x.value + r),
+                x: Affine<Scalar, Space>.X(center.x.rawValue + r),
                 y: center.y
             )
         }
         let scale = r / len
         return Geometry.Point(
-            x: Affine<Scalar, Space>.X(center.x.value + vx * scale),
-            y: Affine<Scalar, Space>.Y(center.y.value + vy * scale)
+            x: Affine<Scalar, Space>.X(center.x.rawValue + vx * scale),
+            y: Affine<Scalar, Space>.Y(center.y.rawValue + vy * scale)
         )
     }
 }
 
-// MARK: - Intersection (FloatingPoint)
+// MARK: - 2D Intersection
 
-extension Geometry.Circle where Scalar: FloatingPoint {
+extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
     /// Checks if circles intersect or touch.
     @inlinable
     public func intersects(_ other: Self) -> Bool {
@@ -204,13 +235,12 @@ extension Geometry.Circle where Scalar: FloatingPoint {
     /// - Returns: Array of 0, 1, or 2 points where line crosses circle.
     @inlinable
     public func intersection(with line: Geometry.Line) -> [Geometry.Point<2>] {
-        let fx = line.point.x.value - center.x.value
-        let fy = line.point.y.value - center.y.value
-        let dx = line.direction.dx.value
-        let dy = line.direction.dy.value
-        let r = radius.value
+        let fx = line.point.x.rawValue - center.x.rawValue
+        let fy = line.point.y.rawValue - center.y.rawValue
+        let dx = line.direction.dx.rawValue
+        let dy = line.direction.dy.rawValue
+        let r = radius.rawValue
 
-        // Quadratic equation: at² + bt + c = 0
         let a = dx * dx + dy * dy
         let b = 2 * (fx * dx + fy * dy)
         let c = fx * fx + fy * fy - r * r
@@ -239,14 +269,13 @@ extension Geometry.Circle where Scalar: FloatingPoint {
         let sumRadii = radius + other.radius
         let diffRadii = radius >= other.radius ? radius - other.radius : other.radius - radius
 
-        guard dist <= sumRadii && dist >= diffRadii && dist.value > 0 else {
+        guard dist <= sumRadii && dist >= diffRadii && dist.rawValue > 0 else {
             return []
         }
 
-        // Complex geometric formula - use raw values for intermediate calculations
-        let d = dist.value
-        let r1 = radius.value
-        let r2 = other.radius.value
+        let d = dist.rawValue
+        let r1 = radius.rawValue
+        let r2 = other.radius.rawValue
 
         let a = (r1 * r1 - r2 * r2 + d * d) / (2 * d)
         let hSq = r1 * r1 - a * a
@@ -254,10 +283,10 @@ extension Geometry.Circle where Scalar: FloatingPoint {
         guard hSq >= 0 else { return [] }
         let h = hSq.squareRoot()
 
-        let cx = center.x.value
-        let cy = center.y.value
-        let ocx = other.center.x.value
-        let ocy = other.center.y.value
+        let cx = center.x.rawValue
+        let cy = center.y.rawValue
+        let ocx = other.center.x.rawValue
+        let ocy = other.center.y.rawValue
         let dirX = (ocx - cx) / d
         let dirY = (ocy - cy) / d
         let px = cx + a * dirX
@@ -280,9 +309,9 @@ extension Geometry.Circle where Scalar: FloatingPoint {
     }
 }
 
-// MARK: - Transformation (FloatingPoint)
+// MARK: - 2D Transformation
 
-extension Geometry.Circle where Scalar: FloatingPoint {
+extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
     /// Returns circle translated by vector.
     @inlinable
     public func translated(by vector: Geometry.Vector<2>) -> Self {
@@ -298,10 +327,10 @@ extension Geometry.Circle where Scalar: FloatingPoint {
     /// Returns circle scaled uniformly about given point.
     @inlinable
     public func scaled(by factor: Scalar, about point: Geometry.Point<2>) -> Self {
-        let px = point.x.value
-        let py = point.y.value
-        let cx = center.x.value
-        let cy = center.y.value
+        let px = point.x.rawValue
+        let py = point.y.rawValue
+        let cx = center.x.rawValue
+        let cy = center.y.rawValue
         let newCenter = Geometry.Point(
             x: Affine<Scalar, Space>.X(px + factor * (cx - px)),
             y: Affine<Scalar, Space>.Y(py + factor * (cy - py))
@@ -312,34 +341,22 @@ extension Geometry.Circle where Scalar: FloatingPoint {
 
 // MARK: - Functorial Map
 
-extension Geometry.Circle {
-    /// Creates circle by transforming coordinates of another circle.
-    @inlinable
-    public init<U>(
-        _ other: borrowing Geometry<U, Space>.Circle,
-        _ transform: (U) throws -> Scalar
-    ) rethrows {
-        self.init(
-            center: try Geometry.Point<2>(other.center, transform),
-            radius: try other.radius.map(transform)
-        )
-    }
-
+extension Geometry.Ball {
     /// Transforms coordinates using the given closure.
     @inlinable
     public func map<Result>(
         _ transform: (Scalar) throws -> Result
-    ) rethrows -> Geometry<Result, Space>.Circle {
-        Geometry<Result, Space>.Circle(
+    ) rethrows -> Geometry<Result, Space>.Ball<N> {
+        Geometry<Result, Space>.Ball(
             center: try center.map(transform),
             radius: try radius.map(transform)
         )
     }
 }
 
-// MARK: - Bézier Approximation
+// MARK: - 2D Bézier Approximation
 
-extension Geometry.Circle where Scalar: BinaryFloatingPoint {
+extension Geometry.Ball where N == 2, Scalar: BinaryFloatingPoint {
     /// Cubic Bézier curve segment.
     public struct BezierSegment {
         /// Start point.
@@ -367,21 +384,20 @@ extension Geometry.Circle where Scalar: BinaryFloatingPoint {
     }
 }
 
-extension Geometry.Circle.BezierSegment: Sendable where Scalar: Sendable {}
+extension Geometry.Ball.BezierSegment: Sendable where Scalar: Sendable {}
 
-extension Geometry.Circle where Scalar: BinaryFloatingPoint {
+extension Geometry.Ball where N == 2, Scalar: BinaryFloatingPoint {
     /// Four cubic Bézier curves approximating this circle.
     ///
     /// Uses standard constant k = 0.5522847498 for excellent circle approximation.
     /// Curves start at 3 o'clock and proceed counter-clockwise through quadrants.
     @inlinable
     public var bezierCurves: [BezierSegment] {
-        let k = Scalar(0.5522847498) * radius.value
-        let cx = center.x.value
-        let cy = center.y.value
-        let r = radius.value
+        let k = Scalar(0.5522847498) * radius.rawValue
+        let cx = center.x.rawValue
+        let cy = center.y.rawValue
+        let r = radius.rawValue
 
-        // Cardinal points
         let right = Geometry.Point<2>(x: .init(cx + r), y: .init(cy))
         let bottom = Geometry.Point<2>(x: .init(cx), y: .init(cy - r))
         let left = Geometry.Point<2>(x: .init(cx - r), y: .init(cy))
@@ -418,6 +434,6 @@ extension Geometry.Circle where Scalar: BinaryFloatingPoint {
     /// Starting point for Bézier curve rendering (3 o'clock position).
     @inlinable
     public var bezierStartPoint: Geometry.Point<2> {
-        Geometry.Point<2>(x: .init(center.x.value + radius.value), y: center.y)
+        Geometry.Point<2>(x: .init(center.x.rawValue + radius.rawValue), y: center.y)
     }
 }

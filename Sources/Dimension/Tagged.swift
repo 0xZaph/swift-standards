@@ -515,6 +515,93 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     Tagged(lhs.rawValue - rhs.rawValue)
 }
 
+// MARK: - Magnitude/Coordinate Arithmetic
+
+// Magnitude (non-directional distance) can be added/subtracted from coordinates.
+// This enables `center.x - radius` patterns in geometry code.
+// The magnitude is interpreted as distance along the axis of the coordinate.
+
+/// Adds a magnitude to an X coordinate, returning a coordinate.
+@inlinable
+public func + <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.X.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.Magnitude<Space>, Scalar>
+) -> Tagged<Index.X.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue + rhs.rawValue)
+}
+
+/// Subtracts a magnitude from an X coordinate, returning a coordinate.
+@inlinable
+public func - <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.X.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.Magnitude<Space>, Scalar>
+) -> Tagged<Index.X.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue - rhs.rawValue)
+}
+
+/// Adds an X coordinate to a magnitude, returning a coordinate (commutative).
+@inlinable
+public func + <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Magnitude<Space>, Scalar>,
+    rhs: Tagged<Index.X.Coordinate<Space>, Scalar>
+) -> Tagged<Index.X.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue + rhs.rawValue)
+}
+
+/// Adds a magnitude to a Y coordinate, returning a coordinate.
+@inlinable
+public func + <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Y.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.Magnitude<Space>, Scalar>
+) -> Tagged<Index.Y.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue + rhs.rawValue)
+}
+
+/// Subtracts a magnitude from a Y coordinate, returning a coordinate.
+@inlinable
+public func - <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Y.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.Magnitude<Space>, Scalar>
+) -> Tagged<Index.Y.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue - rhs.rawValue)
+}
+
+/// Adds a Y coordinate to a magnitude, returning a coordinate (commutative).
+@inlinable
+public func + <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Magnitude<Space>, Scalar>,
+    rhs: Tagged<Index.Y.Coordinate<Space>, Scalar>
+) -> Tagged<Index.Y.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue + rhs.rawValue)
+}
+
+/// Adds a magnitude to a Z coordinate, returning a coordinate.
+@inlinable
+public func + <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Z.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.Magnitude<Space>, Scalar>
+) -> Tagged<Index.Z.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue + rhs.rawValue)
+}
+
+/// Subtracts a magnitude from a Z coordinate, returning a coordinate.
+@inlinable
+public func - <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Z.Coordinate<Space>, Scalar>,
+    rhs: Tagged<Index.Magnitude<Space>, Scalar>
+) -> Tagged<Index.Z.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue - rhs.rawValue)
+}
+
+/// Adds a Z coordinate to a magnitude, returning a coordinate (commutative).
+@inlinable
+public func + <Space, Scalar: AdditiveArithmetic>(
+    lhs: Tagged<Index.Magnitude<Space>, Scalar>,
+    rhs: Tagged<Index.Z.Coordinate<Space>, Scalar>
+) -> Tagged<Index.Z.Coordinate<Space>, Scalar> {
+    Tagged(lhs.rawValue + rhs.rawValue)
+}
+
 // MARK: - Strideable
 
 extension Tagged: Strideable where RawValue: Strideable {

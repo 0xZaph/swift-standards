@@ -63,19 +63,19 @@ struct `Circle Tests` {
     @Test
     func `Circle diameter`() {
         let circle: Geometry<Double, Void>.Circle = .init(center: .zero, radius: 5)
-        #expect(circle.diameter == 10)
+        #expect(circle.diameter.width.value == 10)
     }
 
     @Test
     func `Circle circumference`() {
         let circle: Geometry<Double, Void>.Circle = .init(center: .zero, radius: 1)
-        #expect(abs(circle.circumference - 2 * .pi) < 1e-10)
+        #expect(abs(circle.circumference.value - 2 * .pi) < 1e-10)
     }
 
     @Test
     func `Circle area`() {
         let circle: Geometry<Double, Void>.Circle = .init(center: .zero, radius: 2)
-        #expect(abs(circle.area - 4 * .pi) < 1e-10)
+        #expect(abs(circle.area.value - 4 * .pi) < 1e-10)
     }
 
     // MARK: - Containment

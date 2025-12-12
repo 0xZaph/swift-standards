@@ -160,6 +160,27 @@ extension Geometry.Magnitude: Sendable where Scalar: Sendable {}
 extension Geometry.Magnitude: Equatable where Scalar: Equatable {}
 extension Geometry.Magnitude: Hashable where Scalar: Hashable {}
 
+extension Geometry.Magnitude: Comparable where Scalar: Comparable {
+    @inlinable
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+}
+
+extension Geometry.Magnitude: ExpressibleByIntegerLiteral where Scalar: ExpressibleByIntegerLiteral {
+    @inlinable
+    public init(integerLiteral value: Scalar.IntegerLiteralType) {
+        self.rawValue = Linear<Scalar, Space>.Magnitude(integerLiteral: value)
+    }
+}
+
+extension Geometry.Magnitude: ExpressibleByFloatLiteral where Scalar: ExpressibleByFloatLiteral {
+    @inlinable
+    public init(floatLiteral value: Scalar.FloatLiteralType) {
+        self.rawValue = Linear<Scalar, Space>.Magnitude(floatLiteral: value)
+    }
+}
+
 extension Geometry.Magnitude {
     /// Project magnitude as horizontal displacement (width).
     @inlinable
@@ -177,5 +198,41 @@ extension Geometry.Magnitude {
     @inlinable
     public var value: Scalar {
         rawValue.rawValue
+    }
+}
+
+// MARK: - Geometry.Magnitude Arithmetic
+
+extension Geometry.Magnitude where Scalar: AdditiveArithmetic {
+    /// Zero magnitude.
+    @inlinable
+    public static var zero: Self {
+        Self(Linear<Scalar, Space>.Magnitude(.zero))
+    }
+}
+
+extension Geometry.Magnitude where Scalar: FloatingPoint {
+    /// Multiplies magnitude by a scalar.
+    @inlinable
+    public static func * (lhs: Self, rhs: Scalar) -> Self {
+        Self(lhs.rawValue * rhs)
+    }
+
+    /// Multiplies scalar by magnitude.
+    @inlinable
+    public static func * (lhs: Scalar, rhs: Self) -> Self {
+        Self(lhs * rhs.rawValue)
+    }
+
+    /// Divides magnitude by a scalar.
+    @inlinable
+    public static func / (lhs: Self, rhs: Scalar) -> Self {
+        Self(lhs.rawValue / rhs)
+    }
+
+    /// Ratio of two magnitudes (dimensionless).
+    @inlinable
+    public static func / (lhs: Self, rhs: Self) -> Scalar {
+        lhs.rawValue / rhs.rawValue
     }
 }

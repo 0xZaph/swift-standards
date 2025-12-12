@@ -191,7 +191,7 @@ struct SizeTests {
 struct RectangleTests {
     @Test
     func `Creates rectangle from corners`() {
-        let rect: Geometry<TestUnit, Void>.Rectangle = .init(llx: 10, lly: 20, urx: 110, ury: 220)
+        let rect: Geometry<Double, Void>.Rectangle = .init(llx: 10, lly: 20, urx: 110, ury: 220)
         #expect(rect.llx == 10)
         #expect(rect.lly == 20)
         #expect(rect.urx == 110)
@@ -200,7 +200,7 @@ struct RectangleTests {
 
     @Test
     func `Creates rectangle from origin and size`() {
-        let rect: Geometry<TestUnit, Void>.Rectangle = .init(x: 10, y: 20, width: 100, height: 200)
+        let rect: Geometry<Double, Void>.Rectangle = .init(x: 10, y: 20, width: 100, height: 200)
         #expect(rect.llx == 10)
         #expect(rect.lly == 20)
         #expect(rect.width == 100)
@@ -265,7 +265,7 @@ struct RectangleTests {
 
     @Test
     func `Rectangle corners`() {
-        let rect: Geometry<TestUnit, Void>.Rectangle = .init(x: 10, y: 20, width: 100, height: 200)
+        let rect: Geometry<Double, Void>.Rectangle = .init(x: 10, y: 20, width: 100, height: 200)
 
         let ll = rect.corner(.bottomLeft)
         #expect(ll.x == 10)

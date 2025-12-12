@@ -146,9 +146,9 @@ extension Geometry.Polygon where Scalar: FloatingPoint {
     }
 }
 
-// MARK: - Bounding Box (Comparable)
+// MARK: - Bounding Box (FloatingPoint)
 
-extension Geometry.Polygon where Scalar: Comparable {
+extension Geometry.Polygon where Scalar: FloatingPoint {
     /// The axis-aligned bounding box of the polygon.
     ///
     /// Returns `nil` if the polygon has no vertices.
