@@ -176,11 +176,11 @@ extension Geometry.EdgeInsets where Scalar: AdditiveArithmetic {
 }
 
 extension Geometry.EdgeInsets where Scalar: AdditiveArithmetic {
-    /// Total horizontal inset (leading + trailing)
+    /// Total horizontal inset (leading + trailing) as Width
     @inlinable
-    public var horizontal: Scalar { leading + trailing }
+    public var horizontal: Geometry.Width { Geometry.Width(leading + trailing) }
 
-    /// Total vertical inset (top + bottom)
+    /// Total vertical inset (top + bottom) as Height
     @inlinable
-    public var vertical: Scalar { top + bottom }
+    public var vertical: Geometry.Height { Geometry.Height(top + bottom) }
 }

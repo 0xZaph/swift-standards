@@ -274,6 +274,27 @@ extension Geometry.Rectangle where Scalar: FloatingPoint {
     ) -> Self {
         Self(llx: llx + dx, lly: lly + dy, urx: urx - dx, ury: ury - dy)
     }
+
+    /// Return a rectangle inset by uniform padding on all sides
+    ///
+    /// Uses the Size<1> value for both horizontal and vertical insets.
+    @inlinable
+    public func inset(by padding: Geometry.Size<1>) -> Self {
+        insetBy(dx: padding.width, dy: padding.height)
+    }
+
+    /// Return a rectangle inset by edge insets
+    ///
+    /// Each edge is inset independently by the corresponding inset value.
+    @inlinable
+    public func inset(by insets: Geometry.EdgeInsets) -> Self {
+        Self(
+            llx: llx + Geometry.Width(insets.leading),
+            lly: lly + Geometry.Height(insets.bottom),
+            urx: urx - Geometry.Width(insets.trailing),
+            ury: ury - Geometry.Height(insets.top)
+        )
+    }
 }
 
 // MARK: - Dimension Clamping

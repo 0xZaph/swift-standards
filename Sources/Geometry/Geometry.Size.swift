@@ -205,6 +205,53 @@ extension Geometry.Size where Scalar: FloatingPoint {
     }
 }
 
+extension Geometry.Size where N == 1 {
+    /// The single dimension as a Length (magnitude)
+    @inlinable
+    public var length: Geometry.Length {
+        get { Geometry.Length(dimensions[0]) }
+        set { dimensions[0] = newValue.value }
+    }
+
+    /// Project as width (horizontal extent)
+    @inlinable
+    public var width: Geometry.Width {
+        get { Geometry.Width(dimensions[0]) }
+        set { dimensions[0] = newValue.value }
+    }
+
+    /// Project as height (vertical extent)
+    @inlinable
+    public var height: Geometry.Height {
+        get { Geometry.Height(dimensions[0]) }
+        set { dimensions[0] = newValue.value }
+    }
+
+    /// Create from a scalar value
+    @inlinable
+    public init(_ value: Scalar) {
+        self.init([value])
+    }
+}
+
+extension Geometry.Size where N == 1, Scalar: AdditiveArithmetic {
+    /// Sum of both horizontal sides (for padding/margins applied to left and right)
+    ///
+    /// Equivalent to `width * 2`, useful for calculating total horizontal padding.
+    @inlinable
+    public var horizontal: Geometry.Width {
+        Geometry.Width(dimensions[0] + dimensions[0])
+    }
+
+    /// Sum of both vertical sides (for padding/margins applied to top and bottom)
+    ///
+    /// Equivalent to `height * 2`, useful for calculating total vertical padding.
+    @inlinable
+    public var vertical: Geometry.Height {
+        Geometry.Height(dimensions[0] + dimensions[0])
+    }
+}
+
 // MARK: - 2D Convenience
 
 extension Geometry.Size where N == 2 {
@@ -277,5 +324,21 @@ extension Geometry.Size {
             result[i] = combine(a.dimensions[i], b.dimensions[i])
         }
         return Self(result)
+    }
+}
+
+// MARK: - ExpressibleByLiteral for 1D Size
+
+extension Geometry.Size: ExpressibleByIntegerLiteral where N == 1, Scalar: ExpressibleByIntegerLiteral {
+    @inlinable
+    public init(integerLiteral value: Scalar.IntegerLiteralType) {
+        self.init([Scalar(integerLiteral: value)])
+    }
+}
+
+extension Geometry.Size: ExpressibleByFloatLiteral where N == 1, Scalar: ExpressibleByFloatLiteral {
+    @inlinable
+    public init(floatLiteral value: Scalar.FloatLiteralType) {
+        self.init([Scalar(floatLiteral: value)])
     }
 }
