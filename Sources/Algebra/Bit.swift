@@ -36,7 +36,15 @@ extension Bit: @retroactive CaseIterable {
 extension Bit {
     /// Flipped bit (NOT operation: 0→1, 1→0).
     @inlinable
-    public var flipped: Bit { self ^ 1 }
+    public static func flipped(_ bit: Bit) -> Bit {
+        bit ^ 1
+    }
+
+    /// Flipped bit (NOT operation: 0→1, 1→0).
+    @inlinable
+    public var flipped: Bit {
+        Bit.flipped(self)
+    }
 
     /// Returns the flipped bit.
     @inlinable
@@ -44,9 +52,17 @@ extension Bit {
         value.flipped
     }
 
+    /// Toggled bit (digital logic terminology).
+    @inlinable
+    public static func toggled(_ bit: Bit) -> Bit {
+        flipped(bit)
+    }
+
     /// Flipped bit (digital logic terminology).
     @inlinable
-    public var toggled: Bit { flipped }
+    public var toggled: Bit {
+        flipped
+    }
 }
 
 // MARK: - Boolean Operations
@@ -54,20 +70,38 @@ extension Bit {
 extension Bit {
     /// Logical AND: returns `.one` only if both bits are `.one`.
     @inlinable
+    public static func and(_ lhs: Bit, _ rhs: Bit) -> Bit {
+        (lhs == .one && rhs == .one) ? .one : .zero
+    }
+
+    /// Logical AND: returns `.one` only if both bits are `.one`.
+    @inlinable
     public func and(_ other: Bit) -> Bit {
-        (self == .one && other == .one) ? .one : .zero
+        Bit.and(self, other)
+    }
+
+    /// Logical OR: returns `.one` if either bit is `.one`.
+    @inlinable
+    public static func or(_ lhs: Bit, _ rhs: Bit) -> Bit {
+        (lhs == .one || rhs == .one) ? .one : .zero
     }
 
     /// Logical OR: returns `.one` if either bit is `.one`.
     @inlinable
     public func or(_ other: Bit) -> Bit {
-        (self == .one || other == .one) ? .one : .zero
+        Bit.or(self, other)
+    }
+
+    /// Logical XOR: returns `.one` if bits differ (addition in Z₂).
+    @inlinable
+    public static func xor(_ lhs: Bit, _ rhs: Bit) -> Bit {
+        (lhs != rhs) ? .one : .zero
     }
 
     /// Logical XOR: returns `.one` if bits differ (addition in Z₂).
     @inlinable
     public func xor(_ other: Bit) -> Bit {
-        (self != other) ? .one : .zero
+        Bit.xor(self, other)
     }
 }
 

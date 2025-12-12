@@ -31,12 +31,18 @@ public enum Ternary: Int, Sendable, Hashable, Codable, CaseIterable {
 extension Ternary {
     /// Negated ternary value (swaps positive↔negative, preserves zero).
     @inlinable
-    public var negated: Ternary {
-        switch self {
+    public static func negated(_ ternary: Ternary) -> Ternary {
+        switch ternary {
         case .negative: return .positive
         case .zero: return .zero
         case .positive: return .negative
         }
+    }
+
+    /// Negated ternary value (swaps positive↔negative, preserves zero).
+    @inlinable
+    public var negated: Ternary {
+        Ternary.negated(self)
     }
 
     /// Returns the negated value.
@@ -55,8 +61,14 @@ extension Ternary {
 
     /// Multiplies two ternary values (standard integer multiplication).
     @inlinable
+    public static func multiplying(_ lhs: Ternary, _ rhs: Ternary) -> Ternary {
+        Ternary(rawValue: lhs.rawValue * rhs.rawValue) ?? .zero
+    }
+
+    /// Multiplies two ternary values (standard integer multiplication).
+    @inlinable
     public func multiplying(_ other: Ternary) -> Ternary {
-        Ternary(rawValue: self.rawValue * other.rawValue) ?? .zero
+        Ternary.multiplying(self, other)
     }
 }
 

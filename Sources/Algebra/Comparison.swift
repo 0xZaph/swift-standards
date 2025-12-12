@@ -31,12 +31,18 @@ public enum Comparison: Sendable, Hashable, Codable, CaseIterable {
 extension Comparison {
     /// Reversed comparison (swaps less↔greater, preserves equal).
     @inlinable
-    public var reversed: Comparison {
-        switch self {
+    public static func reversed(_ comparison: Comparison) -> Comparison {
+        switch comparison {
         case .less: return .greater
         case .equal: return .equal
         case .greater: return .less
         }
+    }
+
+    /// Reversed comparison (swaps less↔greater, preserves equal).
+    @inlinable
+    public var reversed: Comparison {
+        Comparison.reversed(self)
     }
 
     /// Returns the reversed comparison.

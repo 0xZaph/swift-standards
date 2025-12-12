@@ -28,11 +28,17 @@ public enum Parity: Sendable, Hashable, Codable, CaseIterable {
 extension Parity {
     /// Opposite parity (even↔odd).
     @inlinable
-    public var opposite: Parity {
-        switch self {
+    public static func opposite(of parity: Parity) -> Parity {
+        switch parity {
         case .even: return .odd
         case .odd: return .even
         }
+    }
+
+    /// Opposite parity (even↔odd).
+    @inlinable
+    public var opposite: Parity {
+        Parity.opposite(of: self)
     }
 
     /// Returns the opposite parity.
@@ -47,20 +53,32 @@ extension Parity {
 extension Parity {
     /// Parity of adding two values with these parities (e+e=e, o+o=e, e+o=o).
     @inlinable
-    public func adding(_ other: Parity) -> Parity {
-        switch (self, other) {
+    public static func adding(_ lhs: Parity, _ rhs: Parity) -> Parity {
+        switch (lhs, rhs) {
         case (.even, .even), (.odd, .odd): return .even
         case (.even, .odd), (.odd, .even): return .odd
+        }
+    }
+
+    /// Parity of adding two values with these parities (e+e=e, o+o=e, e+o=o).
+    @inlinable
+    public func adding(_ other: Parity) -> Parity {
+        Parity.adding(self, other)
+    }
+
+    /// Parity of multiplying two values with these parities (o×o=o, else e).
+    @inlinable
+    public static func multiplying(_ lhs: Parity, _ rhs: Parity) -> Parity {
+        switch (lhs, rhs) {
+        case (.odd, .odd): return .odd
+        default: return .even
         }
     }
 
     /// Parity of multiplying two values with these parities (o×o=o, else e).
     @inlinable
     public func multiplying(_ other: Parity) -> Parity {
-        switch (self, other) {
-        case (.odd, .odd): return .odd
-        default: return .even
-        }
+        Parity.multiplying(self, other)
     }
 }
 

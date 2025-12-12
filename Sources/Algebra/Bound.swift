@@ -26,11 +26,17 @@ public enum Bound: Sendable, Hashable, Codable, CaseIterable {
 extension Bound {
     /// Opposite bound (lower↔upper).
     @inlinable
-    public var opposite: Bound {
-        switch self {
+    public static func opposite(of bound: Bound) -> Bound {
+        switch bound {
         case .lower: return .upper
         case .upper: return .lower
         }
+    }
+
+    /// Opposite bound (lower↔upper).
+    @inlinable
+    public var opposite: Bound {
+        Bound.opposite(of: self)
     }
 
     /// Returns the opposite bound.

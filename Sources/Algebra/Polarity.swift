@@ -30,12 +30,18 @@ public enum Polarity: Sendable, Hashable, Codable, CaseIterable {
 extension Polarity {
     /// Opposite polarity (swaps positive↔negative, preserves neutral).
     @inlinable
-    public var opposite: Polarity {
-        switch self {
+    public static func opposite(of polarity: Polarity) -> Polarity {
+        switch polarity {
         case .positive: return .negative
         case .negative: return .positive
         case .neutral: return .neutral
         }
+    }
+
+    /// Opposite polarity (swaps positive↔negative, preserves neutral).
+    @inlinable
+    public var opposite: Polarity {
+        Polarity.opposite(of: self)
     }
 
     /// Returns the opposite polarity.

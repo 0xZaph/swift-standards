@@ -31,12 +31,18 @@ public enum Sign: Sendable, Hashable, Codable, CaseIterable {
 extension Sign {
     /// Negated sign (swaps positive↔negative, preserves zero).
     @inlinable
-    public var negated: Sign {
-        switch self {
+    public static func negated(_ sign: Sign) -> Sign {
+        switch sign {
         case .positive: return .negative
         case .negative: return .positive
         case .zero: return .zero
         }
+    }
+
+    /// Negated sign (swaps positive↔negative, preserves zero).
+    @inlinable
+    public var negated: Sign {
+        Sign.negated(self)
     }
 
     /// Returns the negated sign.
@@ -51,12 +57,18 @@ extension Sign {
 extension Sign {
     /// Sign of multiplying two signed values (p×p=p, n×n=p, p×n=n, z×_=z).
     @inlinable
-    public func multiplying(_ other: Sign) -> Sign {
-        switch (self, other) {
+    public static func multiplying(_ lhs: Sign, _ rhs: Sign) -> Sign {
+        switch (lhs, rhs) {
         case (.zero, _), (_, .zero): return .zero
         case (.positive, .positive), (.negative, .negative): return .positive
         case (.positive, .negative), (.negative, .positive): return .negative
         }
+    }
+
+    /// Sign of multiplying two signed values (p×p=p, n×n=p, p×n=n, z×_=z).
+    @inlinable
+    public func multiplying(_ other: Sign) -> Sign {
+        Sign.multiplying(self, other)
     }
 }
 

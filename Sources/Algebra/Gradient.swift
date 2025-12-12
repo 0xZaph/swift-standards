@@ -27,11 +27,17 @@ public enum Gradient: Sendable, Hashable, Codable, CaseIterable {
 extension Gradient {
     /// Opposite gradient direction (ascending↔descending).
     @inlinable
-    public var opposite: Gradient {
-        switch self {
+    public static func opposite(of gradient: Gradient) -> Gradient {
+        switch gradient {
         case .ascending: return .descending
         case .descending: return .ascending
         }
+    }
+
+    /// Opposite gradient direction (ascending↔descending).
+    @inlinable
+    public var opposite: Gradient {
+        Gradient.opposite(of: self)
     }
 
     /// Returns the opposite gradient.

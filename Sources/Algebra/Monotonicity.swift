@@ -30,12 +30,18 @@ public enum Monotonicity: Sendable, Hashable, Codable, CaseIterable {
 extension Monotonicity {
     /// Reversed monotonicity (swaps increasing↔decreasing, preserves constant).
     @inlinable
-    public var reversed: Monotonicity {
-        switch self {
+    public static func reversed(_ monotonicity: Monotonicity) -> Monotonicity {
+        switch monotonicity {
         case .increasing: return .decreasing
         case .decreasing: return .increasing
         case .constant: return .constant
         }
+    }
+
+    /// Reversed monotonicity (swaps increasing↔decreasing, preserves constant).
+    @inlinable
+    public var reversed: Monotonicity {
+        Monotonicity.reversed(self)
     }
 
     /// Returns the reversed monotonicity.
@@ -50,12 +56,18 @@ extension Monotonicity {
 extension Monotonicity {
     /// Monotonicity of composing two monotonic functions (f ∘ g).
     @inlinable
-    public func composing(_ other: Monotonicity) -> Monotonicity {
-        switch (self, other) {
+    public static func composing(_ lhs: Monotonicity, _ rhs: Monotonicity) -> Monotonicity {
+        switch (lhs, rhs) {
         case (.constant, _), (_, .constant): return .constant
         case (.increasing, .increasing), (.decreasing, .decreasing): return .increasing
         case (.increasing, .decreasing), (.decreasing, .increasing): return .decreasing
         }
+    }
+
+    /// Monotonicity of composing two monotonic functions (f ∘ g).
+    @inlinable
+    public func composing(_ other: Monotonicity) -> Monotonicity {
+        Monotonicity.composing(self, other)
     }
 }
 

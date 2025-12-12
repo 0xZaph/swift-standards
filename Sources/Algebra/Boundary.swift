@@ -27,11 +27,17 @@ public enum Boundary: Sendable, Hashable, Codable, CaseIterable {
 extension Boundary {
     /// Opposite boundary type (closed↔open).
     @inlinable
-    public var opposite: Boundary {
-        switch self {
+    public static func opposite(of boundary: Boundary) -> Boundary {
+        switch boundary {
         case .closed: return .open
         case .open: return .closed
         }
+    }
+
+    /// Opposite boundary type (closed↔open).
+    @inlinable
+    public var opposite: Boundary {
+        Boundary.opposite(of: self)
     }
 
     /// Returns the opposite boundary type.

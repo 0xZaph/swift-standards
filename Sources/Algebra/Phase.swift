@@ -35,20 +35,38 @@ public enum Phase: Int, Sendable, Hashable, Codable, CaseIterable {
 extension Phase {
     /// Next phase (90° counterclockwise rotation).
     @inlinable
+    public static func next(of phase: Phase) -> Phase {
+        Phase(rawValue: (phase.rawValue + 1) % 4)!
+    }
+
+    /// Next phase (90° counterclockwise rotation).
+    @inlinable
     public var next: Phase {
-        Phase(rawValue: (rawValue + 1) % 4)!
+        Phase.next(of: self)
+    }
+
+    /// Previous phase (90° clockwise rotation).
+    @inlinable
+    public static func previous(of phase: Phase) -> Phase {
+        Phase(rawValue: (phase.rawValue + 3) % 4)!
     }
 
     /// Previous phase (90° clockwise rotation).
     @inlinable
     public var previous: Phase {
-        Phase(rawValue: (rawValue + 3) % 4)!
+        Phase.previous(of: self)
+    }
+
+    /// Opposite phase (180° rotation).
+    @inlinable
+    public static func opposite(of phase: Phase) -> Phase {
+        Phase(rawValue: (phase.rawValue + 2) % 4)!
     }
 
     /// Opposite phase (180° rotation).
     @inlinable
     public var opposite: Phase {
-        Phase(rawValue: (rawValue + 2) % 4)!
+        Phase.opposite(of: self)
     }
 
     /// Returns the opposite phase.
@@ -63,14 +81,26 @@ extension Phase {
 extension Phase {
     /// Composes two phases by adding rotations (modulo 4).
     @inlinable
+    public static func composed(_ lhs: Phase, with rhs: Phase) -> Phase {
+        Phase(rawValue: (lhs.rawValue + rhs.rawValue) % 4)!
+    }
+
+    /// Composes two phases by adding rotations (modulo 4).
+    @inlinable
     public func composed(with other: Phase) -> Phase {
-        Phase(rawValue: (rawValue + other.rawValue) % 4)!
+        Phase.composed(self, with: other)
+    }
+
+    /// Inverse phase (rotation that reverses this rotation).
+    @inlinable
+    public static func inverse(of phase: Phase) -> Phase {
+        Phase(rawValue: (4 - phase.rawValue) % 4)!
     }
 
     /// Inverse phase (rotation that reverses this rotation).
     @inlinable
     public var inverse: Phase {
-        Phase(rawValue: (4 - rawValue) % 4)!
+        Phase.inverse(of: self)
     }
 }
 

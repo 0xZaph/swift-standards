@@ -27,11 +27,17 @@ public enum Endpoint: Sendable, Hashable, Codable, CaseIterable {
 extension Endpoint {
     /// Opposite endpoint (start↔end).
     @inlinable
-    public var opposite: Endpoint {
-        switch self {
+    public static func opposite(of endpoint: Endpoint) -> Endpoint {
+        switch endpoint {
         case .start: return .end
         case .end: return .start
         }
+    }
+
+    /// Opposite endpoint (start↔end).
+    @inlinable
+    public var opposite: Endpoint {
+        Endpoint.opposite(of: self)
     }
 
     /// Returns the opposite endpoint.
