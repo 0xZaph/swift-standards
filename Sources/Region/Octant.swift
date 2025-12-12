@@ -52,8 +52,8 @@ extension Region {
 extension Region.Octant {
     /// Opposite octant (reflection through origin, flipping all axis signs).
     @inlinable
-    public var opposite: Region.Octant {
-        switch self {
+    public static func opposite(of octant: Region.Octant) -> Region.Octant {
+        switch octant {
         case .ppp: return .nnn
         case .ppn: return .nnp
         case .pnp: return .npn
@@ -65,10 +65,16 @@ extension Region.Octant {
         }
     }
 
+    /// Opposite octant (reflection through origin, flipping all axis signs).
+    @inlinable
+    public var opposite: Region.Octant {
+        Region.Octant.opposite(of: self)
+    }
+
     /// Returns the opposite octant (origin reflection).
     @inlinable
     public static prefix func ! (value: Region.Octant) -> Region.Octant {
-        value.opposite
+        Region.Octant.opposite(of: value)
     }
 }
 
@@ -77,29 +83,47 @@ extension Region.Octant {
 extension Region.Octant {
     /// Whether x is positive in this octant.
     @inlinable
-    public var hasPositiveX: Bool {
-        switch self {
+    public static func hasPositiveX(_ octant: Region.Octant) -> Bool {
+        switch octant {
         case .ppp, .ppn, .pnp, .pnn: return true
         case .npp, .npn, .nnp, .nnn: return false
+        }
+    }
+
+    /// Whether x is positive in this octant.
+    @inlinable
+    public var hasPositiveX: Bool {
+        Region.Octant.hasPositiveX(self)
+    }
+
+    /// Whether y is positive in this octant.
+    @inlinable
+    public static func hasPositiveY(_ octant: Region.Octant) -> Bool {
+        switch octant {
+        case .ppp, .ppn, .npp, .npn: return true
+        case .pnp, .pnn, .nnp, .nnn: return false
         }
     }
 
     /// Whether y is positive in this octant.
     @inlinable
     public var hasPositiveY: Bool {
-        switch self {
-        case .ppp, .ppn, .npp, .npn: return true
-        case .pnp, .pnn, .nnp, .nnn: return false
+        Region.Octant.hasPositiveY(self)
+    }
+
+    /// Whether z is positive in this octant.
+    @inlinable
+    public static func hasPositiveZ(_ octant: Region.Octant) -> Bool {
+        switch octant {
+        case .ppp, .pnp, .npp, .nnp: return true
+        case .ppn, .pnn, .npn, .nnn: return false
         }
     }
 
     /// Whether z is positive in this octant.
     @inlinable
     public var hasPositiveZ: Bool {
-        switch self {
-        case .ppp, .pnp, .npp, .nnp: return true
-        case .ppn, .pnn, .npn, .nnn: return false
-        }
+        Region.Octant.hasPositiveZ(self)
     }
 }
 

@@ -72,14 +72,20 @@ extension Region.Corner: CaseIterable {
 extension Region.Corner {
     /// Diagonally opposite corner (flips both horizontal and vertical).
     @inlinable
+    public static func opposite(of corner: Region.Corner) -> Region.Corner {
+        Region.Corner(horizontal: corner.horizontal.opposite, vertical: corner.vertical.opposite)
+    }
+
+    /// Diagonally opposite corner (flips both horizontal and vertical).
+    @inlinable
     public var opposite: Region.Corner {
-        Region.Corner(horizontal: horizontal.opposite, vertical: vertical.opposite)
+        Region.Corner.opposite(of: self)
     }
 
     /// Returns the diagonally opposite corner (diagonal reflection).
     @inlinable
     public static prefix func ! (value: Region.Corner) -> Region.Corner {
-        value.opposite
+        Region.Corner.opposite(of: value)
     }
 }
 
@@ -88,19 +94,35 @@ extension Region.Corner {
 extension Region.Corner {
     /// Whether this is a top corner (upward vertical position).
     @inlinable
-    public var isTop: Bool { vertical == .upward }
+    public static func isTop(_ corner: Region.Corner) -> Bool { corner.vertical == .upward }
+
+    /// Whether this is a top corner (upward vertical position).
+    @inlinable
+    public var isTop: Bool { Region.Corner.isTop(self) }
 
     /// Whether this is a bottom corner (downward vertical position).
     @inlinable
-    public var isBottom: Bool { vertical == .downward }
+    public static func isBottom(_ corner: Region.Corner) -> Bool { corner.vertical == .downward }
+
+    /// Whether this is a bottom corner (downward vertical position).
+    @inlinable
+    public var isBottom: Bool { Region.Corner.isBottom(self) }
 
     /// Whether this is a left corner (leftward horizontal position).
     @inlinable
-    public var isLeft: Bool { horizontal == .leftward }
+    public static func isLeft(_ corner: Region.Corner) -> Bool { corner.horizontal == .leftward }
+
+    /// Whether this is a left corner (leftward horizontal position).
+    @inlinable
+    public var isLeft: Bool { Region.Corner.isLeft(self) }
 
     /// Whether this is a right corner (rightward horizontal position).
     @inlinable
-    public var isRight: Bool { horizontal == .rightward }
+    public static func isRight(_ corner: Region.Corner) -> Bool { corner.horizontal == .rightward }
+
+    /// Whether this is a right corner (rightward horizontal position).
+    @inlinable
+    public var isRight: Bool { Region.Corner.isRight(self) }
 }
 
 // MARK: - Adjacent Corners
@@ -108,14 +130,26 @@ extension Region.Corner {
 extension Region.Corner {
     /// Corner horizontally adjacent to this one (flips horizontal, keeps vertical).
     @inlinable
+    public static func horizontalAdjacent(of corner: Region.Corner) -> Region.Corner {
+        Region.Corner(horizontal: corner.horizontal.opposite, vertical: corner.vertical)
+    }
+
+    /// Corner horizontally adjacent to this one (flips horizontal, keeps vertical).
+    @inlinable
     public var horizontalAdjacent: Region.Corner {
-        Region.Corner(horizontal: horizontal.opposite, vertical: vertical)
+        Region.Corner.horizontalAdjacent(of: self)
+    }
+
+    /// Corner vertically adjacent to this one (keeps horizontal, flips vertical).
+    @inlinable
+    public static func verticalAdjacent(of corner: Region.Corner) -> Region.Corner {
+        Region.Corner(horizontal: corner.horizontal, vertical: corner.vertical.opposite)
     }
 
     /// Corner vertically adjacent to this one (keeps horizontal, flips vertical).
     @inlinable
     public var verticalAdjacent: Region.Corner {
-        Region.Corner(horizontal: horizontal, vertical: vertical.opposite)
+        Region.Corner.verticalAdjacent(of: self)
     }
 }
 

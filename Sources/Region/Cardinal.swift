@@ -45,8 +45,8 @@ extension Region {
 extension Region.Cardinal {
     /// Next cardinal direction (90° clockwise rotation).
     @inlinable
-    public var clockwise: Region.Cardinal {
-        switch self {
+    public static func clockwise(of direction: Region.Cardinal) -> Region.Cardinal {
+        switch direction {
         case .north: return .east
         case .east: return .south
         case .south: return .west
@@ -54,10 +54,16 @@ extension Region.Cardinal {
         }
     }
 
+    /// Next cardinal direction (90° clockwise rotation).
+    @inlinable
+    public var clockwise: Region.Cardinal {
+        Region.Cardinal.clockwise(of: self)
+    }
+
     /// Previous cardinal direction (90° counterclockwise rotation).
     @inlinable
-    public var counterclockwise: Region.Cardinal {
-        switch self {
+    public static func counterclockwise(of direction: Region.Cardinal) -> Region.Cardinal {
+        switch direction {
         case .north: return .west
         case .east: return .north
         case .south: return .east
@@ -65,10 +71,16 @@ extension Region.Cardinal {
         }
     }
 
+    /// Previous cardinal direction (90° counterclockwise rotation).
+    @inlinable
+    public var counterclockwise: Region.Cardinal {
+        Region.Cardinal.counterclockwise(of: self)
+    }
+
     /// Opposite cardinal direction (180° rotation).
     @inlinable
-    public var opposite: Region.Cardinal {
-        switch self {
+    public static func opposite(of direction: Region.Cardinal) -> Region.Cardinal {
+        switch direction {
         case .north: return .south
         case .east: return .west
         case .south: return .north
@@ -76,10 +88,16 @@ extension Region.Cardinal {
         }
     }
 
+    /// Opposite cardinal direction (180° rotation).
+    @inlinable
+    public var opposite: Region.Cardinal {
+        Region.Cardinal.opposite(of: self)
+    }
+
     /// Returns the opposite cardinal direction.
     @inlinable
     public static prefix func ! (value: Region.Cardinal) -> Region.Cardinal {
-        value.opposite
+        Region.Cardinal.opposite(of: value)
     }
 }
 
@@ -88,14 +106,26 @@ extension Region.Cardinal {
 extension Region.Cardinal {
     /// Whether this is a horizontal direction (east or west).
     @inlinable
+    public static func isHorizontal(_ direction: Region.Cardinal) -> Bool {
+        direction == .east || direction == .west
+    }
+
+    /// Whether this is a horizontal direction (east or west).
+    @inlinable
     public var isHorizontal: Bool {
-        self == .east || self == .west
+        Region.Cardinal.isHorizontal(self)
+    }
+
+    /// Whether this is a vertical direction (north or south).
+    @inlinable
+    public static func isVertical(_ direction: Region.Cardinal) -> Bool {
+        direction == .north || direction == .south
     }
 
     /// Whether this is a vertical direction (north or south).
     @inlinable
     public var isVertical: Bool {
-        self == .north || self == .south
+        Region.Cardinal.isVertical(self)
     }
 }
 

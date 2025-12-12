@@ -75,36 +75,60 @@ extension Region {
 extension Region.Clock {
     /// Next clock position (30° clockwise rotation).
     @inlinable
-    public var clockwise: Region.Clock {
-        let next = rawValue % 12 + 1
+    public static func clockwise(of clock: Region.Clock) -> Region.Clock {
+        let next = clock.rawValue % 12 + 1
         return Region.Clock(rawValue: next == 0 ? 12 : next)!
+    }
+
+    /// Next clock position (30° clockwise rotation).
+    @inlinable
+    public var clockwise: Region.Clock {
+        Region.Clock.clockwise(of: self)
+    }
+
+    /// Previous clock position (30° counterclockwise rotation).
+    @inlinable
+    public static func counterclockwise(of clock: Region.Clock) -> Region.Clock {
+        let prev = clock.rawValue - 1
+        return Region.Clock(rawValue: prev == 0 ? 12 : prev)!
     }
 
     /// Previous clock position (30° counterclockwise rotation).
     @inlinable
     public var counterclockwise: Region.Clock {
-        let prev = rawValue - 1
-        return Region.Clock(rawValue: prev == 0 ? 12 : prev)!
+        Region.Clock.counterclockwise(of: self)
+    }
+
+    /// Opposite clock position (180° rotation).
+    @inlinable
+    public static func opposite(of clock: Region.Clock) -> Region.Clock {
+        let opp = (clock.rawValue + 5) % 12 + 1
+        return Region.Clock(rawValue: opp == 0 ? 12 : opp)!
     }
 
     /// Opposite clock position (180° rotation).
     @inlinable
     public var opposite: Region.Clock {
-        let opp = (rawValue + 5) % 12 + 1
-        return Region.Clock(rawValue: opp == 0 ? 12 : opp)!
+        Region.Clock.opposite(of: self)
     }
 
     /// Returns the opposite clock position (180° rotation).
     @inlinable
     public static prefix func ! (value: Region.Clock) -> Region.Clock {
-        value.opposite
+        Region.Clock.opposite(of: value)
+    }
+
+    /// Advances by `n` positions clockwise (or counterclockwise if negative).
+    @inlinable
+    public static func advanced(_ clock: Region.Clock, by n: Int) -> Region.Clock {
+        let result = ((clock.rawValue - 1 + n) % 12 + 12) % 12 + 1
+        return Region.Clock(rawValue: result == 0 ? 12 : result)!
     }
 
     /// Advances by `n` positions clockwise (or counterclockwise if negative).
     @inlinable
     public func advanced(by n: Int) -> Region.Clock {
-        let result = ((rawValue - 1 + n) % 12 + 12) % 12 + 1
-        return Region.Clock(rawValue: result == 0 ? 12 : result)!
+        Region.Clock.advanced(self, by: n)
     }
 }
 
@@ -113,8 +137,8 @@ extension Region.Clock {
 extension Region.Clock {
     /// Quadrant containing this clock position (screen coordinates, y-down).
     @inlinable
-    public var quadrant: Region.Quadrant {
-        switch self {
+    public static func quadrant(of clock: Region.Clock) -> Region.Quadrant {
+        switch clock {
         case .twelve, .one, .two: return .I
         case .three, .four, .five: return .IV
         case .six, .seven, .eight: return .III
@@ -122,15 +146,27 @@ extension Region.Clock {
         }
     }
 
+    /// Quadrant containing this clock position (screen coordinates, y-down).
+    @inlinable
+    public var quadrant: Region.Quadrant {
+        Region.Clock.quadrant(of: self)
+    }
+
     /// Cardinal direction closest to this clock position.
     @inlinable
-    public var nearestCardinal: Region.Cardinal {
-        switch self {
+    public static func nearestCardinal(of clock: Region.Clock) -> Region.Cardinal {
+        switch clock {
         case .twelve, .one, .eleven: return .north
         case .two, .three, .four: return .east
         case .five, .six, .seven: return .south
         case .eight, .nine, .ten: return .west
         }
+    }
+
+    /// Cardinal direction closest to this clock position.
+    @inlinable
+    public var nearestCardinal: Region.Cardinal {
+        Region.Clock.nearestCardinal(of: self)
     }
 }
 
@@ -139,9 +175,24 @@ extension Region.Clock {
 extension Region.Clock {
     /// Whether this is a cardinal position (12, 3, 6, or 9 o'clock).
     @inlinable
-    public var isCardinal: Bool {
-        switch self {
+    public static func isCardinal(_ clock: Region.Clock) -> Bool {
+        switch clock {
         case .twelve, .three, .six, .nine: return true
+        default: return false
+        }
+    }
+
+    /// Whether this is a cardinal position (12, 3, 6, or 9 o'clock).
+    @inlinable
+    public var isCardinal: Bool {
+        Region.Clock.isCardinal(self)
+    }
+
+    /// Whether this is a non-cardinal position (all except 12, 3, 6, 9).
+    @inlinable
+    public static func isOrdinal(_ clock: Region.Clock) -> Bool {
+        switch clock {
+        case .one, .two, .four, .five, .seven, .eight, .ten, .eleven: return true
         default: return false
         }
     }
@@ -149,8 +200,14 @@ extension Region.Clock {
     /// Whether this is a non-cardinal position (all except 12, 3, 6, 9).
     @inlinable
     public var isOrdinal: Bool {
-        switch self {
-        case .one, .two, .four, .five, .seven, .eight, .ten, .eleven: return true
+        Region.Clock.isOrdinal(self)
+    }
+
+    /// Whether this position is in the upper half (10, 11, 12, 1, 2).
+    @inlinable
+    public static func isUpperHalf(_ clock: Region.Clock) -> Bool {
+        switch clock {
+        case .ten, .eleven, .twelve, .one, .two: return true
         default: return false
         }
     }
@@ -158,8 +215,14 @@ extension Region.Clock {
     /// Whether this position is in the upper half (10, 11, 12, 1, 2).
     @inlinable
     public var isUpperHalf: Bool {
-        switch self {
-        case .ten, .eleven, .twelve, .one, .two: return true
+        Region.Clock.isUpperHalf(self)
+    }
+
+    /// Whether this position is in the right half (1, 2, 3, 4, 5).
+    @inlinable
+    public static func isRightHalf(_ clock: Region.Clock) -> Bool {
+        switch clock {
+        case .one, .two, .three, .four, .five: return true
         default: return false
         }
     }
@@ -167,10 +230,7 @@ extension Region.Clock {
     /// Whether this position is in the right half (1, 2, 3, 4, 5).
     @inlinable
     public var isRightHalf: Bool {
-        switch self {
-        case .one, .two, .three, .four, .five: return true
-        default: return false
-        }
+        Region.Clock.isRightHalf(self)
     }
 }
 

@@ -49,26 +49,44 @@ extension Region {
 extension Region.Sextant {
     /// Next sextant (60° counterclockwise rotation).
     @inlinable
+    public static func next(of sextant: Region.Sextant) -> Region.Sextant {
+        Region.Sextant(rawValue: (sextant.rawValue % 6) + 1)!
+    }
+
+    /// Next sextant (60° counterclockwise rotation).
+    @inlinable
     public var next: Region.Sextant {
-        Region.Sextant(rawValue: (rawValue % 6) + 1)!
+        Region.Sextant.next(of: self)
+    }
+
+    /// Previous sextant (60° clockwise rotation).
+    @inlinable
+    public static func previous(of sextant: Region.Sextant) -> Region.Sextant {
+        Region.Sextant(rawValue: ((sextant.rawValue + 4) % 6) + 1)!
     }
 
     /// Previous sextant (60° clockwise rotation).
     @inlinable
     public var previous: Region.Sextant {
-        Region.Sextant(rawValue: ((rawValue + 4) % 6) + 1)!
+        Region.Sextant.previous(of: self)
+    }
+
+    /// Opposite sextant (180° rotation).
+    @inlinable
+    public static func opposite(of sextant: Region.Sextant) -> Region.Sextant {
+        Region.Sextant(rawValue: ((sextant.rawValue + 2) % 6) + 1)!
     }
 
     /// Opposite sextant (180° rotation).
     @inlinable
     public var opposite: Region.Sextant {
-        Region.Sextant(rawValue: ((rawValue + 2) % 6) + 1)!
+        Region.Sextant.opposite(of: self)
     }
 
     /// Returns the opposite sextant (180° rotation).
     @inlinable
     public static prefix func ! (value: Region.Sextant) -> Region.Sextant {
-        value.opposite
+        Region.Sextant.opposite(of: value)
     }
 }
 
@@ -77,8 +95,8 @@ extension Region.Sextant {
 extension Region.Sextant {
     /// Quadrant containing this sextant.
     @inlinable
-    public var quadrant: Region.Quadrant {
-        switch self {
+    public static func quadrant(of sextant: Region.Sextant) -> Region.Quadrant {
+        switch sextant {
         case .I: return .I
         case .II: return .I
         case .III: return .II
@@ -87,6 +105,12 @@ extension Region.Sextant {
         case .VI: return .IV
         }
     }
+
+    /// Quadrant containing this sextant.
+    @inlinable
+    public var quadrant: Region.Quadrant {
+        Region.Sextant.quadrant(of: self)
+    }
 }
 
 // MARK: - Sign Properties
@@ -94,20 +118,32 @@ extension Region.Sextant {
 extension Region.Sextant {
     /// Whether the sextant is in the upper half-plane (y > 0).
     @inlinable
-    public var isUpperHalf: Bool {
-        switch self {
+    public static func isUpperHalf(_ sextant: Region.Sextant) -> Bool {
+        switch sextant {
         case .I, .II, .III: return true
         case .IV, .V, .VI: return false
+        }
+    }
+
+    /// Whether the sextant is in the upper half-plane (y > 0).
+    @inlinable
+    public var isUpperHalf: Bool {
+        Region.Sextant.isUpperHalf(self)
+    }
+
+    /// Whether the sextant is in the right half-plane (x > 0).
+    @inlinable
+    public static func isRightHalf(_ sextant: Region.Sextant) -> Bool {
+        switch sextant {
+        case .I, .II, .VI: return true
+        case .III, .IV, .V: return false
         }
     }
 
     /// Whether the sextant is in the right half-plane (x > 0).
     @inlinable
     public var isRightHalf: Bool {
-        switch self {
-        case .I, .II, .VI: return true
-        case .III, .IV, .V: return false
-        }
+        Region.Sextant.isRightHalf(self)
     }
 }
 

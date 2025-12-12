@@ -46,8 +46,8 @@ extension Region {
 extension Region.Edge {
     /// Opposite edge (parallel edge across the rectangle).
     @inlinable
-    public var opposite: Region.Edge {
-        switch self {
+    public static func opposite(of edge: Region.Edge) -> Region.Edge {
+        switch edge {
         case .top: return .bottom
         case .left: return .right
         case .bottom: return .top
@@ -55,10 +55,16 @@ extension Region.Edge {
         }
     }
 
+    /// Opposite edge (parallel edge across the rectangle).
+    @inlinable
+    public var opposite: Region.Edge {
+        Region.Edge.opposite(of: self)
+    }
+
     /// Returns the opposite edge (parallel reflection).
     @inlinable
     public static prefix func ! (value: Region.Edge) -> Region.Edge {
-        value.opposite
+        Region.Edge.opposite(of: value)
     }
 }
 
@@ -67,14 +73,26 @@ extension Region.Edge {
 extension Region.Edge {
     /// Whether this is a horizontal edge (top or bottom).
     @inlinable
+    public static func isHorizontal(_ edge: Region.Edge) -> Bool {
+        edge == .top || edge == .bottom
+    }
+
+    /// Whether this is a horizontal edge (top or bottom).
+    @inlinable
     public var isHorizontal: Bool {
-        self == .top || self == .bottom
+        Region.Edge.isHorizontal(self)
+    }
+
+    /// Whether this is a vertical edge (left or right).
+    @inlinable
+    public static func isVertical(_ edge: Region.Edge) -> Bool {
+        edge == .left || edge == .right
     }
 
     /// Whether this is a vertical edge (left or right).
     @inlinable
     public var isVertical: Bool {
-        self == .left || self == .right
+        Region.Edge.isVertical(self)
     }
 }
 
@@ -83,13 +101,19 @@ extension Region.Edge {
 extension Region.Edge {
     /// Two corners that bound this edge as endpoints.
     @inlinable
-    public var corners: (Region.Corner, Region.Corner) {
-        switch self {
+    public static func corners(of edge: Region.Edge) -> (Region.Corner, Region.Corner) {
+        switch edge {
         case .top: return (.topLeft, .topRight)
         case .left: return (.topLeft, .bottomLeft)
         case .bottom: return (.bottomLeft, .bottomRight)
         case .right: return (.topRight, .bottomRight)
         }
+    }
+
+    /// Two corners that bound this edge as endpoints.
+    @inlinable
+    public var corners: (Region.Corner, Region.Corner) {
+        Region.Edge.corners(of: self)
     }
 }
 

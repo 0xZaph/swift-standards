@@ -44,26 +44,44 @@ extension Region {
 extension Region.Quadrant {
     /// Next quadrant (90° counterclockwise rotation).
     @inlinable
+    public static func next(of quadrant: Region.Quadrant) -> Region.Quadrant {
+        Region.Quadrant(rawValue: (quadrant.rawValue % 4) + 1)!
+    }
+
+    /// Next quadrant (90° counterclockwise rotation).
+    @inlinable
     public var next: Region.Quadrant {
-        Region.Quadrant(rawValue: (rawValue % 4) + 1)!
+        Region.Quadrant.next(of: self)
+    }
+
+    /// Previous quadrant (90° clockwise rotation).
+    @inlinable
+    public static func previous(of quadrant: Region.Quadrant) -> Region.Quadrant {
+        Region.Quadrant(rawValue: ((quadrant.rawValue + 2) % 4) + 1)!
     }
 
     /// Previous quadrant (90° clockwise rotation).
     @inlinable
     public var previous: Region.Quadrant {
-        Region.Quadrant(rawValue: ((rawValue + 2) % 4) + 1)!
+        Region.Quadrant.previous(of: self)
+    }
+
+    /// Opposite quadrant (180° rotation).
+    @inlinable
+    public static func opposite(of quadrant: Region.Quadrant) -> Region.Quadrant {
+        Region.Quadrant(rawValue: ((quadrant.rawValue + 1) % 4) + 1)!
     }
 
     /// Opposite quadrant (180° rotation).
     @inlinable
     public var opposite: Region.Quadrant {
-        Region.Quadrant(rawValue: ((rawValue + 1) % 4) + 1)!
+        Region.Quadrant.opposite(of: self)
     }
 
     /// Returns the opposite quadrant (180° rotation).
     @inlinable
     public static prefix func ! (value: Region.Quadrant) -> Region.Quadrant {
-        value.opposite
+        Region.Quadrant.opposite(of: value)
     }
 }
 
@@ -72,14 +90,26 @@ extension Region.Quadrant {
 extension Region.Quadrant {
     /// Whether x is positive in this quadrant.
     @inlinable
+    public static func hasPositiveX(_ quadrant: Region.Quadrant) -> Bool {
+        quadrant == .I || quadrant == .IV
+    }
+
+    /// Whether x is positive in this quadrant.
+    @inlinable
     public var hasPositiveX: Bool {
-        self == .I || self == .IV
+        Region.Quadrant.hasPositiveX(self)
+    }
+
+    /// Whether y is positive in this quadrant.
+    @inlinable
+    public static func hasPositiveY(_ quadrant: Region.Quadrant) -> Bool {
+        quadrant == .I || quadrant == .II
     }
 
     /// Whether y is positive in this quadrant.
     @inlinable
     public var hasPositiveY: Bool {
-        self == .I || self == .II
+        Region.Quadrant.hasPositiveY(self)
     }
 }
 
