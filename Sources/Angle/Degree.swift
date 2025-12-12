@@ -179,18 +179,40 @@ extension Degree {
     }
 }
 
-// MARK: - Trigonometry (via Radian)
+// MARK: - Trigonometry (Static Implementation)
+
+extension Degree {
+    /// Sine of an angle.
+    @inlinable
+    public static func sin(of angle: Degree) -> Double {
+        Radian.sin(of: angle.radians)
+    }
+
+    /// Cosine of an angle.
+    @inlinable
+    public static func cos(of angle: Degree) -> Double {
+        Radian.cos(of: angle.radians)
+    }
+
+    /// Tangent of an angle.
+    @inlinable
+    public static func tan(of angle: Degree) -> Double {
+        Radian.tan(of: angle.radians)
+    }
+}
+
+// MARK: - Trigonometry (Instance Convenience)
 
 extension Degree {
     /// Sine of the angle.
     @inlinable
-    public var sin: Double { radians.sin }
+    public var sin: Double { Degree.sin(of: self) }
 
     /// Cosine of the angle.
     @inlinable
-    public var cos: Double { radians.cos }
+    public var cos: Double { Degree.cos(of: self) }
 
     /// Tangent of the angle.
     @inlinable
-    public var tan: Double { radians.tan }
+    public var tan: Double { Degree.tan(of: self) }
 }

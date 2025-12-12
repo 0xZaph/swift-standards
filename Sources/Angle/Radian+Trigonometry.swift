@@ -3,20 +3,42 @@
 
 public import RealModule
 
-// MARK: - Trigonometric Functions
+// MARK: - Trigonometric Functions (Static Implementation)
+
+extension Radian {
+    /// Sine of an angle.
+    @inlinable
+    public static func sin(of angle: Radian) -> Double {
+        Double.sin(angle.value)
+    }
+
+    /// Cosine of an angle.
+    @inlinable
+    public static func cos(of angle: Radian) -> Double {
+        Double.cos(angle.value)
+    }
+
+    /// Tangent of an angle.
+    @inlinable
+    public static func tan(of angle: Radian) -> Double {
+        Double.tan(angle.value)
+    }
+}
+
+// MARK: - Trigonometric Functions (Instance Convenience)
 
 extension Radian {
     /// Sine of the angle.
     @inlinable
-    public var sin: Double { Double.sin(value) }
+    public var sin: Double { Radian.sin(of: self) }
 
     /// Cosine of the angle.
     @inlinable
-    public var cos: Double { Double.cos(value) }
+    public var cos: Double { Radian.cos(of: self) }
 
     /// Tangent of the angle.
     @inlinable
-    public var tan: Double { Double.tan(value) }
+    public var tan: Double { Radian.tan(of: self) }
 }
 
 // MARK: - Inverse Trigonometric Functions
@@ -104,7 +126,31 @@ extension Radian {
     }
 }
 
-// MARK: - Normalization
+// MARK: - Normalization (Static Implementation)
+
+extension Radian {
+    /// Normalizes an angle to the range [0, 2π).
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let angle = Radian(3 * .pi)
+    /// print(Radian.normalized(angle))  // Radian(π) ≈ 3.14...
+    ///
+    /// let negative = Radian(-.pi / 2)
+    /// print(Radian.normalized(negative))  // Radian(3π/2) ≈ 4.71...
+    /// ```
+    @inlinable
+    public static func normalized(_ angle: Radian) -> Radian {
+        var result = angle.value.truncatingRemainder(dividingBy: 2 * Double.pi)
+        if result < 0 {
+            result += 2 * Double.pi
+        }
+        return Radian(result)
+    }
+}
+
+// MARK: - Normalization (Instance Convenience)
 
 extension Radian {
     /// Normalizes the angle to the range [0, 2π).
@@ -120,11 +166,7 @@ extension Radian {
     /// ```
     @inlinable
     public var normalized: Self {
-        var result = value.truncatingRemainder(dividingBy: 2 * Double.pi)
-        if result < 0 {
-            result += 2 * Double.pi
-        }
-        return Self(result)
+        Radian.normalized(self)
     }
 }
 
