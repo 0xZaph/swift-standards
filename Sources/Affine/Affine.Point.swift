@@ -329,41 +329,88 @@ extension Affine.Point {
 extension Affine.Point where N == 2, Scalar: AdditiveArithmetic {
     /// Returns point translated by displacement components.
     @inlinable
+    public static func translated(_ point: Self, dx: Affine.Dx, dy: Affine.Dy) -> Self {
+        Self(x: point.x + dx, y: point.y + dy)
+    }
+
+    /// Returns point translated by displacement components.
+    @inlinable
     public func translated(dx: Affine.Dx, dy: Affine.Dy) -> Self {
-        Self(x: x + dx, y: y + dy)
+        Self.translated(self, dx: dx, dy: dy)
+    }
+
+    /// Returns point translated by displacement vector.
+    @inlinable
+    public static func translated(_ point: Self, by vector: Linear<Scalar, Space>.Vector<2>) -> Self {
+        Self(x: point.x + vector.dx, y: point.y + vector.dy)
     }
 
     /// Returns point translated by displacement vector.
     @inlinable
     public func translated(by vector: Linear<Scalar, Space>.Vector<2>) -> Self {
-        Self(x: x + vector.dx, y: y + vector.dy)
+        Self.translated(self, by: vector)
+    }
+
+    /// Computes displacement vector from one point to another.
+    @inlinable
+    public static func vector(from point: Self, to other: Self) -> Linear<Scalar, Space>.Vector<2> {
+        Linear<Scalar, Space>.Vector(dx: other.x - point.x, dy: other.y - point.y)
     }
 
     /// Computes displacement vector from this point to another.
     @inlinable
     public func vector(to other: Self) -> Linear<Scalar, Space>.Vector<2> {
-        Linear<Scalar, Space>.Vector(dx: other.x - x, dy: other.y - y)
+        Self.vector(from: self, to: other)
     }
 }
 
 // MARK: - 2D Point Distance (FloatingPoint)
 
 extension Affine.Point where N == 2, Scalar: FloatingPoint {
+    /// Computes squared Euclidean distance between two points.
+    ///
+    /// More efficient than `distance(from:to:)` when comparing distances.
+    /// Returns raw scalar for use in comparisons; use `distance(from:to:)` for typed result.
+    @inlinable
+    public static func distanceSquared(from point: Self, to other: Self) -> Scalar {
+        let dx = other.x.value - point.x.value
+        let dy = other.y.value - point.y.value
+        return dx * dx + dy * dy
+    }
+
     /// Computes squared Euclidean distance to another point.
     ///
     /// More efficient than `distance(to:)` when comparing distances.
     /// Returns raw scalar for use in comparisons; use `distance(to:)` for typed result.
     @inlinable
     public func distanceSquared(to other: Self) -> Scalar {
-        let dx = other.x.value - x.value
-        let dy = other.y.value - y.value
-        return dx * dx + dy * dy
+        Self.distanceSquared(from: self, to: other)
+    }
+
+    /// Computes Euclidean distance between two points.
+    @inlinable
+    public static func distance(from point: Self, to other: Self) -> Affine.Distance {
+        .init(distanceSquared(from: point, to: other).squareRoot())
     }
 
     /// Computes Euclidean distance to another point.
     @inlinable
     public func distance(to other: Self) -> Affine.Distance {
-        .init(distanceSquared(to: other).squareRoot())
+        Self.distance(from: self, to: other)
+    }
+
+    /// Linearly interpolates between two points.
+    ///
+    /// - Parameters:
+    ///   - from: Starting point
+    ///   - to: Target point
+    ///   - t: Interpolation parameter where `0` returns `from` and `1` returns `to`
+    @inlinable
+    public static func lerp(from point: Self, to other: Self, t: Scalar) -> Self {
+        Self(
+            x: Affine.X(point.x.value + t * (other.x.value - point.x.value)),
+            y: Affine.Y(point.y.value + t * (other.y.value - point.y.value))
+        )
     }
 
     /// Linearly interpolates between this point and another.
@@ -373,19 +420,22 @@ extension Affine.Point where N == 2, Scalar: FloatingPoint {
     ///   - t: Interpolation parameter where `0` returns `self` and `1` returns `other`
     @inlinable
     public func lerp(to other: Self, t: Scalar) -> Self {
+        Self.lerp(from: self, to: other, t: t)
+    }
+
+    /// Computes midpoint between two points.
+    @inlinable
+    public static func midpoint(from point: Self, to other: Self) -> Self {
         Self(
-            x: Affine.X(x.value + t * (other.x.value - x.value)),
-            y: Affine.Y(y.value + t * (other.y.value - y.value))
+            x: Affine.X((point.x.value + other.x.value) / 2),
+            y: Affine.Y((point.y.value + other.y.value) / 2)
         )
     }
 
     /// Computes midpoint between this point and another.
     @inlinable
     public func midpoint(to other: Self) -> Self {
-        Self(
-            x: Affine.X((x.value + other.x.value) / 2),
-            y: Affine.Y((y.value + other.y.value) / 2)
-        )
+        Self.midpoint(from: self, to: other)
     }
 }
 
@@ -394,45 +444,83 @@ extension Affine.Point where N == 2, Scalar: FloatingPoint {
 extension Affine.Point where N == 3, Scalar: AdditiveArithmetic {
     /// Returns point translated by displacement components.
     @inlinable
+    public static func translated(
+        _ point: Self,
+        dx: Linear<Scalar, Space>.Dx,
+        dy: Linear<Scalar, Space>.Dy,
+        dz: Linear<Scalar, Space>.Dz
+    ) -> Self {
+        Self(x: point.x + dx, y: point.y + dy, z: point.z + dz)
+    }
+
+    /// Returns point translated by displacement components.
+    @inlinable
     public func translated(
         dx: Linear<Scalar, Space>.Dx,
         dy: Linear<Scalar, Space>.Dy,
         dz: Linear<Scalar, Space>.Dz
     ) -> Self {
-        Self(x: x + dx, y: y + dy, z: z + dz)
+        Self.translated(self, dx: dx, dy: dy, dz: dz)
+    }
+
+    /// Returns point translated by displacement vector.
+    @inlinable
+    public static func translated(_ point: Self, by vector: Linear<Scalar, Space>.Vector<3>) -> Self {
+        Self(x: point.x + vector.dx, y: point.y + vector.dy, z: point.z + vector.dz)
     }
 
     /// Returns point translated by displacement vector.
     @inlinable
     public func translated(by vector: Linear<Scalar, Space>.Vector<3>) -> Self {
-        Self(x: x + vector.dx, y: y + vector.dy, z: z + vector.dz)
+        Self.translated(self, by: vector)
+    }
+
+    /// Computes displacement vector from one point to another.
+    @inlinable
+    public static func vector(from point: Self, to other: Self) -> Linear<Scalar, Space>.Vector<3> {
+        Linear<Scalar, Space>.Vector(dx: other.x - point.x, dy: other.y - point.y, dz: other.z - point.z)
     }
 
     /// Computes displacement vector from this point to another.
     @inlinable
     public func vector(to other: Self) -> Linear<Scalar, Space>.Vector<3> {
-        Linear<Scalar, Space>.Vector(dx: other.x - x, dy: other.y - y, dz: other.z - z)
+        Self.vector(from: self, to: other)
     }
 }
 
 // MARK: - 3D Point Distance (FloatingPoint)
 
 extension Affine.Point where N == 3, Scalar: FloatingPoint {
+    /// Computes squared Euclidean distance between two points.
+    ///
+    /// More efficient than `distance(from:to:)` when comparing distances.
+    /// Returns raw scalar for use in comparisons; use `distance(from:to:)` for typed result.
+    @inlinable
+    public static func distanceSquared(from point: Self, to other: Self) -> Scalar {
+        let dx = other.x - point.x
+        let dy = other.y - point.y
+        let dz = other.z - point.z
+        return dx * dx + dy * dy + dz * dz
+    }
+
     /// Computes squared Euclidean distance to another point.
     ///
     /// More efficient than `distance(to:)` when comparing distances.
     /// Returns raw scalar for use in comparisons; use `distance(to:)` for typed result.
     @inlinable
     public func distanceSquared(to other: Self) -> Scalar {
-        let dx = other.x - x
-        let dy = other.y - y
-        let dz = other.z - z
-        return dx * dx + dy * dy + dz * dz
+        Self.distanceSquared(from: self, to: other)
+    }
+
+    /// Computes Euclidean distance between two points.
+    @inlinable
+    public static func distance(from point: Self, to other: Self) -> Affine.Distance {
+        .init(distanceSquared(from: point, to: other).squareRoot())
     }
 
     /// Computes Euclidean distance to another point.
     @inlinable
     public func distance(to other: Self) -> Affine.Distance {
-        .init(distanceSquared(to: other).squareRoot())
+        Self.distance(from: self, to: other)
     }
 }

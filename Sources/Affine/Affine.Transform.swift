@@ -183,24 +183,32 @@ extension Affine.Transform {
 // MARK: - Composition
 
 extension Affine.Transform where Scalar: FloatingPoint {
-    /// Composes this transform with another, applying `other` first then `self`.
+    /// Composes two transforms, applying `other` first then `transform`.
     ///
     /// Matrix composition follows right-to-left application order.
     @inlinable
-    public func concatenating(_ other: Self) -> Self {
+    public static func concatenating(_ transform: Self, _ other: Self) -> Self {
         // Linear part: matrix multiplication
-        let newLinear = linear.multiplied(by: other.linear)
+        let newLinear = transform.linear.multiplied(by: other.linear)
 
-        // Translation part: apply self's linear to other's translation, then add self's translation
+        // Translation part: apply transform's linear to other's translation, then add transform's translation
         let otherTx = other.translation.dx.value
         let otherTy = other.translation.dy.value
-        let newTx = linear.a * otherTx + linear.b * otherTy + translation.dx.value
-        let newTy = linear.c * otherTx + linear.d * otherTy + translation.dy.value
+        let newTx = transform.linear.a * otherTx + transform.linear.b * otherTy + transform.translation.dx.value
+        let newTy = transform.linear.c * otherTx + transform.linear.d * otherTy + transform.translation.dy.value
 
         return Self(
             linear: newLinear,
             translation: Affine.Translation(dx: newTx, dy: newTy)
         )
+    }
+
+    /// Composes this transform with another, applying `other` first then `self`.
+    ///
+    /// Matrix composition follows right-to-left application order.
+    @inlinable
+    public func concatenating(_ other: Self) -> Self {
+        Self.concatenating(self, other)
     }
 }
 
@@ -276,46 +284,88 @@ extension Affine.Transform where Scalar: Real & BinaryFloatingPoint {
 extension Affine.Transform where Scalar: FloatingPoint & ExpressibleByIntegerLiteral {
     /// Returns new transform with additional translation applied.
     @inlinable
+    public static func translated(_ transform: Self, dx: Affine.Dx, dy: Affine.Dy) -> Self {
+        concatenating(transform, .translation(dx: dx, dy: dy))
+    }
+
+    /// Returns new transform with additional translation applied.
+    @inlinable
     public func translated(dx: Affine.Dx, dy: Affine.Dy) -> Self {
-        concatenating(.translation(dx: dx, dy: dy))
+        Self.translated(self, dx: dx, dy: dy)
+    }
+
+    /// Returns new transform with additional vector translation applied.
+    @inlinable
+    public static func translated(_ transform: Self, by vector: Linear<Scalar, Space>.Vector<2>) -> Self {
+        concatenating(transform, .translation(vector))
     }
 
     /// Returns new transform with additional vector translation applied.
     @inlinable
     public func translated(by vector: Linear<Scalar, Space>.Vector<2>) -> Self {
-        concatenating(.translation(vector))
+        Self.translated(self, by: vector)
+    }
+
+    /// Returns new transform with additional translation applied.
+    @inlinable
+    public static func translated(_ transform: Self, by translation: Affine.Translation) -> Self {
+        concatenating(transform, .translation(translation))
     }
 
     /// Returns new transform with additional translation applied.
     @inlinable
     public func translated(by translation: Affine.Translation) -> Self {
-        concatenating(.translation(translation))
+        Self.translated(self, by: translation)
+    }
+
+    /// Returns new transform with additional uniform scaling applied.
+    @inlinable
+    public static func scaled(_ transform: Self, by factor: Scalar) -> Self {
+        concatenating(transform, .scale(factor))
     }
 
     /// Returns new transform with additional uniform scaling applied.
     @inlinable
     public func scaled(by factor: Scalar) -> Self {
-        concatenating(.scale(factor))
+        Self.scaled(self, by: factor)
+    }
+
+    /// Returns new transform with additional non-uniform scaling applied.
+    @inlinable
+    public static func scaled(_ transform: Self, x: Affine.X, y: Affine.Y) -> Self {
+        concatenating(transform, .scale(x: x, y: y))
     }
 
     /// Returns new transform with additional non-uniform scaling applied.
     @inlinable
     public func scaled(x: Affine.X, y: Affine.Y) -> Self {
-        concatenating(.scale(x: x, y: y))
+        Self.scaled(self, x: x, y: y)
     }
 }
 
 extension Affine.Transform where Scalar: Real & BinaryFloatingPoint {
     /// Returns new transform with additional rotation applied.
     @inlinable
+    public static func rotated(_ transform: Self, by angle: Radian) -> Self {
+        concatenating(transform, .rotation(angle))
+    }
+
+    /// Returns new transform with additional rotation applied.
+    @inlinable
     public func rotated(by angle: Radian) -> Self {
-        concatenating(.rotation(angle))
+        Self.rotated(self, by: angle)
+    }
+
+    /// Returns new transform with additional rotation in degrees applied.
+    @inlinable
+    public static func rotated(_ transform: Self, by angle: Degree) -> Self {
+        concatenating(transform, .rotation(angle))
     }
 
     /// Returns new transform with additional rotation in degrees applied.
     @inlinable
     public func rotated(by angle: Degree) -> Self {
-        concatenating(.rotation(angle))
+        Self.rotated(self, by: angle)
     }
 }
 
@@ -334,14 +384,14 @@ extension Affine.Transform where Scalar: FloatingPoint {
         determinant != 0
     }
 
-    /// Inverse transform that reverses this transformation, or `nil` if singular.
+    /// Inverse transform that reverses the given transformation, or `nil` if singular.
     @inlinable
-    public var inverted: Self? {
-        guard let invLinear = linear.inverse else { return nil }
+    public static func inverted(_ transform: Self) -> Self? {
+        guard let invLinear = transform.linear.inverse else { return nil }
 
         // inv(T) = -inv(L) * t
-        let tx = translation.dx.value
-        let ty = translation.dy.value
+        let tx = transform.translation.dx.value
+        let ty = transform.translation.dy.value
         let newTx = -(invLinear.a * tx + invLinear.b * ty)
         let newTy = -(invLinear.c * tx + invLinear.d * ty)
 
@@ -350,6 +400,12 @@ extension Affine.Transform where Scalar: FloatingPoint {
             translation: Affine.Translation(dx: newTx, dy: newTy)
         )
     }
+
+    /// Inverse transform that reverses this transformation, or `nil` if singular.
+    @inlinable
+    public var inverted: Self? {
+        Self.inverted(self)
+    }
 }
 
 // MARK: - Apply Transform
@@ -357,28 +413,41 @@ extension Affine.Transform where Scalar: FloatingPoint {
 extension Affine.Transform where Scalar: FloatingPoint {
     /// Applies transformation to a point, returning transformed position.
     @inlinable
-    public func apply(to point: Affine.Point<2>) -> Affine.Point<2> {
+    public static func apply(_ transform: Self, to point: Affine.Point<2>) -> Affine.Point<2> {
         // Matrix multiplication mixes X and Y components: new_x = a*x + b*y + tx
         let px = point.x.value
         let py = point.y.value
-        let newX = linear.a * px + linear.b * py + translation.dx.value
-        let newY = linear.c * px + linear.d * py + translation.dy.value
+        let newX = transform.linear.a * px + transform.linear.b * py + transform.translation.dx.value
+        let newY = transform.linear.c * px + transform.linear.d * py + transform.translation.dy.value
         return Affine.Point(x: Affine.X(newX), y: Affine.Y(newY))
+    }
+
+    /// Applies transformation to a point, returning transformed position.
+    @inlinable
+    public func apply(to point: Affine.Point<2>) -> Affine.Point<2> {
+        Self.apply(self, to: point)
+    }
+
+    /// Applies linear transformation to vector, ignoring translation component.
+    @inlinable
+    public static func apply(_ transform: Self, to vector: Linear<Scalar, Space>.Vector<2>) -> Linear<Scalar, Space>.Vector<2>
+    {
+        // Matrix multiplication mixes X and Y components: new_x = a*x + b*y
+        let vx = vector.dx.value
+        let vy = vector.dy.value
+        let newDx = transform.linear.a * vx + transform.linear.b * vy
+        let newDy = transform.linear.c * vx + transform.linear.d * vy
+        return Linear<Scalar, Space>.Vector(
+            dx: Linear<Scalar, Space>.Dx(newDx),
+            dy: Linear<Scalar, Space>.Dy(newDy)
+        )
     }
 
     /// Applies linear transformation to vector, ignoring translation component.
     @inlinable
     public func apply(to vector: Linear<Scalar, Space>.Vector<2>) -> Linear<Scalar, Space>.Vector<2>
     {
-        // Matrix multiplication mixes X and Y components: new_x = a*x + b*y
-        let vx = vector.dx.value
-        let vy = vector.dy.value
-        let newDx = linear.a * vx + linear.b * vy
-        let newDy = linear.c * vx + linear.d * vy
-        return Linear<Scalar, Space>.Vector(
-            dx: Linear<Scalar, Space>.Dx(newDx),
-            dy: Linear<Scalar, Space>.Dy(newDy)
-        )
+        Self.apply(self, to: vector)
     }
 }
 
