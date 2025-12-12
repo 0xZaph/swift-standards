@@ -50,6 +50,7 @@ extension FloatingPoint {
     /// 10.0.power(3)   // 1000.0
     /// 0.5.power(4)    // 0.0625
     /// ```
+    @inlinable
     public func power(_ exponent: Int) -> Self {
         guard exponent > 0 else { return exponent == 0 ? 1 : 0 }
 

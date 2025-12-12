@@ -18,11 +18,13 @@ extension Format {
     /// 3.14159.formatted(.number.precision(2))    // "3.14"
     /// ```
     public struct FloatingPoint: Sendable {
+        @usableFromInline
         let isPercent: Bool
         public let shouldRound: Bool
         public let precisionDigits: Int?
 
-        private init(isPercent: Bool, shouldRound: Bool, precisionDigits: Int?) {
+        @usableFromInline
+        init(isPercent: Bool, shouldRound: Bool, precisionDigits: Int?) {
             self.isPercent = isPercent
             self.shouldRound = shouldRound
             self.precisionDigits = precisionDigits
@@ -41,9 +43,18 @@ extension Format {
 extension Format.FloatingPoint {
     /// Converts the floating-point value to a string using this format's configuration.
     ///
-    /// - Parameter value: Floating-point value to format
+    /// - Parameters:
+    ///   - value: Floating-point value to format
+    ///   - isPercent: Whether to format as percentage
+    ///   - shouldRound: Whether to round to whole number
+    ///   - precisionDigits: Optional number of decimal places
     /// - Returns: Formatted string representation
-    public func format<T: Swift.FloatingPoint>(_ value: T) -> String {
+    public static func format<T: Swift.FloatingPoint>(
+        _ value: T,
+        isPercent: Bool,
+        shouldRound: Bool,
+        precisionDigits: Int?
+    ) -> String {
         var workingValue = value
 
         if isPercent {
@@ -68,6 +79,15 @@ extension Format.FloatingPoint {
 
         return isPercent ? result + "%" : result
     }
+
+    /// Converts the floating-point value to a string using this format's configuration.
+    ///
+    /// - Parameter value: Floating-point value to format
+    /// - Returns: Formatted string representation
+    @inlinable
+    public func format<T: Swift.FloatingPoint>(_ value: T) -> String {
+        Self.format(value, isPercent: isPercent, shouldRound: shouldRound, precisionDigits: precisionDigits)
+    }
 }
 
 // MARK: - Format.FloatingPoint Static Properties
@@ -80,11 +100,13 @@ extension Format.FloatingPoint {
     /// ```swift
     /// 3.14159.formatted(.number)  // "3.14159"
     /// ```
+    @inlinable
     public static var number: Self {
         .init(isPercent: false, shouldRound: false, precisionDigits: nil)
     }
 
     /// Percentage format that multiplies by 100 and appends "%" symbol
+    @inlinable
     public static var percent: Self {
         .init(isPercent: true, shouldRound: false, precisionDigits: nil)
     }
@@ -100,6 +122,7 @@ extension Format.FloatingPoint {
     /// ```swift
     /// 0.755.formatted(.percent.rounded())  // "76%"
     /// ```
+    @inlinable
     public func rounded() -> Self {
         .init(isPercent: isPercent, shouldRound: true, precisionDigits: precisionDigits)
     }
@@ -111,6 +134,7 @@ extension Format.FloatingPoint {
     /// ```swift
     /// 0.12345.formatted(.percent.precision(2))  // "12.35%"
     /// ```
+    @inlinable
     public func precision(_ digits: Int) -> Self {
         .init(isPercent: isPercent, shouldRound: shouldRound, precisionDigits: digits)
     }
@@ -131,6 +155,7 @@ extension Swift.FloatingPoint {
     ///
     /// - Parameter format: Format style to apply
     /// - Returns: Formatted string representation
+    @inlinable
     public func formatted(_ format: Format.FloatingPoint) -> String {
         format.format(self)
     }

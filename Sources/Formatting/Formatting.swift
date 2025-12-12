@@ -24,6 +24,7 @@ public enum Format {}
 ///     typealias FormatInput = Double
 ///     typealias FormatOutput = String
 ///
+///     @inlinable
 ///     func format(_ value: Double) -> String {
 ///         "$\(String(format: "%.2f", value))"
 ///     }
