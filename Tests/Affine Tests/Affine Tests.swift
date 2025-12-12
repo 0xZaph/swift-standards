@@ -22,25 +22,25 @@ struct AffineTests {
         @Test("X construction")
         func construction() {
             let x = X(3.0)
-            #expect(x.value == 3.0)
+            #expect(x == 3.0)
         }
 
         @Test("X from integer literal")
         func fromIntegerLiteral() {
             let x: X = 5
-            #expect(x.value == 5.0)
+            #expect(x == 5.0)
         }
 
         @Test("X from float literal")
         func fromFloatLiteral() {
             let x: X = 3.14
-            #expect(x.value == 3.14)
+            #expect(x == 3.14)
         }
 
         @Test("X zero")
         func zero() {
             let x = X.zero
-            #expect(x.value == 0)
+            #expect(x == 0)
         }
 
         @Test("X addition")
@@ -48,7 +48,7 @@ struct AffineTests {
             let a = X(3)
             let b = X(4)
             let sum = a + b
-            #expect(sum.value == 7)
+            #expect(sum == 7)
         }
 
         @Test("X subtraction")
@@ -56,28 +56,28 @@ struct AffineTests {
             let a = X(7)
             let b = X(4)
             let diff = a - b
-            #expect(diff.value == 3)
+            #expect(diff == 3)
         }
 
         @Test("X negation")
         func negation() {
             let x = X(3)
             let neg = -x
-            #expect(neg.value == -3)
+            #expect(neg == -3)
         }
 
         @Test("X scalar multiplication")
         func scalarMultiplication() {
             let x = X(3)
             let scaled = x * 2.0
-            #expect(scaled.value == 6)
+            #expect(scaled == 6)
         }
 
         @Test("X scalar division")
         func scalarDivision() {
             let x = X(6)
             let scaled = x / 2.0
-            #expect(scaled.value == 3)
+            #expect(scaled == 3)
         }
 
         @Test("X * X returns scalar")
@@ -109,7 +109,7 @@ struct AffineTests {
         func map() throws {
             let x = X(3.0)
             let doubled: Affine<Int, Void>.X = try x.map { Int($0 * 2) }
-            #expect(doubled.value == 6)
+            #expect(doubled == 6)
         }
     }
 
@@ -120,25 +120,25 @@ struct AffineTests {
         @Test("Y construction")
         func construction() {
             let y = Y(4.0)
-            #expect(y.value == 4.0)
+            #expect(y == 4.0)
         }
 
         @Test("Y from integer literal")
         func fromIntegerLiteral() {
             let y: Y = 5
-            #expect(y.value == 5.0)
+            #expect(y == 5.0)
         }
 
         @Test("Y from float literal")
         func fromFloatLiteral() {
             let y: Y = 2.71
-            #expect(y.value == 2.71)
+            #expect(y == 2.71)
         }
 
         @Test("Y zero")
         func zero() {
             let y = Y.zero
-            #expect(y.value == 0)
+            #expect(y == 0)
         }
 
         @Test("Y addition")
@@ -146,7 +146,7 @@ struct AffineTests {
             let a = Y(3)
             let b = Y(4)
             let sum = a + b
-            #expect(sum.value == 7)
+            #expect(sum == 7)
         }
 
         @Test("Y subtraction")
@@ -154,28 +154,28 @@ struct AffineTests {
             let a = Y(7)
             let b = Y(4)
             let diff = a - b
-            #expect(diff.value == 3)
+            #expect(diff == 3)
         }
 
         @Test("Y negation")
         func negation() {
             let y = Y(3)
             let neg = -y
-            #expect(neg.value == -3)
+            #expect(neg == -3)
         }
 
         @Test("Y scalar multiplication")
         func scalarMultiplication() {
             let y = Y(3)
             let scaled = y * 2.0
-            #expect(scaled.value == 6)
+            #expect(scaled == 6)
         }
 
         @Test("Y scalar division")
         func scalarDivision() {
             let y = Y(6)
             let scaled = y / 2.0
-            #expect(scaled.value == 3)
+            #expect(scaled == 3)
         }
 
         @Test("Y * Y returns scalar")
@@ -207,7 +207,7 @@ struct AffineTests {
         func map() throws {
             let y = Y(4.0)
             let doubled: Affine<Int, Void>.Y = try y.map { Int($0 * 2) }
-            #expect(doubled.value == 8)
+            #expect(doubled == 8)
         }
     }
 
@@ -218,13 +218,13 @@ struct AffineTests {
         @Test("Z construction")
         func construction() {
             let z = Z(5.0)
-            #expect(z.value == 5.0)
+            #expect(z == 5.0)
         }
 
         @Test("Z zero")
         func zero() {
             let z = Z.zero
-            #expect(z.value == 0)
+            #expect(z == 0)
         }
 
         @Test("Z equality")

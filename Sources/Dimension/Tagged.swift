@@ -412,6 +412,7 @@ public func * <Space, Scalar: Numeric>(
 // MARK: X Axis
 
 /// Adds a displacement to an X coordinate, returning a coordinate.
+/// For quantized spaces (Space: Quantized), the more specific operators in Quantized.swift are preferred.
 @inlinable
 public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Tagged<Index.X.Coordinate<Space>, Scalar>,
