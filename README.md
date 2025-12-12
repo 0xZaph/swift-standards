@@ -51,7 +51,7 @@ When a specification says "a rectangle has width and height", this library ensur
 - Binary serialization with endianness control
 - Calendar operations independent of Foundation
 - Swift 6 strict concurrency with Sendable throughout
-- 1,600+ tests covering edge cases and mathematical properties
+- 2,400+ tests covering edge cases and mathematical properties
 
 ## Installation
 
@@ -344,7 +344,7 @@ let numbers = Array.build {
 ## Testing
 
 ```bash
-# All tests (1,600+)
+# All tests (2,400+)
 swift test
 
 # Specific module

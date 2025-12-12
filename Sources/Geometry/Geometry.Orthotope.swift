@@ -449,10 +449,10 @@ extension Geometry.Orthotope where N == 2, Scalar: FloatingPoint {
     @inlinable
     public func inset(by insets: Geometry.EdgeInsets) -> Self {
         Self(
-            llx: Geometry.X(llx.value + insets.leading),
-            lly: Geometry.Y(lly.value + insets.bottom),
-            urx: Geometry.X(urx.value - insets.trailing),
-            ury: Geometry.Y(ury.value - insets.top)
+            llx: llx + insets.leading,
+            lly: lly + insets.bottom,
+            urx: urx - insets.trailing,
+            ury: ury - insets.top
         )
     }
 
