@@ -92,10 +92,7 @@ extension Geometry.Ray where Scalar: FloatingPoint {
     /// - Returns: The point at parameter t
     @inlinable
     public func point(at t: Scalar) -> Geometry.Point<2> {
-        Geometry.Point(
-            x: Geometry.X(origin.x.value + t * direction.dx.value),
-            y: Geometry.Y(origin.y.value + t * direction.dy.value)
-        )
+        Geometry.point(of: self, at: t)
     }
 
     /// Check if a point lies on this ray.
@@ -104,20 +101,7 @@ extension Geometry.Ray where Scalar: FloatingPoint {
     /// - Returns: `true` if the point lies on the ray
     @inlinable
     public func contains(_ point: Geometry.Point<2>) -> Bool {
-        let lenSq = direction.lengthSquared
-        guard lenSq > 0 else { return point == origin }
-
-        let vx = point.x.value - origin.x.value
-        let vy = point.y.value - origin.y.value
-        let t = (direction.dx.value * vx + direction.dy.value * vy) / lenSq
-
-        // Must be on positive side of ray
-        guard t >= 0 else { return false }
-
-        // Check if point is actually on the line (perpendicular distance is zero)
-        let projected = self.point(at: t)
-        let distSq = point.distanceSquared(to: projected)
-        return distSq < Scalar.ulpOfOne * 100
+        Geometry.contains(self, point: point)
     }
 }
 
@@ -132,16 +116,7 @@ extension Geometry.Ray where Scalar: FloatingPoint {
     /// - Returns: The distance to the closest point on the ray
     @inlinable
     public func distance(to point: Geometry.Point<2>) -> Geometry.Distance {
-        let lenSq = direction.lengthSquared
-        guard lenSq > 0 else {
-            return origin.distance(to: point)
-        }
-
-        let v = Geometry.Vector(dx: point.x - origin.x, dy: point.y - origin.y)
-        let t = max(0, (direction.dx * v.dx + direction.dy * v.dy) / lenSq)
-
-        let closest = self.point(at: t)
-        return point.distance(to: closest)
+        Geometry.distance(from: self, to: point)
     }
 
     /// Get the closest point on the ray to a given point.
@@ -283,6 +258,53 @@ extension Geometry.Ray where Scalar: FloatingPoint {
             }
         }
         return result
+    }
+}
+
+// MARK: - Ray Static Implementations
+
+extension Geometry where Scalar: FloatingPoint {
+    /// Get a point on a ray at parameter t.
+    @inlinable
+    public static func point(of ray: Ray, at t: Scalar) -> Point<2> {
+        Point(
+            x: X(ray.origin.x.value + t * ray.direction.dx.value),
+            y: Y(ray.origin.y.value + t * ray.direction.dy.value)
+        )
+    }
+
+    /// Check if a ray contains a point.
+    @inlinable
+    public static func contains(_ ray: Ray, point: Point<2>) -> Bool {
+        let lenSq = ray.direction.lengthSquared
+        guard lenSq > 0 else { return point == ray.origin }
+
+        let vx = point.x.value - ray.origin.x.value
+        let vy = point.y.value - ray.origin.y.value
+        let t = (ray.direction.dx.value * vx + ray.direction.dy.value * vy) / lenSq
+
+        // Must be on positive side of ray
+        guard t >= 0 else { return false }
+
+        // Check if point is actually on the line (perpendicular distance is zero)
+        let projected = Geometry.point(of: ray, at: t)
+        let distSq = point.distanceSquared(to: projected)
+        return distSq < Scalar.ulpOfOne * 100
+    }
+
+    /// Calculate the perpendicular distance from a point to a ray.
+    @inlinable
+    public static func distance(from ray: Ray, to point: Point<2>) -> Distance {
+        let lenSq = ray.direction.lengthSquared
+        guard lenSq > 0 else {
+            return ray.origin.distance(to: point)
+        }
+
+        let v = Vector(dx: point.x - ray.origin.x, dy: point.y - ray.origin.y)
+        let t = max(0, (ray.direction.dx * v.dx + ray.direction.dy * v.dy) / lenSq)
+
+        let closest = Geometry.point(of: ray, at: t)
+        return point.distance(to: closest)
     }
 }
 

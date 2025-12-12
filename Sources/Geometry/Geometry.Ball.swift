@@ -102,20 +102,11 @@ extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
 
     /// Area (π × radius²).
     @inlinable
-    public var area: Geometry.Area {
-        Geometry.Area(Scalar.pi * (radius * radius))
-    }
+    public var area: Geometry.Area { Geometry.area(of: self) }
 
     /// Axis-aligned bounding rectangle.
     @inlinable
-    public var boundingBox: Geometry.Rectangle {
-        Geometry.Rectangle(
-            llx: center.x - radius,
-            lly: center.y - radius,
-            urx: center.x + radius,
-            ury: center.y + radius
-        )
-    }
+    public var boundingBox: Geometry.Rectangle { Geometry.boundingBox(of: self) }
 }
 
 // MARK: - 3D Properties (Sphere)
@@ -155,7 +146,7 @@ extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
     /// Checks if point is inside or on the circle boundary.
     @inlinable
     public func contains(_ point: Geometry.Point<2>) -> Bool {
-        center.distanceSquared(to: point) <= radius * radius
+        Geometry.contains(self, point: point)
     }
 
     /// Checks if point is strictly inside (not on boundary).
@@ -167,7 +158,7 @@ extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
     /// Checks if another circle is entirely contained within this circle.
     @inlinable
     public func contains(_ other: Self) -> Bool {
-        center.distance(to: other.center) + other.radius <= radius
+        Geometry.contains(self, other)
     }
 }
 
@@ -224,10 +215,7 @@ extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
     /// Checks if circles intersect or touch.
     @inlinable
     public func intersects(_ other: Self) -> Bool {
-        let dist = center.distance(to: other.center)
-        let sumRadii = radius + other.radius
-        let diffRadii = radius >= other.radius ? radius - other.radius : other.radius - radius
-        return dist <= sumRadii && dist >= diffRadii
+        Geometry.intersects(self, other)
     }
 
     /// Finds intersection points with a line.
@@ -235,11 +223,67 @@ extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
     /// - Returns: Array of 0, 1, or 2 points where line crosses circle.
     @inlinable
     public func intersection(with line: Geometry.Line) -> [Geometry.Point<2>] {
-        let fx = line.point.x.rawValue - center.x.rawValue
-        let fy = line.point.y.rawValue - center.y.rawValue
+        Geometry.intersection(self, line)
+    }
+
+    /// Finds intersection points with another circle.
+    ///
+    /// - Returns: Array of 0, 1, or 2 points where circles intersect.
+    @inlinable
+    public func intersection(with other: Self) -> [Geometry.Point<2>] {
+        Geometry.intersection(self, other)
+    }
+}
+
+// MARK: - Static Implementations
+
+extension Geometry where Scalar: FloatingPoint {
+    /// Calculate the area of a circle.
+    @inlinable
+    public static func area(of circle: Ball<2>) -> Area {
+        Area(Scalar.pi * (circle.radius * circle.radius))
+    }
+
+    /// Calculate the axis-aligned bounding rectangle of a circle.
+    @inlinable
+    public static func boundingBox(of circle: Ball<2>) -> Rectangle {
+        Rectangle(
+            llx: circle.center.x - circle.radius,
+            lly: circle.center.y - circle.radius,
+            urx: circle.center.x + circle.radius,
+            ury: circle.center.y + circle.radius
+        )
+    }
+
+    /// Check if a circle contains a point.
+    @inlinable
+    public static func contains(_ circle: Ball<2>, point: Point<2>) -> Bool {
+        circle.center.distanceSquared(to: point) <= circle.radius * circle.radius
+    }
+
+    /// Check if a circle contains another circle.
+    @inlinable
+    public static func contains(_ circle: Ball<2>, _ other: Ball<2>) -> Bool {
+        circle.center.distance(to: other.center) + other.radius <= circle.radius
+    }
+
+    /// Check if two circles intersect or touch.
+    @inlinable
+    public static func intersects(_ circle1: Ball<2>, _ circle2: Ball<2>) -> Bool {
+        let dist = circle1.center.distance(to: circle2.center)
+        let sumRadii = circle1.radius + circle2.radius
+        let diffRadii = circle1.radius >= circle2.radius ? circle1.radius - circle2.radius : circle2.radius - circle1.radius
+        return dist <= sumRadii && dist >= diffRadii
+    }
+
+    /// Find intersection points between a circle and a line.
+    @inlinable
+    public static func intersection(_ circle: Ball<2>, _ line: Line) -> [Point<2>] {
+        let fx = line.point.x.rawValue - circle.center.x.rawValue
+        let fy = line.point.y.rawValue - circle.center.y.rawValue
         let dx = line.direction.dx.rawValue
         let dy = line.direction.dy.rawValue
-        let r = radius.rawValue
+        let r = circle.radius.rawValue
 
         let a = dx * dx + dy * dy
         let b = 2 * (fx * dx + fy * dy)
@@ -260,22 +304,20 @@ extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
         return [line.point(at: t1), line.point(at: t2)]
     }
 
-    /// Finds intersection points with another circle.
-    ///
-    /// - Returns: Array of 0, 1, or 2 points where circles intersect.
+    /// Find intersection points between two circles.
     @inlinable
-    public func intersection(with other: Self) -> [Geometry.Point<2>] {
-        let dist = center.distance(to: other.center)
-        let sumRadii = radius + other.radius
-        let diffRadii = radius >= other.radius ? radius - other.radius : other.radius - radius
+    public static func intersection(_ circle1: Ball<2>, _ circle2: Ball<2>) -> [Point<2>] {
+        let dist = circle1.center.distance(to: circle2.center)
+        let sumRadii = circle1.radius + circle2.radius
+        let diffRadii = circle1.radius >= circle2.radius ? circle1.radius - circle2.radius : circle2.radius - circle1.radius
 
         guard dist <= sumRadii && dist >= diffRadii && dist.rawValue > 0 else {
             return []
         }
 
         let d = dist.rawValue
-        let r1 = radius.rawValue
-        let r2 = other.radius.rawValue
+        let r1 = circle1.radius.rawValue
+        let r2 = circle2.radius.rawValue
 
         let a = (r1 * r1 - r2 * r2 + d * d) / (2 * d)
         let hSq = r1 * r1 - a * a
@@ -283,25 +325,25 @@ extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
         guard hSq >= 0 else { return [] }
         let h = hSq.squareRoot()
 
-        let cx = center.x.rawValue
-        let cy = center.y.rawValue
-        let ocx = other.center.x.rawValue
-        let ocy = other.center.y.rawValue
+        let cx = circle1.center.x.rawValue
+        let cy = circle1.center.y.rawValue
+        let ocx = circle2.center.x.rawValue
+        let ocy = circle2.center.y.rawValue
         let dirX = (ocx - cx) / d
         let dirY = (ocy - cy) / d
         let px = cx + a * dirX
         let py = cy + a * dirY
 
         if h == 0 {
-            return [Geometry.Point(x: Affine<Scalar, Space>.X(px), y: Affine<Scalar, Space>.Y(py))]
+            return [Point(x: Affine<Scalar, Space>.X(px), y: Affine<Scalar, Space>.Y(py))]
         }
 
         return [
-            Geometry.Point(
+            Point(
                 x: Affine<Scalar, Space>.X(px + h * dirY),
                 y: Affine<Scalar, Space>.Y(py - h * dirX)
             ),
-            Geometry.Point(
+            Point(
                 x: Affine<Scalar, Space>.X(px - h * dirY),
                 y: Affine<Scalar, Space>.Y(py + h * dirX)
             ),

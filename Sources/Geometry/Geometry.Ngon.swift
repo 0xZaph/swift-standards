@@ -293,48 +293,21 @@ extension Geometry.Ngon where Scalar: FloatingPoint {
 
     /// The area of the polygon (always positive)
     @inlinable
-    public var area: Scalar {
-        abs(signedDoubleArea) / Scalar(2)
-    }
+    public var area: Scalar { Geometry.area(of: self) }
 
     /// The perimeter of the polygon
     @inlinable
-    public var perimeter: Geometry.Perimeter {
-        var sum: Geometry.Distance = .zero
-        for i in 0..<N {
-            let j = (i + 1) % N
-            sum += vertices[i].distance(to: vertices[j])
-        }
-        return sum
-    }
+    public var perimeter: Geometry.Perimeter { Geometry.perimeter(of: self) }
 }
 
 // MARK: - Centroid (FloatingPoint)
 
-extension Geometry.Ngon where Scalar: FloatingPoint {
+extension Geometry.Ngon where Scalar: FloatingPoint & SignedNumeric {
     /// The centroid (center of mass) of the polygon.
     ///
     /// Returns `nil` if the polygon has zero area.
     @inlinable
-    public var centroid: Geometry.Point<2>? {
-        let a = signedDoubleArea
-        guard abs(a) > .ulpOfOne else { return nil }
-
-        var cx: Scalar = .zero
-        var cy: Scalar = .zero
-
-        for i in 0..<N {
-            let j = (i + 1) % N
-            let cross =
-                vertices[i].x.value * vertices[j].y.value
-                - vertices[j].x.value * vertices[i].y.value
-            cx += (vertices[i].x.value + vertices[j].x.value) * cross
-            cy += (vertices[i].y.value + vertices[j].y.value) * cross
-        }
-
-        let factor: Scalar = 1 / (3 * a)
-        return Geometry.Point(x: Geometry.X(cx * factor), y: Geometry.Y(cy * factor))
-    }
+    public var centroid: Geometry.Point<2>? { Geometry.centroid(of: self) }
 }
 
 // MARK: - Bounding Box (FloatingPoint)
@@ -587,6 +560,61 @@ extension Geometry.Ngon where Scalar: BinaryFloatingPoint {
         let piOverN: Radian = .pi(over: Double(N))
         let circumradius = inradius / Scalar(piOverN.cos)
         return regular(circumradius: circumradius, at: center)
+    }
+}
+
+// MARK: - Ngon Static Implementations
+
+extension Geometry where Scalar: FloatingPoint {
+    /// Calculate the area of an N-gon (always positive).
+    @inlinable
+    public static func area<let N: Int>(of ngon: Ngon<N>) -> Scalar {
+        abs(signedDoubleArea(of: ngon)) / Scalar(2)
+    }
+
+    /// Calculate the signed double area of an N-gon using the shoelace formula.
+    @inlinable
+    public static func signedDoubleArea<let N: Int>(of ngon: Ngon<N>) -> Scalar where Scalar: SignedNumeric {
+        var sum: Scalar = .zero
+        for i in 0..<N {
+            let j = (i + 1) % N
+            sum += ngon.vertices[i].x.value * ngon.vertices[j].y.value
+            sum -= ngon.vertices[j].x.value * ngon.vertices[i].y.value
+        }
+        return sum
+    }
+
+    /// Calculate the perimeter of an N-gon.
+    @inlinable
+    public static func perimeter<let N: Int>(of ngon: Ngon<N>) -> Perimeter {
+        var sum: Distance = .zero
+        for i in 0..<N {
+            let j = (i + 1) % N
+            sum += ngon.vertices[i].distance(to: ngon.vertices[j])
+        }
+        return sum
+    }
+
+    /// Calculate the centroid (center of mass) of an N-gon.
+    @inlinable
+    public static func centroid<let N: Int>(of ngon: Ngon<N>) -> Point<2>? where Scalar: SignedNumeric {
+        let a = signedDoubleArea(of: ngon)
+        guard abs(a) > .ulpOfOne else { return nil }
+
+        var cx: Scalar = .zero
+        var cy: Scalar = .zero
+
+        for i in 0..<N {
+            let j = (i + 1) % N
+            let cross =
+                ngon.vertices[i].x.value * ngon.vertices[j].y.value
+                - ngon.vertices[j].x.value * ngon.vertices[i].y.value
+            cx += (ngon.vertices[i].x.value + ngon.vertices[j].x.value) * cross
+            cy += (ngon.vertices[i].y.value + ngon.vertices[j].y.value) * cross
+        }
+
+        let factor: Scalar = 1 / (3 * a)
+        return Point(x: X(cx * factor), y: Y(cy * factor))
     }
 }
 

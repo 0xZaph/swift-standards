@@ -193,29 +193,38 @@ extension Geometry.Arc where Scalar: Real & BinaryFloatingPoint {
 extension Geometry.Arc where Scalar: Real & BinaryFloatingPoint {
     /// The axis-aligned bounding box of the arc
     @inlinable
-    public var boundingBox: Geometry.Rectangle {
-        let cx: Scalar = center.x.value
-        let cy: Scalar = center.y.value
-        let r: Scalar = radius.value
+    public var boundingBox: Geometry.Rectangle { Geometry.boundingBox(of: self) }
+}
+
+// MARK: - Static Implementations
+
+extension Geometry where Scalar: Real & BinaryFloatingPoint {
+    /// Calculate the axis-aligned bounding box of an arc.
+    @inlinable
+    public static func boundingBox(of arc: Arc) -> Rectangle {
+        let cx: Scalar = arc.center.x.value
+        let cy: Scalar = arc.center.y.value
+        let r: Scalar = arc.radius.value
 
         // Special case for full circle or more
-        if isFullCircle {
-            return Geometry.Rectangle(
-                llx: Geometry.X(cx - r),
-                lly: Geometry.Y(cy - r),
-                urx: Geometry.X(cx + r),
-                ury: Geometry.Y(cy + r)
+        if arc.isFullCircle {
+            return Rectangle(
+                llx: X(cx - r),
+                lly: Y(cy - r),
+                urx: X(cx + r),
+                ury: Y(cy + r)
             )
         }
 
-        var minX: Scalar = min(startPoint.x.value, endPoint.x.value)
-        var maxX: Scalar = max(startPoint.x.value, endPoint.x.value)
-        var minY: Scalar = min(startPoint.y.value, endPoint.y.value)
-        var maxY: Scalar = max(startPoint.y.value, endPoint.y.value)
+        var minX: Scalar = min(arc.startPoint.x.value, arc.endPoint.x.value)
+        var maxX: Scalar = max(arc.startPoint.x.value, arc.endPoint.x.value)
+        var minY: Scalar = min(arc.startPoint.y.value, arc.endPoint.y.value)
+        var maxY: Scalar = max(arc.startPoint.y.value, arc.endPoint.y.value)
 
         // Check if arc crosses cardinal directions
-        let start: Radian = startAngle.normalized
-        let end: Radian = endAngle.normalized
+        let start: Radian = arc.startAngle.normalized
+        let end: Radian = arc.endAngle.normalized
+        let sweep = arc.sweep
 
         func containsAngle(_ angle: Radian) -> Bool {
             if sweep.value >= 0 {
@@ -250,11 +259,11 @@ extension Geometry.Arc where Scalar: Real & BinaryFloatingPoint {
             minY = min(minY, cy - r)
         }
 
-        return Geometry.Rectangle(
-            llx: Geometry.X(minX),
-            lly: Geometry.Y(minY),
-            urx: Geometry.X(maxX),
-            ury: Geometry.Y(maxY)
+        return Rectangle(
+            llx: X(minX),
+            lly: Y(minY),
+            urx: X(maxX),
+            ury: Y(maxY)
         )
     }
 }

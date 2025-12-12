@@ -109,20 +109,7 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
     /// - Returns: The point on the curve at parameter t
     @inlinable
     public func point(at t: Scalar) -> Geometry.Point<2>? {
-        guard isValid else { return nil }
-
-        // de Casteljau's algorithm
-        var points = controlPoints
-        while points.count > 1 {
-            var next: [Geometry.Point<2>] = []
-            next.reserveCapacity(points.count - 1)
-            for i in 0..<(points.count - 1) {
-                let p = points[i].lerp(to: points[i + 1], t: t)
-                next.append(p)
-            }
-            points = next
-        }
-        return points.first
+        Geometry.point(of: self, at: t)
     }
 
     /// Evaluate the derivative (tangent vector) at parameter t.
@@ -131,37 +118,7 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
     /// - Returns: The tangent vector at parameter t, or nil if curve is invalid
     @inlinable
     public func derivative(at t: Scalar) -> Geometry.Vector<2>? {
-        guard controlPoints.count >= 2 else { return nil }
-
-        // Derivative of Bezier curve is n * Bezier(P[i+1] - P[i])
-        let n = Scalar(controlPoints.count - 1)
-
-        // Create derivative control points
-        var derivPoints: [Geometry.Point<2>] = []
-        derivPoints.reserveCapacity(controlPoints.count - 1)
-        for i in 0..<(controlPoints.count - 1) {
-            let dx = controlPoints[i + 1].x.value - controlPoints[i].x.value
-            let dy = controlPoints[i + 1].y.value - controlPoints[i].y.value
-            derivPoints.append(Geometry.Point(x: Geometry.X(dx), y: Geometry.Y(dy)))
-        }
-
-        // Evaluate the derivative curve
-        var points = derivPoints
-        while points.count > 1 {
-            var next: [Geometry.Point<2>] = []
-            next.reserveCapacity(points.count - 1)
-            for i in 0..<(points.count - 1) {
-                let p = points[i].lerp(to: points[i + 1], t: t)
-                next.append(p)
-            }
-            points = next
-        }
-
-        guard let p = points.first else { return nil }
-        return Geometry.Vector(
-            dx: Geometry.Width(n * p.x.value),
-            dy: Geometry.Height(n * p.y.value)
-        )
+        Geometry.derivative(of: self, at: t)
     }
 
     /// Get the tangent direction (normalized) at parameter t.
@@ -416,6 +373,65 @@ extension Geometry.Bezier where Scalar: BinaryFloatingPoint {
     @inlinable
     public static func approximating(_ circle: Geometry.Circle) -> [Self] {
         approximating(Geometry.Ellipse(circle))
+    }
+}
+
+// MARK: - Bezier Static Implementations
+
+extension Geometry where Scalar: FloatingPoint {
+    /// Evaluate a Bezier curve at parameter t using de Casteljau's algorithm.
+    @inlinable
+    public static func point(of bezier: Bezier, at t: Scalar) -> Point<2>? {
+        guard bezier.isValid else { return nil }
+
+        // de Casteljau's algorithm
+        var points = bezier.controlPoints
+        while points.count > 1 {
+            var next: [Point<2>] = []
+            next.reserveCapacity(points.count - 1)
+            for i in 0..<(points.count - 1) {
+                let p = points[i].lerp(to: points[i + 1], t: t)
+                next.append(p)
+            }
+            points = next
+        }
+        return points.first
+    }
+
+    /// Evaluate the derivative (tangent vector) of a Bezier curve at parameter t.
+    @inlinable
+    public static func derivative(of bezier: Bezier, at t: Scalar) -> Vector<2>? {
+        guard bezier.controlPoints.count >= 2 else { return nil }
+
+        // Derivative of Bezier curve is n * Bezier(P[i+1] - P[i])
+        let n = Scalar(bezier.controlPoints.count - 1)
+
+        // Create derivative control points
+        var derivPoints: [Point<2>] = []
+        derivPoints.reserveCapacity(bezier.controlPoints.count - 1)
+        for i in 0..<(bezier.controlPoints.count - 1) {
+            let dx = bezier.controlPoints[i + 1].x.value - bezier.controlPoints[i].x.value
+            let dy = bezier.controlPoints[i + 1].y.value - bezier.controlPoints[i].y.value
+            derivPoints.append(Point(x: X(dx), y: Y(dy)))
+        }
+
+        // Evaluate the derivative curve
+        var points = derivPoints
+        while points.count > 1 {
+            var next: [Point<2>] = []
+            next.reserveCapacity(points.count - 1)
+            for i in 0..<(points.count - 1) {
+                let p = points[i].lerp(to: points[i + 1], t: t)
+                next.append(p)
+            }
+            points = next
+        }
+
+        guard let p = points.first else { return nil }
+        return Vector(
+            dx: Width(n * p.x.value),
+            dy: Height(n * p.y.value)
+        )
     }
 }
 

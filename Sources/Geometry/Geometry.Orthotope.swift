@@ -293,15 +293,11 @@ extension Geometry.Orthotope where N == 2, Scalar: FloatingPoint {
 
     /// Area of the rectangle.
     @inlinable
-    public var area: Geometry.Area {
-        Geometry.Area(width.value * height.value)
-    }
+    public var area: Geometry.Area { Geometry.area(of: self) }
 
     /// Perimeter of the rectangle.
     @inlinable
-    public var perimeter: Geometry.Perimeter {
-        Geometry.Perimeter((width.value + height.value) * 2)
-    }
+    public var perimeter: Geometry.Perimeter { Geometry.perimeter(of: self) }
 
     /// Diagonal length.
     @inlinable
@@ -324,29 +320,19 @@ extension Geometry.Orthotope where N == 2, Scalar: FloatingPoint {
     /// Check if the rectangle contains a point.
     @inlinable
     public func contains(_ point: Geometry.Point<2>) -> Bool {
-        let dx = point.x.rawValue - center.x.rawValue
-        let dy = point.y.rawValue - center.y.rawValue
-        let hw = halfExtents.width.value
-        let hh = halfExtents.height.value
-        return dx >= -hw && dx <= hw && dy >= -hh && dy <= hh
+        Geometry.contains(self, point: point)
     }
 
     /// Check if this rectangle contains another rectangle.
     @inlinable
     public func contains(_ other: Self) -> Bool {
-        other.llx.value >= llx.value &&
-        other.urx.value <= urx.value &&
-        other.lly.value >= lly.value &&
-        other.ury.value <= ury.value
+        Geometry.contains(self, other)
     }
 
     /// Check if this rectangle intersects another.
     @inlinable
     public func intersects(_ other: Self) -> Bool {
-        llx.value <= other.urx.value &&
-        urx.value >= other.llx.value &&
-        lly.value <= other.ury.value &&
-        ury.value >= other.lly.value
+        Geometry.intersects(self, other)
     }
 }
 
@@ -356,24 +342,13 @@ extension Geometry.Orthotope where N == 2, Scalar: FloatingPoint {
     /// The union of this rectangle with another.
     @inlinable
     public func union(_ other: Self) -> Self {
-        Self(
-            llx: Geometry.X(Swift.min(llx.value, other.llx.value)),
-            lly: Geometry.Y(Swift.min(lly.value, other.lly.value)),
-            urx: Geometry.X(Swift.max(urx.value, other.urx.value)),
-            ury: Geometry.Y(Swift.max(ury.value, other.ury.value))
-        )
+        Geometry.union(self, other)
     }
 
     /// The intersection of this rectangle with another, if they intersect.
     @inlinable
     public func intersection(_ other: Self) -> Self? {
-        guard intersects(other) else { return nil }
-        return Self(
-            llx: Geometry.X(Swift.max(llx.value, other.llx.value)),
-            lly: Geometry.Y(Swift.max(lly.value, other.lly.value)),
-            urx: Geometry.X(Swift.min(urx.value, other.urx.value)),
-            ury: Geometry.Y(Swift.min(ury.value, other.ury.value))
-        )
+        Geometry.intersection(self, other)
     }
 }
 
@@ -579,6 +554,73 @@ extension Geometry.Orthotope {
         Geometry<Result, Space>.Orthotope(
             center: try center.map(transform),
             halfExtents: try halfExtents.map(transform)
+        )
+    }
+}
+
+// MARK: - Static Implementations
+
+extension Geometry where Scalar: FloatingPoint {
+    /// Calculate the area of a rectangle.
+    @inlinable
+    public static func area(of rectangle: Orthotope<2>) -> Area {
+        Area(rectangle.width.value * rectangle.height.value)
+    }
+
+    /// Calculate the perimeter of a rectangle.
+    @inlinable
+    public static func perimeter(of rectangle: Orthotope<2>) -> Perimeter {
+        Perimeter((rectangle.width.value + rectangle.height.value) * 2)
+    }
+
+    /// Check if a rectangle contains a point.
+    @inlinable
+    public static func contains(_ rectangle: Orthotope<2>, point: Point<2>) -> Bool {
+        let dx = point.x.rawValue - rectangle.center.x.rawValue
+        let dy = point.y.rawValue - rectangle.center.y.rawValue
+        let hw = rectangle.halfExtents.width.value
+        let hh = rectangle.halfExtents.height.value
+        return dx >= -hw && dx <= hw && dy >= -hh && dy <= hh
+    }
+
+    /// Check if a rectangle contains another rectangle.
+    @inlinable
+    public static func contains(_ rectangle: Orthotope<2>, _ other: Orthotope<2>) -> Bool {
+        other.llx.value >= rectangle.llx.value &&
+        other.urx.value <= rectangle.urx.value &&
+        other.lly.value >= rectangle.lly.value &&
+        other.ury.value <= rectangle.ury.value
+    }
+
+    /// Check if two rectangles intersect.
+    @inlinable
+    public static func intersects(_ rectangle1: Orthotope<2>, _ rectangle2: Orthotope<2>) -> Bool {
+        rectangle1.llx.value <= rectangle2.urx.value &&
+        rectangle1.urx.value >= rectangle2.llx.value &&
+        rectangle1.lly.value <= rectangle2.ury.value &&
+        rectangle1.ury.value >= rectangle2.lly.value
+    }
+
+    /// Calculate the union of two rectangles.
+    @inlinable
+    public static func union(_ rectangle1: Orthotope<2>, _ rectangle2: Orthotope<2>) -> Orthotope<2> {
+        Orthotope<2>(
+            llx: X(Swift.min(rectangle1.llx.value, rectangle2.llx.value)),
+            lly: Y(Swift.min(rectangle1.lly.value, rectangle2.lly.value)),
+            urx: X(Swift.max(rectangle1.urx.value, rectangle2.urx.value)),
+            ury: Y(Swift.max(rectangle1.ury.value, rectangle2.ury.value))
+        )
+    }
+
+    /// Calculate the intersection of two rectangles.
+    @inlinable
+    public static func intersection(_ rectangle1: Orthotope<2>, _ rectangle2: Orthotope<2>) -> Orthotope<2>? {
+        guard intersects(rectangle1, rectangle2) else { return nil }
+        return Orthotope<2>(
+            llx: X(Swift.max(rectangle1.llx.value, rectangle2.llx.value)),
+            lly: Y(Swift.max(rectangle1.lly.value, rectangle2.lly.value)),
+            urx: X(Swift.min(rectangle1.urx.value, rectangle2.urx.value)),
+            ury: Y(Swift.min(rectangle1.ury.value, rectangle2.ury.value))
         )
     }
 }

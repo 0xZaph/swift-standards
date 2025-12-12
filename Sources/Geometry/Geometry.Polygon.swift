@@ -98,52 +98,21 @@ extension Geometry.Polygon where Scalar: SignedNumeric {
 extension Geometry.Polygon where Scalar: FloatingPoint {
     /// The area of the polygon (always positive)
     @inlinable
-    public var area: Scalar {
-        abs(signedDoubleArea) / 2
-    }
+    public var area: Scalar { Geometry.area(of: self) }
 
     /// The perimeter of the polygon
     @inlinable
-    public var perimeter: Geometry.Perimeter {
-        guard vertices.count >= 2 else { return .zero }
-
-        var sum: Geometry.Length = .zero
-        for i in 0..<vertices.count {
-            let j = (i + 1) % vertices.count
-            sum += vertices[i].distance(to: vertices[j])
-        }
-        return sum
-    }
+    public var perimeter: Geometry.Perimeter { Geometry.perimeter(of: self) }
 }
 
 // MARK: - Centroid (FloatingPoint)
 
-extension Geometry.Polygon where Scalar: FloatingPoint {
+extension Geometry.Polygon where Scalar: FloatingPoint & SignedNumeric {
     /// The centroid (center of mass) of the polygon.
     ///
     /// Returns `nil` if the polygon has zero area.
     @inlinable
-    public var centroid: Geometry.Point<2>? {
-        guard vertices.count >= 3 else { return nil }
-
-        let a = signedDoubleArea
-        guard abs(a) > .ulpOfOne else { return nil }
-
-        var cx: Scalar = .zero
-        var cy: Scalar = .zero
-
-        for i in 0..<vertices.count {
-            let j = (i + 1) % vertices.count
-            let cross =
-                vertices[i].x.value * vertices[j].y.value - vertices[j].x.value
-                * vertices[i].y.value
-            cx += (vertices[i].x.value + vertices[j].x.value) * cross
-            cy += (vertices[i].y.value + vertices[j].y.value) * cross
-        }
-
-        let factor: Scalar = 1 / (3 * a)
-        return Geometry.Point(x: Geometry.X(cx * factor), y: Geometry.Y(cy * factor))
-    }
+    public var centroid: Geometry.Point<2>? { Geometry.centroid(of: self) }
 }
 
 // MARK: - Bounding Box (FloatingPoint)
@@ -383,6 +352,67 @@ extension Geometry.Polygon where Scalar: FloatingPoint {
         }
 
         return triangles
+    }
+}
+
+// MARK: - Polygon Static Implementations
+
+extension Geometry where Scalar: FloatingPoint {
+    /// Calculate the area of a polygon (always positive).
+    @inlinable
+    public static func area(of polygon: Polygon) -> Scalar {
+        abs(signedDoubleArea(of: polygon)) / 2
+    }
+
+    /// Calculate the signed double area of a polygon using the shoelace formula.
+    @inlinable
+    public static func signedDoubleArea(of polygon: Polygon) -> Scalar where Scalar: SignedNumeric {
+        guard polygon.vertices.count >= 3 else { return .zero }
+
+        var sum: Scalar = .zero
+        for i in 0..<polygon.vertices.count {
+            let j = (i + 1) % polygon.vertices.count
+            sum += (polygon.vertices[i].x.value * polygon.vertices[j].y.value)
+            sum -= (polygon.vertices[j].x.value * polygon.vertices[i].y.value)
+        }
+        return sum
+    }
+
+    /// Calculate the perimeter of a polygon.
+    @inlinable
+    public static func perimeter(of polygon: Polygon) -> Perimeter {
+        guard polygon.vertices.count >= 2 else { return .zero }
+
+        var sum: Length = .zero
+        for i in 0..<polygon.vertices.count {
+            let j = (i + 1) % polygon.vertices.count
+            sum += polygon.vertices[i].distance(to: polygon.vertices[j])
+        }
+        return sum
+    }
+
+    /// Calculate the centroid (center of mass) of a polygon.
+    @inlinable
+    public static func centroid(of polygon: Polygon) -> Point<2>? where Scalar: SignedNumeric {
+        guard polygon.vertices.count >= 3 else { return nil }
+
+        let a = signedDoubleArea(of: polygon)
+        guard abs(a) > .ulpOfOne else { return nil }
+
+        var cx: Scalar = .zero
+        var cy: Scalar = .zero
+
+        for i in 0..<polygon.vertices.count {
+            let j = (i + 1) % polygon.vertices.count
+            let cross =
+                polygon.vertices[i].x.value * polygon.vertices[j].y.value - polygon.vertices[j].x.value
+                * polygon.vertices[i].y.value
+            cx += (polygon.vertices[i].x.value + polygon.vertices[j].x.value) * cross
+            cy += (polygon.vertices[i].y.value + polygon.vertices[j].y.value) * cross
+        }
+
+        let factor: Scalar = 1 / (3 * a)
+        return Point(x: X(cx * factor), y: Y(cy * factor))
     }
 }
 

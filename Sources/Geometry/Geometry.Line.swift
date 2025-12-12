@@ -94,11 +94,7 @@ extension Geometry.Line where Scalar: FloatingPoint {
     /// - Returns: The perpendicular distance, or `nil` if the line has zero-length direction vector.
     @inlinable
     public func distance(to other: Geometry.Point<2>) -> Geometry.Distance? {
-        let len = direction.length
-        guard len != 0 else { return nil }
-        let v = Geometry.Vector(dx: other.x - point.x, dy: other.y - point.y)
-        let cross = direction.dx * v.dy - direction.dy * v.dx
-        return Geometry.Distance(abs(cross) / len)
+        Geometry.distance(from: self, to: other)
     }
 
     /// Find the intersection point with another line.
@@ -107,22 +103,7 @@ extension Geometry.Line where Scalar: FloatingPoint {
     /// - Returns: The intersection point, or `nil` if lines are parallel or coincident
     @inlinable
     public func intersection(with other: Self) -> Geometry.Point<2>? {
-        // Cross product of direction vectors
-        let cross = direction.dx * other.direction.dy - direction.dy * other.direction.dx
-
-        // If cross product is near zero, lines are parallel
-        guard abs(cross) > .ulpOfOne else { return nil }
-
-        // Vector from this line's point to other line's point
-        let dp = Geometry.Vector(
-            dx: other.point.x - point.x,
-            dy: other.point.y - point.y
-        )
-
-        // Parameter t for this line
-        let t = (dp.dx * other.direction.dy - dp.dy * other.direction.dx) / cross
-
-        return point(at: t)
+        Geometry.intersection(self, other)
     }
 
     /// Project a point onto this line.
@@ -131,14 +112,7 @@ extension Geometry.Line where Scalar: FloatingPoint {
     /// - Returns: The closest point on the line, or `nil` if line has zero-length direction
     @inlinable
     public func projection(of other: Geometry.Point<2>) -> Geometry.Point<2>? {
-        let lenSq = direction.dx * direction.dx + direction.dy * direction.dy
-        guard lenSq != 0 else { return nil }
-
-        let v = Geometry.Vector(dx: other.x - point.x, dy: other.y - point.y)
-        let dot = direction.dx * v.dx + direction.dy * v.dy
-        let t = dot / lenSq
-
-        return point(at: t)
+        Geometry.projection(of: other, onto: self)
     }
 
     /// Reflect a point across this line.
@@ -297,29 +271,7 @@ extension Geometry.Line.Segment where Scalar: FloatingPoint {
     /// - Returns: The intersection point if segments intersect, `nil` otherwise
     @inlinable
     public func intersection(with other: Self) -> Geometry.Point<2>? {
-        let d1 = vector
-        let d2 = other.vector
-
-        // Cross product of direction vectors
-        let cross = d1.dx * d2.dy - d1.dy * d2.dx
-
-        // If cross product is near zero, segments are parallel
-        guard abs(cross) > .ulpOfOne else { return nil }
-
-        // Vector from this segment's start to other segment's start
-        let dp = Geometry.Vector(
-            dx: other.start.x - start.x,
-            dy: other.start.y - start.y
-        )
-
-        // Parameters for both segments
-        let t1 = (dp.dx * d2.dy - dp.dy * d2.dx) / cross
-        let t2 = (dp.dx * d1.dy - dp.dy * d1.dx) / cross
-
-        // Check if intersection is within both segments [0, 1]
-        guard t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1 else { return nil }
-
-        return point(at: t1)
+        Geometry.intersection(self, other)
     }
 
     /// Check if this segment intersects with another segment.
@@ -339,24 +291,7 @@ extension Geometry.Line.Segment where Scalar: FloatingPoint {
     /// - Returns: The distance to the closest point on the segment
     @inlinable
     public func distance(to other: Geometry.Point<2>) -> Geometry.Distance {
-        let v = vector
-        let lenSq = v.dx * v.dx + v.dy * v.dy
-
-        // Degenerate segment (point)
-        if lenSq == 0 {
-            let dx = other.x - start.x
-            let dy = other.y - start.y
-            return .init((dx * dx + dy * dy).squareRoot())
-        }
-
-        // Project point onto line, clamping to segment
-        let w = Geometry.Vector(dx: other.x - start.x, dy: other.y - start.y)
-        let t = max(0, min(1, (v.dx * w.dx + v.dy * w.dy) / lenSq))
-
-        let closest = point(at: t)
-        let dx = other.x - closest.x
-        let dy = other.y - closest.y
-        return .init((dx * dx + dy * dy).squareRoot())
+        Geometry.distance(from: self, to: other)
     }
 
     /// Find intersection points with an N-gon.
@@ -411,6 +346,109 @@ extension Geometry.Line {
             point: try point.map(transform),
             direction: try direction.map(transform)
         )
+    }
+}
+
+// MARK: - Line Static Implementations
+
+extension Geometry where Scalar: FloatingPoint {
+    /// Calculate the perpendicular distance from a point to a line.
+    @inlinable
+    public static func distance(from line: Line, to point: Point<2>) -> Distance? {
+        let len = line.direction.length
+        guard len != 0 else { return nil }
+        let v = Vector(dx: point.x - line.point.x, dy: point.y - line.point.y)
+        let cross = line.direction.dx * v.dy - line.direction.dy * v.dx
+        return Distance(abs(cross) / len)
+    }
+
+    /// Find the intersection point between two lines.
+    @inlinable
+    public static func intersection(_ line1: Line, _ line2: Line) -> Point<2>? {
+        // Cross product of direction vectors
+        let cross = line1.direction.dx * line2.direction.dy - line1.direction.dy * line2.direction.dx
+
+        // If cross product is near zero, lines are parallel
+        guard abs(cross) > .ulpOfOne else { return nil }
+
+        // Vector from line1's point to line2's point
+        let dp = Vector(
+            dx: line2.point.x - line1.point.x,
+            dy: line2.point.y - line1.point.y
+        )
+
+        // Parameter t for line1
+        let t = (dp.dx * line2.direction.dy - dp.dy * line2.direction.dx) / cross
+
+        return line1.point(at: t)
+    }
+
+    /// Project a point onto a line.
+    @inlinable
+    public static func projection(of point: Point<2>, onto line: Line) -> Point<2>? {
+        let lenSq = line.direction.dx * line.direction.dx + line.direction.dy * line.direction.dy
+        guard lenSq != 0 else { return nil }
+
+        let v = Vector(dx: point.x - line.point.x, dy: point.y - line.point.y)
+        let dot = line.direction.dx * v.dx + line.direction.dy * v.dy
+        let t = dot / lenSq
+
+        return line.point(at: t)
+    }
+}
+
+// MARK: - Line.Segment Static Implementations
+
+extension Geometry where Scalar: FloatingPoint {
+    /// Find the intersection point between two line segments.
+    @inlinable
+    public static func intersection(_ segment1: Line.Segment, _ segment2: Line.Segment) -> Point<2>? {
+        let d1 = segment1.vector
+        let d2 = segment2.vector
+
+        // Cross product of direction vectors
+        let cross = d1.dx * d2.dy - d1.dy * d2.dx
+
+        // If cross product is near zero, segments are parallel
+        guard abs(cross) > .ulpOfOne else { return nil }
+
+        // Vector from segment1's start to segment2's start
+        let dp = Vector(
+            dx: segment2.start.x - segment1.start.x,
+            dy: segment2.start.y - segment1.start.y
+        )
+
+        // Parameters for both segments
+        let t1 = (dp.dx * d2.dy - dp.dy * d2.dx) / cross
+        let t2 = (dp.dx * d1.dy - dp.dy * d1.dx) / cross
+
+        // Check if intersection is within both segments [0, 1]
+        guard t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1 else { return nil }
+
+        return segment1.point(at: t1)
+    }
+
+    /// Calculate the perpendicular distance from a point to a line segment.
+    @inlinable
+    public static func distance(from segment: Line.Segment, to point: Point<2>) -> Distance {
+        let v = segment.vector
+        let lenSq = v.dx * v.dx + v.dy * v.dy
+
+        // Degenerate segment (point)
+        if lenSq == 0 {
+            let dx = point.x - segment.start.x
+            let dy = point.y - segment.start.y
+            return .init((dx * dx + dy * dy).squareRoot())
+        }
+
+        // Project point onto line, clamping to segment
+        let w = Vector(dx: point.x - segment.start.x, dy: point.y - segment.start.y)
+        let t = max(0, min(1, (v.dx * w.dx + v.dy * w.dy) / lenSq))
+
+        let closest = segment.point(at: t)
+        let dx = point.x - closest.x
+        let dy = point.y - closest.y
+        return .init((dx * dx + dy * dy).squareRoot())
     }
 }
 

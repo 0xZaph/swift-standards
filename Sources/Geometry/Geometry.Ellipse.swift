@@ -141,11 +141,7 @@ extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
 extension Geometry.Ellipse where Scalar: FloatingPoint {
     /// The area of the ellipse (π * a * b)
     @inlinable
-    public var area: Scalar {
-        let a: Scalar = semiMajor.value
-        let b: Scalar = semiMinor.value
-        return Scalar.pi * a * b
-    }
+    public var area: Scalar { Geometry.area(of: self) }
 
     /// The approximate perimeter using Ramanujan's approximation
     @inlinable
@@ -176,26 +172,7 @@ extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
     /// - Returns: The point on the ellipse
     @inlinable
     public func point(at t: Radian) -> Geometry.Point<2> {
-        let cosT: Scalar = Scalar(t.cos)
-        let sinT: Scalar = Scalar(t.sin)
-        let a: Scalar = semiMajor.value
-        let b: Scalar = semiMinor.value
-
-        // Point on unrotated ellipse
-        let x: Scalar = a * cosT
-        let y: Scalar = b * sinT
-
-        // Rotate by ellipse rotation
-        let cosR: Scalar = Scalar(rotation.cos)
-        let sinR: Scalar = Scalar(rotation.sin)
-
-        let cx: Scalar = center.x.value
-        let cy: Scalar = center.y.value
-
-        return Geometry.Point(
-            x: Affine<Scalar, Space>.X(cx + x * cosR - y * sinR),
-            y: Affine<Scalar, Space>.Y(cy + x * sinR + y * cosR)
-        )
+        Geometry.point(of: self, at: t)
     }
 
     /// Get the tangent vector at parameter t.
@@ -233,23 +210,7 @@ extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
     /// - Returns: `true` if the point is inside or on the ellipse boundary
     @inlinable
     public func contains(_ point: Geometry.Point<2>) -> Bool {
-        // Transform point to ellipse-local coordinates
-        let dx: Scalar = point.x.value - center.x.value
-        let dy: Scalar = point.y.value - center.y.value
-
-        // Rotate by -rotation to align with axes
-        let cosR: Scalar = Scalar(rotation.cos)
-        let sinR: Scalar = Scalar(rotation.sin)
-        let localX: Scalar = dx * cosR + dy * sinR
-        let localY: Scalar = -dx * sinR + dy * cosR
-
-        // Check ellipse equation: (x/a)² + (y/b)² ≤ 1
-        let a: Scalar = semiMajor.value
-        let b: Scalar = semiMinor.value
-        let aSq: Scalar = a * a
-        let bSq: Scalar = b * b
-        let one: Scalar = Scalar(1)
-        return (localX * localX) / aSq + (localY * localY) / bSq <= one
+        Geometry.contains(self, point: point)
     }
 }
 
@@ -336,6 +297,67 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
             semiMajor: semiMajor,
             semiMinor: semiMinor,
             rotation: rotation + angle
+        )
+    }
+}
+
+// MARK: - Ellipse Static Implementations
+
+extension Geometry where Scalar: FloatingPoint {
+    /// Calculate the area of an ellipse (π × a × b).
+    @inlinable
+    public static func area(of ellipse: Ellipse) -> Scalar {
+        let a: Scalar = ellipse.semiMajor.value
+        let b: Scalar = ellipse.semiMinor.value
+        return Scalar.pi * a * b
+    }
+}
+
+extension Geometry where Scalar: BinaryFloatingPoint {
+    /// Check if an ellipse contains a point.
+    @inlinable
+    public static func contains(_ ellipse: Ellipse, point: Point<2>) -> Bool {
+        // Transform point to ellipse-local coordinates
+        let dx: Scalar = point.x.value - ellipse.center.x.value
+        let dy: Scalar = point.y.value - ellipse.center.y.value
+
+        // Rotate by -rotation to align with axes
+        let cosR: Scalar = Scalar(ellipse.rotation.cos)
+        let sinR: Scalar = Scalar(ellipse.rotation.sin)
+        let localX: Scalar = dx * cosR + dy * sinR
+        let localY: Scalar = -dx * sinR + dy * cosR
+
+        // Check ellipse equation: (x/a)² + (y/b)² ≤ 1
+        let a: Scalar = ellipse.semiMajor.value
+        let b: Scalar = ellipse.semiMinor.value
+        let aSq: Scalar = a * a
+        let bSq: Scalar = b * b
+        let one: Scalar = Scalar(1)
+        return (localX * localX) / aSq + (localY * localY) / bSq <= one
+    }
+
+    /// Get a point on an ellipse at parameter t.
+    @inlinable
+    public static func point(of ellipse: Ellipse, at t: Radian) -> Point<2> {
+        let cosT: Scalar = Scalar(t.cos)
+        let sinT: Scalar = Scalar(t.sin)
+        let a: Scalar = ellipse.semiMajor.value
+        let b: Scalar = ellipse.semiMinor.value
+
+        // Point on unrotated ellipse
+        let x: Scalar = a * cosT
+        let y: Scalar = b * sinT
+
+        // Rotate by ellipse rotation
+        let cosR: Scalar = Scalar(ellipse.rotation.cos)
+        let sinR: Scalar = Scalar(ellipse.rotation.sin)
+
+        let cx: Scalar = ellipse.center.x.value
+        let cy: Scalar = ellipse.center.y.value
+
+        return Point(
+            x: Affine<Scalar, Space>.X(cx + x * cosR - y * sinR),
+            y: Affine<Scalar, Space>.Y(cy + x * sinR + y * cosR)
         )
     }
 }
