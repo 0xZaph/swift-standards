@@ -181,7 +181,7 @@ extension Affine.Transform where Scalar: FloatingPoint {
         let newLinear = transform.linear.multiplied(by: other.linear)
 
         // Translation part: apply transform's linear to other's translation, then add transform's translation
-        // Work with raw values to avoid operator ambiguity
+        // Matrix math mixes X and Y components, so we work with raw scalar values
         let otherTx = other.translation.dx._rawValue
         let otherTy = other.translation.dy._rawValue
         let selfTx = transform.translation.dx._rawValue
@@ -239,7 +239,14 @@ extension Affine.Transform where Scalar: FloatingPoint & ExpressibleByIntegerLit
     /// Scale factors are dimensionless ratios.
     @inlinable
     public static func scale(x: Affine.X, y: Affine.Y) -> Self {
-        Self(linear: Linear<Scalar, Space>.Matrix(a: x._rawValue, b: 0, c: 0, d: y._rawValue))
+        Self(
+            linear: Linear<Scalar, Space>.Matrix(
+                a: x._rawValue,
+                b: 0,
+                c: 0,
+                d: y._rawValue
+            )
+        )
     }
 
     /// Creates shear transform with horizontal and vertical shear factors.

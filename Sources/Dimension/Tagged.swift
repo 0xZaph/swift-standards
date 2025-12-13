@@ -186,3 +186,77 @@ extension Tagged {
         set { _rawValue = newValue }
     }
 }
+
+// MARK: - FloatingPoint Properties
+
+extension Tagged where RawValue: FloatingPoint {
+    /// The unit value in the last place of 1.0.
+    @inlinable
+    public static var ulpOfOne: Self { Self(RawValue.ulpOfOne) }
+
+    /// Positive infinity.
+    @inlinable
+    public static var infinity: Self { Self(RawValue.infinity) }
+
+    /// A quiet NaN ("not a number").
+    @inlinable
+    public static var nan: Self { Self(RawValue.nan) }
+
+    /// A Boolean value indicating whether this instance is NaN.
+    @inlinable
+    public var isNaN: Bool { _rawValue.isNaN }
+
+    /// A Boolean value indicating whether this instance is infinite.
+    @inlinable
+    public var isInfinite: Bool { _rawValue.isInfinite }
+
+    /// A Boolean value indicating whether this instance is finite.
+    @inlinable
+    public var isFinite: Bool { _rawValue.isFinite }
+
+    /// A Boolean value indicating whether this instance is zero.
+    @inlinable
+    public var isZero: Bool { _rawValue.isZero }
+
+    /// The sign of this value.
+    @inlinable
+    public var sign: FloatingPointSign { _rawValue.sign }
+}
+
+// MARK: - BinaryFloatingPoint Properties
+
+extension Tagged where RawValue: BinaryFloatingPoint {
+    /// The mathematical constant pi (π).
+    @inlinable
+    public static var pi: Self { Self(RawValue.pi) }
+}
+
+// MARK: - Square Root for Measures
+
+/// Square root of area returns magnitude (Length).
+///
+/// Dimensionally: √(L²) = L
+@inlinable
+public func sqrt<Space, Scalar: FloatingPoint>(
+    _ value: Tagged<Area<Space>, Scalar>
+) -> Tagged<Magnitude<Space>, Scalar> {
+    Tagged(value._rawValue.squareRoot())
+}
+
+/// Square root of volume returns area.
+///
+/// Dimensionally: √(L³) = L^1.5 (not exact, but useful for certain calculations)
+@inlinable
+public func sqrt<Space, Scalar: FloatingPoint>(
+    _ value: Tagged<Volume<Space>, Scalar>
+) -> Tagged<Area<Space>, Scalar> {
+    Tagged(value._rawValue.squareRoot())
+}
+
+extension Tagged where RawValue: FloatingPoint {
+    /// The square root of this value.
+    @inlinable
+    public func squareRoot() -> Self {
+        Self(_rawValue.squareRoot())
+    }
+}

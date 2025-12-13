@@ -50,6 +50,15 @@ extension Scale: Hashable where Scalar: Hashable {
     }
 }
 
+// MARK: - Comparable (1D only)
+
+extension Scale: Comparable where N == 1 {
+    @inlinable
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.value < rhs.value
+    }
+}
+
 // MARK: - Codable
 
 #if Codable

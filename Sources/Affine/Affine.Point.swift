@@ -370,27 +370,27 @@ extension Affine.Point where N == 2, Scalar: FloatingPoint {
     /// Computes squared Euclidean distance between two points.
     ///
     /// More efficient than `distance(from:to:)` when comparing distances.
-    /// Returns raw scalar for use in comparisons; use `distance(from:to:)` for typed result.
+    /// Returns Area type (L²) for type-safe comparisons.
     @inlinable
-    public static func distanceSquared(from point: Self, to other: Self) -> Scalar {
-        let dx = other.x._rawValue - point.x._rawValue
-        let dy = other.y._rawValue - point.y._rawValue
+    public static func distanceSquared(from point: Self, to other: Self) -> Tagged<Area<Space>, Scalar> {
+        let dx = other.x - point.x
+        let dy = other.y - point.y
         return dx * dx + dy * dy
     }
 
     /// Computes squared Euclidean distance to another point.
     ///
     /// More efficient than `distance(to:)` when comparing distances.
-    /// Returns raw scalar for use in comparisons; use `distance(to:)` for typed result.
+    /// Returns Area type (L²) for type-safe comparisons.
     @inlinable
-    public func distanceSquared(to other: Self) -> Scalar {
+    public func distanceSquared(to other: Self) -> Tagged<Area<Space>, Scalar> {
         Self.distanceSquared(from: self, to: other)
     }
 
     /// Computes Euclidean distance between two points.
     @inlinable
     public static func distance(from point: Self, to other: Self) -> Affine.Distance {
-        .init(distanceSquared(from: point, to: other).squareRoot())
+        sqrt(distanceSquared(from: point, to: other))
     }
 
     /// Computes Euclidean distance to another point.
@@ -408,8 +408,8 @@ extension Affine.Point where N == 2, Scalar: FloatingPoint {
     @inlinable
     public static func lerp(from point: Self, to other: Self, t: Scalar) -> Self {
         Self(
-            x: Affine.X(point.x._rawValue + t * (other.x._rawValue - point.x._rawValue)),
-            y: Affine.Y(point.y._rawValue + t * (other.y._rawValue - point.y._rawValue))
+            x: point.x + t * (other.x - point.x),
+            y: point.y + t * (other.y - point.y)
         )
     }
 
@@ -424,11 +424,13 @@ extension Affine.Point where N == 2, Scalar: FloatingPoint {
     }
 
     /// Computes midpoint between two points.
+    /// Uses affine formula: p1 + (p2 - p1) / 2
     @inlinable
     public static func midpoint(from point: Self, to other: Self) -> Self {
+        // Displacement / 2 = scaled displacement, then add to coordinate
         Self(
-            x: Affine.X((point.x._rawValue + other.x._rawValue) / 2),
-            y: Affine.Y((point.y._rawValue + other.y._rawValue) / 2)
+            x: point.x + (other.x - point.x) / 2,
+            y: point.y + (other.y - point.y) / 2
         )
     }
 
@@ -515,7 +517,8 @@ extension Affine.Point where N == 3, Scalar: FloatingPoint {
     /// Computes Euclidean distance between two points.
     @inlinable
     public static func distance(from point: Self, to other: Self) -> Affine.Distance {
-        .init(distanceSquared(from: point, to: other)._rawValue.squareRoot())
+        // sqrt(Area) = Magnitude = Distance
+        sqrt(distanceSquared(from: point, to: other))
     }
 
     /// Computes Euclidean distance to another point.

@@ -432,6 +432,276 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs._rawValue / rhs._rawValue
 }
 
+// MARK: - Measure Scaling (Magnitude, Area, Volume)
+
+/// Multiplies a measure by a scalar.
+@inlinable
+public func * <let N: Int, Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Measure<N, Space>, Scalar>,
+    rhs: Scalar
+) -> Tagged<Measure<N, Space>, Scalar> {
+    Tagged(lhs._rawValue * rhs)
+}
+
+/// Multiplies a scalar by a measure.
+@inlinable
+public func * <let N: Int, Space, Scalar: FloatingPoint>(
+    lhs: Scalar,
+    rhs: Tagged<Measure<N, Space>, Scalar>
+) -> Tagged<Measure<N, Space>, Scalar> {
+    Tagged(lhs * rhs._rawValue)
+}
+
+/// Divides a measure by a scalar.
+@inlinable
+public func / <let N: Int, Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Measure<N, Space>, Scalar>,
+    rhs: Scalar
+) -> Tagged<Measure<N, Space>, Scalar> {
+    Tagged(lhs._rawValue / rhs)
+}
+
+/// Multiplies a measure by an integer.
+@inlinable
+public func * <let N: Int, Space, Scalar: FloatingPoint, I: BinaryInteger>(
+    lhs: Tagged<Measure<N, Space>, Scalar>,
+    rhs: I
+) -> Tagged<Measure<N, Space>, Scalar> {
+    Tagged(lhs._rawValue * Scalar(rhs))
+}
+
+/// Multiplies an integer by a measure.
+@inlinable
+public func * <let N: Int, Space, Scalar: FloatingPoint, I: BinaryInteger>(
+    lhs: I,
+    rhs: Tagged<Measure<N, Space>, Scalar>
+) -> Tagged<Measure<N, Space>, Scalar> {
+    Tagged(Scalar(lhs) * rhs._rawValue)
+}
+
+/// Divides a measure by an integer.
+@inlinable
+public func / <let N: Int, Space, Scalar: FloatingPoint, I: BinaryInteger>(
+    lhs: Tagged<Measure<N, Space>, Scalar>,
+    rhs: I
+) -> Tagged<Measure<N, Space>, Scalar> {
+    Tagged(lhs._rawValue / Scalar(rhs))
+}
+
+// MARK: - Area / Magnitude = Magnitude (L² / L = L)
+
+/// Divides area by magnitude, returning magnitude.
+@inlinable
+public func / <Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Area<Space>, Scalar>,
+    rhs: Tagged<Magnitude<Space>, Scalar>
+) -> Tagged<Magnitude<Space>, Scalar> {
+    Tagged(lhs._rawValue / rhs._rawValue)
+}
+
+/// Divides area by area, returning a dimensionless scale factor.
+/// Area / Area = dimensionless ratio (L² / L² = 1)
+@inlinable
+public func / <Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Area<Space>, Scalar>,
+    rhs: Tagged<Area<Space>, Scalar>
+) -> Scale<1, Scalar> {
+    Scale(lhs._rawValue / rhs._rawValue)
+}
+
+// MARK: - Displacement Scaling
+
+/// Multiplies X-displacement by a scalar.
+@inlinable
+public func * <Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Displacement.X<Space>, Scalar>,
+    rhs: Scalar
+) -> Tagged<Displacement.X<Space>, Scalar> {
+    Tagged(lhs._rawValue * rhs)
+}
+
+/// Multiplies a scalar by X-displacement.
+@inlinable
+public func * <Space, Scalar: FloatingPoint>(
+    lhs: Scalar,
+    rhs: Tagged<Displacement.X<Space>, Scalar>
+) -> Tagged<Displacement.X<Space>, Scalar> {
+    Tagged(lhs * rhs._rawValue)
+}
+
+/// Divides X-displacement by a scalar.
+@inlinable
+public func / <Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Displacement.X<Space>, Scalar>,
+    rhs: Scalar
+) -> Tagged<Displacement.X<Space>, Scalar> {
+    Tagged(lhs._rawValue / rhs)
+}
+
+/// Divides two X-displacements, returning a dimensionless ratio.
+@inlinable
+public func / <Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Displacement.X<Space>, Scalar>,
+    rhs: Tagged<Displacement.X<Space>, Scalar>
+) -> Scalar {
+    lhs._rawValue / rhs._rawValue
+}
+
+/// Multiplies Y-displacement by a scalar.
+@inlinable
+public func * <Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Displacement.Y<Space>, Scalar>,
+    rhs: Scalar
+) -> Tagged<Displacement.Y<Space>, Scalar> {
+    Tagged(lhs._rawValue * rhs)
+}
+
+/// Multiplies a scalar by Y-displacement.
+@inlinable
+public func * <Space, Scalar: FloatingPoint>(
+    lhs: Scalar,
+    rhs: Tagged<Displacement.Y<Space>, Scalar>
+) -> Tagged<Displacement.Y<Space>, Scalar> {
+    Tagged(lhs * rhs._rawValue)
+}
+
+/// Divides Y-displacement by a scalar.
+@inlinable
+public func / <Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Displacement.Y<Space>, Scalar>,
+    rhs: Scalar
+) -> Tagged<Displacement.Y<Space>, Scalar> {
+    Tagged(lhs._rawValue / rhs)
+}
+
+/// Divides two Y-displacements, returning a dimensionless ratio.
+@inlinable
+public func / <Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Displacement.Y<Space>, Scalar>,
+    rhs: Tagged<Displacement.Y<Space>, Scalar>
+) -> Scalar {
+    lhs._rawValue / rhs._rawValue
+}
+
+/// Multiplies Z-displacement by a scalar.
+@inlinable
+public func * <Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Displacement.Z<Space>, Scalar>,
+    rhs: Scalar
+) -> Tagged<Displacement.Z<Space>, Scalar> {
+    Tagged(lhs._rawValue * rhs)
+}
+
+/// Multiplies a scalar by Z-displacement.
+@inlinable
+public func * <Space, Scalar: FloatingPoint>(
+    lhs: Scalar,
+    rhs: Tagged<Displacement.Z<Space>, Scalar>
+) -> Tagged<Displacement.Z<Space>, Scalar> {
+    Tagged(lhs * rhs._rawValue)
+}
+
+/// Divides Z-displacement by a scalar.
+@inlinable
+public func / <Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Displacement.Z<Space>, Scalar>,
+    rhs: Scalar
+) -> Tagged<Displacement.Z<Space>, Scalar> {
+    Tagged(lhs._rawValue / rhs)
+}
+
+/// Divides two Z-displacements, returning a dimensionless ratio.
+@inlinable
+public func / <Space, Scalar: FloatingPoint>(
+    lhs: Tagged<Displacement.Z<Space>, Scalar>,
+    rhs: Tagged<Displacement.Z<Space>, Scalar>
+) -> Scalar {
+    lhs._rawValue / rhs._rawValue
+}
+
+// MARK: - Displacement Scaling by Integer
+
+/// Multiplies X-displacement by an integer.
+@inlinable
+public func * <Space, Scalar: FloatingPoint, I: BinaryInteger>(
+    lhs: Tagged<Displacement.X<Space>, Scalar>,
+    rhs: I
+) -> Tagged<Displacement.X<Space>, Scalar> {
+    Tagged(lhs._rawValue * Scalar(rhs))
+}
+
+/// Multiplies an integer by X-displacement.
+@inlinable
+public func * <Space, Scalar: FloatingPoint, I: BinaryInteger>(
+    lhs: I,
+    rhs: Tagged<Displacement.X<Space>, Scalar>
+) -> Tagged<Displacement.X<Space>, Scalar> {
+    Tagged(Scalar(lhs) * rhs._rawValue)
+}
+
+/// Divides X-displacement by an integer.
+@inlinable
+public func / <Space, Scalar: FloatingPoint, I: BinaryInteger>(
+    lhs: Tagged<Displacement.X<Space>, Scalar>,
+    rhs: I
+) -> Tagged<Displacement.X<Space>, Scalar> {
+    Tagged(lhs._rawValue / Scalar(rhs))
+}
+
+/// Multiplies Y-displacement by an integer.
+@inlinable
+public func * <Space, Scalar: FloatingPoint, I: BinaryInteger>(
+    lhs: Tagged<Displacement.Y<Space>, Scalar>,
+    rhs: I
+) -> Tagged<Displacement.Y<Space>, Scalar> {
+    Tagged(lhs._rawValue * Scalar(rhs))
+}
+
+/// Multiplies an integer by Y-displacement.
+@inlinable
+public func * <Space, Scalar: FloatingPoint, I: BinaryInteger>(
+    lhs: I,
+    rhs: Tagged<Displacement.Y<Space>, Scalar>
+) -> Tagged<Displacement.Y<Space>, Scalar> {
+    Tagged(Scalar(lhs) * rhs._rawValue)
+}
+
+/// Divides Y-displacement by an integer.
+@inlinable
+public func / <Space, Scalar: FloatingPoint, I: BinaryInteger>(
+    lhs: Tagged<Displacement.Y<Space>, Scalar>,
+    rhs: I
+) -> Tagged<Displacement.Y<Space>, Scalar> {
+    Tagged(lhs._rawValue / Scalar(rhs))
+}
+
+/// Multiplies Z-displacement by an integer.
+@inlinable
+public func * <Space, Scalar: FloatingPoint, I: BinaryInteger>(
+    lhs: Tagged<Displacement.Z<Space>, Scalar>,
+    rhs: I
+) -> Tagged<Displacement.Z<Space>, Scalar> {
+    Tagged(lhs._rawValue * Scalar(rhs))
+}
+
+/// Multiplies an integer by Z-displacement.
+@inlinable
+public func * <Space, Scalar: FloatingPoint, I: BinaryInteger>(
+    lhs: I,
+    rhs: Tagged<Displacement.Z<Space>, Scalar>
+) -> Tagged<Displacement.Z<Space>, Scalar> {
+    Tagged(Scalar(lhs) * rhs._rawValue)
+}
+
+/// Divides Z-displacement by an integer.
+@inlinable
+public func / <Space, Scalar: FloatingPoint, I: BinaryInteger>(
+    lhs: Tagged<Displacement.Z<Space>, Scalar>,
+    rhs: I
+) -> Tagged<Displacement.Z<Space>, Scalar> {
+    Tagged(lhs._rawValue / Scalar(rhs))
+}
+
 // MARK: - Mixed Coordinate/Displacement Arithmetic
 
 // Affine geometry: Point + Vector = Point, Point - Point = Vector, Point - Vector = Point
