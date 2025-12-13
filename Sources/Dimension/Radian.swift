@@ -20,7 +20,7 @@ public import RealModule
 /// let doubled = angle * 2           // Radian(π/2) = 90°
 /// let sum = angle + Radian(.pi)     // Radian(5π/4) = 225°
 /// ```
-public typealias Radian<Scalar> = Tagged<Angle.Radian, Scalar>
+public typealias Radian<Scalar> = Angle.Radian.Value<Scalar>
 
 // MARK: - Common Angles
 

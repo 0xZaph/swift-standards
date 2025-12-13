@@ -19,7 +19,7 @@ public import RealModule
 /// let rotation = rightAngle * 2     // Degree(180)
 /// let half = rightAngle / 2         // Degree(45)
 /// ```
-public typealias Degree<Scalar> = Tagged<Angle.Degree, Scalar>
+public typealias Degree<Scalar> = Angle.Degree.Value<Scalar>
 
 // MARK: - Common Angles
 
