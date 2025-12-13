@@ -197,7 +197,7 @@ extension Binary.Serializable where Self: RawRepresentable, Self.RawValue == [UI
 }
 
 // MARK: - Tagged Conformance
-
+@_spi(Internal) public import Dimension
 extension Tagged: Binary.Serializable where RawValue: Binary.Serializable {
     /// Serializes a tagged value by serializing its underlying raw value.
     ///
@@ -207,6 +207,6 @@ extension Tagged: Binary.Serializable where RawValue: Binary.Serializable {
         _ value: Self,
         into buffer: inout Buffer
     ) where Buffer.Element == UInt8 {
-        RawValue.serialize(value.rawValue, into: &buffer)
+        RawValue.serialize(value._rawValue, into: &buffer)
     }
 }

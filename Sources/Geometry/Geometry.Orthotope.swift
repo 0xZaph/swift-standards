@@ -175,16 +175,15 @@ extension Geometry.Orthotope where N == 2, Scalar: FloatingPoint {
         urx: Geometry.X,
         ury: Geometry.Y
     ) {
-        let cx = (llx.value + urx.value) / 2
-        let cy = (lly.value + ury.value) / 2
-        let hw = (urx.value - llx.value) / 2
-        let hh = (ury.value - lly.value) / 2
         self.init(
             center: Geometry.Point(
-                x: Affine<Scalar, Space>.X(cx),
-                y: Affine<Scalar, Space>.Y(cy)
+                x: llx + (urx - llx) / 2,
+                y: lly + (ury - lly) / 2
             ),
-            halfExtents: Geometry.Size(width: Geometry.Width(hw), height: Geometry.Height(hh))
+            halfExtents: Geometry.Size(
+                width: (urx - llx) / 2,
+                height: (ury - lly) / 2
+            )
         )
     }
 
@@ -228,16 +227,17 @@ extension Geometry.Orthotope where N == 2, Scalar: BinaryInteger {
         urx: Geometry.X,
         ury: Geometry.Y
     ) {
-        let cx = (llx.value + urx.value) / 2
-        let cy = (lly.value + ury.value) / 2
-        let hw = (urx.value - llx.value) / 2
-        let hh = (ury.value - lly.value) / 2
+        let halfWidth = (urx._rawValue - llx._rawValue) / 2
+        let halfHeight = (ury._rawValue - lly._rawValue) / 2
         self.init(
             center: Geometry.Point(
-                x: Affine<Scalar, Space>.X(cx),
-                y: Affine<Scalar, Space>.Y(cy)
+                x: Geometry.X(llx._rawValue + halfWidth),
+                y: Geometry.Y(lly._rawValue + halfHeight)
             ),
-            halfExtents: Geometry.Size(width: Geometry.Width(hw), height: Geometry.Height(hh))
+            halfExtents: Geometry.Size(
+                width: Geometry.Width(halfWidth),
+                height: Geometry.Height(halfHeight)
+            )
         )
     }
 
@@ -302,9 +302,9 @@ extension Geometry.Orthotope where N == 2, Scalar: FloatingPoint {
     /// Diagonal length.
     @inlinable
     public var diagonal: Geometry.Magnitude {
-        let w = width.value
-        let h = height.value
-        return Geometry.Magnitude(Linear<Scalar, Space>.Magnitude((w * w + h * h).squareRoot()))
+        let w = width
+        let h = height
+        return .init(sqrt(w * w + h * h))
     }
 }
 
@@ -314,7 +314,7 @@ extension Geometry.Orthotope where N == 2, Scalar: FloatingPoint {
     /// Check if the rectangle has zero or negative area.
     @inlinable
     public var isEmpty: Bool {
-        halfExtents.width.value <= 0 || halfExtents.height.value <= 0
+        halfExtents.width <= 0 || halfExtents.height <= 0
     }
 
     /// Check if the rectangle contains a point.
@@ -458,7 +458,7 @@ extension Geometry.Orthotope where N == 2, Scalar: FloatingPoint {
 
     /// Scale the rectangle uniformly about its center.
     @inlinable
-    public func scaled(by factor: Scalar) -> Self {
+    public func scaled(by factor: Scale<1, Scalar>) -> Self {
         Self(
             center: center,
             halfExtents: Geometry.Size(
@@ -475,7 +475,7 @@ extension Geometry.Orthotope where N == 2, Scalar: FloatingPoint {
     /// Returns a rectangle with width clamped to at most the given maximum.
     @inlinable
     public func clamped(maxWidth: Geometry.Width) -> Self {
-        guard width.value > maxWidth.value else { return self }
+        guard width > maxWidth else { return self }
         var copy = self
         copy.width = maxWidth
         return copy
@@ -484,7 +484,7 @@ extension Geometry.Orthotope where N == 2, Scalar: FloatingPoint {
     /// Returns a rectangle with height clamped to at most the given maximum.
     @inlinable
     public func clamped(maxHeight: Geometry.Height) -> Self {
-        guard height.value > maxHeight.value else { return self }
+        guard height > maxHeight else { return self }
         var copy = self
         copy.height = maxHeight
         return copy
@@ -518,8 +518,8 @@ extension Geometry.Orthotope where N == 3, Scalar: FloatingPoint {
     /// Volume (width × height × depth).
     @inlinable
     public var volume: Scalar {
-        let w = halfExtents.width.value * 2
-        let h = halfExtents.height.value * 2
+        let w = halfExtents.width._rawValue * 2
+        let h = halfExtents.height._rawValue * 2
         let d = halfExtents.depth * 2
         return w * h * d
     }
@@ -527,8 +527,8 @@ extension Geometry.Orthotope where N == 3, Scalar: FloatingPoint {
     /// Surface area (2 × (wh + wd + hd)).
     @inlinable
     public var surfaceArea: Scalar {
-        let w = halfExtents.width.value * 2
-        let h = halfExtents.height.value * 2
+        let w = halfExtents.width._rawValue * 2
+        let h = halfExtents.height._rawValue * 2
         let d = halfExtents.depth * 2
         return 2 * (w * h + w * d + h * d)
     }
@@ -536,8 +536,8 @@ extension Geometry.Orthotope where N == 3, Scalar: FloatingPoint {
     /// Space diagonal.
     @inlinable
     public var diagonal: Geometry.Magnitude {
-        let w = halfExtents.width.value * 2
-        let h = halfExtents.height.value * 2
+        let w = halfExtents.width._rawValue * 2
+        let h = halfExtents.height._rawValue * 2
         let d = halfExtents.depth * 2
         return Geometry.Magnitude(Linear<Scalar, Space>.Magnitude((w * w + h * h + d * d).squareRoot()))
     }
@@ -564,51 +564,52 @@ extension Geometry where Scalar: FloatingPoint {
     /// Calculate the area of a rectangle.
     @inlinable
     public static func area(of rectangle: Orthotope<2>) -> Area {
-        Area(rectangle.width.value * rectangle.height.value)
+        Area(rectangle.width._rawValue * rectangle.height._rawValue)
     }
 
     /// Calculate the perimeter of a rectangle.
     @inlinable
     public static func perimeter(of rectangle: Orthotope<2>) -> Perimeter {
-        Perimeter((rectangle.width.value + rectangle.height.value) * 2)
+        Perimeter((rectangle.width._rawValue + rectangle.height._rawValue) * 2)
     }
 
     /// Check if a rectangle contains a point.
     @inlinable
     public static func contains(_ rectangle: Orthotope<2>, point: Point<2>) -> Bool {
-        let dx = point.x.rawValue - rectangle.center.x.rawValue
-        let dy = point.y.rawValue - rectangle.center.y.rawValue
-        let hw = rectangle.halfExtents.width.value
-        let hh = rectangle.halfExtents.height.value
+        let dx = point.x._rawValue - rectangle.center.x._rawValue
+        let dy = point.y._rawValue - rectangle.center.y._rawValue
+        let hw = rectangle.halfExtents.width._rawValue
+        let hh = rectangle.halfExtents.height._rawValue
         return dx >= -hw && dx <= hw && dy >= -hh && dy <= hh
     }
 
     /// Check if a rectangle contains another rectangle.
     @inlinable
     public static func contains(_ rectangle: Orthotope<2>, _ other: Orthotope<2>) -> Bool {
-        other.llx.value >= rectangle.llx.value &&
-        other.urx.value <= rectangle.urx.value &&
-        other.lly.value >= rectangle.lly.value &&
-        other.ury.value <= rectangle.ury.value
+        other.llx >= rectangle.llx &&
+        other.urx <= rectangle.urx &&
+        other.lly >= rectangle.lly &&
+        other.ury <= rectangle.ury
     }
 
     /// Check if two rectangles intersect.
     @inlinable
     public static func intersects(_ rectangle1: Orthotope<2>, _ rectangle2: Orthotope<2>) -> Bool {
-        rectangle1.llx.value <= rectangle2.urx.value &&
-        rectangle1.urx.value >= rectangle2.llx.value &&
-        rectangle1.lly.value <= rectangle2.ury.value &&
-        rectangle1.ury.value >= rectangle2.lly.value
+        rectangle1.llx <= rectangle2.urx &&
+        rectangle1.urx >= rectangle2.llx &&
+        rectangle1.lly <= rectangle2.ury &&
+        rectangle1.ury >= rectangle2.lly
     }
 
     /// Calculate the union of two rectangles.
     @inlinable
     public static func union(_ rectangle1: Orthotope<2>, _ rectangle2: Orthotope<2>) -> Orthotope<2> {
+        // Use Swift.min/max on typed values directly to preserve quantization
         Orthotope<2>(
-            llx: X(Swift.min(rectangle1.llx.value, rectangle2.llx.value)),
-            lly: Y(Swift.min(rectangle1.lly.value, rectangle2.lly.value)),
-            urx: X(Swift.max(rectangle1.urx.value, rectangle2.urx.value)),
-            ury: Y(Swift.max(rectangle1.ury.value, rectangle2.ury.value))
+            llx: Swift.min(rectangle1.llx, rectangle2.llx),
+            lly: Swift.min(rectangle1.lly, rectangle2.lly),
+            urx: Swift.max(rectangle1.urx, rectangle2.urx),
+            ury: Swift.max(rectangle1.ury, rectangle2.ury)
         )
     }
 
@@ -616,11 +617,12 @@ extension Geometry where Scalar: FloatingPoint {
     @inlinable
     public static func intersection(_ rectangle1: Orthotope<2>, _ rectangle2: Orthotope<2>) -> Orthotope<2>? {
         guard intersects(rectangle1, rectangle2) else { return nil }
+        // Use Swift.min/max on typed values directly to preserve quantization
         return Orthotope<2>(
-            llx: X(Swift.max(rectangle1.llx.value, rectangle2.llx.value)),
-            lly: Y(Swift.max(rectangle1.lly.value, rectangle2.lly.value)),
-            urx: X(Swift.min(rectangle1.urx.value, rectangle2.urx.value)),
-            ury: Y(Swift.min(rectangle1.ury.value, rectangle2.ury.value))
+            llx: Swift.max(rectangle1.llx, rectangle2.llx),
+            lly: Swift.max(rectangle1.lly, rectangle2.lly),
+            urx: Swift.min(rectangle1.urx, rectangle2.urx),
+            ury: Swift.min(rectangle1.ury, rectangle2.ury)
         )
     }
 }

@@ -367,37 +367,7 @@ extension Affine.Point where N == 2, Scalar: AdditiveArithmetic {
 // MARK: - 2D Point Distance (FloatingPoint)
 
 extension Affine.Point where N == 2, Scalar: FloatingPoint {
-    /// Computes squared Euclidean distance between two points.
-    ///
-    /// More efficient than `distance(from:to:)` when comparing distances.
-    /// Returns Area type (L²) for type-safe comparisons.
-    @inlinable
-    public static func distanceSquared(from point: Self, to other: Self) -> Tagged<Area<Space>, Scalar> {
-        let dx = other.x - point.x
-        let dy = other.y - point.y
-        return dx * dx + dy * dy
-    }
-
-    /// Computes squared Euclidean distance to another point.
-    ///
-    /// More efficient than `distance(to:)` when comparing distances.
-    /// Returns Area type (L²) for type-safe comparisons.
-    @inlinable
-    public func distanceSquared(to other: Self) -> Tagged<Area<Space>, Scalar> {
-        Self.distanceSquared(from: self, to: other)
-    }
-
-    /// Computes Euclidean distance between two points.
-    @inlinable
-    public static func distance(from point: Self, to other: Self) -> Affine.Distance {
-        sqrt(distanceSquared(from: point, to: other))
-    }
-
-    /// Computes Euclidean distance to another point.
-    @inlinable
-    public func distance(to other: Self) -> Affine.Distance {
-        Self.distance(from: self, to: other)
-    }
+    
 
     /// Linearly interpolates between two points.
     ///
@@ -438,6 +408,40 @@ extension Affine.Point where N == 2, Scalar: FloatingPoint {
     @inlinable
     public func midpoint(to other: Self) -> Self {
         Self.midpoint(from: self, to: other)
+    }
+}
+
+extension Affine.Point where N == 2, Scalar: FloatingPoint {
+
+    public static var distance: Affine.Point<2>.Distance2.Type {
+        Affine.Point<2>.Distance2.self
+    }
+
+    public var distance: Affine.Point<2>.Distance2 {
+        .init(point: self)
+    }
+    
+    public struct Distance2 {
+        var point: Affine.Point<2>
+        
+        public static func squared(from point: Affine.Point<2>, to other: Affine.Point<2>) -> Tagged<Area<Space>, Scalar> {
+            let dx = other.x - point.x
+            let dy = other.y - point.y
+            return dx * dx + dy * dy
+        }
+        
+        public func squared(to other: Affine.Point<2>) -> Tagged<Area<Space>, Scalar> {
+            Self.squared(from: point, to: other)
+        }
+        
+        public static func from(_ point: Affine.Point<2>, to other: Affine.Point<2>) -> Affine.Distance {
+            // sqrt(Area) = Magnitude = Distance
+            sqrt(squared(from: point, to: other))
+        }
+
+        public func callAsFunction(to other: Affine.Point<2>) -> Affine.Distance {
+            Self.from(point, to: other)
+        }
     }
 }
 
@@ -493,37 +497,38 @@ extension Affine.Point where N == 3, Scalar: AdditiveArithmetic {
 // MARK: - 3D Point Distance (FloatingPoint)
 
 extension Affine.Point where N == 3, Scalar: FloatingPoint {
-    /// Computes squared Euclidean distance between two points.
-    ///
-    /// More efficient than `distance(from:to:)` when comparing distances.
-    /// Returns typed Area (Length²) for proper dimensional analysis.
-    @inlinable
-    public static func distanceSquared(from point: Self, to other: Self) -> Tagged<Area<Space>, Scalar> {
-        let dx = other.x - point.x
-        let dy = other.y - point.y
-        let dz = other.z - point.z
-        return dx * dx + dy * dy + dz * dz
+    
+    public static var distance: Affine.Point<3>.Distance3.Type {
+        Affine.Point<3>.Distance3.self
     }
 
-    /// Computes squared Euclidean distance to another point.
-    ///
-    /// More efficient than `distance(to:)` when comparing distances.
-    /// Returns typed Area (Length²) for proper dimensional analysis.
-    @inlinable
-    public func distanceSquared(to other: Self) -> Tagged<Area<Space>, Scalar> {
-        Self.distanceSquared(from: self, to: other)
+    public var distance: Affine.Point<3>.Distance3 {
+        .init(point: self)
     }
+    
+    public struct Distance3 {
+        var point: Affine.Point<3>
+        
+        public static func squared(from point: Affine.Point<3>, to other: Affine.Point<3>) -> Tagged<Area<Space>, Scalar> {
+            let dx = other.x - point.x
+            let dy = other.y - point.y
+            let dz = other.z - point.z
+            return dx * dx + dy * dy + dz * dz
+        }
+        
+        public func squared(to other: Affine.Point<3>) -> Tagged<Area<Space>, Scalar> {
+            Self.squared(from: point, to: other)
+        }
+        
+        public static func from(_ point: Affine.Point<3>, to other: Affine.Point<3>) -> Affine.Distance {
+            // sqrt(Area) = Magnitude = Distance
+            sqrt(squared(from: point, to: other))
+        }
 
-    /// Computes Euclidean distance between two points.
-    @inlinable
-    public static func distance(from point: Self, to other: Self) -> Affine.Distance {
-        // sqrt(Area) = Magnitude = Distance
-        sqrt(distanceSquared(from: point, to: other))
-    }
-
-    /// Computes Euclidean distance to another point.
-    @inlinable
-    public func distance(to other: Self) -> Affine.Distance {
-        Self.distance(from: self, to: other)
+        public func callAsFunction(to other: Affine.Point<3>) -> Affine.Distance {
+            Self.from(point, to: other)
+        }
     }
 }
+
+

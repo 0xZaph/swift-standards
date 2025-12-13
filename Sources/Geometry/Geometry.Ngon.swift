@@ -5,6 +5,7 @@ public import Affine
 public import Algebra
 public import Algebra_Linear
 public import Angle
+public import RealModule
 
 extension Geometry {
     /// An N-sided polygon in 2D space with exactly N vertices.
@@ -273,12 +274,21 @@ extension Geometry.Ngon where Scalar: SignedNumeric {
     ///
     /// Positive if vertices are counter-clockwise, negative if clockwise.
     @inlinable
-    public var signedDoubleArea: Scalar {
-        var sum: Scalar = .zero
+    public var signedDoubleArea: Tagged<Measure<2, Space>, Scalar> {
+        // Shoelace formula: Σ(xᵢyⱼ - xⱼyᵢ)
+        // Treating coordinates as displacements from origin
+        let zeroX = Geometry.X.zero
+        let zeroY = Geometry.Y.zero
+        var sum: Tagged<Measure<2, Space>, Scalar> = Tagged(.zero)
         for i in 0..<N {
             let j = (i + 1) % N
-            sum += vertices[i].x.value * vertices[j].y.value
-            sum -= vertices[j].x.value * vertices[i].y.value
+            // Coordinate - Coordinate.zero = Displacement
+            let xi = vertices[i].x - zeroX
+            let yi = vertices[i].y - zeroY
+            let xj = vertices[j].x - zeroX
+            let yj = vertices[j].y - zeroY
+            // Dx × Dy = Area
+            sum = sum + xi * yj - xj * yi
         }
         return sum
     }
@@ -287,13 +297,13 @@ extension Geometry.Ngon where Scalar: SignedNumeric {
 extension Geometry.Ngon where Scalar: FloatingPoint {
     /// The signed area of the polygon
     @inlinable
-    public var signedArea: Scalar {
+    public var signedArea: Tagged<Measure<2, Space>, Scalar> {
         signedDoubleArea / Scalar(2)
     }
 
     /// The area of the polygon (always positive)
     @inlinable
-    public var area: Scalar { Geometry.area(of: self) }
+    public var area: Geometry.Area { Geometry.area(of: self) }
 
     /// The perimeter of the polygon
     @inlinable
@@ -347,23 +357,25 @@ extension Geometry.Ngon where Scalar: SignedNumeric & Comparable {
     /// the same sign.
     @inlinable
     public var isConvex: Bool {
-        var sign: Scalar?
+        // Cross product of edge vectors: Dx × Dy - Dy × Dx = Area
+        var sign: Tagged<Measure<2, Space>, Scalar>?
+        let zero: Tagged<Measure<2, Space>, Scalar> = Tagged(.zero)
 
         for i in 0..<N {
             let j = (i + 1) % N
             let k = (i + 2) % N
 
-            let v1x = vertices[j].x.value - vertices[i].x.value
-            let v1y = vertices[j].y.value - vertices[i].y.value
-            let v2x = vertices[k].x.value - vertices[j].x.value
-            let v2y = vertices[k].y.value - vertices[j].y.value
+            let v1x = vertices[j].x - vertices[i].x
+            let v1y = vertices[j].y - vertices[i].y
+            let v2x = vertices[k].x - vertices[j].x
+            let v2y = vertices[k].y - vertices[j].y
 
             let cross = v1x * v2y - v1y * v2x
 
             if let existingSign = sign {
-                if cross > .zero && existingSign < .zero { return false }
-                if cross < .zero && existingSign > .zero { return false }
-            } else if cross != .zero {
+                if cross > zero && existingSign < zero { return false }
+                if cross < zero && existingSign > zero { return false }
+            } else if cross != zero {
                 sign = cross
             }
         }
@@ -378,13 +390,13 @@ extension Geometry.Ngon where Scalar: SignedNumeric & Comparable {
     /// Whether the vertices are ordered counter-clockwise.
     @inlinable
     public var isCounterClockwise: Bool {
-        signedDoubleArea > .zero
+        signedDoubleArea > Tagged(.zero)
     }
 
     /// Whether the vertices are ordered clockwise.
     @inlinable
     public var isClockwise: Bool {
-        signedDoubleArea < .zero
+        signedDoubleArea < Tagged(.zero)
     }
 
     /// Return a polygon with reversed vertex order.
@@ -410,6 +422,8 @@ extension Geometry.Ngon where Scalar: FloatingPoint {
     /// - Returns: `true` if the point is inside the polygon
     @inlinable
     public func contains(_ point: Geometry.Point<2>) -> Bool {
+        // Ray casting algorithm - uses raw values for slope calculation
+        // Slope (Dx/Dy) is dimensionless, then multiplied by Dy to get Dx
         var inside = false
         var j = N - 1
 
@@ -417,10 +431,13 @@ extension Geometry.Ngon where Scalar: FloatingPoint {
             let vi = vertices[i]
             let vj = vertices[j]
 
-            if (vi.y.value > point.y.value) != (vj.y.value > point.y.value) {
-                let slope = (vj.x.value - vi.x.value) / (vj.y.value - vi.y.value)
-                let xIntersect = vi.x.value + slope * (point.y.value - vi.y.value)
-                if point.x.value < xIntersect {
+            if (vi.y > point.y) != (vj.y > point.y) {
+                // Compute x-intercept using raw values
+                let dx = (vj.x - vi.x)._rawValue
+                let dy = (vj.y - vi.y)._rawValue
+                let py = (point.y - vi.y)._rawValue
+                let xIntersect = vi.x._rawValue + dx / dy * py
+                if point.x._rawValue < xIntersect {
                     inside.toggle()
                 }
             }
@@ -446,21 +463,21 @@ extension Geometry.Ngon where Scalar: FloatingPoint {
 
     /// Return a polygon scaled uniformly about its centroid.
     @inlinable
-    public func scaled(by factor: Scalar) -> Self? {
+    public func scaled(by factor: Scale<1, Scalar>) -> Self? {
         guard let center = centroid else { return nil }
         return scaled(by: factor, about: center)
     }
 
     /// Return a polygon scaled uniformly about a given point.
     @inlinable
-    public func scaled(by factor: Scalar, about point: Geometry.Point<2>) -> Self {
+    public func scaled(by factor: Scale<1, Scalar>, about point: Geometry.Point<2>) -> Self {
         var newVerts = vertices
         for i in 0..<N {
             let v = vertices[i]
-            newVerts[i] = Geometry.Point(
-                x: Geometry.X(point.x.value + factor * (v.x.value - point.x.value)),
-                y: Geometry.Y(point.y.value + factor * (v.y.value - point.y.value))
-            )
+            // Scale × Displacement = Displacement, then Coordinate + Displacement = Coordinate
+            let dx = factor * (v.x - point.x)
+            let dy = factor * (v.y - point.y)
+            newVerts[i] = Geometry.Point(x: point.x + dx, y: point.y + dy)
         }
         return Self(newVerts)
     }
@@ -468,7 +485,7 @@ extension Geometry.Ngon where Scalar: FloatingPoint {
 
 // MARK: - Regular Polygon Factory
 
-extension Geometry.Ngon where Scalar: BinaryFloatingPoint {
+extension Geometry.Ngon where Scalar: Real & BinaryFloatingPoint {
     /// Create a regular N-gon with the given side length.
     ///
     /// A regular polygon has all sides equal length and all interior angles equal.
@@ -490,24 +507,17 @@ extension Geometry.Ngon where Scalar: BinaryFloatingPoint {
         sideLength: Scalar,
         at center: Geometry.Point<2> = .zero
     ) -> Self {
-        // Circumradius R = s / (2 * sin(π/N))
-        let piOverN: Radian = .pi(over: Double(N))
-        let two: Scalar = Scalar(2)
-        let circumradius = sideLength / (two * Scalar(piOverN.sin))
+        // Circumradius R = s / (2 × sin(π/N))
+        let piOverN = Radian<Scalar>(Scalar.pi / Scalar(N))
+        let circumradius = sideLength / (Scalar(2) * piOverN.sin.value)
 
-        // First vertex at angle 0 (rightmost point)
-        let first = Geometry.Point<2>(
-            x: Geometry.X(center.x.value + circumradius),
-            y: Geometry.Y(center.y.value)
-        )
-        var verts = InlineArray<N, Geometry.Point<2>>(repeating: first)
-
+        // Generate vertices at angles 2πi/N
+        var verts = InlineArray<N, Geometry.Point<2>>(repeating: center)
         for i in 0..<N {
-            let angle: Radian = .pi(times: 2 * Double(i) / Double(N))
-            verts[i] = Geometry.Point(
-                x: Geometry.X(center.x.value + circumradius * Scalar(angle.cos)),
-                y: Geometry.Y(center.y.value + circumradius * Scalar(angle.sin))
-            )
+            let angle = Radian<Scalar>(Scalar(2) * Scalar.pi * Scalar(i) / Scalar(N))
+            let dx = Linear<Scalar, Space>.Dx(circumradius * angle.cos.value)
+            let dy = Linear<Scalar, Space>.Dy(circumradius * angle.sin.value)
+            verts[i] = Geometry.Point(x: center.x + dx, y: center.y + dy)
         }
 
         return Self(verts)
@@ -526,20 +536,14 @@ extension Geometry.Ngon where Scalar: BinaryFloatingPoint {
         circumradius: Scalar,
         at center: Geometry.Point<2> = .zero
     ) -> Self {
-        let first = Geometry.Point<2>(
-            x: Geometry.X(center.x.value + circumradius),
-            y: Geometry.Y(center.y.value)
-        )
-        var verts = InlineArray<N, Geometry.Point<2>>(repeating: first)
-
+        // Generate vertices at angles 2πi/N
+        var verts = InlineArray<N, Geometry.Point<2>>(repeating: center)
         for i in 0..<N {
-            let angle: Radian = .pi(times: 2 * Double(i) / Double(N))
-            verts[i] = Geometry.Point(
-                x: Geometry.X(center.x.value + circumradius * Scalar(angle.cos)),
-                y: Geometry.Y(center.y.value + circumradius * Scalar(angle.sin))
-            )
+            let angle = Radian<Scalar>(Scalar(2) * Scalar.pi * Scalar(i) / Scalar(N))
+            let dx = Linear<Scalar, Space>.Dx(circumradius * angle.cos.value)
+            let dy = Linear<Scalar, Space>.Dy(circumradius * angle.sin.value)
+            verts[i] = Geometry.Point(x: center.x + dx, y: center.y + dy)
         }
-
         return Self(verts)
     }
 
@@ -557,8 +561,8 @@ extension Geometry.Ngon where Scalar: BinaryFloatingPoint {
         at center: Geometry.Point<2> = .zero
     ) -> Self {
         // Circumradius R = r / cos(π/N) where r is inradius
-        let piOverN: Radian = .pi(over: Double(N))
-        let circumradius = inradius / Scalar(piOverN.cos)
+        let piOverN = Radian<Scalar>(Scalar.pi / Scalar(N))
+        let circumradius = inradius / piOverN.cos.value
         return regular(circumradius: circumradius, at: center)
     }
 }
@@ -568,20 +572,18 @@ extension Geometry.Ngon where Scalar: BinaryFloatingPoint {
 extension Geometry where Scalar: FloatingPoint {
     /// Calculate the area of an N-gon (always positive).
     @inlinable
-    public static func area<let N: Int>(of ngon: Ngon<N>) -> Scalar {
-        abs(signedDoubleArea(of: ngon)) / Scalar(2)
+    public static func area<let N: Int>(of ngon: Ngon<N>) -> Area {
+        // Use the instance method's typed result
+        let signedArea = ngon.signedArea
+        // abs of typed area, then wrap in Geometry.Area
+        let absArea = signedArea._rawValue < 0 ? -signedArea._rawValue : signedArea._rawValue
+        return Area(Tagged(absArea))
     }
 
     /// Calculate the signed double area of an N-gon using the shoelace formula.
     @inlinable
-    public static func signedDoubleArea<let N: Int>(of ngon: Ngon<N>) -> Scalar where Scalar: SignedNumeric {
-        var sum: Scalar = .zero
-        for i in 0..<N {
-            let j = (i + 1) % N
-            sum += ngon.vertices[i].x.value * ngon.vertices[j].y.value
-            sum -= ngon.vertices[j].x.value * ngon.vertices[i].y.value
-        }
-        return sum
+    public static func signedDoubleArea<let N: Int>(of ngon: Ngon<N>) -> Tagged<Measure<2, Space>, Scalar> where Scalar: SignedNumeric {
+        ngon.signedDoubleArea
     }
 
     /// Calculate the perimeter of an N-gon.
@@ -598,7 +600,9 @@ extension Geometry where Scalar: FloatingPoint {
     /// Calculate the centroid (center of mass) of an N-gon.
     @inlinable
     public static func centroid<let N: Int>(of ngon: Ngon<N>) -> Point<2>? where Scalar: SignedNumeric {
-        let a = signedDoubleArea(of: ngon)
+        // Centroid formula uses raw values because it inherently mixes
+        // coordinate components in ways that don't fit dimensional analysis
+        let a = signedDoubleArea(of: ngon)._rawValue
         guard abs(a) > .ulpOfOne else { return nil }
 
         var cx: Scalar = .zero
@@ -606,14 +610,16 @@ extension Geometry where Scalar: FloatingPoint {
 
         for i in 0..<N {
             let j = (i + 1) % N
-            let cross =
-                ngon.vertices[i].x.value * ngon.vertices[j].y.value
-                - ngon.vertices[j].x.value * ngon.vertices[i].y.value
-            cx += (ngon.vertices[i].x.value + ngon.vertices[j].x.value) * cross
-            cy += (ngon.vertices[i].y.value + ngon.vertices[j].y.value) * cross
+            let xi = ngon.vertices[i].x._rawValue
+            let yi = ngon.vertices[i].y._rawValue
+            let xj = ngon.vertices[j].x._rawValue
+            let yj = ngon.vertices[j].y._rawValue
+            let cross = xi * yj - xj * yi
+            cx += (xi + xj) * cross
+            cy += (yi + yj) * cross
         }
 
-        let factor: Scalar = 1 / (3 * a)
+        let factor = Scalar(1) / (Scalar(3) * a)
         return Point(x: X(cx * factor), y: Y(cy * factor))
     }
 }
@@ -788,29 +794,30 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
     /// Returns `nil` if the triangle is degenerate.
     @inlinable
     public var incircle: Geometry.Circle? {
+        // Incircle calculation uses raw values due to complex coordinate mixing
         let sides = sideLengths
-        let ab = sides.ab.value
-        let bc = sides.bc.value
-        let ca = sides.ca.value
+        let ab = sides.ab._rawValue
+        let bc = sides.bc._rawValue
+        let ca = sides.ca._rawValue
 
         let perimeter = ab + bc + ca
         guard perimeter > 0 else { return nil }
-        let semiPerimeter = perimeter / 2
 
-        // Incenter is the weighted centroid with weights = opposite side lengths
-        // Using affine combination: I = A + w_b*(B-A) + w_c*(C-A)
-        let w_b = ca / perimeter
-        let w_c = ab / perimeter
+        // Incenter is weighted centroid: I = (a*A + b*B + c*C) / (a+b+c)
+        // where a,b,c are opposite side lengths
+        let ax = vertices[0].x._rawValue, ay = vertices[0].y._rawValue
+        let bx = vertices[1].x._rawValue, by = vertices[1].y._rawValue
+        let cx = vertices[2].x._rawValue, cy = vertices[2].y._rawValue
 
-        let toB = vertices[1] - vertices[0]  // Vector from A to B
-        let toC = vertices[2] - vertices[0]  // Vector from A to C
-        let center = vertices[0] + toB * w_b + toC * w_c
+        let centerX = (bc * ax + ca * bx + ab * cx) / perimeter
+        let centerY = (bc * ay + ca * by + ab * cy) / perimeter
 
         // Inradius = Area / semi-perimeter
-        let inradius = area / semiPerimeter
+        let semiPerimeter = perimeter / 2
+        let inradius = area.rawValue / semiPerimeter
 
         return Geometry.Circle(
-            center: center,
+            center: Geometry.Point(x: Geometry.X(centerX), y: Geometry.Y(centerY)),
             radius: Geometry.Radius(inradius)
         )
     }
@@ -824,25 +831,36 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
     /// Returns `nil` if the triangle is degenerate (collinear vertices).
     @inlinable
     public var circumcircle: Geometry.Circle? {
-        let ax: Scalar = vertices[0].x.value
-        let ay: Scalar = vertices[0].y.value
-        let bx: Scalar = vertices[1].x.value
-        let by: Scalar = vertices[1].y.value
-        let cx: Scalar = vertices[2].x.value
-        let cy: Scalar = vertices[2].y.value
-        let two: Scalar = Scalar(2)
+        // Circumcircle calculation uses raw values due to complex coordinate mixing
+        let ax = vertices[0].x._rawValue
+        let ay = vertices[0].y._rawValue
+        let bx = vertices[1].x._rawValue
+        let by = vertices[1].y._rawValue
+        let cx = vertices[2].x._rawValue
+        let cy = vertices[2].y._rawValue
 
-        let d: Scalar = two * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
+        // Break up complex expressions for type checker
+        let dTerm1 = ax * (by - cy)
+        let dTerm2 = bx * (cy - ay)
+        let dTerm3 = cx * (ay - by)
+        let d = Scalar(2) * (dTerm1 + dTerm2 + dTerm3)
         guard abs(d) > Scalar.ulpOfOne else { return nil }
 
-        let aSq: Scalar = ax * ax + ay * ay
-        let bSq: Scalar = bx * bx + by * by
-        let cSq: Scalar = cx * cx + cy * cy
+        let aSq = ax * ax + ay * ay
+        let bSq = bx * bx + by * by
+        let cSq = cx * cx + cy * cy
 
-        let ux: Scalar = (aSq * (by - cy) + bSq * (cy - ay) + cSq * (ay - by)) / d
-        let uy: Scalar = (aSq * (cx - bx) + bSq * (ax - cx) + cSq * (bx - ax)) / d
+        let uxTerm1 = aSq * (by - cy)
+        let uxTerm2 = bSq * (cy - ay)
+        let uxTerm3 = cSq * (ay - by)
+        let ux = (uxTerm1 + uxTerm2 + uxTerm3) / d
 
-        let center: Geometry.Point<2> = Geometry.Point(x: Geometry.X(ux), y: Geometry.Y(uy))
+        let uyTerm1 = aSq * (cx - bx)
+        let uyTerm2 = bSq * (ax - cx)
+        let uyTerm3 = cSq * (bx - ax)
+        let uy = (uyTerm1 + uyTerm2 + uyTerm3) / d
+
+        let center = Geometry.Point(x: Geometry.X(ux), y: Geometry.Y(uy))
         let radius = center.distance(to: vertices[0])
 
         return Geometry.Circle(center: center, radius: radius)
@@ -857,20 +875,20 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
     /// Returns `nil` if the triangle is degenerate.
     @inlinable
     public var orthocenter: Geometry.Point<2>? {
+        // Orthocenter uses raw values due to coordinate mixing
         guard let cc = circumcircle else { return nil }
-        let two: Scalar = Scalar(2)
 
-        let ax: Scalar = vertices[0].x.value
-        let ay: Scalar = vertices[0].y.value
-        let bx: Scalar = vertices[1].x.value
-        let by: Scalar = vertices[1].y.value
-        let cx: Scalar = vertices[2].x.value
-        let cy: Scalar = vertices[2].y.value
-        let ccx: Scalar = cc.center.x.value
-        let ccy: Scalar = cc.center.y.value
+        let ax = vertices[0].x._rawValue
+        let ay = vertices[0].y._rawValue
+        let bx = vertices[1].x._rawValue
+        let by = vertices[1].y._rawValue
+        let cx = vertices[2].x._rawValue
+        let cy = vertices[2].y._rawValue
+        let ccx = cc.center.x._rawValue
+        let ccy = cc.center.y._rawValue
 
-        let ox: Scalar = ax + bx + cx - two * ccx
-        let oy: Scalar = ay + by + cy - two * ccy
+        let ox = ax + bx + cx - Scalar(2) * ccx
+        let oy = ay + by + cy - Scalar(2) * ccy
 
         return Geometry.Point(x: Geometry.X(ox), y: Geometry.Y(oy))
     }
@@ -878,27 +896,39 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
 
 // MARK: - Triangle Angles
 
-extension Geometry.Ngon where N == 3, Scalar: BinaryFloatingPoint {
+extension Geometry.Ngon where N == 3, Scalar: Real & BinaryFloatingPoint {
     /// The interior angles at each vertex.
     ///
     /// Angles are in radians and always sum to π.
     @inlinable
-    public var angles: (atA: Radian, atB: Radian, atC: Radian) {
+    public var angles: (atA: Radian<Scalar>, atB: Radian<Scalar>, atC: Radian<Scalar>) {
+        // Law of cosines uses raw values for side lengths
         let sides = sideLengths
-        let ab: Scalar = sides.ab.value
-        let bc: Scalar = sides.bc.value
-        let ca: Scalar = sides.ca.value
-        let two: Scalar = Scalar(2)
+        let ab = sides.ab._rawValue
+        let bc = sides.bc._rawValue
+        let ca = sides.ca._rawValue
 
-        // Law of cosines: cos(A) = (b² + c² - a²) / (2bc)
-        let cosA: Scalar = (ca * ca + ab * ab - bc * bc) / (two * ca * ab)
-        let cosB: Scalar = (ab * ab + bc * bc - ca * ca) / (two * ab * bc)
-        let cosC: Scalar = (bc * bc + ca * ca - ab * ab) / (two * bc * ca)
+        // cos(A) = (b² + c² - a²) / (2bc) - break up for type checker
+        let abSq = ab * ab
+        let bcSq = bc * bc
+        let caSq = ca * ca
+
+        let cosANum = caSq + abSq - bcSq
+        let cosADen = Scalar(2) * ca * ab
+        let cosA = cosANum / cosADen
+
+        let cosBNum = abSq + bcSq - caSq
+        let cosBDen = Scalar(2) * ab * bc
+        let cosB = cosBNum / cosBDen
+
+        let cosCNum = bcSq + caSq - abSq
+        let cosCDen = Scalar(2) * bc * ca
+        let cosC = cosCNum / cosCDen
 
         return (
-            Radian.acos(Double(cosA)),
-            Radian.acos(Double(cosB)),
-            Radian.acos(Double(cosC))
+            Radian.acos(Scale<1, Scalar>(cosA)),
+            Radian.acos(Scale<1, Scalar>(cosB)),
+            Radian.acos(Scale<1, Scalar>(cosC))
         )
     }
 }
@@ -954,15 +984,17 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
     /// - Returns: The Cartesian point
     @inlinable
     public func point(u: Scalar, v: Scalar, w: Scalar) -> Geometry.Point<2> {
-        let ax: Scalar = vertices[0].x.value
-        let ay: Scalar = vertices[0].y.value
-        let bx: Scalar = vertices[1].x.value
-        let by: Scalar = vertices[1].y.value
-        let cx: Scalar = vertices[2].x.value
-        let cy: Scalar = vertices[2].y.value
+        // P = A + v × (B - A) + w × (C - A), using u + v + w = 1
+        // Barycentric weights are dimensionless ratios (Scale)
+        let vScale = Scale<1, Scalar>(v)
+        let wScale = Scale<1, Scalar>(w)
+        let ab_dx = vertices[1].x - vertices[0].x
+        let ab_dy = vertices[1].y - vertices[0].y
+        let ac_dx = vertices[2].x - vertices[0].x
+        let ac_dy = vertices[2].y - vertices[0].y
         return Geometry.Point(
-            x: Geometry.X(u * ax + v * bx + w * cx),
-            y: Geometry.Y(u * ay + v * by + w * cy)
+            x: vertices[0].x + vScale * ab_dx + wScale * ac_dx,
+            y: vertices[0].y + vScale * ab_dy + wScale * ac_dy
         )
     }
 }
@@ -1000,12 +1032,10 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint & AdditiveArithmetic
         height: Scalar,
         at origin: Geometry.Point<2> = .zero
     ) -> Self {
-        let ox: Scalar = origin.x.value
-        let oy: Scalar = origin.y.value
-        return Self(
+        Self(
             a: origin,
-            b: Geometry.Point(x: Geometry.X(ox + base), y: Geometry.Y(oy)),
-            c: Geometry.Point(x: Geometry.X(ox), y: Geometry.Y(oy + height))
+            b: Geometry.Point(x: origin.x + Linear<Scalar, Space>.Dx(base), y: origin.y),
+            c: Geometry.Point(x: origin.x, y: origin.y + Linear<Scalar, Space>.Dy(height))
         )
     }
 
@@ -1023,16 +1053,13 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint & AdditiveArithmetic
         sideLength: Scalar,
         at origin: Geometry.Point<2> = .zero
     ) -> Self {
-        let ox: Scalar = origin.x.value
-        let oy: Scalar = origin.y.value
-        let half: Scalar = sideLength / Scalar(2)
-        // Height of equilateral triangle: h = s * sqrt(3) / 2
-        let sqrtThree: Scalar = Scalar(3).squareRoot()
-        let h: Scalar = sideLength * sqrtThree / Scalar(2)
+        let half = sideLength / Scalar(2)
+        // Height of equilateral triangle: h = s × √3 / 2
+        let h = sideLength * Scalar(3).squareRoot() / Scalar(2)
         return Self(
             a: origin,
-            b: Geometry.Point(x: Geometry.X(ox + sideLength), y: Geometry.Y(oy)),
-            c: Geometry.Point(x: Geometry.X(ox + half), y: Geometry.Y(oy + h))
+            b: Geometry.Point(x: origin.x + Linear<Scalar, Space>.Dx(sideLength), y: origin.y),
+            c: Geometry.Point(x: origin.x + Linear<Scalar, Space>.Dx(half), y: origin.y + Linear<Scalar, Space>.Dy(h))
         )
     }
 
@@ -1051,18 +1078,15 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint & AdditiveArithmetic
         leg: Scalar,
         at origin: Geometry.Point<2> = .zero
     ) -> Self? {
-        // Height: h = sqrt(leg² - (base/2)²)
-        let half: Scalar = base / Scalar(2)
-        let hSquared: Scalar = leg * leg - half * half
+        // Height: h = √(leg² - (base/2)²)
+        let half = base / Scalar(2)
+        let hSquared = leg * leg - half * half
         guard hSquared >= Scalar(0) else { return nil }
-        let h: Scalar = hSquared.squareRoot()
-
-        let ox: Scalar = origin.x.value
-        let oy: Scalar = origin.y.value
+        let h = hSquared.squareRoot()
         return Self(
             a: origin,
-            b: Geometry.Point(x: Geometry.X(ox + base), y: Geometry.Y(oy)),
-            c: Geometry.Point(x: Geometry.X(ox + half), y: Geometry.Y(oy + h))
+            b: Geometry.Point(x: origin.x + Linear<Scalar, Space>.Dx(base), y: origin.y),
+            c: Geometry.Point(x: origin.x + Linear<Scalar, Space>.Dx(half), y: origin.y + Linear<Scalar, Space>.Dy(h))
         )
     }
 }
@@ -1076,20 +1100,18 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
     /// This shadows the optional `centroid` from the base Ngon type.
     @inlinable
     public var centroid: Geometry.Point<2> {
-        let three: Scalar = Scalar(3)
-        return Geometry.Point(
-            x: Geometry.X(
-                (vertices[0].x.value + vertices[1].x.value + vertices[2].x.value) / three
-            ),
-            y: Geometry.Y((vertices[0].y.value + vertices[1].y.value + vertices[2].y.value) / three)
-        )
+        // centroid = p₀ + (1/3) × ((p₁ - p₀) + (p₂ - p₀))
+        let oneThird = Scale<1, Scalar>(1 / Scalar(3))
+        let dx = (vertices[1].x - vertices[0].x) + (vertices[2].x - vertices[0].x)
+        let dy = (vertices[1].y - vertices[0].y) + (vertices[2].y - vertices[0].y)
+        return Geometry.Point(x: vertices[0].x + oneThird * dx, y: vertices[0].y + oneThird * dy)
     }
 
     /// Return a triangle scaled uniformly about its centroid.
     ///
     /// This shadows the optional `scaled(by:)` from the base Ngon type.
     @inlinable
-    public func scaled(by factor: Scalar) -> Self {
+    public func scaled(by factor: Scale<1, Scalar>) -> Self {
         scaled(by: factor, about: centroid)
     }
 }

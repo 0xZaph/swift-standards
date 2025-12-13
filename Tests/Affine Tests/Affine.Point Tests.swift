@@ -251,8 +251,8 @@ struct `Affine.Point Tests` {
             (Point2(x: 1, y: 1), Point2(x: 4, y: 5), 25.0),
             (Point2(x: 0, y: 0), Point2(x: 0, y: 0), 0.0)
         ])
-        func distanceSquared2D(p1: Point2, p2: Point2, expected: Double) {
-            let distSq = Point2.distanceSquared(from: p1, to: p2)
+        func distanceSquared2D(p1: Point2, p2: Point2, expected: Tagged<Area<Void>, Double>) {
+            let distSq = Point2.distance.squared(from: p1, to: p2)
             #expect(distSq == expected)
         }
 
@@ -260,7 +260,7 @@ struct `Affine.Point Tests` {
         func `Distance squared instance method (2D)`() {
             let p1 = Point2(x: 0, y: 0)
             let p2 = Point2(x: 3, y: 4)
-            #expect(p1.distanceSquared(to: p2) == 25)
+            #expect(p1.distance.squared(to: p2) == 25)
         }
 
         @Test(arguments: [
@@ -269,7 +269,7 @@ struct `Affine.Point Tests` {
             (Point2(x: 0, y: 0), Point2(x: 0, y: 0), 0 as Distance)
         ])
         func distance2D(p1: Point2, p2: Point2, expected: Distance) {
-            let dist = Point2.distance(from: p1, to: p2)
+            let dist = Point2.distance.from(p1, to: p2)
             #expect(dist == expected)
         }
 
@@ -285,7 +285,7 @@ struct `Affine.Point Tests` {
         func `Distance squared (3D)`() {
             let p1 = Point3(x: 0, y: 0, z: 0)
             let p2 = Point3(x: 1, y: 2, z: 2)
-            #expect(Point3.distanceSquared(from: p1, to: p2) == 9)
+            #expect(Point3.distance.squared(from: p1, to: p2) == 9)
         }
 
         @Test
@@ -293,7 +293,7 @@ struct `Affine.Point Tests` {
             let p1 = Point3(x: 0, y: 0, z: 0)
             let p2 = Point3(x: 1, y: 2, z: 2)
             let expected: Distance = 3
-            #expect(Point3.distance(from: p1, to: p2) == expected)
+            #expect(Point3.distance.from(p1, to: p2) == expected)
         }
     }
 

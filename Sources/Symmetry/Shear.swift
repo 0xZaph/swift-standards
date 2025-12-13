@@ -119,16 +119,16 @@ extension Shear where N == 2 {
 
     /// Creates a horizontal shear displacing x based on y.
     @inlinable
-    public static func horizontal(_ factor: Scalar) -> Self
+    public static func horizontal(_ factor: Scale<1, Scalar>) -> Self
     where Scalar: ExpressibleByIntegerLiteral {
-        Self(x: factor, y: 0)
+        Self(x: factor.value, y: 0)
     }
 
     /// Creates a vertical shear displacing y based on x.
     @inlinable
-    public static func vertical(_ factor: Scalar) -> Self
+    public static func vertical(_ factor: Scale<1, Scalar>) -> Self
     where Scalar: ExpressibleByIntegerLiteral {
-        Self(x: 0, y: factor)
+        Self(x: 0, y: factor.value)
     }
 }
 

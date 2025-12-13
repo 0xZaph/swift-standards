@@ -158,42 +158,6 @@ extension Geometry.EdgeInsets where Scalar: SignedNumeric {
     }
 }
 
-// MARK: - Scalar Multiplication
-
-extension Geometry.EdgeInsets where Scalar: FloatingPoint {
-    /// Scales all insets by a scalar factor.
-    @inlinable
-    public static func * (lhs: Self, rhs: Scalar) -> Self {
-        Self(
-            top: lhs.top * rhs,
-            leading: lhs.leading * rhs,
-            bottom: lhs.bottom * rhs,
-            trailing: lhs.trailing * rhs
-        )
-    }
-
-    /// Scales all insets by a scalar factor.
-    @inlinable
-    public static func * (lhs: Scalar, rhs: Self) -> Self {
-        Self(
-            top: lhs * rhs.top,
-            leading: lhs * rhs.leading,
-            bottom: lhs * rhs.bottom,
-            trailing: lhs * rhs.trailing
-        )
-    }
-
-    /// Divides all insets by a scalar factor.
-    @inlinable
-    public static func / (lhs: Self, rhs: Scalar) -> Self {
-        Self(
-            top: lhs.top / rhs,
-            leading: lhs.leading / rhs,
-            bottom: lhs.bottom / rhs,
-            trailing: lhs.trailing / rhs
-        )
-    }
-}
 
 // MARK: - Functorial Map
 

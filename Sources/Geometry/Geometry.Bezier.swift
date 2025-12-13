@@ -5,6 +5,8 @@ public import Affine
 public import Algebra
 public import Algebra_Linear
 public import Angle
+public import Dimension
+public import RealModule
 
 extension Geometry {
     /// A Bezier curve defined by control points.
@@ -128,9 +130,9 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
     @inlinable
     public func tangent(at t: Scalar) -> Geometry.Vector<2>? {
         guard let d = derivative(at: t) else { return nil }
-        let len = d.length
-        guard len > 0 else { return nil }
-        return d / len
+        let normalized = Linear<Scalar, Space>.Vector.normalized(d)
+        guard normalized.length > 0 else { return nil }
+        return normalized
     }
 
     /// Get the normal direction (perpendicular to tangent) at parameter t.
@@ -142,8 +144,8 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
         guard let tang = tangent(at: t) else { return nil }
         // Rotate 90° counter-clockwise
         return Geometry.Vector(
-            dx: Geometry.Width(-tang.dy.value),
-            dy: Geometry.Height(tang.dx.value)
+            dx: Geometry.Width(-tang.dy._rawValue),
+            dy: Geometry.Height(tang.dx._rawValue)
         )
     }
 }
@@ -219,16 +221,16 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
     public var boundingBoxConservative: Geometry.Rectangle? {
         guard let first = controlPoints.first else { return nil }
 
-        var minX = first.x.value
-        var maxX = first.x.value
-        var minY = first.y.value
-        var maxY = first.y.value
+        var minX = first.x._rawValue
+        var maxX = first.x._rawValue
+        var minY = first.y._rawValue
+        var maxY = first.y._rawValue
 
         for point in controlPoints.dropFirst() {
-            minX = min(minX, point.x.value)
-            maxX = max(maxX, point.x.value)
-            minY = min(minY, point.y.value)
-            maxY = max(maxY, point.y.value)
+            minX = min(minX, point.x._rawValue)
+            maxX = max(maxX, point.x._rawValue)
+            minY = min(minY, point.y._rawValue)
+            maxY = max(maxY, point.y._rawValue)
         }
 
         return Geometry.Rectangle(
@@ -273,19 +275,19 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
 
     /// Return a curve scaled uniformly about its start point.
     @inlinable
-    public func scaled(by factor: Scalar) -> Self? {
+    public func scaled(by factor: Scale<1, Scalar>) -> Self? {
         guard let start = startPoint else { return nil }
         return scaled(by: factor, about: start)
     }
 
     /// Return a curve scaled uniformly about a given point.
     @inlinable
-    public func scaled(by factor: Scalar, about point: Geometry.Point<2>) -> Self {
+    public func scaled(by factor: Scale<1, Scalar>, about point: Geometry.Point<2>) -> Self {
         Self(
             controlPoints: controlPoints.map { p in
                 Geometry.Point(
-                    x: Geometry.X(point.x.value + factor * (p.x.value - point.x.value)),
-                    y: Geometry.Y(point.y.value + factor * (p.y.value - point.y.value))
+                    x: point.x + factor * (p.x - point.x),
+                    y: point.y + factor * (p.y - point.y)
                 )
             }
         )
@@ -298,9 +300,9 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
     }
 }
 
-// MARK: - Ellipse Approximation (BinaryFloatingPoint)
+// MARK: - Ellipse Approximation (Real & BinaryFloatingPoint)
 
-extension Geometry.Bezier where Scalar: BinaryFloatingPoint {
+extension Geometry.Bezier where Scalar: Real & BinaryFloatingPoint {
     /// Create cubic Bezier curves that approximate an ellipse.
     ///
     /// Uses the standard technique of splitting the ellipse into 4 quadrants,
@@ -314,12 +316,12 @@ extension Geometry.Bezier where Scalar: BinaryFloatingPoint {
         // k = (4/3) * tan(π/8) ≈ 0.5522847498
         let k: Scalar = Scalar(0.5522847498307936)
 
-        let cx: Scalar = ellipse.center.x.value
-        let cy: Scalar = ellipse.center.y.value
-        let a: Scalar = ellipse.semiMajor.value
-        let b: Scalar = ellipse.semiMinor.value
-        let cosR: Scalar = Scalar(ellipse.rotation.cos)
-        let sinR: Scalar = Scalar(ellipse.rotation.sin)
+        let cx: Scalar = ellipse.center.x._rawValue
+        let cy: Scalar = ellipse.center.y._rawValue
+        let a: Scalar = ellipse.semiMajor._rawValue
+        let b: Scalar = ellipse.semiMinor._rawValue
+        let cosR: Scalar = ellipse.rotation.cos.value
+        let sinR: Scalar = ellipse.rotation.sin.value
 
         // Helper to rotate a point around the center
         func rotated(x: Scalar, y: Scalar) -> Geometry.Point<2> {
@@ -410,8 +412,8 @@ extension Geometry where Scalar: FloatingPoint {
         var derivPoints: [Point<2>] = []
         derivPoints.reserveCapacity(bezier.controlPoints.count - 1)
         for i in 0..<(bezier.controlPoints.count - 1) {
-            let dx = bezier.controlPoints[i + 1].x.value - bezier.controlPoints[i].x.value
-            let dy = bezier.controlPoints[i + 1].y.value - bezier.controlPoints[i].y.value
+            let dx = bezier.controlPoints[i + 1].x._rawValue - bezier.controlPoints[i].x._rawValue
+            let dy = bezier.controlPoints[i + 1].y._rawValue - bezier.controlPoints[i].y._rawValue
             derivPoints.append(Point(x: X(dx), y: Y(dy)))
         }
 
@@ -429,8 +431,8 @@ extension Geometry where Scalar: FloatingPoint {
 
         guard let p = points.first else { return nil }
         return Vector(
-            dx: Width(n * p.x.value),
-            dy: Height(n * p.y.value)
+            dx: Width(n * p.x._rawValue),
+            dy: Height(n * p.y._rawValue)
         )
     }
 }

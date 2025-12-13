@@ -185,19 +185,19 @@ extension Geometry.Magnitude {
     /// Project magnitude as horizontal displacement (width).
     @inlinable
     public var width: Geometry.Width {
-        Geometry.Width(rawValue.rawValue)
+        Geometry.Width(rawValue._rawValue)
     }
 
     /// Project magnitude as vertical displacement (height).
     @inlinable
     public var height: Geometry.Height {
-        Geometry.Height(rawValue.rawValue)
+        Geometry.Height(rawValue._rawValue)
     }
 
     /// Underlying scalar value.
     @inlinable
     public var value: Scalar {
-        rawValue.rawValue
+        rawValue._rawValue
     }
 }
 
@@ -210,29 +210,29 @@ extension Geometry.Magnitude where Scalar: AdditiveArithmetic {
         Self(Linear<Scalar, Space>.Magnitude(.zero))
     }
 }
-
-extension Geometry.Magnitude where Scalar: FloatingPoint {
-    /// Multiplies magnitude by a scalar.
-    @inlinable
-    public static func * (lhs: Self, rhs: Scalar) -> Self {
-        Self(lhs.rawValue * rhs)
-    }
-
-    /// Multiplies scalar by magnitude.
-    @inlinable
-    public static func * (lhs: Scalar, rhs: Self) -> Self {
-        Self(lhs * rhs.rawValue)
-    }
-
-    /// Divides magnitude by a scalar.
-    @inlinable
-    public static func / (lhs: Self, rhs: Scalar) -> Self {
-        Self(lhs.rawValue / rhs)
-    }
-
-    /// Ratio of two magnitudes (dimensionless).
-    @inlinable
-    public static func / (lhs: Self, rhs: Self) -> Scalar {
-        lhs.rawValue / rhs.rawValue
-    }
-}
+//
+//extension Geometry.Magnitude where Scalar: FloatingPoint {
+//    /// Multiplies magnitude by a scalar.
+//    @inlinable
+//    public static func * (lhs: Self, rhs: Scalar) -> Self {
+//        Self(lhs.rawValue * rhs)
+//    }
+//
+//    /// Multiplies scalar by magnitude.
+//    @inlinable
+//    public static func * (lhs: Scalar, rhs: Self) -> Self {
+//        Self(lhs * rhs.rawValue)
+//    }
+//
+//    /// Divides magnitude by a scalar.
+//    @inlinable
+//    public static func / (lhs: Self, rhs: Scalar) -> Self {
+//        Self(lhs.rawValue / rhs)
+//    }
+//
+//    /// Ratio of two magnitudes (dimensionless).
+//    @inlinable
+//    public static func / (lhs: Self, rhs: Self) -> Scalar {
+//        lhs.rawValue / rhs.rawValue
+//    }
+//}

@@ -71,9 +71,9 @@ extension Geometry.Ray where Scalar: FloatingPoint {
     /// A normalized direction vector (unit length), or nil if direction is zero
     @inlinable
     public var unitDirection: Geometry.Vector<2>? {
-        let len = direction.length
-        guard len > 0 else { return nil }
-        return direction / len
+        let normalized = Linear<Scalar, Space>.Vector.normalized(direction)
+        guard normalized.length > 0 else { return nil }
+        return normalized
     }
 
     /// The infinite line containing this ray
@@ -91,7 +91,7 @@ extension Geometry.Ray where Scalar: FloatingPoint {
     /// - Parameter t: The parameter (must be >= 0 for point to be on ray)
     /// - Returns: The point at parameter t
     @inlinable
-    public func point(at t: Scalar) -> Geometry.Point<2> {
+    public func point(at t: Scale<1, Scalar>) -> Geometry.Point<2> {
         Geometry.point(of: self, at: t)
     }
 
@@ -125,12 +125,15 @@ extension Geometry.Ray where Scalar: FloatingPoint {
     /// - Returns: The closest point on the ray
     @inlinable
     public func closestPoint(to point: Geometry.Point<2>) -> Geometry.Point<2> {
-        let lenSq = direction.lengthSquared
-        guard lenSq > 0 else { return origin }
+        // Compute length squared using typed operations: Dx * Dx + Dy * Dy = Area
+        let lenSq = direction.dx * direction.dx + direction.dy * direction.dy
+        guard lenSq > .zero else { return origin }
 
-        let vx = point.x.value - origin.x.value
-        let vy = point.y.value - origin.y.value
-        let t = max(0, (direction.dx.value * vx + direction.dy.value * vy) / lenSq)
+        let vx = point.x - origin.x
+        let vy = point.y - origin.y
+        // dot product: Dx * Dx + Dy * Dy = Area
+        // Area / Area = Scale<1, Scalar>
+        let t: Scale<1, Scalar> = max(0, (direction.dx * vx + direction.dy * vy) / lenSq)
 
         return self.point(at: t)
     }
@@ -145,22 +148,24 @@ extension Geometry.Ray where Scalar: FloatingPoint {
     /// - Returns: The intersection point, or `nil` if rays don't intersect
     @inlinable
     public func intersection(with other: Self) -> Geometry.Point<2>? {
-        let d1x = direction.dx.value
-        let d1y = direction.dy.value
-        let d2x = other.direction.dx.value
-        let d2y = other.direction.dy.value
+        let d1x = direction.dx
+        let d1y = direction.dy
+        let d2x = other.direction.dx
+        let d2y = other.direction.dy
 
-        // Cross product of direction vectors
+        // Cross product of direction vectors: Dx * Dy - Dy * Dx = Area
         let cross = d1x * d2y - d1y * d2x
 
         // If cross product is near zero, rays are parallel
-        guard abs(cross) > Scalar.ulpOfOne else { return nil }
+        guard abs(cross) > .zero else { return nil }
 
-        let dpx = other.origin.x.value - origin.x.value
-        let dpy = other.origin.y.value - origin.y.value
+        // Displacement from this origin to other origin
+        let dpx: Linear<Scalar, Space>.Dx = other.origin.x - origin.x
+        let dpy: Linear<Scalar, Space>.Dy = other.origin.y - origin.y
 
-        let t1 = (dpx * d2y - dpy * d2x) / cross
-        let t2 = (dpx * d1y - dpy * d1x) / cross
+        // Area / Area = Scale<1, Scalar>
+        let t1: Scale<1, Scalar> = (dpx * d2y - dpy * d2x) / cross
+        let t2: Scale<1, Scalar> = (dpx * d1y - dpy * d1x) / cross
 
         // Both parameters must be non-negative for intersection on both rays
         guard t1 >= 0 && t2 >= 0 else { return nil }
@@ -174,21 +179,23 @@ extension Geometry.Ray where Scalar: FloatingPoint {
     /// - Returns: The intersection point, or `nil` if ray doesn't intersect line
     @inlinable
     public func intersection(with line: Geometry.Line) -> Geometry.Point<2>? {
-        let d1x = direction.dx.value
-        let d1y = direction.dy.value
-        let d2x = line.direction.dx.value
-        let d2y = line.direction.dy.value
+        let d1x = direction.dx
+        let d1y = direction.dy
+        let d2x = line.direction.dx
+        let d2y = line.direction.dy
 
-        // Cross product of direction vectors
+        // Cross product of direction vectors: Dx * Dy - Dy * Dx = Area
         let cross = d1x * d2y - d1y * d2x
 
         // If cross product is near zero, ray and line are parallel
-        guard abs(cross) > Scalar.ulpOfOne else { return nil }
+        guard abs(cross) > .zero else { return nil }
 
-        let dpx = line.point.x.value - origin.x.value
-        let dpy = line.point.y.value - origin.y.value
+        // Displacement from ray origin to line point
+        let dpx: Linear<Scalar, Space>.Dx = line.point.x - origin.x
+        let dpy: Linear<Scalar, Space>.Dy = line.point.y - origin.y
 
-        let t = (dpx * d2y - dpy * d2x) / cross
+        // Area / Area = Scale<1, Scalar>
+        let t: Scale<1, Scalar> = (dpx * d2y - dpy * d2x) / cross
 
         // Parameter must be non-negative for intersection on ray
         guard t >= 0 else { return nil }
@@ -202,22 +209,24 @@ extension Geometry.Ray where Scalar: FloatingPoint {
     /// - Returns: The intersection point, or `nil` if ray doesn't intersect segment
     @inlinable
     public func intersection(with segment: Geometry.Line.Segment) -> Geometry.Point<2>? {
-        let d1x = direction.dx.value
-        let d1y = direction.dy.value
-        let d2x = segment.vector.dx.value
-        let d2y = segment.vector.dy.value
+        let d1x = direction.dx
+        let d1y = direction.dy
+        let d2x = segment.vector.dx
+        let d2y = segment.vector.dy
 
-        // Cross product of direction vectors
+        // Cross product of direction vectors: Dx * Dy - Dy * Dx = Area
         let cross = d1x * d2y - d1y * d2x
 
         // If cross product is near zero, ray and segment are parallel
-        guard abs(cross) > Scalar.ulpOfOne else { return nil }
+        guard abs(cross) > .zero else { return nil }
 
-        let dpx = segment.start.x.value - origin.x.value
-        let dpy = segment.start.y.value - origin.y.value
+        // Displacement from ray origin to segment start
+        let dpx: Linear<Scalar, Space>.Dx = segment.start.x - origin.x
+        let dpy: Linear<Scalar, Space>.Dy = segment.start.y - origin.y
 
-        let t1 = (dpx * d2y - dpy * d2x) / cross
-        let t2 = (dpx * d1y - dpy * d1x) / cross
+        // Area / Area = Scale<1, Scalar>
+        let t1: Scale<1, Scalar> = (dpx * d2y - dpy * d2x) / cross
+        let t2: Scale<1, Scalar> = (dpx * d1y - dpy * d1x) / cross
 
         // t1 must be non-negative (on ray), t2 must be in [0, 1] (on segment)
         guard t1 >= 0 && t2 >= 0 && t2 <= 1 else { return nil }
@@ -236,9 +245,9 @@ extension Geometry.Ray where Scalar: FloatingPoint {
 
         // Filter to only points on the ray (t >= 0)
         return lineIntersections.filter { point in
-            let vx = point.x.value - origin.x.value
-            let vy = point.y.value - origin.y.value
-            let dot = direction.dx.value * vx + direction.dy.value * vy
+            let vx = point.x - origin.x
+            let vy = point.y - origin.y
+            let dot = direction.dx * vx + direction.dy * vy
             return dot >= 0
         }
     }
@@ -266,42 +275,52 @@ extension Geometry.Ray where Scalar: FloatingPoint {
 extension Geometry where Scalar: FloatingPoint {
     /// Get a point on a ray at parameter t.
     @inlinable
-    public static func point(of ray: Ray, at t: Scalar) -> Point<2> {
+    public static func point(of ray: Ray, at t: Scale<1, Scalar>) -> Point<2> {
+        // origin + t * direction: Coordinate + Scale * Displacement = Coordinate
         Point(
-            x: X(ray.origin.x.value + t * ray.direction.dx.value),
-            y: Y(ray.origin.y.value + t * ray.direction.dy.value)
+            x: ray.origin.x + t * ray.direction.dx,
+            y: ray.origin.y + t * ray.direction.dy
         )
     }
 
     /// Check if a ray contains a point.
     @inlinable
     public static func contains(_ ray: Ray, point: Point<2>) -> Bool {
-        let lenSq = ray.direction.lengthSquared
-        guard lenSq > 0 else { return point == ray.origin }
+        // Compute length squared using typed operations: Dx * Dx + Dy * Dy = Area
+        let lenSq = ray.direction.dx * ray.direction.dx + ray.direction.dy * ray.direction.dy
+        guard lenSq > .zero else { return point == ray.origin }
 
-        let vx = point.x.value - ray.origin.x.value
-        let vy = point.y.value - ray.origin.y.value
-        let t = (ray.direction.dx.value * vx + ray.direction.dy.value * vy) / lenSq
+        // Displacement from ray origin to point
+        let vx: Linear<Scalar, Space>.Dx = point.x - ray.origin.x
+        let vy: Linear<Scalar, Space>.Dy = point.y - ray.origin.y
+        // Area / Area = Scale<1, Scalar>
+        let t: Scale<1, Scalar> = (ray.direction.dx * vx + ray.direction.dy * vy) / lenSq
 
         // Must be on positive side of ray
         guard t >= 0 else { return false }
 
-        // Check if point is actually on the line (perpendicular distance is zero)
+        // Check if point is actually on the line (perpendicular distance is negligible)
         let projected = Geometry.point(of: ray, at: t)
-        let distSq = point.distanceSquared(to: projected)
-        return distSq < Scalar.ulpOfOne * 100
+        let distSq = point.distance.squared(to: projected)
+        // Compare Area to Area - use a small epsilon squared as tolerance
+        let tolerance: Tagged<Dimension.Area<Space>, Scalar> = Tagged(Scalar.ulpOfOne * 100)
+        return distSq < tolerance
     }
 
     /// Calculate the perpendicular distance from a point to a ray.
     @inlinable
     public static func distance(from ray: Ray, to point: Point<2>) -> Distance {
-        let lenSq = ray.direction.lengthSquared
-        guard lenSq > 0 else {
+        // Compute length squared using typed operations: Dx * Dx + Dy * Dy = Area
+        let lenSq = ray.direction.dx * ray.direction.dx + ray.direction.dy * ray.direction.dy
+        guard lenSq > .zero else {
             return ray.origin.distance(to: point)
         }
 
-        let v = Vector(dx: point.x - ray.origin.x, dy: point.y - ray.origin.y)
-        let t = max(0, (ray.direction.dx * v.dx + ray.direction.dy * v.dy) / lenSq)
+        // Displacement from ray origin to point
+        let vx: Linear<Scalar, Space>.Dx = point.x - ray.origin.x
+        let vy: Linear<Scalar, Space>.Dy = point.y - ray.origin.y
+        // Area / Area = Scale<1, Scalar>
+        let t: Scale<1, Scalar> = max(0, (ray.direction.dx * vx + ray.direction.dy * vy) / lenSq)
 
         let closest = Geometry.point(of: ray, at: t)
         return point.distance(to: closest)

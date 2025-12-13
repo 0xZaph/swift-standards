@@ -88,8 +88,8 @@ extension Geometry.Polygon where Scalar: SignedNumeric {
         var sum: Scalar = .zero
         for i in 0..<vertices.count {
             let j = (i + 1) % vertices.count
-            sum += (vertices[i].x.value * vertices[j].y.value)
-            sum -= (vertices[j].x.value * vertices[i].y.value)
+            sum += (vertices[i].x._rawValue * vertices[j].y._rawValue)
+            sum -= (vertices[j].x._rawValue * vertices[i].y._rawValue)
         }
         return sum
     }
@@ -125,16 +125,16 @@ extension Geometry.Polygon where Scalar: FloatingPoint {
     public var boundingBox: Geometry.Rectangle? {
         guard let first = vertices.first else { return nil }
 
-        var minX = first.x.value
-        var maxX = first.x.value
-        var minY = first.y.value
-        var maxY = first.y.value
+        var minX = first.x._rawValue
+        var maxX = first.x._rawValue
+        var minY = first.y._rawValue
+        var maxY = first.y._rawValue
 
         for vertex in vertices.dropFirst() {
-            minX = min(minX, vertex.x.value)
-            maxX = max(maxX, vertex.x.value)
-            minY = min(minY, vertex.y.value)
-            maxY = max(maxY, vertex.y.value)
+            minX = min(minX, vertex.x._rawValue)
+            maxX = max(maxX, vertex.x._rawValue)
+            minY = min(minY, vertex.y._rawValue)
+            maxY = max(maxY, vertex.y._rawValue)
         }
 
         return Geometry.Rectangle(
@@ -164,10 +164,10 @@ extension Geometry.Polygon where Scalar: SignedNumeric & Comparable {
             let j = (i + 1) % vertices.count
             let k = (i + 2) % vertices.count
 
-            let v1x = vertices[j].x.value - vertices[i].x.value
-            let v1y = vertices[j].y.value - vertices[i].y.value
-            let v2x = vertices[k].x.value - vertices[j].x.value
-            let v2y = vertices[k].y.value - vertices[j].y.value
+            let v1x = vertices[j].x._rawValue - vertices[i].x._rawValue
+            let v1y = vertices[j].y._rawValue - vertices[i].y._rawValue
+            let v2x = vertices[k].x._rawValue - vertices[j].x._rawValue
+            let v2y = vertices[k].y._rawValue - vertices[j].y._rawValue
 
             let cross = v1x * v2y - v1y * v2x
 
@@ -223,10 +223,10 @@ extension Geometry.Polygon where Scalar: FloatingPoint {
             let vi = vertices[i]
             let vj = vertices[j]
 
-            if (vi.y.value > point.y.value) != (vj.y.value > point.y.value) {
-                let slope = (vj.x.value - vi.x.value) / (vj.y.value - vi.y.value)
-                let xIntersect = vi.x.value + slope * (point.y.value - vi.y.value)
-                if point.x.value < xIntersect {
+            if (vi.y._rawValue > point.y._rawValue) != (vj.y._rawValue > point.y._rawValue) {
+                let slope = (vj.x._rawValue - vi.x._rawValue) / (vj.y._rawValue - vi.y._rawValue)
+                let xIntersect = vi.x._rawValue + slope * (point.y._rawValue - vi.y._rawValue)
+                if point.x._rawValue < xIntersect {
                     inside.toggle()
                 }
             }
@@ -242,8 +242,9 @@ extension Geometry.Polygon where Scalar: FloatingPoint {
     /// - Returns: `true` if the point is on any edge
     @inlinable
     public func isOnBoundary(_ point: Geometry.Point<2>) -> Bool {
+        let threshold = Geometry.Distance(.ulpOfOne * 100)
         for edge in edges {
-            if edge.distance(to: point) < .ulpOfOne * 100 {
+            if edge.distance(to: point) < threshold {
                 return true
             }
         }
@@ -262,19 +263,21 @@ extension Geometry.Polygon where Scalar: FloatingPoint {
 
     /// Return a polygon scaled uniformly about its centroid.
     @inlinable
-    public func scaled(by factor: Scalar) -> Self? {
+    public func scaled(by factor: Scale<1, Scalar>) -> Self? {
         guard let center = centroid else { return nil }
         return scaled(by: factor, about: center)
     }
 
     /// Return a polygon scaled uniformly about a given point.
     @inlinable
-    public func scaled(by factor: Scalar, about point: Geometry.Point<2>) -> Self {
+    public func scaled(by factor: Scale<1, Scalar>, about point: Geometry.Point<2>) -> Self {
+        // Mathematically: p' = center + factor × (p - center)
+        // Using typed operations: Coordinate + Scale × Displacement = Coordinate
         Self(
             vertices: vertices.map { v in
                 Geometry.Point(
-                    x: Geometry.X(point.x.value + factor * (v.x.value - point.x.value)),
-                    y: Geometry.Y(point.y.value + factor * (v.y.value - point.y.value))
+                    x: point.x + factor * (v.x - point.x),
+                    y: point.y + factor * (v.y - point.y)
                 )
             }
         )
@@ -315,8 +318,8 @@ extension Geometry.Polygon where Scalar: FloatingPoint {
 
                 // Check if this is a convex vertex (ear candidate)
                 let cross =
-                    (b.x.value - a.x.value) * (c.y.value - a.y.value) - (b.y.value - a.y.value)
-                    * (c.x.value - a.x.value)
+                    (b.x._rawValue - a.x._rawValue) * (c.y._rawValue - a.y._rawValue) - (b.y._rawValue - a.y._rawValue)
+                    * (c.x._rawValue - a.x._rawValue)
 
                 // For CCW polygon, ears have positive cross product
                 guard cross > 0 else { continue }
@@ -372,8 +375,8 @@ extension Geometry where Scalar: FloatingPoint {
         var sum: Scalar = .zero
         for i in 0..<polygon.vertices.count {
             let j = (i + 1) % polygon.vertices.count
-            sum += (polygon.vertices[i].x.value * polygon.vertices[j].y.value)
-            sum -= (polygon.vertices[j].x.value * polygon.vertices[i].y.value)
+            sum += (polygon.vertices[i].x._rawValue * polygon.vertices[j].y._rawValue)
+            sum -= (polygon.vertices[j].x._rawValue * polygon.vertices[i].y._rawValue)
         }
         return sum
     }
@@ -405,12 +408,13 @@ extension Geometry where Scalar: FloatingPoint {
         for i in 0..<polygon.vertices.count {
             let j = (i + 1) % polygon.vertices.count
             let cross =
-                polygon.vertices[i].x.value * polygon.vertices[j].y.value - polygon.vertices[j].x.value
-                * polygon.vertices[i].y.value
-            cx += (polygon.vertices[i].x.value + polygon.vertices[j].x.value) * cross
-            cy += (polygon.vertices[i].y.value + polygon.vertices[j].y.value) * cross
+                polygon.vertices[i].x._rawValue * polygon.vertices[j].y._rawValue - polygon.vertices[j].x._rawValue
+                * polygon.vertices[i].y._rawValue
+            cx += (polygon.vertices[i].x._rawValue + polygon.vertices[j].x._rawValue) * cross
+            cy += (polygon.vertices[i].y._rawValue + polygon.vertices[j].y._rawValue) * cross
         }
 
+        // Normalize by 1/(3*area) to get centroid coordinates
         let factor: Scalar = 1 / (3 * a)
         return Point(x: X(cx * factor), y: Y(cy * factor))
     }

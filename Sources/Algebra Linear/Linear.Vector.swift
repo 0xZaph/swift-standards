@@ -142,7 +142,7 @@ extension Linear.Vector where Scalar: AdditiveArithmetic {
 
 // MARK: - AdditiveArithmetic
 
-extension Linear.Vector: AdditiveArithmetic where Scalar: AdditiveArithmetic {
+extension Linear.Vector where Scalar: AdditiveArithmetic {
     /// Adds two vectors component-wise.
     @inlinable
     @_disfavoredOverload
@@ -186,7 +186,6 @@ extension Linear.Vector where Scalar: SignedNumeric {
 extension Linear.Vector where Scalar: FloatingPoint {
     /// Scales the vector by a scalar multiplier (internal).
     @inlinable
-    @usableFromInline
     internal static func * (lhs: borrowing Self, rhs: Scalar) -> Self {
         var result = lhs.components
         for i in 0..<N {
@@ -197,7 +196,6 @@ extension Linear.Vector where Scalar: FloatingPoint {
 
     /// Divides the vector by a scalar divisor (internal).
     @inlinable
-    @usableFromInline
     internal static func / (lhs: borrowing Self, rhs: Scalar) -> Self {
         var result = lhs.components
         for i in 0..<N {
@@ -366,7 +364,7 @@ extension Linear.Vector where N == 2, Scalar: SignedNumeric {
     /// Returns the signed area of the parallelogram formed by the vectors.
     /// Positive if `other` is counter-clockwise from `self`.
     @inlinable
-    public static func cross(_ lhs: Self, _ rhs: Self) -> Tagged<Area<Space>, Scalar> {
+    public static func cross(_ lhs: Self, _ rhs: Self) -> Area<Space>.Value<Scalar> {
         lhs.dx * rhs.dy - lhs.dy * rhs.dx
     }
 
@@ -375,7 +373,7 @@ extension Linear.Vector where N == 2, Scalar: SignedNumeric {
     /// Returns the signed area of the parallelogram formed by the vectors.
     /// Positive if `other` is counter-clockwise from `self`.
     @inlinable
-    public func cross(_ other: borrowing Self) -> Tagged<Area<Space>, Scalar> {
+    public func cross(_ other: borrowing Self) -> Area<Space>.Value<Scalar> {
         Self.cross(self, other)
     }
 }

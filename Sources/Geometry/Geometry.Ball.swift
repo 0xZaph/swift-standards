@@ -5,6 +5,7 @@ public import Affine
 public import Algebra_Linear
 public import Angle
 public import Dimension
+public import RealModule
 
 extension Geometry {
     /// N-dimensional ball (hypersphere) — all points within radius of center.
@@ -97,7 +98,7 @@ extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
     /// Circumference (2π × radius).
     @inlinable
     public var circumference: Geometry.Circumference {
-        radius * (2 * Scalar.pi)
+        Geometry.Circumference(2 * Scalar.pi * radius._rawValue)
     }
 
     /// Area (π × radius²).
@@ -115,13 +116,18 @@ extension Geometry.Ball where N == 3, Scalar: FloatingPoint {
     /// Surface area (4π × radius²).
     @inlinable
     public var surfaceArea: Scalar {
-        4 * Scalar.pi * (radius * radius)
+        // radius * radius = Area, multiply by scalar, extract raw value
+        let radiusSq = radius * radius
+        return 4 * Scalar.pi * radiusSq._rawValue
     }
 
     /// Volume (4/3 × π × radius³).
     @inlinable
     public var volume: Scalar {
-        (4 / 3) * Scalar.pi * (radius * radius) * radius.rawValue
+        // radius² × radius = Volume (via Area × Length = Volume)
+        let radiusSq = radius * radius
+        let radiusCubed = radiusSq * radius
+        return (4 / 3) * Scalar.pi * radiusCubed._rawValue
     }
 }
 
@@ -134,7 +140,7 @@ extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
     /// - Returns: A circle if the ellipse has equal semi-major and semi-minor axes, `nil` otherwise.
     @inlinable
     public init?(_ ellipse: Geometry.Ellipse) {
-        let diff: Scalar = ellipse.semiMajor.rawValue - ellipse.semiMinor.rawValue
+        let diff: Scalar = ellipse.semiMajor._rawValue - ellipse.semiMinor._rawValue
         guard abs(diff) < Scalar.ulpOfOne else { return nil }
         self.init(center: ellipse.center, radius: ellipse.semiMajor)
     }
@@ -152,7 +158,7 @@ extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
     /// Checks if point is strictly inside (not on boundary).
     @inlinable
     public func containsInterior(_ point: Geometry.Point<2>) -> Bool {
-        center.distanceSquared(to: point) < radius * radius
+        center.distance.squared(to: point) < radius * radius
     }
 
     /// Checks if another circle is entirely contained within this circle.
@@ -164,24 +170,24 @@ extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
 
 // MARK: - 2D Point on Circle
 
-extension Geometry.Ball where N == 2, Scalar: BinaryFloatingPoint {
+extension Geometry.Ball where N == 2, Scalar: Real & BinaryFloatingPoint {
     /// Returns point on circle at given angle from positive x-axis.
     @inlinable
-    public func point(at angle: Radian) -> Geometry.Point<2> {
-        let c = Scalar(angle.cos)
-        let s = Scalar(angle.sin)
-        let r = radius.rawValue
+    public func point(at angle: Radian<Scalar>) -> Geometry.Point<2> {
+        let c = angle.cos.value
+        let s = angle.sin.value
+        let r = radius._rawValue
         return Geometry.Point(
-            x: Affine<Scalar, Space>.X(center.x.rawValue + r * c),
-            y: Affine<Scalar, Space>.Y(center.y.rawValue + r * s)
+            x: Affine<Scalar, Space>.X(center.x._rawValue + r * c),
+            y: Affine<Scalar, Space>.Y(center.y._rawValue + r * s)
         )
     }
 
     /// Returns unit tangent vector at given angle (perpendicular to radius, counter-clockwise).
     @inlinable
-    public func tangent(at angle: Radian) -> Geometry.Vector<2> {
-        let c = Scalar(angle.cos)
-        let s = Scalar(angle.sin)
+    public func tangent(at angle: Radian<Scalar>) -> Geometry.Vector<2> {
+        let c = angle.cos.value
+        let s = angle.sin.value
         return Geometry.Vector(
             dx: Linear<Scalar, Space>.Dx(-s),
             dy: Linear<Scalar, Space>.Dy(c)
@@ -191,20 +197,20 @@ extension Geometry.Ball where N == 2, Scalar: BinaryFloatingPoint {
     /// Returns closest point on circle boundary to given point.
     @inlinable
     public func closestPoint(to point: Geometry.Point<2>) -> Geometry.Point<2> {
-        let vx = point.x.rawValue - center.x.rawValue
-        let vy = point.y.rawValue - center.y.rawValue
+        let vx = point.x._rawValue - center.x._rawValue
+        let vy = point.y._rawValue - center.y._rawValue
         let len = (vx * vx + vy * vy).squareRoot()
-        let r = radius.rawValue
+        let r = radius._rawValue
         guard len > 0 else {
             return Geometry.Point(
-                x: Affine<Scalar, Space>.X(center.x.rawValue + r),
+                x: Affine<Scalar, Space>.X(center.x._rawValue + r),
                 y: center.y
             )
         }
         let scale = r / len
         return Geometry.Point(
-            x: Affine<Scalar, Space>.X(center.x.rawValue + vx * scale),
-            y: Affine<Scalar, Space>.Y(center.y.rawValue + vy * scale)
+            x: Affine<Scalar, Space>.X(center.x._rawValue + vx * scale),
+            y: Affine<Scalar, Space>.Y(center.y._rawValue + vy * scale)
         )
     }
 }
@@ -241,7 +247,8 @@ extension Geometry where Scalar: FloatingPoint {
     /// Calculate the area of a circle.
     @inlinable
     public static func area(of circle: Ball<2>) -> Area {
-        Area(Scalar.pi * (circle.radius * circle.radius))
+        let radiusSq = circle.radius * circle.radius  // Tagged<Area<Space>, Scalar>
+        return Area(Scalar.pi * radiusSq._rawValue)
     }
 
     /// Calculate the axis-aligned bounding rectangle of a circle.
@@ -258,7 +265,7 @@ extension Geometry where Scalar: FloatingPoint {
     /// Check if a circle contains a point.
     @inlinable
     public static func contains(_ circle: Ball<2>, point: Point<2>) -> Bool {
-        circle.center.distanceSquared(to: point) <= circle.radius * circle.radius
+        circle.center.distance.squared(to: point) <= circle.radius * circle.radius
     }
 
     /// Check if a circle contains another circle.
@@ -279,11 +286,11 @@ extension Geometry where Scalar: FloatingPoint {
     /// Find intersection points between a circle and a line.
     @inlinable
     public static func intersection(_ circle: Ball<2>, _ line: Line) -> [Point<2>] {
-        let fx = line.point.x.rawValue - circle.center.x.rawValue
-        let fy = line.point.y.rawValue - circle.center.y.rawValue
-        let dx = line.direction.dx.rawValue
-        let dy = line.direction.dy.rawValue
-        let r = circle.radius.rawValue
+        let fx = line.point.x._rawValue - circle.center.x._rawValue
+        let fy = line.point.y._rawValue - circle.center.y._rawValue
+        let dx = line.direction.dx._rawValue
+        let dy = line.direction.dy._rawValue
+        let r = circle.radius._rawValue
 
         let a = dx * dx + dy * dy
         let b = 2 * (fx * dx + fy * dy)
@@ -295,13 +302,13 @@ extension Geometry where Scalar: FloatingPoint {
 
         if discriminant == 0 {
             let t = -b / (2 * a)
-            return [line.point(at: t)]
+            return [line.point(at: Scale<1, Scalar>(t))]
         }
 
         let sqrtDisc = discriminant.squareRoot()
         let t1 = (-b - sqrtDisc) / (2 * a)
         let t2 = (-b + sqrtDisc) / (2 * a)
-        return [line.point(at: t1), line.point(at: t2)]
+        return [line.point(at: Scale<1, Scalar>(t1)), line.point(at: Scale<1, Scalar>(t2))]
     }
 
     /// Find intersection points between two circles.
@@ -311,13 +318,13 @@ extension Geometry where Scalar: FloatingPoint {
         let sumRadii = circle1.radius + circle2.radius
         let diffRadii = circle1.radius >= circle2.radius ? circle1.radius - circle2.radius : circle2.radius - circle1.radius
 
-        guard dist <= sumRadii && dist >= diffRadii && dist.rawValue > 0 else {
+        guard dist <= sumRadii && dist >= diffRadii && dist._rawValue > 0 else {
             return []
         }
 
-        let d = dist.rawValue
-        let r1 = circle1.radius.rawValue
-        let r2 = circle2.radius.rawValue
+        let d = dist._rawValue
+        let r1 = circle1.radius._rawValue
+        let r2 = circle2.radius._rawValue
 
         let a = (r1 * r1 - r2 * r2 + d * d) / (2 * d)
         let hSq = r1 * r1 - a * a
@@ -325,10 +332,10 @@ extension Geometry where Scalar: FloatingPoint {
         guard hSq >= 0 else { return [] }
         let h = hSq.squareRoot()
 
-        let cx = circle1.center.x.rawValue
-        let cy = circle1.center.y.rawValue
-        let ocx = circle2.center.x.rawValue
-        let ocy = circle2.center.y.rawValue
+        let cx = circle1.center.x._rawValue
+        let cy = circle1.center.y._rawValue
+        let ocx = circle2.center.x._rawValue
+        let ocy = circle2.center.y._rawValue
         let dirX = (ocx - cx) / d
         let dirY = (ocy - cy) / d
         let px = cx + a * dirX
@@ -362,22 +369,23 @@ extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
 
     /// Returns circle scaled uniformly about its center.
     @inlinable
-    public func scaled(by factor: Scalar) -> Self {
-        Self(center: center, radius: radius * factor)
+    public func scaled(by factor: Scale<1, Scalar>) -> Self {
+        Self(center: center, radius: factor * radius)
     }
 
     /// Returns circle scaled uniformly about given point.
     @inlinable
-    public func scaled(by factor: Scalar, about point: Geometry.Point<2>) -> Self {
-        let px = point.x.rawValue
-        let py = point.y.rawValue
-        let cx = center.x.rawValue
-        let cy = center.y.rawValue
+    public func scaled(by factor: Scale<1, Scalar>, about point: Geometry.Point<2>) -> Self {
+        let f = factor.value
+        let px = point.x._rawValue
+        let py = point.y._rawValue
+        let cx = center.x._rawValue
+        let cy = center.y._rawValue
         let newCenter = Geometry.Point(
-            x: Affine<Scalar, Space>.X(px + factor * (cx - px)),
-            y: Affine<Scalar, Space>.Y(py + factor * (cy - py))
+            x: Affine<Scalar, Space>.X(px + f * (cx - px)),
+            y: Affine<Scalar, Space>.Y(py + f * (cy - py))
         )
-        return Self(center: newCenter, radius: radius * factor)
+        return Self(center: newCenter, radius: factor * radius)
     }
 }
 
@@ -435,10 +443,10 @@ extension Geometry.Ball where N == 2, Scalar: BinaryFloatingPoint {
     /// Curves start at 3 o'clock and proceed counter-clockwise through quadrants.
     @inlinable
     public var bezierCurves: [BezierSegment] {
-        let k = Scalar(0.5522847498) * radius.rawValue
-        let cx = center.x.rawValue
-        let cy = center.y.rawValue
-        let r = radius.rawValue
+        let k = Scalar(0.5522847498) * radius._rawValue
+        let cx = center.x._rawValue
+        let cy = center.y._rawValue
+        let r = radius._rawValue
 
         let right = Geometry.Point<2>(x: .init(cx + r), y: .init(cy))
         let bottom = Geometry.Point<2>(x: .init(cx), y: .init(cy - r))
@@ -476,6 +484,6 @@ extension Geometry.Ball where N == 2, Scalar: BinaryFloatingPoint {
     /// Starting point for Bézier curve rendering (3 o'clock position).
     @inlinable
     public var bezierStartPoint: Geometry.Point<2> {
-        Geometry.Point<2>(x: .init(center.x.rawValue + radius.rawValue), y: center.y)
+        Geometry.Point<2>(x: .init(center.x._rawValue + radius._rawValue), y: center.y)
     }
 }

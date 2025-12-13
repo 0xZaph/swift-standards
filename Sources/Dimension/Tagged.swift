@@ -260,3 +260,25 @@ extension Tagged where RawValue: FloatingPoint {
         Self(_rawValue.squareRoot())
     }
 }
+
+// MARK: - Strideable
+
+extension Tagged: Strideable where RawValue: Strideable {
+    public typealias Stride = RawValue.Stride
+
+    @inlinable
+    public func distance(to other: Self) -> Stride {
+        _rawValue.distance(to: other._rawValue)
+    }
+
+    @inlinable
+    public func advanced(by n: Stride) -> Self {
+        Self(_rawValue.advanced(by: n))
+    }
+}
+
+extension Tagged where RawValue: BinaryFloatingPoint {
+    public init<I: BinaryInteger>(_ value: I) {
+        self.init(RawValue(value))
+    }
+}

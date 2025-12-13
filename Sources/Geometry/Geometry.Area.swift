@@ -23,13 +23,23 @@ extension Geometry {
     /// let circleRadius = area.circle.radius  // √(20000/π) ≈ 79.8
     /// ```
     public struct Area {
+        /// Typed area value using dimensional type system.
+        public var _value: Tagged<Measure<2, Space>, Scalar>
+
         /// Raw area value in square units.
-        public var rawValue: Scalar
+        @inlinable
+        public var rawValue: Scalar { _value._rawValue }
 
         /// Creates an area from a raw value.
         @inlinable
         public init(_ rawValue: Scalar) {
-            self.rawValue = rawValue
+            self._value = Tagged(rawValue)
+        }
+
+        /// Creates an area from a typed area value.
+        @inlinable
+        public init(_ value: Tagged<Measure<2, Space>, Scalar>) {
+            self._value = value
         }
     }
 }
@@ -47,14 +57,14 @@ extension Geometry.Area: Codable where Scalar: Codable {}
 extension Geometry.Area: ExpressibleByIntegerLiteral where Scalar: ExpressibleByIntegerLiteral {
     @inlinable
     public init(integerLiteral value: Scalar.IntegerLiteralType) {
-        self.rawValue = Scalar(integerLiteral: value)
+        self._value = Tagged(Scalar(integerLiteral: value))
     }
 }
 
 extension Geometry.Area: ExpressibleByFloatLiteral where Scalar: ExpressibleByFloatLiteral {
     @inlinable
     public init(floatLiteral value: Scalar.FloatLiteralType) {
-        self.rawValue = Scalar(floatLiteral: value)
+        self._value = Tagged(Scalar(floatLiteral: value))
     }
 }
 
@@ -95,58 +105,40 @@ extension Geometry.Area where Scalar: FloatingPoint {
 }
 
 // MARK: - Arithmetic
-
-extension Geometry.Area where Scalar: AdditiveArithmetic {
-    /// Zero area.
-    @inlinable
-    public static var zero: Self {
-        Self(.zero)
-    }
-
-    /// Adds two areas.
-    @inlinable
-    public static func + (lhs: Self, rhs: Self) -> Self {
-        Self(lhs.rawValue + rhs.rawValue)
-    }
-
-    /// Subtracts two areas.
-    @inlinable
-    public static func - (lhs: Self, rhs: Self) -> Self {
-        Self(lhs.rawValue - rhs.rawValue)
-    }
-}
-
-extension Geometry.Area where Scalar: FloatingPoint {
-    /// Multiplies area by a scalar (scaling).
-    @inlinable
-    public static func * (lhs: Self, rhs: Scalar) -> Self {
-        Self(lhs.rawValue * rhs)
-    }
-
-    /// Multiplies area by a scalar (scaling).
-    @inlinable
-    public static func * (lhs: Scalar, rhs: Self) -> Self {
-        Self(lhs * rhs.rawValue)
-    }
-
-    /// Divides area by a scalar.
-    @inlinable
-    public static func / (lhs: Self, rhs: Scalar) -> Self {
-        Self(lhs.rawValue / rhs)
-    }
-
-    /// Ratio of two areas (dimensionless).
-    @inlinable
-    public static func / (lhs: Self, rhs: Self) -> Scalar {
-        lhs.rawValue / rhs.rawValue
-    }
-}
-
-// MARK: - Comparison
-
-extension Geometry.Area: Comparable where Scalar: Comparable {
-    @inlinable
-    public static func < (lhs: Self, rhs: Self) -> Bool {
-        lhs.rawValue < rhs.rawValue
-    }
-}
+//
+//extension Geometry.Area where Scalar: AdditiveArithmetic {
+//    /// Zero area.
+//    @inlinable
+//    public static var zero: Self {
+//        Self(.zero)
+//    }
+//
+//    /// Adds two areas.
+//    @inlinable
+//    public static func + (lhs: Self, rhs: Self) -> Self {
+//        Self(lhs.rawValue + rhs.rawValue)
+//    }
+//
+//    /// Subtracts two areas.
+//    @inlinable
+//    public static func - (lhs: Self, rhs: Self) -> Self {
+//        Self(lhs.rawValue - rhs.rawValue)
+//    }
+//}
+//
+//extension Geometry.Area where Scalar: FloatingPoint {
+//    /// Ratio of two areas (dimensionless).
+//    @inlinable
+//    public static func / (lhs: Self, rhs: Self) -> Scalar {
+//        lhs.rawValue / rhs.rawValue
+//    }
+//}
+//
+//// MARK: - Comparison
+//
+//extension Geometry.Area: Comparable where Scalar: Comparable {
+//    @inlinable
+//    public static func < (lhs: Self, rhs: Self) -> Bool {
+//        lhs.rawValue < rhs.rawValue
+//    }
+//}

@@ -61,28 +61,28 @@ extension Linear {
     /// A horizontal displacement (vector X-component), parameterized by coordinate space.
     ///
     /// Use for widths, horizontal changes, or vector X-axis values. Distinct from coordinates.
-    public typealias Dx = Tagged<Displacement.X<Space>, Scalar>
+    public typealias Dx = Displacement.X<Space>.Value<Scalar>
 
     /// A vertical displacement (vector Y-component), parameterized by coordinate space.
     ///
     /// Use for heights, vertical changes, or vector Y-axis values. Distinct from coordinates.
-    public typealias Dy = Tagged<Displacement.Y<Space>, Scalar>
+    public typealias Dy = Displacement.Y<Space>.Value<Scalar>
 
     /// A depth displacement (vector Z-component), parameterized by coordinate space.
     ///
     /// Use for depths, Z-axis changes, or vector Z-axis values. Distinct from coordinates.
-    public typealias Dz = Tagged<Displacement.Z<Space>, Scalar>
+    public typealias Dz = Displacement.Z<Space>.Value<Scalar>
 
     /// A homogeneous displacement (vector W-component), parameterized by coordinate space.
     ///
     /// Use for 4D vector W-axis values in homogeneous coordinates. Distinct from coordinates.
-    public typealias Dw = Tagged<Displacement.W<Space>, Scalar>
+    public typealias Dw = Displacement.W<Space>.Value<Scalar>
 
     /// A non-directional scalar magnitude, parameterized by coordinate space.
     ///
     /// Use for lengths, distances, radii, or any scalar size measurement without direction.
     /// Unlike displacements which have axis identity, magnitudes represent pure scalar quantities.
-    public typealias Magnitude = Tagged<Dimension.Magnitude<Space>, Scalar>
+    public typealias Magnitude = Dimension.Magnitude<Space>.Value<Scalar>
 }
 
 extension Linear {

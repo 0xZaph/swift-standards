@@ -18,37 +18,37 @@ struct `Affine+Formatting Tests` {
         @Test
         func `X coordinate has value`() {
             let x = X(3.14159)
-            #expect(x.value == 3.14159)
+            #expect(x == 3.14159)
         }
 
         @Test
         func `Y coordinate has value`() {
             let y = Y(2.71828)
-            #expect(y.value == 2.71828)
+            #expect(y == 2.71828)
         }
 
         @Test
         func `Z coordinate has value`() {
             let z = Z(1.41421)
-            #expect(z.value == 1.41421)
+            #expect(z == 1.41421)
         }
 
         @Test
         func `Integer coordinate has value`() {
             let x = Affine<Int, Void>.X(42)
-            #expect(x.value == 42)
+            #expect(x == 42)
         }
 
         @Test
         func `Zero coordinate`() {
             let x = X.zero
-            #expect(x.value == 0)
+            #expect(x == 0)
         }
 
         @Test
         func `Negative coordinate`() {
             let x = X(-5.5)
-            #expect(x.value == -5.5)
+            #expect(x == -5.5)
         }
     }
 }

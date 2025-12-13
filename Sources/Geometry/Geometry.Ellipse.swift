@@ -6,6 +6,7 @@ public import Algebra
 public import Algebra_Linear
 public import Angle
 public import Dimension
+public import RealModule
 
 extension Geometry {
     /// An ellipse in 2D space defined by center, semi-axes, and rotation.
@@ -32,7 +33,7 @@ extension Geometry {
         public var semiMinor: Length
 
         /// The rotation angle (counter-clockwise from x-axis to major axis)
-        public var rotation: Radian
+        public var rotation: Radian<Scalar>
 
         /// Create an ellipse with center, semi-axes, and rotation
         @inlinable
@@ -40,7 +41,7 @@ extension Geometry {
             center: consuming Point<2>,
             semiMajor: consuming Length,
             semiMinor: consuming Length,
-            rotation: consuming Radian = .zero
+            rotation: consuming Radian<Scalar>
         ) {
             self.center = center
             self.semiMajor = semiMajor
@@ -63,8 +64,21 @@ extension Geometry.Ellipse: Hashable where Scalar: Hashable {}
 extension Geometry.Ellipse where Scalar: AdditiveArithmetic {
     /// Create an axis-aligned ellipse centered at the origin
     @inlinable
-    public init(semiMajor: Geometry.Length, semiMinor: Geometry.Length) {
+    public init(
+        semiMajor: Geometry.Length,
+        semiMinor: Geometry.Length
+    ) {
         self.init(center: .zero, semiMajor: semiMajor, semiMinor: semiMinor, rotation: .zero)
+    }
+
+    /// Create an axis-aligned ellipse (rotation defaults to zero)
+    @inlinable
+    public init(
+        center: Geometry.Point<2>,
+        semiMajor: Geometry.Length,
+        semiMinor: Geometry.Length
+    ) {
+        self.init(center: center, semiMajor: semiMajor, semiMinor: semiMinor, rotation: Radian(Scalar.zero))
     }
 }
 
@@ -72,7 +86,7 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
     /// Create a circle as a special case of ellipse
     @inlinable
     public static func circle(center: Geometry.Point<2>, radius: Geometry.Radius) -> Self {
-        Self(center: center, semiMajor: radius, semiMinor: radius, rotation: .zero)
+        Self(center: center, semiMajor: radius, semiMinor: radius, rotation: Radian(0))
     }
 }
 
@@ -94,8 +108,8 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
     /// The eccentricity of the ellipse (0 = circle, approaching 1 = more elongated)
     @inlinable
     public var eccentricity: Scalar {
-        let a: Scalar = semiMajor.value
-        let b: Scalar = semiMinor.value
+        let a: Scalar = semiMajor._rawValue
+        let b: Scalar = semiMinor._rawValue
         let aSq: Scalar = a * a
         let bSq: Scalar = b * b
         return ((aSq - bSq) / aSq).squareRoot()
@@ -103,22 +117,24 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
 
     /// The linear eccentricity (distance from center to focus)
     @inlinable
-    public var focalDistance: Geometry.Length {
-        let aSq: Scalar = semiMajor * semiMajor
-        let bSq: Scalar = semiMinor * semiMinor
-        return Geometry.Length((aSq - bSq).squareRoot())
+    public var focalDistance: Geometry.Distance {
+        // semiMajor * semiMajor returns Area (Measure<2, Space>)
+        // sqrt(Area) returns Magnitude (Length)
+        let aSq = semiMajor * semiMajor
+        let bSq = semiMinor * semiMinor
+        return sqrt(aSq - bSq)
     }
 }
 
-// MARK: - Foci (BinaryFloatingPoint)
+// MARK: - Foci (Real & BinaryFloatingPoint)
 
-extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
+extension Geometry.Ellipse where Scalar: Real & BinaryFloatingPoint {
     /// The two foci of the ellipse
     @inlinable
     public var foci: (f1: Geometry.Point<2>, f2: Geometry.Point<2>) {
-        let c: Scalar = focalDistance.value
-        let cosVal: Scalar = Scalar(rotation.cos)
-        let sinVal: Scalar = Scalar(rotation.sin)
+        let c: Scalar = focalDistance._rawValue
+        let cosVal: Scalar = rotation.cos.value
+        let sinVal: Scalar = rotation.sin.value
 
         let dx: Scalar = c * cosVal
         let dy: Scalar = c * sinVal
@@ -146,8 +162,8 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
     /// The approximate perimeter using Ramanujan's approximation
     @inlinable
     public var perimeter: Geometry.Perimeter {
-        let a: Scalar = semiMajor.value
-        let b: Scalar = semiMinor.value
+        let a: Scalar = semiMajor._rawValue
+        let b: Scalar = semiMinor._rawValue
         let diff: Scalar = a - b
         let sum: Scalar = a + b
         let h: Scalar = (diff * diff) / (sum * sum)
@@ -158,20 +174,20 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
     /// Whether this ellipse is actually a circle
     @inlinable
     public var isCircle: Bool {
-        let diff: Scalar = semiMajor.value - semiMinor.value
+        let diff: Scalar = semiMajor._rawValue - semiMinor._rawValue
         return abs(diff) < Scalar.ulpOfOne
     }
 }
 
-// MARK: - Point on Ellipse (BinaryFloatingPoint)
+// MARK: - Point on Ellipse (Real & BinaryFloatingPoint)
 
-extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
+extension Geometry.Ellipse where Scalar: Real & BinaryFloatingPoint {
     /// Get a point on the ellipse at parameter t.
     ///
     /// - Parameter t: The parameter angle in radians (not the actual angle from center)
     /// - Returns: The point on the ellipse
     @inlinable
-    public func point(at t: Radian) -> Geometry.Point<2> {
+    public func point(at t: Radian<Scalar>) -> Geometry.Point<2> {
         Geometry.point(of: self, at: t)
     }
 
@@ -180,19 +196,19 @@ extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
     /// - Parameter t: The parameter angle in radians
     /// - Returns: The tangent vector (not normalized)
     @inlinable
-    public func tangent(at t: Radian) -> Geometry.Vector<2> {
-        let cosT: Scalar = Scalar(t.cos)
-        let sinT: Scalar = Scalar(t.sin)
-        let a: Scalar = semiMajor.value
-        let b: Scalar = semiMinor.value
+    public func tangent(at t: Radian<Scalar>) -> Geometry.Vector<2> {
+        let cosT: Scalar = t.cos.value
+        let sinT: Scalar = t.sin.value
+        let a: Scalar = semiMajor._rawValue
+        let b: Scalar = semiMinor._rawValue
 
         // Derivative of point on unrotated ellipse
         let dx: Scalar = -a * sinT
         let dy: Scalar = b * cosT
 
         // Rotate by ellipse rotation
-        let cosR: Scalar = Scalar(rotation.cos)
-        let sinR: Scalar = Scalar(rotation.sin)
+        let cosR: Scalar = rotation.cos.value
+        let sinR: Scalar = rotation.sin.value
 
         return Geometry.Vector(
             dx: Linear<Scalar, Space>.Dx(dx * cosR - dy * sinR),
@@ -201,9 +217,9 @@ extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
     }
 }
 
-// MARK: - Containment (BinaryFloatingPoint)
+// MARK: - Containment (Real & BinaryFloatingPoint)
 
-extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
+extension Geometry.Ellipse where Scalar: Real & BinaryFloatingPoint {
     /// Check if a point is inside or on the ellipse.
     ///
     /// - Parameter point: The point to test
@@ -214,16 +230,16 @@ extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
     }
 }
 
-// MARK: - Bounding Box (BinaryFloatingPoint)
+// MARK: - Bounding Box (Real & BinaryFloatingPoint)
 
-extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
+extension Geometry.Ellipse where Scalar: Real & BinaryFloatingPoint {
     /// The axis-aligned bounding box of the ellipse
     @inlinable
     public var boundingBox: Geometry.Rectangle {
-        let a: Scalar = semiMajor.value
-        let b: Scalar = semiMinor.value
-        let cosR: Scalar = Scalar(rotation.cos)
-        let sinR: Scalar = Scalar(rotation.sin)
+        let a: Scalar = semiMajor._rawValue
+        let b: Scalar = semiMinor._rawValue
+        let cosR: Scalar = rotation.cos.value
+        let sinR: Scalar = rotation.sin.value
 
         let aSq: Scalar = a * a
         let bSq: Scalar = b * b
@@ -234,8 +250,8 @@ extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
         let halfWidth: Scalar = (aSq * cosSq + bSq * sinSq).squareRoot()
         let halfHeight: Scalar = (aSq * sinSq + bSq * cosSq).squareRoot()
 
-        let cx: Scalar = center.x.value
-        let cy: Scalar = center.y.value
+        let cx: Scalar = center.x._rawValue
+        let cy: Scalar = center.y._rawValue
 
         return Geometry.Rectangle(
             llx: Geometry.X(cx - halfWidth),
@@ -280,7 +296,7 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
 
     /// Return an ellipse scaled uniformly about its center.
     @inlinable
-    public func scaled(by factor: Scalar) -> Self {
+    public func scaled(by factor: Scale<1, Scalar>) -> Self {
         Self(
             center: center,
             semiMajor: semiMajor * factor,
@@ -291,7 +307,7 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
 
     /// Return an ellipse rotated about its center.
     @inlinable
-    public func rotated(by angle: Radian) -> Self {
+    public func rotated(by angle: Radian<Scalar>) -> Self {
         Self(
             center: center,
             semiMajor: semiMajor,
@@ -307,53 +323,53 @@ extension Geometry where Scalar: FloatingPoint {
     /// Calculate the area of an ellipse (π × a × b).
     @inlinable
     public static func area(of ellipse: Ellipse) -> Scalar {
-        let a: Scalar = ellipse.semiMajor.value
-        let b: Scalar = ellipse.semiMinor.value
+        let a: Scalar = ellipse.semiMajor._rawValue
+        let b: Scalar = ellipse.semiMinor._rawValue
         return Scalar.pi * a * b
     }
 }
 
-extension Geometry where Scalar: BinaryFloatingPoint {
+extension Geometry where Scalar: Real & BinaryFloatingPoint {
     /// Check if an ellipse contains a point.
     @inlinable
     public static func contains(_ ellipse: Ellipse, point: Point<2>) -> Bool {
         // Transform point to ellipse-local coordinates
-        let dx: Scalar = point.x.value - ellipse.center.x.value
-        let dy: Scalar = point.y.value - ellipse.center.y.value
+        let dx: Scalar = point.x._rawValue - ellipse.center.x._rawValue
+        let dy: Scalar = point.y._rawValue - ellipse.center.y._rawValue
 
         // Rotate by -rotation to align with axes
-        let cosR: Scalar = Scalar(ellipse.rotation.cos)
-        let sinR: Scalar = Scalar(ellipse.rotation.sin)
+        let cosR: Scalar = ellipse.rotation.cos.value
+        let sinR: Scalar = ellipse.rotation.sin.value
         let localX: Scalar = dx * cosR + dy * sinR
         let localY: Scalar = -dx * sinR + dy * cosR
 
         // Check ellipse equation: (x/a)² + (y/b)² ≤ 1
-        let a: Scalar = ellipse.semiMajor.value
-        let b: Scalar = ellipse.semiMinor.value
+        let a: Scalar = ellipse.semiMajor._rawValue
+        let b: Scalar = ellipse.semiMinor._rawValue
         let aSq: Scalar = a * a
         let bSq: Scalar = b * b
-        let one: Scalar = Scalar(1)
+        let one: Scalar = 1
         return (localX * localX) / aSq + (localY * localY) / bSq <= one
     }
 
     /// Get a point on an ellipse at parameter t.
     @inlinable
-    public static func point(of ellipse: Ellipse, at t: Radian) -> Point<2> {
-        let cosT: Scalar = Scalar(t.cos)
-        let sinT: Scalar = Scalar(t.sin)
-        let a: Scalar = ellipse.semiMajor.value
-        let b: Scalar = ellipse.semiMinor.value
+    public static func point(of ellipse: Ellipse, at t: Radian<Scalar>) -> Point<2> {
+        let cosT: Scalar = t.cos.value
+        let sinT: Scalar = t.sin.value
+        let a: Scalar = ellipse.semiMajor._rawValue
+        let b: Scalar = ellipse.semiMinor._rawValue
 
         // Point on unrotated ellipse
         let x: Scalar = a * cosT
         let y: Scalar = b * sinT
 
         // Rotate by ellipse rotation
-        let cosR: Scalar = Scalar(ellipse.rotation.cos)
-        let sinR: Scalar = Scalar(ellipse.rotation.sin)
+        let cosR: Scalar = ellipse.rotation.cos.value
+        let sinR: Scalar = ellipse.rotation.sin.value
 
-        let cx: Scalar = ellipse.center.x.value
-        let cy: Scalar = ellipse.center.y.value
+        let cx: Scalar = ellipse.center.x._rawValue
+        let cy: Scalar = ellipse.center.y._rawValue
 
         return Point(
             x: Affine<Scalar, Space>.X(cx + x * cosR - y * sinR),
@@ -372,10 +388,10 @@ extension Geometry.Ellipse {
         _ transform: (U) throws -> Scalar
     ) rethrows {
         self.init(
-            center: try Geometry.Point<2>(other.center, transform),
+            center: try Affine<Scalar, Space>.Point<2>(other.center, transform),
             semiMajor: try other.semiMajor.map(transform),
             semiMinor: try other.semiMinor.map(transform),
-            rotation: other.rotation
+            rotation: Radian(try transform(other.rotation._rawValue))
         )
     }
 
@@ -384,11 +400,11 @@ extension Geometry.Ellipse {
     public func map<Result>(
         _ transform: (Scalar) throws -> Result
     ) rethrows -> Geometry<Result, Space>.Ellipse {
-        Geometry<Result, Space>.Ellipse(
+        .init(
             center: try center.map(transform),
             semiMajor: try semiMajor.map(transform),
             semiMinor: try semiMinor.map(transform),
-            rotation: rotation
+            rotation: Radian(try transform(rotation._rawValue))
         )
     }
 }

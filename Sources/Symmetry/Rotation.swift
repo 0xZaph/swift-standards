@@ -4,7 +4,7 @@
 public import Algebra_Linear
 public import Angle
 import Foundation
-import RealModule
+public import RealModule
 
 /// An N-dimensional rotation in Euclidean space.
 ///
@@ -119,18 +119,18 @@ extension Rotation where N == 2, Scalar: ExpressibleByIntegerLiteral {
 
 // MARK: - 2D Rotation
 
-extension Rotation where N == 2 {
+extension Rotation where N == 2, Scalar: Real {
     /// Rotation angle in radians.
-    public var angle: Radian {
-        get { Radian(atan2(Double(matrix[1][0]), Double(matrix[0][0]))) }
+    public var angle: Radian<Scalar> {
+        get { Radian(Scalar.atan2(y: matrix[1][0], x: matrix[0][0])) }
         set { self = Self(angle: newValue) }
     }
 
     /// Creates a 2D rotation from an angle in radians.
     @inlinable
-    public init(angle: Radian) {
-        let c = Scalar(angle.cos)
-        let s = Scalar(angle.sin)
+    public init(angle: Radian<Scalar>) {
+        let c = angle.cos.value
+        let s = angle.sin.value
         var m = InlineArray<2, InlineArray<2, Scalar>>(
             repeating: InlineArray<2, Scalar>(repeating: .zero)
         )
@@ -143,7 +143,7 @@ extension Rotation where N == 2 {
 
     /// Creates a 2D rotation from an angle in degrees.
     @inlinable
-    public init(degrees: Degree) {
+    public init(degrees: Degree<Scalar>) {
         self.init(angle: degrees.radians)
     }
 
@@ -224,38 +224,38 @@ extension Rotation where N == 2 {
 
 // MARK: - 2D Convenience Operations
 
-extension Rotation where N == 2 {
+extension Rotation where N == 2, Scalar: Real {
     /// Rotates by an additional angle in radians.
     @inlinable
-    public func rotated(by angle: Radian) -> Self {
+    public func rotated(by angle: Radian<Scalar>) -> Self {
         concatenating(Self(angle: angle))
     }
 
     /// Rotates by an additional angle in degrees.
     @inlinable
-    public func rotated(by degrees: Degree) -> Self {
+    public func rotated(by degrees: Degree<Scalar>) -> Self {
         rotated(by: degrees.radians)
     }
 }
 
 // MARK: - Common 2D Rotations
 
-extension Rotation where N == 2 {
+extension Rotation where N == 2, Scalar: Real {
     /// 90-degree counter-clockwise rotation.
     @inlinable
     public static var quarterTurn: Self {
-        Self(angle: .halfPi)
+        Self(angle: Radian<Scalar>(Scalar.pi / 2))
     }
 
     /// 180-degree rotation.
     @inlinable
     public static var halfTurn: Self {
-        Self(angle: .pi)
+        Self(angle: Radian<Scalar>(Scalar.pi))
     }
 
     /// 90-degree clockwise rotation.
     @inlinable
     public static var quarterTurnClockwise: Self {
-        Self(angle: -.halfPi)
+        Self(angle: Radian<Scalar>(-Scalar.pi / 2))
     }
 }

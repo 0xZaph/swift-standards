@@ -2,7 +2,7 @@
 // An infinite line and its bounded segment in 2D space.
 
 public import Affine
-public import Algebra
+import Algebra
 public import Algebra_Linear
 
 extension Geometry {
@@ -82,7 +82,7 @@ extension Geometry.Line where Scalar: FloatingPoint {
     /// - Parameter t: The parameter (0 = base point, 1 = base point + direction)
     /// - Returns: The point at parameter t
     @inlinable
-    public func point(at t: Scalar) -> Geometry.Point<2> {
+    public func point(at t: Scale<1, Scalar>) -> Geometry.Point<2> {
         Geometry.Point(
             x: point.x + t * direction.dx,
             y: point.y + t * direction.dy
@@ -123,10 +123,13 @@ extension Geometry.Line where Scalar: FloatingPoint {
     public func reflection(of other: Geometry.Point<2>) -> Geometry.Point<2>? {
         guard let projected = projection(of: other) else { return nil }
 
-        // Reflection = 2 * projection - original point
+        // Reflection: original + 2 * (projected - original)
+        // In affine geometry: Coordinate + 2 * Displacement = Coordinate
+        let dx = projected.x - other.x  // Displacement
+        let dy = projected.y - other.y  // Displacement
         return Geometry.Point(
-            x: Geometry.X(2 * projected.x.value - other.x.value),
-            y: Geometry.Y(2 * projected.y.value - other.y.value)
+            x: other.x + 2 * dx,
+            y: other.y + 2 * dy
         )
     }
 
@@ -146,10 +149,14 @@ extension Geometry.Line where Scalar: FloatingPoint {
             guard let pt = intersection(with: segLine) else { continue }
 
             // Check if pt is within segment bounds (parameter t in [0, 1])
+            // Dx * Dx + Dy * Dy = Area
             let lenSq = seg.vector.dx * seg.vector.dx + seg.vector.dy * seg.vector.dy
-            guard lenSq > .ulpOfOne else { continue }
-            let v = Geometry.Vector(dx: pt.x - seg.start.x, dy: pt.y - seg.start.y)
-            let t = (seg.vector.dx * v.dx + seg.vector.dy * v.dy) / lenSq
+            guard lenSq > .zero else { continue }
+            // Displacement from segment start to intersection point
+            let vx: Linear<Scalar, Space>.Dx = pt.x - seg.start.x
+            let vy: Linear<Scalar, Space>.Dy = pt.y - seg.start.y
+            // Area / Area = Scale<1, Scalar>
+            let t: Scale<1, Scalar> = (seg.vector.dx * vx + seg.vector.dy * vy) / lenSq
             if t >= 0 && t <= 1 {
                 result.append(pt)
             }
@@ -246,9 +253,10 @@ extension Geometry.Line.Segment where Scalar: FloatingPoint {
     /// The midpoint of the segment
     @inlinable
     public var midpoint: Geometry.Point<2> {
+        // Mathematically: start + (end - start) / 2
         Geometry.Point(
-            x: (start.x + end.x) / 2,
-            y: (start.y + end.y) / 2
+            x: start.x + (end.x - start.x) / 2,
+            y: start.y + (end.y - start.y) / 2
         )
     }
 
@@ -257,10 +265,13 @@ extension Geometry.Line.Segment where Scalar: FloatingPoint {
     /// - Parameter t: Parameter from 0 (start) to 1 (end)
     /// - Returns: The interpolated point
     @inlinable
-    public func point(at t: Scalar) -> Geometry.Point<2> {
-        let x = start.x + t * (end.x - start.x)
-        let y = start.y + t * (end.y - start.y)
-        return Geometry.Point(x: x, y: y)
+    public func point(at t: Scale<1, Scalar>) -> Geometry.Point<2> {
+        let dx = end.x - start.x
+        let dy = end.y - start.y
+        return Geometry.Point(
+            x: start.x + t * dx,
+            y: start.y + t * dy
+        )
     }
 
     /// Find the intersection point with another line segment.
@@ -355,30 +366,29 @@ extension Geometry where Scalar: FloatingPoint {
     /// Calculate the perpendicular distance from a point to a line.
     @inlinable
     public static func distance(from line: Line, to point: Point<2>) -> Distance? {
-        let len = line.direction.length
-        guard len != 0 else { return nil }
+        let mag = line.direction.magnitude
+        guard mag._rawValue != 0 else { return nil }
         let v = Vector(dx: point.x - line.point.x, dy: point.y - line.point.y)
         let cross = line.direction.dx * v.dy - line.direction.dy * v.dx
-        return Distance(abs(cross) / len)
+        // Area / Magnitude = Magnitude (L² / L = L)
+        return abs(cross) / mag
     }
 
     /// Find the intersection point between two lines.
     @inlinable
     public static func intersection(_ line1: Line, _ line2: Line) -> Point<2>? {
-        // Cross product of direction vectors
+        // Cross product of direction vectors: Dx * Dy - Dy * Dx = Area
         let cross = line1.direction.dx * line2.direction.dy - line1.direction.dy * line2.direction.dx
 
         // If cross product is near zero, lines are parallel
-        guard abs(cross) > .ulpOfOne else { return nil }
+        guard abs(cross) > .zero else { return nil }
 
-        // Vector from line1's point to line2's point
-        let dp = Vector(
-            dx: line2.point.x - line1.point.x,
-            dy: line2.point.y - line1.point.y
-        )
+        // Displacement from line1's point to line2's point
+        let dpx: Linear<Scalar, Space>.Dx = line2.point.x - line1.point.x
+        let dpy: Linear<Scalar, Space>.Dy = line2.point.y - line1.point.y
 
-        // Parameter t for line1
-        let t = (dp.dx * line2.direction.dy - dp.dy * line2.direction.dx) / cross
+        // Parameter t for line1: Area / Area = Scale<1, Scalar>
+        let t: Scale<1, Scalar> = (dpx * line2.direction.dy - dpy * line2.direction.dx) / cross
 
         return line1.point(at: t)
     }
@@ -386,12 +396,17 @@ extension Geometry where Scalar: FloatingPoint {
     /// Project a point onto a line.
     @inlinable
     public static func projection(of point: Point<2>, onto line: Line) -> Point<2>? {
+        // Dx * Dx + Dy * Dy = Area
         let lenSq = line.direction.dx * line.direction.dx + line.direction.dy * line.direction.dy
-        guard lenSq != 0 else { return nil }
+        guard lenSq != .zero else { return nil }
 
-        let v = Vector(dx: point.x - line.point.x, dy: point.y - line.point.y)
-        let dot = line.direction.dx * v.dx + line.direction.dy * v.dy
-        let t = dot / lenSq
+        // Displacement from line point to target point
+        let vx: Linear<Scalar, Space>.Dx = point.x - line.point.x
+        let vy: Linear<Scalar, Space>.Dy = point.y - line.point.y
+        // dot product: Dx * Dx + Dy * Dy = Area
+        let dot = line.direction.dx * vx + line.direction.dy * vy
+        // Area / Area = Scale<1, Scalar>
+        let t: Scale<1, Scalar> = dot / lenSq
 
         return line.point(at: t)
     }
@@ -406,21 +421,19 @@ extension Geometry where Scalar: FloatingPoint {
         let d1 = segment1.vector
         let d2 = segment2.vector
 
-        // Cross product of direction vectors
+        // Cross product of direction vectors: Dx * Dy - Dy * Dx = Area
         let cross = d1.dx * d2.dy - d1.dy * d2.dx
 
         // If cross product is near zero, segments are parallel
-        guard abs(cross) > .ulpOfOne else { return nil }
+        guard abs(cross) > .zero else { return nil }
 
-        // Vector from segment1's start to segment2's start
-        let dp = Vector(
-            dx: segment2.start.x - segment1.start.x,
-            dy: segment2.start.y - segment1.start.y
-        )
+        // Displacement from segment1's start to segment2's start
+        let dpx: Linear<Scalar, Space>.Dx = segment2.start.x - segment1.start.x
+        let dpy: Linear<Scalar, Space>.Dy = segment2.start.y - segment1.start.y
 
-        // Parameters for both segments
-        let t1 = (dp.dx * d2.dy - dp.dy * d2.dx) / cross
-        let t2 = (dp.dx * d1.dy - dp.dy * d1.dx) / cross
+        // Parameters for both segments: Area / Area = Scale<1, Scalar>
+        let t1: Scale<1, Scalar> = (dpx * d2.dy - dpy * d2.dx) / cross
+        let t2: Scale<1, Scalar> = (dpx * d1.dy - dpy * d1.dx) / cross
 
         // Check if intersection is within both segments [0, 1]
         guard t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1 else { return nil }
@@ -432,23 +445,28 @@ extension Geometry where Scalar: FloatingPoint {
     @inlinable
     public static func distance(from segment: Line.Segment, to point: Point<2>) -> Distance {
         let v = segment.vector
+        // Dx * Dx + Dy * Dy = Area
         let lenSq = v.dx * v.dx + v.dy * v.dy
 
         // Degenerate segment (point)
-        if lenSq == 0 {
-            let dx = point.x - segment.start.x
-            let dy = point.y - segment.start.y
-            return .init((dx * dx + dy * dy).squareRoot())
+        if lenSq == .zero {
+            let dx: Linear<Scalar, Space>.Dx = point.x - segment.start.x
+            let dy: Linear<Scalar, Space>.Dy = point.y - segment.start.y
+            // sqrt(Area) -> Magnitude (L² -> L)
+            return sqrt(dx * dx + dy * dy)
         }
 
         // Project point onto line, clamping to segment
-        let w = Vector(dx: point.x - segment.start.x, dy: point.y - segment.start.y)
-        let t = max(0, min(1, (v.dx * w.dx + v.dy * w.dy) / lenSq))
+        let wx: Linear<Scalar, Space>.Dx = point.x - segment.start.x
+        let wy: Linear<Scalar, Space>.Dy = point.y - segment.start.y
+        // Area / Area = Scale<1, Scalar>
+        let t: Scale<1, Scalar> = max(0, min(1, (v.dx * wx + v.dy * wy) / lenSq))
 
         let closest = segment.point(at: t)
-        let dx = point.x - closest.x
-        let dy = point.y - closest.y
-        return .init((dx * dx + dy * dy).squareRoot())
+        let dx: Linear<Scalar, Space>.Dx = point.x - closest.x
+        let dy: Linear<Scalar, Space>.Dy = point.y - closest.y
+        // sqrt(Area) -> Magnitude (L² -> L)
+        return sqrt(dx * dx + dy * dy)
     }
 }
 
