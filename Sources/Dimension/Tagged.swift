@@ -27,19 +27,8 @@ public struct Tagged<Tag, RawValue> {
     ///
     /// - Note: Use typed operators and methods instead of accessing raw values directly.
     ///   This is `package` visible to allow `@inlinable` operators within the package.
-    @usableFromInline
-    package var _rawValue: RawValue
+    public var _rawValue: RawValue
 
-    /// Underlying raw value.
-    ///
-    /// - Note: Access to raw values is restricted via `@_spi(Internal)` to encourage
-    ///   staying in typed land. Use typed operators and methods instead.
-    @_spi(Internal)
-    @inlinable
-    public var rawValue: RawValue {
-        get { _rawValue }
-        set { _rawValue = newValue }
-    }
 
     /// Creates a tagged value from a raw value.
     @inlinable
@@ -169,21 +158,6 @@ extension Tagged: ExpressibleByBooleanLiteral where RawValue: ExpressibleByBoole
     @inlinable
     public init(booleanLiteral value: RawValue.BooleanLiteralType) {
         self._rawValue = RawValue(booleanLiteral: value)
-    }
-}
-
-// MARK: - Value Alias
-
-extension Tagged {
-    /// Convenient alias for `rawValue`.
-    ///
-    /// - Note: Access to raw values is restricted via `@_spi(Internal)` to encourage
-    ///   staying in typed land. Use typed operators and methods instead.
-    @_spi(Internal)
-    @inlinable
-    public var value: RawValue {
-        get { _rawValue }
-        set { _rawValue = newValue }
     }
 }
 

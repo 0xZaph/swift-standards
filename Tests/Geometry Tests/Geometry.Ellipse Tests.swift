@@ -1,7 +1,7 @@
 // Geometry.Ellipse Tests.swift
 // Tests for Geometry.Ellipse type.
 
-import Angle
+import Dimension
 import Testing
 
 @testable import Affine

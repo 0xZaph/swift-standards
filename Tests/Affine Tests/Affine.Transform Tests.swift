@@ -1,7 +1,7 @@
 //// Affine.Transform Tests.swift
 //// Tests for Affine.Transform.swift
 //
-//import Angle
+//import Dimension
 //import Testing
 //
 //@testable import Affine

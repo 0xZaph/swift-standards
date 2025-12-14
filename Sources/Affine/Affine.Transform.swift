@@ -3,7 +3,7 @@
 
 public import Algebra
 public import Algebra_Linear
-public import Angle
+public import Dimension
 public import Dimension
 public import RealModule
 
@@ -45,7 +45,7 @@ extension Affine.Transform: Hashable where Scalar: Hashable {}
 // MARK: - Codable
 
 #if Codable
-    extension Affine.Transform: Codable where Scalar: Codable {
+extension Affine.Transform: Codable where Scalar: Codable, Scalar: FloatingPoint {
         private enum CodingKeys: String, CodingKey {
             case a, b, c, d, tx, ty
         }
@@ -103,35 +103,37 @@ extension Affine.Transform where Scalar: AdditiveArithmetic & ExpressibleByInteg
 
 // MARK: - Component Access (Standard Notation)
 
+extension Affine.Transform where Scalar: FloatingPoint {
+    /// Matrix element at row 0, column 0 (dimensionless scale/rotation coefficient).
+    @inlinable
+    public var a: Scale<1, Scalar> {
+        get { Scale(linear.a) }
+        set { linear.a = newValue.value }
+    }
+
+    /// Matrix element at row 0, column 1 (dimensionless scale/rotation coefficient).
+    @inlinable
+    public var b: Scale<1, Scalar> {
+        get { Scale(linear.b) }
+        set { linear.b = newValue.value }
+    }
+
+    /// Matrix element at row 1, column 0 (dimensionless scale/rotation coefficient).
+    @inlinable
+    public var c: Scale<1, Scalar> {
+        get { Scale(linear.c) }
+        set { linear.c = newValue.value }
+    }
+
+    /// Matrix element at row 1, column 1 (dimensionless scale/rotation coefficient).
+    @inlinable
+    public var d: Scale<1, Scalar> {
+        get { Scale(linear.d) }
+        set { linear.d = newValue.value }
+    }
+}
+
 extension Affine.Transform {
-    /// Matrix element at row 0, column 0.
-    @inlinable
-    public var a: Scalar {
-        get { linear.a }
-        set { linear.a = newValue }
-    }
-
-    /// Matrix element at row 0, column 1.
-    @inlinable
-    public var b: Scalar {
-        get { linear.b }
-        set { linear.b = newValue }
-    }
-
-    /// Matrix element at row 1, column 0.
-    @inlinable
-    public var c: Scalar {
-        get { linear.c }
-        set { linear.c = newValue }
-    }
-
-    /// Matrix element at row 1, column 1.
-    @inlinable
-    public var d: Scalar {
-        get { linear.d }
-        set { linear.d = newValue }
-    }
-
     /// Horizontal translation displacement component.
     @inlinable
     public var tx: Linear<Scalar, Space>.Dx {

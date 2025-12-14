@@ -5,7 +5,7 @@ import Affine
 import StandardsTestSupport
 import Testing
 import RealModule
-@testable import Angle
+@testable import Dimension
 @_spi(Internal) @testable import Dimension
 
 @Suite

@@ -4,7 +4,7 @@
 public import Affine
 public import Algebra
 public import Algebra_Linear
-public import Angle
+public import Dimension
 public import Dimension
 public import RealModule
 

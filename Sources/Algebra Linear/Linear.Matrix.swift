@@ -1,7 +1,7 @@
 // Linear.Matrix.swift
 // A general M×N matrix with compile-time dimensions.
 
-public import Angle
+public import Dimension
 public import RealModule
 
 extension Linear {

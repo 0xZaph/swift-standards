@@ -41,7 +41,7 @@
 public import Affine
 public import Algebra
 public import Algebra_Linear
-import Angle
+import Dimension
 public import Dimension
 
 /// Namespace for affine geometry primitives.

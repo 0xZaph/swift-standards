@@ -1,7 +1,7 @@
 // Geometry.Arc Tests.swift
 // Tests for Geometry.Arc type.
 
-import Angle
+import Dimension
 import Testing
 
 @testable import Affine

@@ -1,7 +1,7 @@
 // Geometry.Ball Tests.swift
 // Tests for Geometry.Ball type (N-dimensional ball/hypersphere).
 
-import Angle
+import Dimension
 import Testing
 
 @testable import Affine

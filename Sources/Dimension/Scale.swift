@@ -14,10 +14,10 @@
 /// let stretch = Scale<2, Double>(x: 1.5, y: 2.0)
 /// // (1, 1) stretched → (1.5, 2.0)
 /// ```
-public struct Scale<let N: Int, Scalar: FloatingPoint> {
+public struct Scale<let N: Int, Scalar> {
     /// Scale factors for each dimension.
     public var factors: InlineArray<N, Scalar>
-
+    
     /// Creates a scale from an array of factors.
     @inlinable
     public init(_ factors: consuming InlineArray<N, Scalar>) {
@@ -29,7 +29,7 @@ extension Scale: Sendable where Scalar: Sendable {}
 
 // MARK: - Equatable
 
-extension Scale: Equatable {
+extension Scale: Equatable where Scalar: FloatingPoint {
     @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
         for i in 0..<N {
@@ -41,7 +41,7 @@ extension Scale: Equatable {
 
 // MARK: - Hashable
 
-extension Scale: Hashable where Scalar: Hashable {
+extension Scale: Hashable where Scalar: Hashable & FloatingPoint {
     @inlinable
     public func hash(into hasher: inout Hasher) {
         for i in 0..<N {
@@ -52,7 +52,7 @@ extension Scale: Hashable where Scalar: Hashable {
 
 // MARK: - Comparable (1D only)
 
-extension Scale: Comparable where N == 1 {
+extension Scale: Comparable where N == 1, Scalar:FloatingPoint {
     @inlinable
     public static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.value < rhs.value
@@ -62,23 +62,23 @@ extension Scale: Comparable where N == 1 {
 // MARK: - Codable
 
 #if Codable
-    extension Scale: Codable where Scalar: Codable {
-        public init(from decoder: any Decoder) throws {
-            var container = try decoder.unkeyedContainer()
-            var factors = InlineArray<N, Scalar>(repeating: .zero)
-            for i in 0..<N {
-                factors[i] = try container.decode(Scalar.self)
-            }
-            self.init(factors)
+extension Scale: Codable where Scalar: Codable, Scalar: FloatingPoint {
+    public init(from decoder: any Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        var factors = InlineArray<N, Scalar>(repeating: .zero)
+        for i in 0..<N {
+            factors[i] = try container.decode(Scalar.self)
         }
-
-        public func encode(to encoder: any Encoder) throws {
-            var container = encoder.unkeyedContainer()
-            for i in 0..<N {
-                try container.encode(factors[i])
-            }
+        self.init(factors)
+    }
+    
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.unkeyedContainer()
+        for i in 0..<N {
+            try container.encode(factors[i])
         }
     }
+}
 #endif
 
 // MARK: - Subscript
@@ -94,19 +94,19 @@ extension Scale {
 
 // MARK: - Identity and Presets
 
-extension Scale where Scalar: ExpressibleByIntegerLiteral {
+extension Scale where Scalar: ExpressibleByIntegerLiteral, Scalar: FloatingPoint {
     /// Identity scale with all factors equal to 1.
     @inlinable
     public static var identity: Self {
         Self(InlineArray(repeating: 1))
     }
-
+    
     /// Creates a uniform scale with the same factor in all dimensions.
     @inlinable
     public static func uniform(_ factor: Scale<1, Scalar>) -> Self {
         Self(InlineArray(repeating: factor.value))
     }
-
+    
     /// Uniform 2x scale in all dimensions.
     @inlinable
     public static var double: Self {
@@ -124,19 +124,22 @@ extension Scale where Scalar: BinaryFloatingPoint {
 
 // MARK: - 1D Convenience
 
-extension Scale where N == 1 {
+extension Scale where N == 1, Scalar: FloatingPoint {
     /// Scale factor value for 1D transformations.
     @inlinable
     public var value: Scalar {
         get { factors[0] }
         set { factors[0] = newValue }
     }
-
+    
     /// Creates a 1D scale with the given factor.
     @inlinable
     public init(_ value: Scalar) {
         self.init([value])
     }
+    
+    public static func percent(_ value: Scalar) -> Self { Self(value / 100) }
+    public var percent: Scalar { value * 100 }
 }
 
 // MARK: - 2D Convenience
@@ -148,14 +151,14 @@ extension Scale where N == 2 {
         get { factors[0] }
         set { factors[0] = newValue }
     }
-
+    
     /// Scale factor for the y dimension.
     @inlinable
     public var y: Scalar {
         get { factors[1] }
         set { factors[1] = newValue }
     }
-
+    
     /// Creates a 2D scale with the given factors.
     @inlinable
     public init(x: Scalar, y: Scalar) {
@@ -172,21 +175,21 @@ extension Scale where N == 3 {
         get { factors[0] }
         set { factors[0] = newValue }
     }
-
+    
     /// Scale factor for the y dimension.
     @inlinable
     public var y: Scalar {
         get { factors[1] }
         set { factors[1] = newValue }
     }
-
+    
     /// Scale factor for the z dimension.
     @inlinable
     public var z: Scalar {
         get { factors[2] }
         set { factors[2] = newValue }
     }
-
+    
     /// Creates a 3D scale with the given factors.
     @inlinable
     public init(x: Scalar, y: Scalar, z: Scalar) {
@@ -196,7 +199,7 @@ extension Scale where N == 3 {
 
 // MARK: - Composition
 
-extension Scale {
+extension Scale where Scalar: FloatingPoint {
     /// Static composition: Multiplies scale factors component-wise.
     ///
     /// - Parameters:
@@ -241,9 +244,26 @@ extension Scale {
     }
 }
 
+// MARK: - Negation
+
+extension Scale where Scalar: SignedNumeric & FloatingPoint {
+    /// Negates all scale factors.
+    ///
+    /// Useful for rotation matrix components where `-sin(θ)` is needed.
+    @inlinable
+    public static prefix func - (scale: Self) -> Self {
+        var result = scale.factors
+        for i in 0..<N {
+            result[i] = -scale.factors[i]
+        }
+        return Self(result)
+    }
+}
+
 // MARK: - 1D Literals
 
-extension Scale: ExpressibleByFloatLiteral where N == 1, Scalar: ExpressibleByFloatLiteral {
+extension Scale: ExpressibleByFloatLiteral
+where N == 1, Scalar: ExpressibleByFloatLiteral & FloatingPoint {
     public typealias FloatLiteralType = Scalar.FloatLiteralType
 
     @inlinable
@@ -252,7 +272,8 @@ extension Scale: ExpressibleByFloatLiteral where N == 1, Scalar: ExpressibleByFl
     }
 }
 
-extension Scale: ExpressibleByIntegerLiteral where N == 1, Scalar: ExpressibleByIntegerLiteral {
+extension Scale: ExpressibleByIntegerLiteral
+where N == 1, Scalar: ExpressibleByIntegerLiteral & FloatingPoint {
     public typealias IntegerLiteralType = Scalar.IntegerLiteralType
 
     @inlinable

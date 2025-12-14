@@ -3,7 +3,7 @@
 //
 //import StandardsTestSupport
 //import Testing
-//@testable import Angle
+//@testable import Dimension
 //
 //@Suite
 //struct `Angle - Namespace` {

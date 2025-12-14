@@ -306,3 +306,4 @@ extension Geometry.Size: ExpressibleByFloatLiteral where N == 1, Scalar: Express
         self.init([Scalar(floatLiteral: value)])
     }
 }
+

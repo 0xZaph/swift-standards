@@ -1,7 +1,7 @@
 // Geometry.Ngon Tests.swift
 // Tests for Geometry.Ngon type (N-sided polygon with compile-time vertex count).
 
-import Angle
+import Dimension
 import Testing
 
 @testable import Affine

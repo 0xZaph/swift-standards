@@ -4,7 +4,7 @@
 import StandardsTestSupport
 import Testing
 import RealModule
-@testable import Angle
+@testable import Dimension
 
 // Helper for approximate Radian comparisons
 private func isApprox(_ a: Radian<Double>, _ b: Radian<Double>, tol: Double = 1e-10) -> Bool {

@@ -1,7 +1,7 @@
 // Geometry.AffineTransform+Symmetry Tests.swift
 
 import Affine
-import Angle
+import Dimension
 import Foundation
 import Geometry
 import Testing

@@ -33,7 +33,6 @@ let package = Package(
                 "Binary",
                 "Dimension",
                 "Positioning",
-                "Angle",
                 "Symmetry",
                 "Region",
                 "Geometry",
@@ -82,10 +81,6 @@ let package = Package(
         .library(
             name: "Positioning",
             targets: ["Positioning"]
-        ),
-        .library(
-            name: "Angle",
-            targets: ["Angle"]
         ),
         .library(
             name: "Symmetry",
@@ -140,7 +135,6 @@ let package = Package(
                 "Binary",
                 "Dimension",
                 "Positioning",
-                "Angle",
                 "Symmetry",
                 "Region",
                 "Geometry",
@@ -180,7 +174,6 @@ let package = Package(
             name: "Algebra Linear",
             dependencies: [
                 "Algebra",
-                "Angle",
                 "Dimension",
                 "Formatting",
                 .product(name: "RealModule", package: "swift-numerics"),
@@ -190,7 +183,6 @@ let package = Package(
             name: "Affine",
             dependencies: [
                 "Algebra Linear",
-                "Angle",
                 "Formatting",
                 .product(name: "RealModule", package: "swift-numerics"),
             ]
@@ -211,13 +203,6 @@ let package = Package(
             name: "Positioning"
         ),
         .target(
-            name: "Angle",
-            dependencies: [
-                "Dimension",
-                .product(name: "RealModule", package: "swift-numerics"),
-            ]
-        ),
-        .target(
             name: "Region",
             dependencies: [
                 "Dimension",
@@ -232,7 +217,6 @@ let package = Package(
                 "Affine",
                 "Dimension",
                 "Formatting",
-                "Angle",
                 "Region",
                 .product(name: "RealModule", package: "swift-numerics"),
             ]
@@ -242,7 +226,6 @@ let package = Package(
             dependencies: [
                 "Algebra Linear",
                 "Affine",
-                "Angle",
                 "Geometry",
             ]
         ),
@@ -339,13 +322,6 @@ let package = Package(
             name: "Positioning".tests,
             dependencies: [
                 "Positioning",
-                "StandardsTestSupport",
-            ]
-        ),
-        .testTarget(
-            name: "Angle".tests,
-            dependencies: [
-                "Angle",
                 "StandardsTestSupport",
             ]
         ),

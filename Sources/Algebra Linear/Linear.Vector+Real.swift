@@ -1,7 +1,7 @@
 // Linear.Vector+Real.swift
 // Angle and rotation operations for 2D vectors with Real scalar types.
 
-public import Angle
+public import Dimension
 public import Dimension
 public import RealModule
 

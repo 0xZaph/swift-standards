@@ -1,7 +1,7 @@
 // Linear.Vector.swift
 // A fixed-size displacement vector with compile-time known dimensions.
 
-public import Algebra
+import Algebra
 public import Dimension
 
 extension Linear {
@@ -499,43 +499,3 @@ extension Linear.Vector {
     }
 }
 
-// MARK: - Vector × Scale (Uniform Scaling)
-
-/// Scales a vector uniformly by a dimensionless scale factor.
-@inlinable
-public func * <Scalar: FloatingPoint, Space, let N: Int>(
-    lhs: Linear<Scalar, Space>.Vector<N>,
-    rhs: Scale<1, Scalar>
-) -> Linear<Scalar, Space>.Vector<N> {
-    var result = lhs.components
-    for i in 0..<N {
-        result[i] = lhs.components[i] * rhs.value
-    }
-    return Linear<Scalar, Space>.Vector<N>(result)
-}
-
-/// Scales a vector uniformly by a dimensionless scale factor (commutative).
-@inlinable
-public func * <Scalar: FloatingPoint, Space, let N: Int>(
-    lhs: Scale<1, Scalar>,
-    rhs: Linear<Scalar, Space>.Vector<N>
-) -> Linear<Scalar, Space>.Vector<N> {
-    var result = rhs.components
-    for i in 0..<N {
-        result[i] = lhs.value * rhs.components[i]
-    }
-    return Linear<Scalar, Space>.Vector<N>(result)
-}
-
-/// Divides a vector uniformly by a dimensionless scale factor.
-@inlinable
-public func / <Scalar: FloatingPoint, Space, let N: Int>(
-    lhs: Linear<Scalar, Space>.Vector<N>,
-    rhs: Scale<1, Scalar>
-) -> Linear<Scalar, Space>.Vector<N> {
-    var result = lhs.components
-    for i in 0..<N {
-        result[i] = lhs.components[i] / rhs.value
-    }
-    return Linear<Scalar, Space>.Vector<N>(result)
-}

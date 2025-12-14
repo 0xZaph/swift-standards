@@ -4,7 +4,7 @@
 public import Affine
 public import Algebra
 public import Algebra_Linear
-public import Angle
+public import Dimension
 public import Dimension
 public import RealModule
 
@@ -168,7 +168,10 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
         let sum: Scalar = a + b
         let h: Scalar = (diff * diff) / (sum * sum)
         let sqrtTerm: Scalar = (4 - 3 * h).squareRoot()
-        return Geometry.Length(Scalar.pi * sum * (1 + 3 * h / (10 + sqrtTerm)))
+        let hTerm: Scalar = 3 * h / (10 + sqrtTerm)
+        let factor: Scalar = 1 + hTerm
+        let perimeter: Scalar = Scalar.pi * sum * factor
+        return Geometry.Length(perimeter)
     }
 
     /// Whether this ellipse is actually a circle

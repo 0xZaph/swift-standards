@@ -2,7 +2,7 @@
 //// Tests verifying type-safe operator interactions across coordinate systems.
 //
 //import Algebra_Linear
-//import Angle
+//import Dimension
 //import Dimension
 //import Testing
 //

@@ -2,7 +2,7 @@
 
 import Affine
 import Algebra_Linear
-import Angle
+import Dimension
 @_spi(Internal) import Dimension
 import Foundation
 import Testing

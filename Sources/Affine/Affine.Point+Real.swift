@@ -2,7 +2,7 @@
 // Polar coordinates and rotation for 2D points with Real scalar types.
 
 import Algebra_Linear
-public import Angle
+public import Dimension
 public import Dimension
 public import RealModule
 

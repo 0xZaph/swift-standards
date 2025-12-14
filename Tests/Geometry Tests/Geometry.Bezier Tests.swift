@@ -1,7 +1,7 @@
 // Geometry.Bezier Tests.swift
 // Tests for Geometry.Bezier type.
 
-import Angle
+import Dimension
 import Testing
 
 @testable import Affine

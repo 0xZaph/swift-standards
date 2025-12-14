@@ -1,7 +1,7 @@
 //// Affine.Point+Real Tests.swift
 //// Tests for Affine.Point+Real.swift polar coordinates and rotation
 //
-//import Angle
+//import Dimension
 //import Foundation
 //import Testing
 //

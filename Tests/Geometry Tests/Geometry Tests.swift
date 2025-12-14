@@ -2,7 +2,7 @@
 
 import Affine
 import Algebra_Linear
-import Angle
+import Dimension
 import Dimension
 import Region
 import Symmetry

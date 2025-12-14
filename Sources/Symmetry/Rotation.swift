@@ -2,7 +2,7 @@
 // An N-dimensional rotation (element of SO(n), dimensionless).
 
 public import Algebra_Linear
-public import Angle
+public import Dimension
 import Foundation
 public import RealModule
 
