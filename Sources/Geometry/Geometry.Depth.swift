@@ -36,34 +36,14 @@ extension Geometry.Depth: Hashable where Scalar: Hashable {}
 #endif
 // MARK: - AdditiveArithmetic
 
-extension Geometry.Depth: AdditiveArithmetic where Scalar: AdditiveArithmetic {
+extension Geometry.Depth where Scalar: AdditiveArithmetic {
     @inlinable
     public static var zero: Self {
         Self(.zero)
     }
-
-    @inlinable
-    @_disfavoredOverload
-    public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
-        Self(lhs.value + rhs.value)
-    }
-
-    @inlinable
-    @_disfavoredOverload
-    public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
-        Self(lhs.value - rhs.value)
-    }
 }
 
-// MARK: - Comparable
 
-extension Geometry.Depth: Comparable where Scalar: Comparable {
-    @inlinable
-    @_disfavoredOverload
-    public static func < (lhs: borrowing Self, rhs: borrowing Self) -> Bool {
-        lhs.value < rhs.value
-    }
-}
 
 // MARK: - ExpressibleByIntegerLiteral
 
@@ -83,15 +63,6 @@ extension Geometry.Depth: ExpressibleByFloatLiteral where Scalar: ExpressibleByF
     }
 }
 
-// MARK: - Negation
-
-extension Geometry.Depth where Scalar: SignedNumeric {
-    /// Negate
-    @inlinable
-    public static prefix func - (value: borrowing Self) -> Self {
-        Self(-value.value)
-    }
-}
 
 
 // MARK: - Strideable

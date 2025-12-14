@@ -67,4 +67,3 @@ extension Tagged where Tag: Spatial, Tag.Space: Quantized, RawValue: BinaryFloat
         lhs.ticks != rhs.ticks
     }
 }
-

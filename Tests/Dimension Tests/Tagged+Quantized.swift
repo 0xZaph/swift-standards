@@ -46,8 +46,8 @@ struct `Tagged+Quantized` {
         func `same tick produces identical bits`() {
             let x1 = QX(ticks: 14940)
             let x2 = QX(ticks: 14940)
-            #expect(x1.rawValue == x2.rawValue)
-            #expect(x1.rawValue.bitPattern == x2.rawValue.bitPattern)
+            #expect(x1 == x2)
+            #expect(x1._rawValue.bitPattern == x2._rawValue.bitPattern)
         }
     }
 
@@ -190,7 +190,7 @@ struct `Tagged+Quantized` {
             let direct = start + total
 
             // Same tick means identical IEEE 754 bits
-            #expect(accumulated.rawValue.bitPattern == direct.rawValue.bitPattern)
+            #expect(accumulated._rawValue.bitPattern == direct._rawValue.bitPattern)
         }
     }
 }

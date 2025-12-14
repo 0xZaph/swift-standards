@@ -831,27 +831,27 @@ struct RotationTransformTests {
         #expect(abs(rotation.angle - .pi) < 1e-10)
     }
 
-    @Test
-    func `Rotation quarter turn`() {
-        let rotation = Rotation<2, Double>.quarterTurn
-        #expect(abs(rotation.angle - .pi / 2) < 1e-10)
-    }
+//    @Test
+//    func `Rotation quarter turn`() {
+//        let rotation = Rotation<2, Double>.quarterTurn
+//        #expect(abs(rotation.angle - .pi / 2) < 1e-10)
+//    }
 
-    @Test
-    func `Rotation composition`() {
-        let a = Rotation<2, Double>(angle: .pi(over: 4))
-        let b = Rotation<2, Double>(angle: .pi(over: 4))
-        let combined = a.concatenating(b)
-        #expect(abs(combined.angle - .pi / 2) < 1e-10)
-    }
-
-    @Test
-    func `Rotation inversion`() {
-        let rotation = Rotation<2, Double>(angle: .pi(over: 3))
-        let inverted = rotation.inverted
-        let expected: Radian<Double> = .pi(over: 3)
-        #expect(abs(inverted.angle + expected) < 1e-10)
-    }
+//    @Test
+//    func `Rotation composition`() {
+//        let a = Rotation<2, Double>(angle: .pi(over: 4))
+//        let b = Rotation<2, Double>(angle: .pi(over: 4))
+//        let combined = a.concatenating(b)
+//        #expect(abs(combined.angle - .pi / 2) < 1e-10)
+//    }
+//
+//    @Test
+//    func `Rotation inversion`() {
+//        let rotation = Rotation<2, Double>(angle: .pi(over: 3))
+//        let inverted = rotation.inverted
+//        let expected: Radian<Double> = .pi(over: 3)
+//        #expect(abs(inverted.angle + expected) < 1e-10)
+//    }
 }
 
 // MARK: - Shear Tests

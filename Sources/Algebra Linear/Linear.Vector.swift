@@ -140,70 +140,9 @@ extension Linear.Vector where Scalar: AdditiveArithmetic {
     }
 }
 
-// MARK: - AdditiveArithmetic
 
-extension Linear.Vector where Scalar: AdditiveArithmetic {
-    /// Adds two vectors component-wise.
-    @inlinable
-    @_disfavoredOverload
-    public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
-        var result = lhs.components
-        for i in 0..<N {
-            result[i] = lhs.components[i] + rhs.components[i]
-        }
-        return Self(result)
-    }
 
-    /// Subtracts two vectors component-wise.
-    @inlinable
-    @_disfavoredOverload
-    public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
-        var result = lhs.components
-        for i in 0..<N {
-            result[i] = lhs.components[i] - rhs.components[i]
-        }
-        return Self(result)
-    }
-}
 
-// MARK: - Negation (SignedNumeric)
-
-extension Linear.Vector where Scalar: SignedNumeric {
-    /// Negates the vector (flips direction).
-    @inlinable
-    @_disfavoredOverload
-    public static prefix func - (value: borrowing Self) -> Self {
-        var result = value.components
-        for i in 0..<N {
-            result[i] = -value.components[i]
-        }
-        return Self(result)
-    }
-}
-
-// MARK: - Scalar Multiplication (internal for mathematical operations)
-
-extension Linear.Vector where Scalar: FloatingPoint {
-    /// Scales the vector by a scalar multiplier (internal).
-    @inlinable
-    internal static func * (lhs: borrowing Self, rhs: Scalar) -> Self {
-        var result = lhs.components
-        for i in 0..<N {
-            result[i] = lhs.components[i] * rhs
-        }
-        return Self(result)
-    }
-
-    /// Divides the vector by a scalar divisor (internal).
-    @inlinable
-    internal static func / (lhs: borrowing Self, rhs: Scalar) -> Self {
-        var result = lhs.components
-        for i in 0..<N {
-            result[i] = lhs.components[i] / rhs
-        }
-        return Self(result)
-    }
-}
 
 // MARK: - Properties (FloatingPoint)
 

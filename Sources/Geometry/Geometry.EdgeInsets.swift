@@ -110,54 +110,13 @@ extension Geometry.EdgeInsets where Scalar: AdditiveArithmetic {
 
 // MARK: - AdditiveArithmetic
 
-extension Geometry.EdgeInsets: AdditiveArithmetic where Scalar: AdditiveArithmetic {
+extension Geometry.EdgeInsets where Scalar: AdditiveArithmetic {
     /// Zero insets.
     @inlinable
     public static var zero: Self {
         Self(top: .zero, leading: .zero, bottom: .zero, trailing: .zero)
     }
-
-    /// Adds two edge insets component-wise.
-    @inlinable
-    @_disfavoredOverload
-    public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
-        Self(
-            top: lhs.top + rhs.top,
-            leading: lhs.leading + rhs.leading,
-            bottom: lhs.bottom + rhs.bottom,
-            trailing: lhs.trailing + rhs.trailing
-        )
-    }
-
-    /// Subtracts two edge insets component-wise.
-    @inlinable
-    @_disfavoredOverload
-    public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
-        Self(
-            top: lhs.top - rhs.top,
-            leading: lhs.leading - rhs.leading,
-            bottom: lhs.bottom - rhs.bottom,
-            trailing: lhs.trailing - rhs.trailing
-        )
-    }
 }
-
-// MARK: - Negation
-
-extension Geometry.EdgeInsets where Scalar: SignedNumeric {
-    /// Negates all insets.
-    @inlinable
-    @_disfavoredOverload
-    public static prefix func - (value: borrowing Self) -> Self {
-        Self(
-            top: -value.top,
-            leading: -value.leading,
-            bottom: -value.bottom,
-            trailing: -value.trailing
-        )
-    }
-}
-
 
 // MARK: - Functorial Map
 

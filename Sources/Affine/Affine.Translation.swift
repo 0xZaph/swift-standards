@@ -65,7 +65,7 @@ extension Affine.Translation where Scalar: AdditiveArithmetic {
 
 // MARK: - AdditiveArithmetic
 
-extension Affine.Translation: AdditiveArithmetic where Scalar: AdditiveArithmetic {
+extension Affine.Translation where Scalar: AdditiveArithmetic {
     @inlinable
     @_disfavoredOverload
     public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {

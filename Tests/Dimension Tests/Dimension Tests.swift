@@ -60,19 +60,19 @@ struct `Dimension - Tagged Values` {
     @Test
     func `Tagged with X Coordinate`() {
         let x: Coordinate.X<TestSpace>.Value<Double> = Tagged(10.0)
-        #expect(x.rawValue == 10.0)
+        #expect(x == 10.0)
     }
 
     @Test
     func `Tagged with Y Displacement`() {
         let dy: Displacement.Y<TestSpace>.Value<Double> = Tagged(5.0)
-        #expect(dy.rawValue == 5.0)
+        #expect(dy == 5.0)
     }
 
     @Test
     func `Tagged with Magnitude`() {
         let mag: Magnitude<TestSpace>.Value<Double> = Tagged(3.14)
-        #expect(mag.rawValue == 3.14)
+        #expect(mag == 3.14)
     }
 
     @Test
@@ -85,7 +85,7 @@ struct `Dimension - Tagged Values` {
 
         // These are different types - cannot compare directly
         // This is a compile-time safety feature
-        #expect(x1.rawValue == x2.rawValue)
+        #expect(type(of: x1) != type(of: x2))
     }
 
     @Test
@@ -93,7 +93,7 @@ struct `Dimension - Tagged Values` {
         let x: Coordinate.X<Void>.Value<Double> = Tagged(10.0)
         let y: Coordinate.Y<Void>.Value<Double> = Tagged(20.0)
 
-        #expect(x.rawValue == 10.0)
-        #expect(y.rawValue == 20.0)
+        #expect(x == 10.0)
+        #expect(y == 20.0)
     }
 }

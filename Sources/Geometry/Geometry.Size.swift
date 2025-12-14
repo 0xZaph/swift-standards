@@ -123,50 +123,15 @@ extension Geometry.Size {
 
 // MARK: - AdditiveArithmetic
 
-extension Geometry.Size: AdditiveArithmetic where Scalar: AdditiveArithmetic {
+extension Geometry.Size where Scalar: AdditiveArithmetic {
     /// Zero size (all dimensions zero)
     @inlinable
     public static var zero: Self {
         Self(InlineArray(repeating: .zero))
     }
-
-    /// Add two sizes component-wise
-    @inlinable
-    @_disfavoredOverload
-    public static func + (lhs: borrowing Self, rhs: borrowing Self) -> Self {
-        var result = InlineArray<N, Scalar>(repeating: .zero)
-        for i in 0..<N {
-            result[i] = lhs.dimensions[i] + rhs.dimensions[i]
-        }
-        return Self(result)
-    }
-
-    /// Subtract two sizes component-wise
-    @inlinable
-    @_disfavoredOverload
-    public static func - (lhs: borrowing Self, rhs: borrowing Self) -> Self {
-        var result = InlineArray<N, Scalar>(repeating: .zero)
-        for i in 0..<N {
-            result[i] = lhs.dimensions[i] - rhs.dimensions[i]
-        }
-        return Self(result)
-    }
 }
 
-// MARK: - Negation
 
-extension Geometry.Size where Scalar: SignedNumeric {
-    /// Negate all dimensions
-    @inlinable
-    @_disfavoredOverload
-    public static prefix func - (value: borrowing Self) -> Self {
-        var result = InlineArray<N, Scalar>(repeating: .zero)
-        for i in 0..<N {
-            result[i] = -value.dimensions[i]
-        }
-        return Self(result)
-    }
-}
 
 
 extension Geometry.Size where N == 1 {
