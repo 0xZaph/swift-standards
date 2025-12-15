@@ -78,18 +78,27 @@ extension Geometry.Polygon where Scalar: AdditiveArithmetic {
 // MARK: - Area and Perimeter (SignedNumeric)
 
 extension Geometry.Polygon where Scalar: SignedNumeric {
-    /// The signed area of the polygon using the shoelace formula.
+    /// The signed double area of the polygon using the shoelace formula.
     ///
     /// Positive if vertices are counter-clockwise, negative if clockwise.
+    /// Returns a typed `Linear.Area` for dimensional safety.
     @inlinable
-    public var signedDoubleArea: Scalar {
-        guard vertices.count >= 3 else { return .zero }
+    public var signedDoubleArea: Linear<Scalar, Space>.Area {
+        guard vertices.count >= 3 else { return Tagged(.zero) }
 
-        var sum: Scalar = .zero
+        let zeroX = Geometry.X.zero
+        let zeroY = Geometry.Y.zero
+        var sum: Linear<Scalar, Space>.Area = Tagged(.zero)
+
         for i in 0..<vertices.count {
             let j = (i + 1) % vertices.count
-            sum += (vertices[i].x._rawValue * vertices[j].y._rawValue)
-            sum -= (vertices[j].x._rawValue * vertices[i].y._rawValue)
+            // Coordinate - Coordinate.zero = Displacement
+            let xi = vertices[i].x - zeroX
+            let yi = vertices[i].y - zeroY
+            let xj = vertices[j].x - zeroX
+            let yj = vertices[j].y - zeroY
+            // Dx × Dy = Area (typed multiplication)
+            sum = sum + xi * yj - xj * yi
         }
         return sum
     }
@@ -98,7 +107,7 @@ extension Geometry.Polygon where Scalar: SignedNumeric {
 extension Geometry.Polygon where Scalar: FloatingPoint {
     /// The area of the polygon (always positive)
     @inlinable
-    public var area: Scalar { Geometry.area(of: self) }
+    public var area: Geometry.Area { Geometry.area(of: self) }
 
     /// The perimeter of the polygon
     @inlinable
@@ -158,23 +167,27 @@ extension Geometry.Polygon where Scalar: SignedNumeric & Comparable {
     public var isConvex: Bool {
         guard vertices.count >= 3 else { return true }
 
-        var sign: Scalar?
+        // Cross product of edge vectors: Dx × Dy - Dy × Dx = Area
+        var sign: Linear<Scalar, Space>.Area?
+        let zero: Linear<Scalar, Space>.Area = Tagged(.zero)
 
         for i in 0..<vertices.count {
             let j = (i + 1) % vertices.count
             let k = (i + 2) % vertices.count
 
-            let v1x = vertices[j].x._rawValue - vertices[i].x._rawValue
-            let v1y = vertices[j].y._rawValue - vertices[i].y._rawValue
-            let v2x = vertices[k].x._rawValue - vertices[j].x._rawValue
-            let v2y = vertices[k].y._rawValue - vertices[j].y._rawValue
+            // Coordinate - Coordinate = Displacement
+            let v1x = vertices[j].x - vertices[i].x
+            let v1y = vertices[j].y - vertices[i].y
+            let v2x = vertices[k].x - vertices[j].x
+            let v2y = vertices[k].y - vertices[j].y
 
+            // Dx × Dy = Area (typed cross product)
             let cross = v1x * v2y - v1y * v2x
 
             if let existingSign = sign {
-                if cross > .zero && existingSign < .zero { return false }
-                if cross < .zero && existingSign > .zero { return false }
-            } else if cross != .zero {
+                if cross > zero && existingSign < zero { return false }
+                if cross < zero && existingSign > zero { return false }
+            } else if cross != zero {
                 sign = cross
             }
         }
@@ -189,13 +202,13 @@ extension Geometry.Polygon where Scalar: SignedNumeric & Comparable {
     /// Whether the vertices are ordered counter-clockwise.
     @inlinable
     public var isCounterClockwise: Bool {
-        signedDoubleArea > .zero
+        signedDoubleArea > Tagged(.zero)
     }
 
     /// Whether the vertices are ordered clockwise.
     @inlinable
     public var isClockwise: Bool {
-        signedDoubleArea < .zero
+        signedDoubleArea < Tagged(.zero)
     }
 
     /// Return a polygon with reversed vertex order.
@@ -317,12 +330,11 @@ extension Geometry.Polygon where Scalar: FloatingPoint {
                 let c = remaining[next]
 
                 // Check if this is a convex vertex (ear candidate)
-                let cross =
-                    (b.x._rawValue - a.x._rawValue) * (c.y._rawValue - a.y._rawValue) - (b.y._rawValue - a.y._rawValue)
-                    * (c.x._rawValue - a.x._rawValue)
+                // Coordinate - Coordinate = Displacement, Dx × Dy = Area
+                let cross = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
 
                 // For CCW polygon, ears have positive cross product
-                guard cross > 0 else { continue }
+                guard cross > Tagged(Scalar(0)) else { continue }
 
                 // Check if any other vertex is inside this triangle
                 let triangle = Geometry.Triangle(a: a, b: b, c: c)
@@ -363,22 +375,19 @@ extension Geometry.Polygon where Scalar: FloatingPoint {
 extension Geometry where Scalar: FloatingPoint {
     /// Calculate the area of a polygon (always positive).
     @inlinable
-    public static func area(of polygon: Polygon) -> Scalar {
-        abs(signedDoubleArea(of: polygon)) / 2
+    public static func area(of polygon: Polygon) -> Area {
+        let signedArea = signedDoubleArea(of: polygon)
+        // abs of typed area, then divide by 2
+        let absArea = signedArea._rawValue < 0 ? -signedArea._rawValue : signedArea._rawValue
+        return Area(Tagged(absArea / 2))
     }
 
     /// Calculate the signed double area of a polygon using the shoelace formula.
+    ///
+    /// Returns a typed `Linear.Area` for dimensional safety.
     @inlinable
-    public static func signedDoubleArea(of polygon: Polygon) -> Scalar where Scalar: SignedNumeric {
-        guard polygon.vertices.count >= 3 else { return .zero }
-
-        var sum: Scalar = .zero
-        for i in 0..<polygon.vertices.count {
-            let j = (i + 1) % polygon.vertices.count
-            sum += (polygon.vertices[i].x._rawValue * polygon.vertices[j].y._rawValue)
-            sum -= (polygon.vertices[j].x._rawValue * polygon.vertices[i].y._rawValue)
-        }
-        return sum
+    public static func signedDoubleArea(of polygon: Polygon) -> Linear<Scalar, Space>.Area where Scalar: SignedNumeric {
+        polygon.signedDoubleArea
     }
 
     /// Calculate the perimeter of a polygon.
@@ -399,19 +408,28 @@ extension Geometry where Scalar: FloatingPoint {
     public static func centroid(of polygon: Polygon) -> Point<2>? where Scalar: SignedNumeric {
         guard polygon.vertices.count >= 3 else { return nil }
 
-        let a = signedDoubleArea(of: polygon)
+        // Use typed signedDoubleArea, extract raw value for centroid math
+        let a = signedDoubleArea(of: polygon)._rawValue
         guard abs(a) > .ulpOfOne else { return nil }
 
         var cx: Scalar = .zero
         var cy: Scalar = .zero
 
+        let zeroX = X.zero
+        let zeroY = Y.zero
+
         for i in 0..<polygon.vertices.count {
             let j = (i + 1) % polygon.vertices.count
-            let cross =
-                polygon.vertices[i].x._rawValue * polygon.vertices[j].y._rawValue - polygon.vertices[j].x._rawValue
-                * polygon.vertices[i].y._rawValue
-            cx += (polygon.vertices[i].x._rawValue + polygon.vertices[j].x._rawValue) * cross
-            cy += (polygon.vertices[i].y._rawValue + polygon.vertices[j].y._rawValue) * cross
+            // Coordinate - Coordinate.zero = Displacement
+            let xi = polygon.vertices[i].x - zeroX
+            let yi = polygon.vertices[i].y - zeroY
+            let xj = polygon.vertices[j].x - zeroX
+            let yj = polygon.vertices[j].y - zeroY
+            // Dx × Dy = Area, extract raw value for centroid mixing
+            let cross = (xi * yj - xj * yi)._rawValue
+            // Centroid formula inherently mixes coordinates (weighted average)
+            cx += (xi._rawValue + xj._rawValue) * cross
+            cy += (yi._rawValue + yj._rawValue) * cross
         }
 
         // Normalize by 1/(3*area) to get centroid coordinates

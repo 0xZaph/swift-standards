@@ -106,22 +106,22 @@ extension Geometry.Area where Scalar: AdditiveArithmetic {
 }
 
 extension Geometry.Area where Scalar: FloatingPoint {
-    /// Multiplies area by a scalar.
+    /// Multiplies area by a dimensionless scale factor.
     @inlinable
-    public static func * (lhs: Self, rhs: Scalar) -> Self {
-        Self(lhs.rawValue * rhs)
+    public static func * (lhs: Self, rhs: Scale<1, Scalar>) -> Self {
+        Self(lhs.rawValue * rhs.value)
     }
 
-    /// Multiplies a scalar by area.
+    /// Multiplies a dimensionless scale factor by area.
     @inlinable
-    public static func * (lhs: Scalar, rhs: Self) -> Self {
-        Self(lhs * rhs.rawValue)
+    public static func * (lhs: Scale<1, Scalar>, rhs: Self) -> Self {
+        Self(lhs.value * rhs.rawValue)
     }
 
-    /// Divides area by a scalar.
+    /// Divides area by a dimensionless scale factor.
     @inlinable
-    public static func / (lhs: Self, rhs: Scalar) -> Self {
-        Self(lhs.rawValue / rhs)
+    public static func / (lhs: Self, rhs: Scale<1, Scalar>) -> Self {
+        Self(lhs.rawValue / rhs.value)
     }
 
     /// Ratio of two areas (dimensionless).
@@ -131,24 +131,28 @@ extension Geometry.Area where Scalar: FloatingPoint {
     }
 }
 
-extension Geometry.Area where Scalar: BinaryFloatingPoint {
-    /// Multiplies area by an integer.
-    @inlinable
-    public static func * <I: BinaryInteger>(lhs: Self, rhs: I) -> Self {
-        Self(lhs.rawValue * Scalar(rhs))
-    }
+// MARK: - Area ÷ Dimension → Dimension
 
-    /// Multiplies an integer by area.
-    @inlinable
-    public static func * <I: BinaryInteger>(lhs: I, rhs: Self) -> Self {
-        Self(Scalar(lhs) * rhs.rawValue)
-    }
+/// Divides area by width to get height.
+///
+/// Enables dimensional analysis: Area / Width = Height
+@inlinable
+public func / <Scalar: FloatingPoint, Space>(
+    lhs: Geometry<Scalar, Space>.Area,
+    rhs: Geometry<Scalar, Space>.Width
+) -> Geometry<Scalar, Space>.Height {
+    Geometry<Scalar, Space>.Height(lhs.rawValue / rhs._rawValue)
+}
 
-    /// Divides area by an integer.
-    @inlinable
-    public static func / <I: BinaryInteger>(lhs: Self, rhs: I) -> Self {
-        Self(lhs.rawValue / Scalar(rhs))
-    }
+/// Divides area by height to get width.
+///
+/// Enables dimensional analysis: Area / Height = Width
+@inlinable
+public func / <Scalar: FloatingPoint, Space>(
+    lhs: Geometry<Scalar, Space>.Area,
+    rhs: Geometry<Scalar, Space>.Height
+) -> Geometry<Scalar, Space>.Width {
+    Geometry<Scalar, Space>.Width(lhs.rawValue / rhs._rawValue)
 }
 
 // MARK: - Comparison

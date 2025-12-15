@@ -1764,3 +1764,4 @@ public func / <Space, Scalar: BinaryFloatingPoint>(
 ) -> Magnitude<Space>.Value<Scalar> {
     ._quantize(lhs._rawValue / rhs.value, in: Space.self)
 }
+

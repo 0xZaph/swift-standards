@@ -279,7 +279,7 @@ extension Geometry.Ngon where Scalar: SignedNumeric {
         // Treating coordinates as displacements from origin
         let zeroX = Geometry.X.zero
         let zeroY = Geometry.Y.zero
-        var sum: Linear<Scalar, Space>.Area = Tagged(.zero)
+        var sum: Linear<Scalar, Space>.Area = .zero
         for i in 0..<N {
             let j = (i + 1) % N
             // Coordinate - Coordinate.zero = Displacement
@@ -359,7 +359,7 @@ extension Geometry.Ngon where Scalar: SignedNumeric & Comparable {
     public var isConvex: Bool {
         // Cross product of edge vectors: Dx × Dy - Dy × Dx = Area
         var sign: Linear<Scalar, Space>.Area?
-        let zero: Linear<Scalar, Space>.Area = Tagged(.zero)
+        let zero: Linear<Scalar, Space>.Area = .zero
 
         for i in 0..<N {
             let j = (i + 1) % N
@@ -390,13 +390,13 @@ extension Geometry.Ngon where Scalar: SignedNumeric & Comparable {
     /// Whether the vertices are ordered counter-clockwise.
     @inlinable
     public var isCounterClockwise: Bool {
-        signedDoubleArea > Tagged(.zero)
+        signedDoubleArea > .zero
     }
 
     /// Whether the vertices are ordered clockwise.
     @inlinable
     public var isClockwise: Bool {
-        signedDoubleArea < Tagged(.zero)
+        signedDoubleArea < .zero
     }
 
     /// Return a polygon with reversed vertex order.

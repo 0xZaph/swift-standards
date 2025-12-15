@@ -246,3 +246,49 @@ extension Linear.Vector where Scalar: AdditiveArithmetic {
         return Self(result)
     }
 }
+
+// MARK: - Dot Product
+
+/// Computes the dot product of two vectors.
+///
+/// The dot product is the sum of component-wise products, returning a scalar.
+/// Geometrically, it equals |a| × |b| × cos(θ) where θ is the angle between vectors.
+///
+/// - Returns: The scalar dot product.
+@inlinable
+public func dot<Scalar: Numeric, Space, let N: Int>(
+    _ lhs: Linear<Scalar, Space>.Vector<N>,
+    _ rhs: Linear<Scalar, Space>.Vector<N>
+) -> Scalar {
+    var sum: Scalar = .zero
+    for i in 0..<N {
+        sum += lhs.components[i] * rhs.components[i]
+    }
+    return sum
+}
+
+/// Computes the dot product of two 2D vectors using typed components.
+@inlinable
+public func dot<Scalar: Numeric, Space>(
+    _ lhs: Linear<Scalar, Space>.Vector<2>,
+    _ rhs: Linear<Scalar, Space>.Vector<2>
+) -> Scalar {
+    lhs.dx._rawValue * rhs.dx._rawValue + lhs.dy._rawValue * rhs.dy._rawValue
+}
+
+// MARK: - Cross Product (2D)
+
+/// Computes the 2D cross product (perpendicular dot product).
+///
+/// For 2D vectors, the cross product returns a scalar representing the
+/// signed area of the parallelogram formed by the two vectors.
+/// Positive if rhs is counterclockwise from lhs, negative if clockwise.
+///
+/// - Returns: The signed scalar area.
+@inlinable
+public func cross<Scalar: Numeric, Space>(
+    _ lhs: Linear<Scalar, Space>.Vector<2>,
+    _ rhs: Linear<Scalar, Space>.Vector<2>
+) -> Scalar {
+    lhs.dx._rawValue * rhs.dy._rawValue - lhs.dy._rawValue * rhs.dx._rawValue
+}
