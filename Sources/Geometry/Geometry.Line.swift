@@ -367,7 +367,7 @@ extension Geometry where Scalar: FloatingPoint {
     @inlinable
     public static func distance(from line: Line, to point: Point<2>) -> Distance? {
         let mag = line.direction.magnitude
-        guard mag._rawValue != 0 else { return nil }
+        guard mag != .zero else { return nil }
         let v = Vector(dx: point.x - line.point.x, dy: point.y - line.point.y)
         let cross = line.direction.dx * v.dy - line.direction.dy * v.dx
         // Area / Magnitude = Magnitude (L² / L = L)
@@ -378,7 +378,8 @@ extension Geometry where Scalar: FloatingPoint {
     @inlinable
     public static func intersection(_ line1: Line, _ line2: Line) -> Point<2>? {
         // Cross product of direction vectors: Dx * Dy - Dy * Dx = Area
-        let cross = line1.direction.dx * line2.direction.dy - line1.direction.dy * line2.direction.dx
+        let cross =
+            line1.direction.dx * line2.direction.dy - line1.direction.dy * line2.direction.dx
 
         // If cross product is near zero, lines are parallel
         guard abs(cross) > .zero else { return nil }
@@ -417,7 +418,8 @@ extension Geometry where Scalar: FloatingPoint {
 extension Geometry where Scalar: FloatingPoint {
     /// Find the intersection point between two line segments.
     @inlinable
-    public static func intersection(_ segment1: Line.Segment, _ segment2: Line.Segment) -> Point<2>? {
+    public static func intersection(_ segment1: Line.Segment, _ segment2: Line.Segment) -> Point<2>?
+    {
         let d1 = segment1.vector
         let d2 = segment2.vector
 

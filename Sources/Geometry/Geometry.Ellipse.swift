@@ -5,7 +5,6 @@ public import Affine
 public import Algebra
 public import Algebra_Linear
 public import Dimension
-public import Dimension
 public import RealModule
 
 extension Geometry {
@@ -78,7 +77,12 @@ extension Geometry.Ellipse where Scalar: AdditiveArithmetic {
         semiMajor: Geometry.Length,
         semiMinor: Geometry.Length
     ) {
-        self.init(center: center, semiMajor: semiMajor, semiMinor: semiMinor, rotation: Radian(Scalar.zero))
+        self.init(
+            center: center,
+            semiMajor: semiMajor,
+            semiMinor: semiMinor,
+            rotation: Radian(Scalar.zero)
+        )
     }
 }
 
@@ -156,10 +160,13 @@ extension Geometry.Ellipse where Scalar: Real & BinaryFloatingPoint {
 
 // MARK: - Area and Perimeter (FloatingPoint)
 
-extension Geometry.Ellipse where Scalar: FloatingPoint {
+extension Geometry.Ellipse where Scalar: BinaryFloatingPoint {
     /// The area of the ellipse (π * a * b)
     @inlinable
-    public var area: Scalar { Geometry.area(of: self) }
+    public var area: Geometry.Area { Geometry.area(of: self) }
+}
+
+extension Geometry.Ellipse where Scalar: FloatingPoint {
 
     /// The approximate perimeter using Ramanujan's approximation
     ///
@@ -323,13 +330,11 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
 
 // MARK: - Ellipse Static Implementations
 
-extension Geometry where Scalar: FloatingPoint {
+extension Geometry where Scalar: BinaryFloatingPoint {
     /// Calculate the area of an ellipse (π × a × b).
     @inlinable
-    public static func area(of ellipse: Ellipse) -> Scalar {
-        let a: Scalar = ellipse.semiMajor._rawValue
-        let b: Scalar = ellipse.semiMinor._rawValue
-        return Scalar.pi * a * b
+    public static func area(of ellipse: Ellipse) -> Area {
+        Area(Scale<1, Scalar>.pi * ellipse.semiMajor * ellipse.semiMinor)
     }
 }
 

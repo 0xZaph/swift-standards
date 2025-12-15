@@ -17,7 +17,7 @@
 public struct Scale<let N: Int, Scalar> {
     /// Scale factors for each dimension.
     public var factors: InlineArray<N, Scalar>
-    
+
     /// Creates a scale from an array of factors.
     @inlinable
     public init(_ factors: consuming InlineArray<N, Scalar>) {
@@ -52,7 +52,7 @@ extension Scale: Hashable where Scalar: Hashable & FloatingPoint {
 
 // MARK: - Comparable (1D only)
 
-extension Scale: Comparable where N == 1, Scalar:FloatingPoint {
+extension Scale: Comparable where N == 1, Scalar: FloatingPoint {
     @inlinable
     public static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.value < rhs.value
@@ -62,23 +62,23 @@ extension Scale: Comparable where N == 1, Scalar:FloatingPoint {
 // MARK: - Codable
 
 #if Codable
-extension Scale: Codable where Scalar: Codable, Scalar: FloatingPoint {
-    public init(from decoder: any Decoder) throws {
-        var container = try decoder.unkeyedContainer()
-        var factors = InlineArray<N, Scalar>(repeating: .zero)
-        for i in 0..<N {
-            factors[i] = try container.decode(Scalar.self)
+    extension Scale: Codable where Scalar: Codable, Scalar: FloatingPoint {
+        public init(from decoder: any Decoder) throws {
+            var container = try decoder.unkeyedContainer()
+            var factors = InlineArray<N, Scalar>(repeating: .zero)
+            for i in 0..<N {
+                factors[i] = try container.decode(Scalar.self)
+            }
+            self.init(factors)
         }
-        self.init(factors)
-    }
-    
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.unkeyedContainer()
-        for i in 0..<N {
-            try container.encode(factors[i])
+
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.unkeyedContainer()
+            for i in 0..<N {
+                try container.encode(factors[i])
+            }
         }
     }
-}
 #endif
 
 // MARK: - Subscript
@@ -100,13 +100,13 @@ extension Scale where Scalar: ExpressibleByIntegerLiteral, Scalar: FloatingPoint
     public static var identity: Self {
         Self(InlineArray(repeating: 1))
     }
-    
+
     /// Creates a uniform scale with the same factor in all dimensions.
     @inlinable
     public static func uniform(_ factor: Scale<1, Scalar>) -> Self {
         Self(InlineArray(repeating: factor.value))
     }
-    
+
     /// Uniform 2x scale in all dimensions.
     @inlinable
     public static var double: Self {
@@ -131,15 +131,22 @@ extension Scale where N == 1, Scalar: FloatingPoint {
         get { factors[0] }
         set { factors[0] = newValue }
     }
-    
+
     /// Creates a 1D scale with the given factor.
     @inlinable
     public init(_ value: Scalar) {
         self.init([value])
     }
-    
+
     public static func percent(_ value: Scalar) -> Self { Self(value / 100) }
     public var percent: Scalar { value * 100 }
+}
+
+extension Scale where N == 1, Scalar: BinaryFloatingPoint {
+    /// The mathematical constant pi (π) as a dimensionless scale factor.
+    @inlinable
+    @_disfavoredOverload
+    public static var pi: Self { Self(Scalar.pi) }
 }
 
 // MARK: - 2D Convenience
@@ -151,14 +158,14 @@ extension Scale where N == 2 {
         get { factors[0] }
         set { factors[0] = newValue }
     }
-    
+
     /// Scale factor for the y dimension.
     @inlinable
     public var y: Scalar {
         get { factors[1] }
         set { factors[1] = newValue }
     }
-    
+
     /// Creates a 2D scale with the given factors.
     @inlinable
     public init(x: Scalar, y: Scalar) {
@@ -175,21 +182,21 @@ extension Scale where N == 3 {
         get { factors[0] }
         set { factors[0] = newValue }
     }
-    
+
     /// Scale factor for the y dimension.
     @inlinable
     public var y: Scalar {
         get { factors[1] }
         set { factors[1] = newValue }
     }
-    
+
     /// Scale factor for the z dimension.
     @inlinable
     public var z: Scalar {
         get { factors[2] }
         set { factors[2] = newValue }
     }
-    
+
     /// Creates a 3D scale with the given factors.
     @inlinable
     public init(x: Scalar, y: Scalar, z: Scalar) {

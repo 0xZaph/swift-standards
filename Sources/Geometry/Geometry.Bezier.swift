@@ -5,7 +5,6 @@ public import Affine
 public import Algebra
 public import Algebra_Linear
 public import Dimension
-public import Dimension
 public import RealModule
 
 extension Geometry {
@@ -200,7 +199,7 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
         points.reserveCapacity(segments + 1)
 
         for i in 0...segments {
-            let t:Scale<1, Scalar> = .init(Scalar(i) / Scalar(segments))
+            let t: Scale<1, Scalar> = .init(Scalar(i) / Scalar(segments))
             if let p = point(at: t) {
                 points.append(p)
             }
@@ -221,23 +220,23 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
     public var boundingBoxConservative: Geometry.Rectangle? {
         guard let first = controlPoints.first else { return nil }
 
-        var minX = first.x._rawValue
-        var maxX = first.x._rawValue
-        var minY = first.y._rawValue
-        var maxY = first.y._rawValue
+        var minX = first.x
+        var maxX = first.x
+        var minY = first.y
+        var maxY = first.y
 
         for point in controlPoints.dropFirst() {
-            minX = min(minX, point.x._rawValue)
-            maxX = max(maxX, point.x._rawValue)
-            minY = min(minY, point.y._rawValue)
-            maxY = max(maxY, point.y._rawValue)
+            minX = .min(minX, point.x)
+            maxX = .max(maxX, point.x)
+            minY = .min(minY, point.y)
+            maxY = .max(maxY, point.y)
         }
 
         return Geometry.Rectangle(
-            llx: Geometry.X(minX),
-            lly: Geometry.Y(minY),
-            urx: Geometry.X(maxX),
-            ury: Geometry.Y(maxY)
+            llx: minX,
+            lly: minY,
+            urx: maxX,
+            ury: maxY
         )
     }
 }

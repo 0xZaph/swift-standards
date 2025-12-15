@@ -573,16 +573,14 @@ extension Geometry where Scalar: FloatingPoint {
     /// Calculate the area of an N-gon (always positive).
     @inlinable
     public static func area<let N: Int>(of ngon: Ngon<N>) -> Area {
-        // Use the instance method's typed result
-        let signedArea = ngon.signedArea
-        // abs of typed area, then wrap in Geometry.Area
-        let absArea = signedArea._rawValue < 0 ? -signedArea._rawValue : signedArea._rawValue
-        return Area(Tagged(absArea))
+        // Use the instance method's typed result, take magnitude for absolute value
+        Area(ngon.signedArea.magnitude)
     }
 
     /// Calculate the signed double area of an N-gon using the shoelace formula.
     @inlinable
-    public static func signedDoubleArea<let N: Int>(of ngon: Ngon<N>) -> Linear<Scalar, Space>.Area where Scalar: SignedNumeric {
+    public static func signedDoubleArea<let N: Int>(of ngon: Ngon<N>) -> Linear<Scalar, Space>.Area
+    where Scalar: SignedNumeric {
         ngon.signedDoubleArea
     }
 
@@ -599,7 +597,8 @@ extension Geometry where Scalar: FloatingPoint {
 
     /// Calculate the centroid (center of mass) of an N-gon.
     @inlinable
-    public static func centroid<let N: Int>(of ngon: Ngon<N>) -> Point<2>? where Scalar: SignedNumeric {
+    public static func centroid<let N: Int>(of ngon: Ngon<N>) -> Point<2>?
+    where Scalar: SignedNumeric {
         // Centroid formula uses raw values because it inherently mixes
         // coordinate components in ways that don't fit dimensional analysis
         let a = signedDoubleArea(of: ngon)._rawValue
@@ -805,9 +804,12 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
 
         // Incenter is weighted centroid: I = (a*A + b*B + c*C) / (a+b+c)
         // where a,b,c are opposite side lengths
-        let ax = vertices[0].x._rawValue, ay = vertices[0].y._rawValue
-        let bx = vertices[1].x._rawValue, by = vertices[1].y._rawValue
-        let cx = vertices[2].x._rawValue, cy = vertices[2].y._rawValue
+        let ax = vertices[0].x._rawValue
+        let ay = vertices[0].y._rawValue
+        let bx = vertices[1].x._rawValue
+        let by = vertices[1].y._rawValue
+        let cx = vertices[2].x._rawValue
+        let cy = vertices[2].y._rawValue
 
         let centerX = (bc * ax + ca * bx + ab * cx) / perimeter
         let centerY = (bc * ay + ca * by + ab * cy) / perimeter
@@ -1059,7 +1061,10 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint & AdditiveArithmetic
         return Self(
             a: origin,
             b: Geometry.Point(x: origin.x + Linear<Scalar, Space>.Dx(sideLength), y: origin.y),
-            c: Geometry.Point(x: origin.x + Linear<Scalar, Space>.Dx(half), y: origin.y + Linear<Scalar, Space>.Dy(h))
+            c: Geometry.Point(
+                x: origin.x + Linear<Scalar, Space>.Dx(half),
+                y: origin.y + Linear<Scalar, Space>.Dy(h)
+            )
         )
     }
 
@@ -1086,7 +1091,10 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint & AdditiveArithmetic
         return Self(
             a: origin,
             b: Geometry.Point(x: origin.x + Linear<Scalar, Space>.Dx(base), y: origin.y),
-            c: Geometry.Point(x: origin.x + Linear<Scalar, Space>.Dx(half), y: origin.y + Linear<Scalar, Space>.Dy(h))
+            c: Geometry.Point(
+                x: origin.x + Linear<Scalar, Space>.Dx(half),
+                y: origin.y + Linear<Scalar, Space>.Dy(h)
+            )
         )
     }
 }

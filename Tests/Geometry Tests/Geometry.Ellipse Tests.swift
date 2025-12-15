@@ -126,14 +126,14 @@ struct `Geometry.Ellipse - Properties` {
     @Test
     func `Eccentricity of circle is zero`() {
         let ellipse: Geometry<Double, Void>.Ellipse = .circle(center: .zero, radius: 10)
-        #expect(abs(ellipse.eccentricity.value) < 1e-10)
+        #expect(abs(ellipse.eccentricity) < 1e-10)
     }
 
     @Test
     func `Eccentricity of elongated ellipse`() {
         let ellipse: Geometry<Double, Void>.Ellipse = .init(semiMajor: 5, semiMinor: 3)
         // e = sqrt(1 - (b/a)^2) = sqrt(1 - 9/25) = sqrt(16/25) = 4/5 = 0.8
-        #expect(abs(ellipse.eccentricity.value - 0.8) < 1e-10)
+        #expect(abs(ellipse.eccentricity - 0.8) < 1e-10)
     }
 
     @Test
@@ -191,7 +191,7 @@ struct `Geometry.Ellipse - Static Functions` {
         let ellipse: Geometry<Double, Void>.Ellipse = .init(semiMajor: 5, semiMinor: 3)
         let area = Geometry.area(of: ellipse)
         // Area = π * a * b = π * 5 * 3 = 15π
-        #expect(isApproxScalar(area, 15 * .pi))
+        #expect(isApproxScalar(area.value, 15 * .pi))
     }
 
     @Test
@@ -250,7 +250,7 @@ struct `Geometry.Ellipse - Area and Perimeter` {
     @Test
     func `Area property matches static function`() {
         let ellipse: Geometry<Double, Void>.Ellipse = .init(semiMajor: 5, semiMinor: 3)
-        #expect(isApproxScalar(ellipse.area, 15 * .pi))
+        #expect(isApproxScalar(ellipse.area.value, 15 * .pi))
     }
 
     @Test

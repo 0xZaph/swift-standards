@@ -12,19 +12,25 @@
 
 /// Converts an X-displacement to an X-extent (width).
 @inlinable
-public func width<Space, Scalar>(_ dx: Displacement.X<Space>.Value<Scalar>) -> Extent.X<Space>.Value<Scalar> {
+public func width<Space, Scalar>(
+    _ dx: Displacement.X<Space>.Value<Scalar>
+) -> Extent.X<Space>.Value<Scalar> {
     Tagged(dx._rawValue)
 }
 
 /// Converts a Y-displacement to a Y-extent (height).
 @inlinable
-public func height<Space, Scalar>(_ dy: Displacement.Y<Space>.Value<Scalar>) -> Extent.Y<Space>.Value<Scalar> {
+public func height<Space, Scalar>(
+    _ dy: Displacement.Y<Space>.Value<Scalar>
+) -> Extent.Y<Space>.Value<Scalar> {
     Tagged(dy._rawValue)
 }
 
 /// Converts a Z-displacement to a Z-extent (depth).
 @inlinable
-public func depth<Space, Scalar>(_ dz: Displacement.Z<Space>.Value<Scalar>) -> Extent.Z<Space>.Value<Scalar> {
+public func depth<Space, Scalar>(
+    _ dz: Displacement.Z<Space>.Value<Scalar>
+) -> Extent.Z<Space>.Value<Scalar> {
     Tagged(dz._rawValue)
 }
 
@@ -41,7 +47,6 @@ extension Tagged where RawValue: AdditiveArithmetic {
         Self(.zero)
     }
 }
-
 
 // MARK: - Negation
 
@@ -72,7 +77,6 @@ public func min<Tag, T: Comparable>(_ x: Tagged<Tag, T>, _ y: Tagged<Tag, T>) ->
 public func max<Tag, T: Comparable>(_ x: Tagged<Tag, T>, _ y: Tagged<Tag, T>) -> Tagged<Tag, T> {
     x._rawValue >= y._rawValue ? x : y
 }
-
 
 // NOTE: Blanket scaling operators (Tagged * Int, Tagged / Int) were removed.
 // In affine geometry, only Displacements and Magnitudes can be scaled - not Coordinates.
@@ -1815,3 +1819,26 @@ public func sqrt<Scalar: FloatingPoint>(
     Scale(value.value.squareRoot())
 }
 
+// MARK: - Scale Negation
+
+/// Negates a 1D scale factor.
+///
+/// Enables `-scale` for symmetry with other Tagged types.
+@inlinable
+public prefix func - <Scalar: SignedNumeric & FloatingPoint>(
+    value: Scale<1, Scalar>
+) -> Scale<1, Scalar> {
+    Scale(-value.value)
+}
+
+// MARK: - Scale Absolute Value
+
+/// Absolute value of a 1D scale factor.
+///
+/// Enables `abs(eccentricity)` without extracting `.value`.
+@inlinable
+public func abs<Scalar: FloatingPoint & Comparable>(
+    _ value: Scale<1, Scalar>
+) -> Scale<1, Scalar> {
+    value.value < 0 ? Scale(-value.value) : value
+}
