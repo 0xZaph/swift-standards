@@ -417,3 +417,734 @@ extension Geometry.Ellipse {
         )
     }
 }
+
+// MARK: - Ellipse.Arc
+
+extension Geometry.Ellipse {
+    /// An arc (portion) of an ellipse.
+    ///
+    /// An elliptical arc is defined by the parent ellipse parameters (center, semi-axes, rotation)
+    /// plus the start and end angles that define the portion of the ellipse.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let arc = Geometry<Double, Void>.Ellipse.Arc(
+    ///     center: .init(x: 0, y: 0),
+    ///     semiMajor: 10,
+    ///     semiMinor: 5,
+    ///     rotation: .zero,
+    ///     startAngle: .zero,
+    ///     endAngle: .pi
+    /// )
+    /// print(arc.sweep)  // π radians (half ellipse)
+    /// ```
+    public struct Arc {
+        /// The center of the parent ellipse
+        public var center: Geometry.Point<2>
+
+        /// The semi-major axis length (larger radius)
+        public var semiMajor: Geometry.Length
+
+        /// The semi-minor axis length (smaller radius)
+        public var semiMinor: Geometry.Length
+
+        /// The rotation angle of the ellipse (counter-clockwise from x-axis to major axis)
+        public var rotation: Radian<Scalar>
+
+        /// The starting angle (parameter angle, not geometric angle)
+        public var startAngle: Radian<Scalar>
+
+        /// The ending angle (parameter angle, not geometric angle)
+        public var endAngle: Radian<Scalar>
+
+        /// Create an elliptical arc with center, semi-axes, rotation, and angle range
+        @inlinable
+        public init(
+            center: consuming Geometry.Point<2>,
+            semiMajor: consuming Geometry.Length,
+            semiMinor: consuming Geometry.Length,
+            rotation: consuming Radian<Scalar>,
+            startAngle: consuming Radian<Scalar>,
+            endAngle: consuming Radian<Scalar>
+        ) {
+            self.center = center
+            self.semiMajor = semiMajor
+            self.semiMinor = semiMinor
+            self.rotation = rotation
+            self.startAngle = startAngle
+            self.endAngle = endAngle
+        }
+    }
+}
+
+extension Geometry.Ellipse.Arc: Sendable where Scalar: Sendable {}
+extension Geometry.Ellipse.Arc: Equatable where Scalar: Equatable {}
+extension Geometry.Ellipse.Arc: Hashable where Scalar: Hashable {}
+
+// MARK: - Ellipse.Arc Codable
+#if Codable
+    extension Geometry.Ellipse.Arc: Codable where Scalar: Codable {}
+#endif
+
+// MARK: - Ellipse.Arc Angle Properties
+
+extension Geometry.Ellipse.Arc where Scalar: AdditiveArithmetic & Comparable {
+    /// The angular span of the arc
+    @inlinable
+    public var sweep: Radian<Scalar> {
+        endAngle - startAngle
+    }
+
+    /// Whether this arc sweeps counter-clockwise (positive sweep)
+    @inlinable
+    public var isCounterClockwise: Bool {
+        sweep > .zero
+    }
+}
+
+extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
+    /// Whether this arc represents a full ellipse or more
+    @inlinable
+    public var isFullEllipse: Bool {
+        abs(sweep) >= Radian.twoPi
+    }
+}
+
+// MARK: - Ellipse.Arc Endpoints
+
+extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
+    /// The starting point of the arc
+    @inlinable
+    public var startPoint: Geometry.Point<2> {
+        point(at: Scale(0))
+    }
+
+    /// The ending point of the arc
+    @inlinable
+    public var endPoint: Geometry.Point<2> {
+        point(at: Scale(1))
+    }
+
+    /// The midpoint of the arc
+    @inlinable
+    public var midPoint: Geometry.Point<2> {
+        point(at: Scale(0.5))
+    }
+}
+
+// MARK: - Ellipse.Arc Point Evaluation
+
+extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
+    /// Get a point on the arc at parameter t.
+    ///
+    /// - Parameter t: Parameter in [0, 1] (0 = start, 1 = end)
+    /// - Returns: The point on the arc at that parameter
+    @inlinable
+    public func point(at t: Scale<1, Scalar>) -> Geometry.Point<2> {
+        let angle = startAngle + t * sweep
+        return pointAtAngle(angle)
+    }
+
+    /// Get a point on the arc at a specific angle.
+    ///
+    /// Note: Rotation transforms inherently mix X and Y coordinates,
+    /// requiring raw scalar arithmetic similar to matrix transforms.
+    ///
+    /// - Parameter angle: The parameter angle on the ellipse
+    /// - Returns: The point on the ellipse at that angle
+    @inlinable
+    internal func pointAtAngle(_ angle: Radian<Scalar>) -> Geometry.Point<2> {
+        let cosT = angle.cos
+        let sinT = angle.sin
+
+        // Point on unrotated ellipse: (a·cos(t), b·sin(t))
+        // Rotation mixes these, requiring raw arithmetic
+        let a = semiMajor._rawValue
+        let b = semiMinor._rawValue
+        let x = a * cosT.value
+        let y = b * sinT.value
+
+        let cosR = rotation.cos
+        let sinR = rotation.sin
+
+        // Apply rotation and translate to center
+        return Geometry.Point(
+            x: center.x + Geometry.Width(x * cosR.value - y * sinR.value),
+            y: center.y + Geometry.Height(x * sinR.value + y * cosR.value)
+        )
+    }
+
+    /// Get the tangent direction at parameter t.
+    ///
+    /// Note: Rotation transforms inherently mix X and Y coordinates,
+    /// requiring raw scalar arithmetic similar to matrix transforms.
+    ///
+    /// - Parameter t: Parameter in [0, 1]
+    /// - Returns: The tangent vector (not normalized)
+    @inlinable
+    public func tangent(at t: Scale<1, Scalar>) -> Geometry.Vector<2> {
+        let angle = startAngle + t * sweep
+        let cosT = angle.cos
+        let sinT = angle.sin
+
+        // Derivative of point on unrotated ellipse: (-a·sin(t), b·cos(t))
+        // Rotation mixes these, requiring raw arithmetic
+        let a = semiMajor._rawValue
+        let b = semiMinor._rawValue
+        let dx = -a * sinT.value
+        let dy = b * cosT.value
+
+        let cosR = rotation.cos
+        let sinR = rotation.sin
+
+        // Direction sign from sweep
+        let sign: Scalar = sweep._rawValue >= 0 ? 1 : -1
+
+        return Geometry.Vector(
+            dx: Geometry.Dx(sign * (dx * cosR.value - dy * sinR.value)),
+            dy: Geometry.Dy(sign * (dx * sinR.value + dy * cosR.value))
+        )
+    }
+}
+
+// MARK: - Ellipse.Arc Length
+
+extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
+    /// Approximate arc length via numerical integration.
+    ///
+    /// Elliptical arc length requires elliptic integrals; we approximate
+    /// by summing chord lengths over subdivisions.
+    ///
+    /// - Parameter segments: Number of subdivisions (default: 100)
+    /// - Returns: The approximate arc length
+    @inlinable
+    public func length(segments: Int = 100) -> Geometry.ArcLength {
+        guard segments > 0 else { return .zero }
+
+        var total: Geometry.ArcLength = .zero
+        var prev = startPoint
+
+        for i in 1...segments {
+            let t = Scale<1, Scalar>(Scalar(i) / Scalar(segments))
+            let current = point(at: t)
+            total = total + prev.distance(to: current)
+            prev = current
+        }
+
+        return total
+    }
+}
+
+// MARK: - Ellipse.Arc Bounding Box
+
+extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
+    /// The axis-aligned bounding box of the arc.
+    ///
+    /// Note: Bounding box calculations inherently mix coordinate components,
+    /// requiring raw scalar arithmetic similar to matrix transforms.
+    @inlinable
+    public var boundingBox: Geometry.Rectangle {
+        // Full ellipse case
+        if isFullEllipse {
+            return Geometry.Ellipse(
+                center: center,
+                semiMajor: semiMajor,
+                semiMinor: semiMinor,
+                rotation: rotation
+            ).boundingBox
+        }
+
+        // Start with endpoints
+        let p0 = startPoint
+        let p1 = endPoint
+
+        var minX = min(p0.x._rawValue, p1.x._rawValue)
+        var maxX = max(p0.x._rawValue, p1.x._rawValue)
+        var minY = min(p0.y._rawValue, p1.y._rawValue)
+        var maxY = max(p0.y._rawValue, p1.y._rawValue)
+
+        // Check extrema: where dx/dt = 0 or dy/dt = 0
+        // For rotated ellipse, extrema occur at specific parameter angles
+        let a = semiMajor._rawValue
+        let b = semiMinor._rawValue
+        let phi = rotation._rawValue
+
+        // X extrema: tan(t) = -(b/a)·tan(φ)
+        let tanPhi = Scalar.tan(phi)
+        let xExtremaAngle = Scalar.atan2(y: -b * tanPhi, x: a)
+
+        // Y extrema: tan(t) = (b/a)·cot(φ) = (b/a)/tan(φ)
+        let yExtremaAngle = Scalar.atan2(y: b, x: a * tanPhi)
+
+        // Check each potential extremum angle
+        for baseAngle in [xExtremaAngle, xExtremaAngle + .pi, yExtremaAngle, yExtremaAngle + .pi] {
+            if containsAngle(Radian(baseAngle)) {
+                let pt = pointAtAngle(Radian(baseAngle))
+                minX = min(minX, pt.x._rawValue)
+                maxX = max(maxX, pt.x._rawValue)
+                minY = min(minY, pt.y._rawValue)
+                maxY = max(maxY, pt.y._rawValue)
+            }
+        }
+
+        return Geometry.Rectangle(
+            llx: Geometry.X(minX),
+            lly: Geometry.Y(minY),
+            urx: Geometry.X(maxX),
+            ury: Geometry.Y(maxY)
+        )
+    }
+
+    /// Check if an angle falls within the arc's range.
+    @inlinable
+    internal func containsAngle(_ angle: Radian<Scalar>) -> Bool {
+        let a = angle._rawValue
+        let s = startAngle._rawValue
+        let e = endAngle._rawValue
+        let sweepVal = sweep._rawValue
+
+        // Normalize angle to [0, 2π)
+        let twoPi = Scalar.pi * 2
+        let normA = a - (a / twoPi).rounded(.down) * twoPi
+        let normS = s - (s / twoPi).rounded(.down) * twoPi
+        let normE = e - (e / twoPi).rounded(.down) * twoPi
+
+        if sweepVal >= 0 {
+            if normS <= normE {
+                return normA >= normS && normA <= normE
+            } else {
+                return normA >= normS || normA <= normE
+            }
+        } else {
+            if normS >= normE {
+                return normA <= normS && normA >= normE
+            } else {
+                return normA <= normS || normA >= normE
+            }
+        }
+    }
+}
+
+// MARK: - Ellipse.Arc Containment
+
+extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
+    /// Check if a point lies on the arc.
+    ///
+    /// - Parameter point: The point to test
+    /// - Returns: `true` if the point is on the arc (within tolerance)
+    @inlinable
+    public func contains(_ point: Geometry.Point<2>) -> Bool {
+        // First check if point is on the ellipse
+        let dx = point.x._rawValue - center.x._rawValue
+        let dy = point.y._rawValue - center.y._rawValue
+
+        // Rotate to ellipse-local coordinates
+        let cosR = rotation.cos.value
+        let sinR = rotation.sin.value
+        let localX = dx * cosR + dy * sinR
+        let localY = -dx * sinR + dy * cosR
+
+        // Check ellipse equation: (x/a)² + (y/b)² ≈ 1
+        let a = semiMajor._rawValue
+        let b = semiMinor._rawValue
+        let aSq: Scalar = a * a
+        let bSq: Scalar = b * b
+        let xTerm: Scalar = (localX * localX) / aSq
+        let yTerm: Scalar = (localY * localY) / bSq
+        let ellipseVal: Scalar = xTerm + yTerm
+
+        let tolerance: Scalar = Scalar.ulpOfOne * 1000
+        guard abs(ellipseVal - 1) < tolerance else { return false }
+
+        // Check if the angle is within the arc's range
+        let pointAngle = Radian(Scalar.atan2(y: localY / b, x: localX / a))
+        return containsAngle(pointAngle)
+    }
+}
+
+// MARK: - Ellipse.Arc SVG Endpoint-to-Center Conversion
+
+extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
+    /// Create an elliptical arc from SVG endpoint parameterization.
+    ///
+    /// This implements the conversion algorithm from W3C SVG spec Appendix F.6.5.
+    /// SVG arcs are specified by start point, end point, radii, rotation, and flags.
+    ///
+    /// - Parameters:
+    ///   - start: The starting point of the arc (current point in path)
+    ///   - end: The ending point of the arc
+    ///   - rx: X-axis radius (will be scaled if too small)
+    ///   - ry: Y-axis radius (will be scaled if too small)
+    ///   - xAxisRotation: Rotation of the ellipse x-axis from the coordinate x-axis
+    ///   - largeArcFlag: If true, choose the larger arc (> 180°)
+    ///   - sweepFlag: If true, draw in positive angle direction (counter-clockwise in SVG coordinates)
+    @inlinable
+    public init(
+        from start: Geometry.Point<2>,
+        to end: Geometry.Point<2>,
+        rx: Geometry.Length,
+        ry: Geometry.Length,
+        xAxisRotation: Radian<Scalar>,
+        largeArcFlag: Bool,
+        sweepFlag: Bool
+    ) {
+        // Handle degenerate case: coincident endpoints
+        let x1 = start.x._rawValue
+        let y1 = start.y._rawValue
+        let x2 = end.x._rawValue
+        let y2 = end.y._rawValue
+
+        if x1 == x2 && y1 == y2 {
+            // Degenerate: return zero-length arc at the point
+            self.init(
+                center: start,
+                semiMajor: rx,
+                semiMinor: ry,
+                rotation: xAxisRotation,
+                startAngle: .zero,
+                endAngle: .zero
+            )
+            return
+        }
+
+        var rxVal = abs(rx._rawValue)
+        var ryVal = abs(ry._rawValue)
+
+        // Handle degenerate case: zero radii (treat as line)
+        if rxVal == 0 || ryVal == 0 {
+            // Degenerate: return a point at the midpoint
+            let midX = (x1 + x2) / 2
+            let midY = (y1 + y2) / 2
+            self.init(
+                center: Geometry.Point(x: Geometry.X(midX), y: Geometry.Y(midY)),
+                semiMajor: Geometry.Length(rxVal),
+                semiMinor: Geometry.Length(ryVal),
+                rotation: xAxisRotation,
+                startAngle: .zero,
+                endAngle: .zero
+            )
+            return
+        }
+
+        let phi = xAxisRotation._rawValue
+        let cosPhi = Scalar.cos(phi)
+        let sinPhi = Scalar.sin(phi)
+
+        // Step 1: Compute (x1', y1') - rotated midpoint vector
+        let dx = (x1 - x2) / 2
+        let dy = (y1 - y2) / 2
+        let x1Prime = cosPhi * dx + sinPhi * dy
+        let y1Prime = -sinPhi * dx + cosPhi * dy
+
+        // Step 2: Correct radii if too small
+        // Check: (x1'^2/rx^2) + (y1'^2/ry^2) <= 1
+        let rxSqInit: Scalar = rxVal * rxVal
+        let rySqInit: Scalar = ryVal * ryVal
+        let lambdaX: Scalar = (x1Prime * x1Prime) / rxSqInit
+        let lambdaY: Scalar = (y1Prime * y1Prime) / rySqInit
+        let lambda: Scalar = lambdaX + lambdaY
+        if lambda > 1 {
+            let sqrtLambda = Scalar.sqrt(lambda)
+            rxVal *= sqrtLambda
+            ryVal *= sqrtLambda
+        }
+
+        // Step 3: Compute center in rotated coordinates (cx', cy')
+        let rxSq: Scalar = rxVal * rxVal
+        let rySq: Scalar = ryVal * ryVal
+        let x1PrimeSq: Scalar = x1Prime * x1Prime
+        let y1PrimeSq: Scalar = y1Prime * y1Prime
+
+        let sqNumerator: Scalar = rxSq * rySq - rxSq * y1PrimeSq - rySq * x1PrimeSq
+        let sqDenominator: Scalar = rxSq * y1PrimeSq + rySq * x1PrimeSq
+        var sq: Scalar = sqNumerator / sqDenominator
+        sq = max(0, sq)  // Clamp to avoid negative sqrt due to precision
+        var sqrtVal: Scalar = Scalar.sqrt(sq)
+
+        // Choose sign based on flags
+        if largeArcFlag == sweepFlag {
+            sqrtVal = -sqrtVal
+        }
+
+        let cxPrime: Scalar = sqrtVal * rxVal * y1Prime / ryVal
+        let cyPrime: Scalar = sqrtVal * ryVal * x1Prime / rxVal * (-1)
+
+        // Step 4: Compute center (cx, cy) in original coordinates
+        let midX = (x1 + x2) / 2
+        let midY = (y1 + y2) / 2
+        let cx = cosPhi * cxPrime - sinPhi * cyPrime + midX
+        let cy = sinPhi * cxPrime + cosPhi * cyPrime + midY
+
+        // Step 5: Compute start angle θ1
+        // θ1 = angle between (1, 0) and ((x1' - cx')/rx, (y1' - cy')/ry)
+        let ux: Scalar = 1
+        let uy: Scalar = 0
+        let vx = (x1Prime - cxPrime) / rxVal
+        let vy = (y1Prime - cyPrime) / ryVal
+
+        let startAngleVal = Self.angleBetween(ux: ux, uy: uy, vx: vx, vy: vy)
+
+        // Step 6: Compute sweep angle dθ
+        // dθ = angle between ((x1' - cx')/rx, (y1' - cy')/ry) and ((-x1' - cx')/rx, (-y1' - cy')/ry)
+        let wx = (-x1Prime - cxPrime) / rxVal
+        let wy = (-y1Prime - cyPrime) / ryVal
+
+        var dTheta = Self.angleBetween(ux: vx, uy: vy, vx: wx, vy: wy)
+
+        // Adjust sweep based on sweep flag
+        if !sweepFlag && dTheta > 0 {
+            dTheta -= Scalar.pi * 2
+        } else if sweepFlag && dTheta < 0 {
+            dTheta += Scalar.pi * 2
+        }
+
+        let endAngleVal: Scalar = startAngleVal + dTheta
+        self.init(
+            center: Geometry.Point(x: Geometry.X(cx), y: Geometry.Y(cy)),
+            semiMajor: Geometry.Length(rxVal),
+            semiMinor: Geometry.Length(ryVal),
+            rotation: xAxisRotation,
+            startAngle: Radian(startAngleVal),
+            endAngle: Radian(endAngleVal)
+        )
+    }
+
+    /// Compute the angle between two vectors.
+    @inlinable
+    internal static func angleBetween(ux: Scalar, uy: Scalar, vx: Scalar, vy: Scalar) -> Scalar {
+        let dot = ux * vx + uy * vy
+        let lenU = Scalar.sqrt(ux * ux + uy * uy)
+        let lenV = Scalar.sqrt(vx * vx + vy * vy)
+        var cosAngle = dot / (lenU * lenV)
+        // Clamp to [-1, 1] to handle numerical precision issues
+        cosAngle = max(-1, min(1, cosAngle))
+        let angle = Scalar.acos(cosAngle)
+        // Determine sign from cross product
+        let cross = ux * vy - uy * vx
+        return cross >= 0 ? angle : -angle
+    }
+}
+
+// MARK: - Ellipse.Arc to Beziers
+
+extension Array {
+    /// Create an array of cubic Bezier curves approximating an elliptical arc.
+    ///
+    /// Uses the standard approximation where each Bezier spans at most 90°.
+    ///
+    /// Note: Bezier control point calculations inherently mix coordinate components,
+    /// requiring raw scalar arithmetic similar to matrix transforms.
+    ///
+    /// - Parameter arc: The elliptical arc to approximate
+    @inlinable
+    public init<Scalar: Real & BinaryFloatingPoint, Space>(
+        ellipticalArc arc: Geometry<Scalar, Space>.Ellipse.Arc
+    ) where Element == Geometry<Scalar, Space>.Bezier {
+        let sweepRaw = arc.sweep._rawValue
+        guard abs(sweepRaw) > 0 else {
+            self = []
+            return
+        }
+
+        // Maximum angle per Bezier segment (90° = π/2)
+        let maxAngle = Scalar.pi / 2
+
+        // Number of segments needed
+        let segmentCount = Int((abs(sweepRaw) / maxAngle).rounded(.up))
+        let segmentAngle = sweepRaw / Scalar(segmentCount)
+
+        var beziers: [Geometry<Scalar, Space>.Bezier] = []
+        beziers.reserveCapacity(segmentCount)
+
+        var currentAngle = arc.startAngle
+
+        for _ in 0..<segmentCount {
+            let nextAngle: Radian<Scalar> = currentAngle + Radian(segmentAngle)
+
+            // Create Bezier for this segment
+            let bezier = Self.ellipticalArcSegmentToBezier(
+                arc: arc,
+                from: currentAngle,
+                to: nextAngle
+            )
+            beziers.append(bezier)
+
+            currentAngle = nextAngle
+        }
+
+        self = beziers
+    }
+
+    /// Convert a single elliptical arc segment (≤90°) to a cubic Bezier.
+    ///
+    /// Note: Control point calculations inherently mix coordinate components,
+    /// requiring raw scalar arithmetic similar to matrix transforms.
+    @inlinable
+    internal static func ellipticalArcSegmentToBezier<
+        Scalar: Real & BinaryFloatingPoint,
+        Space
+    >(
+        arc: Geometry<Scalar, Space>.Ellipse.Arc,
+        from startAngle: Radian<Scalar>,
+        to endAngle: Radian<Scalar>
+    ) -> Geometry<Scalar, Space>.Bezier where Element == Geometry<Scalar, Space>.Bezier {
+        let sweepRaw = (endAngle - startAngle)._rawValue
+        let halfSweepRaw = sweepRaw / 2
+
+        // Control point distance factor: k = (4/3) * tan(θ/2)
+        let k = Scalar(4.0 / 3.0) * Scalar.tan(halfSweepRaw / 2)
+
+        // Extract raw values for the affine transformation
+        let cx = arc.center.x._rawValue
+        let cy = arc.center.y._rawValue
+        let a = arc.semiMajor._rawValue
+        let b = arc.semiMinor._rawValue
+        let phi = arc.rotation._rawValue
+        let cosPhi = Scalar.cos(phi)
+        let sinPhi = Scalar.sin(phi)
+
+        // Start and end points on unit circle (parameter space)
+        let cosStart = Scalar.cos(startAngle._rawValue)
+        let sinStart = Scalar.sin(startAngle._rawValue)
+        let cosEnd = Scalar.cos(endAngle._rawValue)
+        let sinEnd = Scalar.sin(endAngle._rawValue)
+
+        // Transform from ellipse parameter space to world coordinates
+        // Point on unrotated ellipse: (a·cos(t), b·sin(t))
+        // Then rotate and translate
+
+        // Start point
+        let ux0 = a * cosStart
+        let uy0 = b * sinStart
+        let p0x = cx + ux0 * cosPhi - uy0 * sinPhi
+        let p0y = cy + ux0 * sinPhi + uy0 * cosPhi
+
+        // End point
+        let ux3 = a * cosEnd
+        let uy3 = b * sinEnd
+        let p3x = cx + ux3 * cosPhi - uy3 * sinPhi
+        let p3y = cy + ux3 * sinPhi + uy3 * cosPhi
+
+        // Tangent directions at start and end (derivatives of ellipse parameterization)
+        // d/dt (a·cos(t), b·sin(t)) = (-a·sin(t), b·cos(t))
+        let t0x = -a * sinStart
+        let t0y = b * cosStart
+        let t1x = -a * sinEnd
+        let t1y = b * cosEnd
+
+        // Rotate tangents by ellipse rotation
+        let rt0x = t0x * cosPhi - t0y * sinPhi
+        let rt0y = t0x * sinPhi + t0y * cosPhi
+        let rt1x = t1x * cosPhi - t1y * sinPhi
+        let rt1y = t1x * sinPhi + t1y * cosPhi
+
+        // Control points
+        let p1x = p0x + k * rt0x
+        let p1y = p0y + k * rt0y
+        let p2x = p3x - k * rt1x
+        let p2y = p3y - k * rt1y
+
+        let p0 = Geometry<Scalar, Space>.Point(
+            x: Geometry<Scalar, Space>.X(p0x),
+            y: Geometry<Scalar, Space>.Y(p0y)
+        )
+        let p1 = Geometry<Scalar, Space>.Point(
+            x: Geometry<Scalar, Space>.X(p1x),
+            y: Geometry<Scalar, Space>.Y(p1y)
+        )
+        let p2 = Geometry<Scalar, Space>.Point(
+            x: Geometry<Scalar, Space>.X(p2x),
+            y: Geometry<Scalar, Space>.Y(p2y)
+        )
+        let p3 = Geometry<Scalar, Space>.Point(
+            x: Geometry<Scalar, Space>.X(p3x),
+            y: Geometry<Scalar, Space>.Y(p3y)
+        )
+
+        return .cubic(
+            from: p0,
+            control1: p1,
+            control2: p2,
+            to: p3
+        )
+    }
+}
+
+// MARK: - Ellipse.Arc Transformation
+
+extension Geometry.Ellipse.Arc where Scalar: FloatingPoint {
+    /// Return an arc translated by the given vector.
+    @inlinable
+    public func translated(by vector: Geometry.Vector<2>) -> Self {
+        Self(
+            center: center + vector,
+            semiMajor: semiMajor,
+            semiMinor: semiMinor,
+            rotation: rotation,
+            startAngle: startAngle,
+            endAngle: endAngle
+        )
+    }
+
+    /// Return an arc scaled uniformly about its center.
+    @inlinable
+    public func scaled(by factor: Scale<1, Scalar>) -> Self {
+        Self(
+            center: center,
+            semiMajor: semiMajor * factor,
+            semiMinor: semiMinor * factor,
+            rotation: rotation,
+            startAngle: startAngle,
+            endAngle: endAngle
+        )
+    }
+
+    /// Return the arc with reversed direction.
+    @inlinable
+    public var reversed: Self {
+        Self(
+            center: center,
+            semiMajor: semiMajor,
+            semiMinor: semiMinor,
+            rotation: rotation,
+            startAngle: endAngle,
+            endAngle: startAngle
+        )
+    }
+}
+
+// MARK: - Ellipse.Arc Functorial Map
+
+extension Geometry.Ellipse.Arc {
+    /// Create an arc by transforming the coordinates of another arc.
+    @inlinable
+    public init<U>(
+        _ other: borrowing Geometry<U, Space>.Ellipse.Arc,
+        _ transform: (U) throws -> Scalar
+    ) rethrows {
+        self.init(
+            center: try Affine<Scalar, Space>.Point<2>(other.center, transform),
+            semiMajor: try other.semiMajor.map(transform),
+            semiMinor: try other.semiMinor.map(transform),
+            rotation: Radian(try transform(other.rotation._rawValue)),
+            startAngle: Radian(try transform(other.startAngle._rawValue)),
+            endAngle: Radian(try transform(other.endAngle._rawValue))
+        )
+    }
+
+    /// Transform coordinates using the given closure.
+    @inlinable
+    public func map<Result>(
+        _ transform: (Scalar) throws -> Result
+    ) rethrows -> Geometry<Result, Space>.Ellipse.Arc {
+        .init(
+            center: try center.map(transform),
+            semiMajor: try semiMajor.map(transform),
+            semiMinor: try semiMinor.map(transform),
+            rotation: Radian(try transform(rotation._rawValue)),
+            startAngle: Radian(try transform(startAngle._rawValue)),
+            endAngle: Radian(try transform(endAngle._rawValue))
+        )
+    }
+}

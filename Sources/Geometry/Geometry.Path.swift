@@ -103,6 +103,9 @@ extension Geometry.Path {
 
         /// A circular arc
         case arc(Geometry.Arc)
+
+        /// An elliptical arc
+        case ellipticalArc(Geometry.Ellipse.Arc)
     }
 }
 
@@ -124,6 +127,7 @@ extension Geometry.Path.Segment where Scalar: Real & BinaryFloatingPoint {
         case .line(let seg): return seg.start
         case .bezier(let bez): return bez.startPoint
         case .arc(let arc): return arc.startPoint
+        case .ellipticalArc(let arc): return arc.startPoint
         }
     }
 
@@ -134,6 +138,7 @@ extension Geometry.Path.Segment where Scalar: Real & BinaryFloatingPoint {
         case .line(let seg): return seg.end
         case .bezier(let bez): return bez.endPoint
         case .arc(let arc): return arc.endPoint
+        case .ellipticalArc(let arc): return arc.endPoint
         }
     }
 }
@@ -149,6 +154,8 @@ extension Geometry.Path.Segment where Scalar: Real & BinaryFloatingPoint {
             return [bez]
         case .arc(let arc):
             return [Geometry.Bezier](arc: arc)
+        case .ellipticalArc(let arc):
+            return [Geometry.Bezier](ellipticalArc: arc)
         }
     }
 }
@@ -226,6 +233,8 @@ extension Geometry.Path.Subpath where Scalar: Real & BinaryFloatingPoint {
                 total += bez.length(segments: bezierSegments)
             case .arc(let arc):
                 total += arc.length
+            case .ellipticalArc(let arc):
+                total += arc.length(segments: bezierSegments)
             }
         }
         if isClosed, let end = endPoint, end != startPoint {
@@ -280,6 +289,8 @@ extension Geometry.Path.Segment {
             return .bezier(try bez.map(transform))
         case .arc(let arc):
             return .arc(try arc.map(transform))
+        case .ellipticalArc(let arc):
+            return .ellipticalArc(try arc.map(transform))
         }
     }
 }
