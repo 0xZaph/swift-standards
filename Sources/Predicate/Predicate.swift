@@ -335,13 +335,17 @@ extension Predicate {
     ///
     /// Applies the transform first, then evaluates the predicate on the result.
     @inlinable
-    public static func pullback<U>(_ predicate: Predicate, _ transform: @escaping (U) -> T) -> Predicate<U> {
+    public static func pullback<U>(
+        _ predicate: Predicate,
+        _ transform: @escaping (U) -> T
+    ) -> Predicate<U> {
         Predicate<U> { predicate.evaluate(transform($0)) }
     }
 
     /// Adapts a predicate to test a property via key path.
     @inlinable
-    public static func pullback<U>(_ predicate: Predicate, _ keyPath: KeyPath<U, T>) -> Predicate<U> {
+    public static func pullback<U>(_ predicate: Predicate, _ keyPath: KeyPath<U, T>) -> Predicate<U>
+    {
         Self.pullback(predicate) { $0[keyPath: keyPath] }
     }
 
@@ -415,7 +419,8 @@ extension Predicate {
     ///
     /// Returns the default for `nil`, otherwise evaluates the wrapped value.
     @inlinable
-    public static func optional(_ predicate: Predicate, default defaultValue: Bool) -> Predicate<T?> {
+    public static func optional(_ predicate: Predicate, default defaultValue: Bool) -> Predicate<T?>
+    {
         Predicate<T?> { value in
             guard let value else { return defaultValue }
             return predicate.evaluate(value)
@@ -463,19 +468,22 @@ extension Predicate {
 
     /// Creates predicate that checks if all sequence elements satisfy the condition.
     @inlinable
-    public static func forAll<S: Sequence>(_ predicate: Predicate) -> Predicate<S> where S.Element == T {
+    public static func forAll<S: Sequence>(_ predicate: Predicate) -> Predicate<S>
+    where S.Element == T {
         Predicate<S> { $0.allSatisfy(predicate.evaluate) }
     }
 
     /// Creates predicate that checks if any sequence element satisfies the condition.
     @inlinable
-    public static func forAny<S: Sequence>(_ predicate: Predicate) -> Predicate<S> where S.Element == T {
+    public static func forAny<S: Sequence>(_ predicate: Predicate) -> Predicate<S>
+    where S.Element == T {
         Predicate<S> { $0.contains(where: predicate.evaluate) }
     }
 
     /// Creates predicate that checks if no sequence elements satisfy the condition.
     @inlinable
-    public static func forNone<S: Sequence>(_ predicate: Predicate) -> Predicate<S> where S.Element == T {
+    public static func forNone<S: Sequence>(_ predicate: Predicate) -> Predicate<S>
+    where S.Element == T {
         Predicate<S> { !$0.contains(where: predicate.evaluate) }
     }
 

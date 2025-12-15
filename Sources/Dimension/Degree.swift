@@ -2,6 +2,7 @@
 // An angle measured in degrees, implemented as a Tagged type.
 
 public import RealModule
+
 /// An angle measured in degrees (1/360 of a full rotation).
 ///
 /// Degrees provide an intuitive unit for angles familiar to most users,

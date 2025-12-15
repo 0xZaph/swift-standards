@@ -11,7 +11,10 @@ extension Predicate {
     /// Returns `.unknown` for `nil` input, following Strong Kleene semantics.
     /// This enables composable three-valued logic with optional values.
     @inlinable
-    public static func callAsFunction<L: TernaryLogic.`Protocol`>(_ predicate: Predicate, _ value: T?) -> L {
+    public static func callAsFunction<L: TernaryLogic.`Protocol`>(
+        _ predicate: Predicate,
+        _ value: T?
+    ) -> L {
         guard let value else { return .unknown }
         return predicate.evaluate(value) ? .true : .false
     }

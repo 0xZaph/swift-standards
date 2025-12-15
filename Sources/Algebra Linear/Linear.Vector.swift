@@ -360,8 +360,12 @@ extension Linear.Vector where N == 3, Scalar: SignedNumeric {
     /// it's Length² (a bivector in geometric algebra).
     @inlinable
     public static func cross(_ lhs: Self, _ rhs: Self) -> Self {
-        let lx = lhs.dx._rawValue, ly = lhs.dy._rawValue, lz = lhs.dz._rawValue
-        let rx = rhs.dx._rawValue, ry = rhs.dy._rawValue, rz = rhs.dz._rawValue
+        let lx = lhs.dx._rawValue
+        let ly = lhs.dy._rawValue
+        let lz = lhs.dz._rawValue
+        let rx = rhs.dx._rawValue
+        let ry = rhs.dy._rawValue
+        let rz = rhs.dz._rawValue
         return Self(
             dx: Linear.Dx(ly * rz - lz * ry),
             dy: Linear.Dy(lz * rx - lx * rz),

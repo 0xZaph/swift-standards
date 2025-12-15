@@ -51,7 +51,7 @@ extension Geometry.Area: Equatable where Scalar: Equatable {}
 extension Geometry.Area: Hashable where Scalar: Hashable {}
 
 #if Codable
-extension Geometry.Area: Codable where Scalar: Codable {}
+    extension Geometry.Area: Codable where Scalar: Codable {}
 #endif
 
 extension Geometry.Area: ExpressibleByIntegerLiteral where Scalar: ExpressibleByIntegerLiteral {

@@ -137,7 +137,13 @@ extension Format.BinaryInteger {
     /// - Returns: Formatted string representation
     @inlinable
     public func format<T: Swift.BinaryInteger>(_ value: T) -> String {
-        Self.format(value, radix: radix, prefix: prefix, signStrategy: signStrategy, minWidth: minWidth)
+        Self.format(
+            value,
+            radix: radix,
+            prefix: prefix,
+            signStrategy: signStrategy,
+            minWidth: minWidth
+        )
     }
 }
 

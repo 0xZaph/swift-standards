@@ -110,10 +110,10 @@ struct `Shear Tests` {
         let shear = Shear<2, Double>(x: 0.5, y: 0.3)
         let linear: Linear<Double, Void>.Matrix<2, 2> = shear.linear()
 
-        #expect(linear.a == 1)      // diagonal
-        #expect(linear.b == 0.5)    // x shear
-        #expect(linear.c == 0.3)    // y shear
-        #expect(linear.d == 1)      // diagonal
+        #expect(linear.a == 1)  // diagonal
+        #expect(linear.b == 0.5)  // x shear
+        #expect(linear.c == 0.3)  // y shear
+        #expect(linear.d == 1)  // diagonal
     }
 
     @Test

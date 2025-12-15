@@ -252,6 +252,37 @@ struct `Binary.Serializable - Edge Cases` {
     }
 }
 
+// MARK: - Overload Resolution Tests
+
+@Suite
+struct `Binary.Serializable - Overload Resolution` {
+
+    @Test
+    func `Integer literal appends raw byte not ASCII decimal`() {
+        // This test verifies that append(0xFE) appends the raw byte 254,
+        // not the ASCII decimal string "254" (which would be [50, 53, 52]).
+        // The generic append<S: Binary.Serializable> must be @_disfavoredOverload
+        // to ensure the specific append(_ value: UInt8) is preferred.
+        var buffer: [UInt8] = []
+        buffer.append(0xFE)
+        buffer.append(0xFF)
+
+        #expect(buffer == [254, 255], "Should append raw bytes, not ASCII decimal strings")
+        #expect(buffer != [50, 53, 52, 50, 53, 53], "Must not serialize as ASCII '254255'")
+    }
+
+    @Test
+    func `High byte literals append correctly`() {
+        var buffer: [UInt8] = []
+        buffer.append(0x00)
+        buffer.append(0x7F)
+        buffer.append(0x80)
+        buffer.append(0xFF)
+
+        #expect(buffer == [0, 127, 128, 255])
+    }
+}
+
 // MARK: - API Design Demonstration
 
 @Suite

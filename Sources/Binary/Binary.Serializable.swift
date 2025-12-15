@@ -99,6 +99,7 @@ extension RangeReplaceableCollection<UInt8> {
     ///
     /// Serializes the value and appends its bytes to the collection.
     @inlinable
+    @_disfavoredOverload
     public mutating func append<S: Binary.Serializable>(_ serializable: S) {
         S.serialize(serializable, into: &self)
     }

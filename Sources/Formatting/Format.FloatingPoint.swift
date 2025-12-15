@@ -86,7 +86,12 @@ extension Format.FloatingPoint {
     /// - Returns: Formatted string representation
     @inlinable
     public func format<T: Swift.FloatingPoint>(_ value: T) -> String {
-        Self.format(value, isPercent: isPercent, shouldRound: shouldRound, precisionDigits: precisionDigits)
+        Self.format(
+            value,
+            isPercent: isPercent,
+            shouldRound: shouldRound,
+            precisionDigits: precisionDigits
+        )
     }
 }
 

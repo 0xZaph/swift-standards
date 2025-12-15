@@ -26,10 +26,12 @@ struct `Array+Bytes Tests` {
     }
 
     @Test(arguments: [
-        (UInt32(0x12345678), Binary.Endianness.little, [0x78, 0x56, 0x34, 0x12] as [UInt8]),
-        (UInt32(0x12345678), Binary.Endianness.big, [0x12, 0x34, 0x56, 0x78] as [UInt8]),
+        (UInt32(0x1234_5678), Binary.Endianness.little, [0x78, 0x56, 0x34, 0x12] as [UInt8]),
+        (UInt32(0x1234_5678), Binary.Endianness.big, [0x12, 0x34, 0x56, 0x78] as [UInt8]),
     ])
-    func `Array from UInt32 with different endianness`(testCase: (UInt32, Binary.Endianness, [UInt8])) {
+    func `Array from UInt32 with different endianness`(
+        testCase: (UInt32, Binary.Endianness, [UInt8])
+    ) {
         let (value, endianness, expected) = testCase
         let bytes = [UInt8](value, endianness: endianness)
         #expect(bytes == expected)
@@ -129,14 +131,14 @@ struct `Array+Bytes Tests` {
     @Test
     func `Append UInt32`() {
         var buffer: [UInt8] = []
-        buffer.append(UInt32(0x12345678), endianness: .big)
+        buffer.append(UInt32(0x1234_5678), endianness: .big)
         #expect(buffer == [0x12, 0x34, 0x56, 0x78])
     }
 
     @Test
     func `Append UInt64`() {
         var buffer: [UInt8] = []
-        buffer.append(UInt64(0x0102030405060708), endianness: .big)
+        buffer.append(UInt64(0x0102_0304_0506_0708), endianness: .big)
         #expect(buffer == [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08])
     }
 
@@ -150,14 +152,14 @@ struct `Array+Bytes Tests` {
     @Test
     func `Append Int32`() {
         var buffer: [UInt8] = []
-        buffer.append(Int32(0x12345678), endianness: .big)
+        buffer.append(Int32(0x1234_5678), endianness: .big)
         #expect(buffer == [0x12, 0x34, 0x56, 0x78])
     }
 
     @Test
     func `Append Int64`() {
         var buffer: [UInt8] = []
-        buffer.append(Int64(0x0102030405060708), endianness: .big)
+        buffer.append(Int64(0x0102_0304_0506_0708), endianness: .big)
         #expect(buffer == [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08])
     }
 

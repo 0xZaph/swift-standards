@@ -33,7 +33,8 @@ extension Geometry {
 
         /// Creates a hypercube with the given center and half-side.
         @inlinable
-        public init(center: consuming Point<N>, halfSide: consuming Linear<Scalar, Space>.Magnitude) {
+        public init(center: consuming Point<N>, halfSide: consuming Linear<Scalar, Space>.Magnitude)
+        {
             self.center = center
             self.halfSide = halfSide
         }
@@ -57,7 +58,7 @@ extension Geometry.Hypercube: Equatable where Scalar: Equatable {}
 extension Geometry.Hypercube: Hashable where Scalar: Hashable {}
 
 #if Codable
-extension Geometry.Hypercube: Codable where Scalar: Codable {}
+    extension Geometry.Hypercube: Codable where Scalar: Codable {}
 #endif
 
 // MARK: - Convenience Initializers
@@ -229,7 +230,10 @@ extension Geometry.Hypercube where N == 2, Scalar: FloatingPoint {
     /// Returns square scaled uniformly about its center.
     @inlinable
     public func scaled(by factor: Scale<1, Scalar>) -> Self {
-        Self(center: center, halfSide: Linear<Scalar, Space>.Magnitude(halfSide._rawValue * factor.value))
+        Self(
+            center: center,
+            halfSide: Linear<Scalar, Space>.Magnitude(halfSide._rawValue * factor.value)
+        )
     }
 }
 

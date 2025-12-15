@@ -105,7 +105,7 @@ struct `Scale Tests` {
         let result = Scale.concatenate(scale1, with: scale2)
 
         #expect(result.x == 8.0)  // 2 * 4
-        #expect(result.y == 15.0) // 3 * 5
+        #expect(result.y == 15.0)  // 3 * 5
     }
 
     @Test
@@ -135,7 +135,7 @@ struct `Scale Tests` {
         let scale = Scale<2, Double>(x: 2.0, y: 4.0)
         let inverted = Scale.inverted(scale)
 
-        #expect(inverted.x == 0.5)   // 1/2
+        #expect(inverted.x == 0.5)  // 1/2
         #expect(inverted.y == 0.25)  // 1/4
     }
 
@@ -153,8 +153,8 @@ struct `Scale Tests` {
         let scale = Scale<2, Double>(x: 5.0, y: 10.0)
         let inverted = scale.inverted
 
-        #expect(inverted.x == 0.2)   // 1/5
-        #expect(inverted.y == 0.1)   // 1/10
+        #expect(inverted.x == 0.2)  // 1/5
+        #expect(inverted.y == 0.1)  // 1/10
     }
 
     @Test

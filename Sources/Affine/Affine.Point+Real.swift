@@ -61,7 +61,8 @@ extension Affine.Point where N == 2, Scalar: Real & BinaryFloatingPoint {
 
     /// Rotates point counterclockwise around specified center by angle.
     @inlinable
-    public static func rotated(_ point: Self, by angle: Radian<Scalar>, around center: Self) -> Self {
+    public static func rotated(_ point: Self, by angle: Radian<Scalar>, around center: Self) -> Self
+    {
         // Translate to origin: Point - Center = Displacement, then make point at origin + displacement
         let dx = point.x - center.x  // Displacement.X
         let dy = point.y - center.y  // Displacement.Y
@@ -99,7 +100,8 @@ extension Affine.Point where N == 2, Scalar: Real & BinaryFloatingPoint {
 
     /// Rotates point counterclockwise around specified center by angle in degrees.
     @inlinable
-    public static func rotated(_ point: Self, by angle: Degree<Scalar>, around center: Self) -> Self {
+    public static func rotated(_ point: Self, by angle: Degree<Scalar>, around center: Self) -> Self
+    {
         rotated(point, by: angle.radians, around: center)
     }
 

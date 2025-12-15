@@ -58,7 +58,7 @@ extension Geometry.Ball: Equatable where Scalar: Equatable {}
 extension Geometry.Ball: Hashable where Scalar: Hashable {}
 
 #if Codable
-extension Geometry.Ball: Codable where Scalar: Codable {}
+    extension Geometry.Ball: Codable where Scalar: Codable {}
 #endif
 
 // MARK: - Convenience Initializers
@@ -276,7 +276,9 @@ extension Geometry where Scalar: FloatingPoint {
     public static func intersects(_ circle1: Ball<2>, _ circle2: Ball<2>) -> Bool {
         let dist = circle1.center.distance(to: circle2.center)
         let sumRadii = circle1.radius + circle2.radius
-        let diffRadii = circle1.radius >= circle2.radius ? circle1.radius - circle2.radius : circle2.radius - circle1.radius
+        let diffRadii =
+            circle1.radius >= circle2.radius
+            ? circle1.radius - circle2.radius : circle2.radius - circle1.radius
         return dist <= sumRadii && dist >= diffRadii
     }
 
@@ -313,7 +315,9 @@ extension Geometry where Scalar: FloatingPoint {
     public static func intersection(_ circle1: Ball<2>, _ circle2: Ball<2>) -> [Point<2>] {
         let dist = circle1.center.distance(to: circle2.center)
         let sumRadii = circle1.radius + circle2.radius
-        let diffRadii = circle1.radius >= circle2.radius ? circle1.radius - circle2.radius : circle2.radius - circle1.radius
+        let diffRadii =
+            circle1.radius >= circle2.radius
+            ? circle1.radius - circle2.radius : circle2.radius - circle1.radius
 
         guard dist <= sumRadii && dist >= diffRadii && dist._rawValue > 0 else {
             return []

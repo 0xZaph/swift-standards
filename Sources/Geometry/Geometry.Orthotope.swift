@@ -57,7 +57,7 @@ extension Geometry.Orthotope: Equatable where Scalar: Equatable {}
 extension Geometry.Orthotope: Hashable where Scalar: Hashable {}
 
 #if Codable
-extension Geometry.Orthotope: Codable where Scalar: Codable {}
+    extension Geometry.Orthotope: Codable where Scalar: Codable {}
 #endif
 
 // MARK: - Convenience Initializers
@@ -539,7 +539,9 @@ extension Geometry.Orthotope where N == 3, Scalar: FloatingPoint {
         let w = halfExtents.width._rawValue * 2
         let h = halfExtents.height._rawValue * 2
         let d = halfExtents.depth * 2
-        return Geometry.Magnitude(Linear<Scalar, Space>.Magnitude((w * w + h * h + d * d).squareRoot()))
+        return Geometry.Magnitude(
+            Linear<Scalar, Space>.Magnitude((w * w + h * h + d * d).squareRoot())
+        )
     }
 }
 
@@ -586,24 +588,21 @@ extension Geometry where Scalar: FloatingPoint {
     /// Check if a rectangle contains another rectangle.
     @inlinable
     public static func contains(_ rectangle: Orthotope<2>, _ other: Orthotope<2>) -> Bool {
-        other.llx >= rectangle.llx &&
-        other.urx <= rectangle.urx &&
-        other.lly >= rectangle.lly &&
-        other.ury <= rectangle.ury
+        other.llx >= rectangle.llx && other.urx <= rectangle.urx && other.lly >= rectangle.lly
+            && other.ury <= rectangle.ury
     }
 
     /// Check if two rectangles intersect.
     @inlinable
     public static func intersects(_ rectangle1: Orthotope<2>, _ rectangle2: Orthotope<2>) -> Bool {
-        rectangle1.llx <= rectangle2.urx &&
-        rectangle1.urx >= rectangle2.llx &&
-        rectangle1.lly <= rectangle2.ury &&
-        rectangle1.ury >= rectangle2.lly
+        rectangle1.llx <= rectangle2.urx && rectangle1.urx >= rectangle2.llx
+            && rectangle1.lly <= rectangle2.ury && rectangle1.ury >= rectangle2.lly
     }
 
     /// Calculate the union of two rectangles.
     @inlinable
-    public static func union(_ rectangle1: Orthotope<2>, _ rectangle2: Orthotope<2>) -> Orthotope<2> {
+    public static func union(_ rectangle1: Orthotope<2>, _ rectangle2: Orthotope<2>) -> Orthotope<2>
+    {
         // Use Swift.min/max on typed values directly to preserve quantization
         Orthotope<2>(
             llx: Swift.min(rectangle1.llx, rectangle2.llx),
@@ -615,7 +614,10 @@ extension Geometry where Scalar: FloatingPoint {
 
     /// Calculate the intersection of two rectangles.
     @inlinable
-    public static func intersection(_ rectangle1: Orthotope<2>, _ rectangle2: Orthotope<2>) -> Orthotope<2>? {
+    public static func intersection(
+        _ rectangle1: Orthotope<2>,
+        _ rectangle2: Orthotope<2>
+    ) -> Orthotope<2>? {
         guard intersects(rectangle1, rectangle2) else { return nil }
         // Use Swift.min/max on typed values directly to preserve quantization
         return Orthotope<2>(

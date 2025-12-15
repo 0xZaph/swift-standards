@@ -227,8 +227,10 @@ where Scalar: ExpressibleByFloatLiteral {
     @inlinable
     public init(floatLiteral value: FloatLiteralType) {
         let scalar = Scalar(floatLiteral: value)
-        assert(scalar.isFinite && scalar >= 0 && scalar <= 1,
-               "Float literal must be finite and in [0, 1]")
+        assert(
+            scalar.isFinite && scalar >= 0 && scalar <= 1,
+            "Float literal must be finite and in [0, 1]"
+        )
         // Clamp in release builds for safety
         self._rawValue = scalar.isNaN ? 0 : min(max(scalar, 0), 1)
     }
@@ -247,8 +249,10 @@ where Scalar: ExpressibleByIntegerLiteral {
     @inlinable
     public init(integerLiteral value: IntegerLiteralType) {
         let scalar = Scalar(integerLiteral: value)
-        assert(scalar >= 0 && scalar <= 1,
-               "Integer literal must be 0 or 1")
+        assert(
+            scalar >= 0 && scalar <= 1,
+            "Integer literal must be 0 or 1"
+        )
         // Clamp in release builds for safety
         self._rawValue = min(max(scalar, 0), 1)
     }
@@ -257,27 +261,27 @@ where Scalar: ExpressibleByIntegerLiteral {
 // MARK: - Codable
 
 #if Codable
-extension Interval.Unit: Codable where Scalar: Codable {
-    public init(from decoder: any Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let value = try container.decode(Scalar.self)
-        guard let unit = Self(value) else {
-            throw DecodingError.dataCorrupted(
-                DecodingError.Context(
-                    codingPath: decoder.codingPath,
-                    debugDescription:
-                        "Value \(value) out of bounds for Interval.Unit (expected [0, 1])"
+    extension Interval.Unit: Codable where Scalar: Codable {
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            let value = try container.decode(Scalar.self)
+            guard let unit = Self(value) else {
+                throw DecodingError.dataCorrupted(
+                    DecodingError.Context(
+                        codingPath: decoder.codingPath,
+                        debugDescription:
+                            "Value \(value) out of bounds for Interval.Unit (expected [0, 1])"
+                    )
                 )
-            )
+            }
+            self = unit
         }
-        self = unit
-    }
 
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(_rawValue)
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(_rawValue)
+        }
     }
-}
 #endif
 
 // MARK: - Type Aliases

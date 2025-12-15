@@ -1,9 +1,10 @@
 // Radian Tests.swift
 // Tests for Radian type (basic structure, arithmetic, conversions)
 
+import RealModule
 import StandardsTestSupport
 import Testing
-import RealModule
+
 @testable import Dimension
 
 // Helper for approximate Radian comparisons

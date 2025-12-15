@@ -6,9 +6,9 @@
 //  Verifies that Rectangle and other shapes work correctly with tick-based quantization.
 //
 
-import Testing
-import Geometry
 import Dimension
+import Geometry
+import Testing
 
 // MARK: - Test Space
 
@@ -47,12 +47,32 @@ struct `Geometry+Quantized` {
             let startY: QGeometry.Y = .init(84.0)
             let rowHeight: QGeometry.Height = .init(21.8)
 
-            let row1 = QGeometry.Rectangle(x: .init(0), y: startY, width: .init(100), height: rowHeight)
-            let row2 = QGeometry.Rectangle(x: .init(0), y: row1.ury, width: .init(100), height: rowHeight)
-            let row3 = QGeometry.Rectangle(x: .init(0), y: row2.ury, width: .init(100), height: rowHeight)
+            let row1 = QGeometry.Rectangle(
+                x: .init(0),
+                y: startY,
+                width: .init(100),
+                height: rowHeight
+            )
+            let row2 = QGeometry.Rectangle(
+                x: .init(0),
+                y: row1.ury,
+                width: .init(100),
+                height: rowHeight
+            )
+            let row3 = QGeometry.Rectangle(
+                x: .init(0),
+                y: row2.ury,
+                width: .init(100),
+                height: rowHeight
+            )
 
             let spanHeight: QGeometry.Height = .init(65.4)
-            let span = QGeometry.Rectangle(x: .init(0), y: startY, width: .init(100), height: spanHeight)
+            let span = QGeometry.Rectangle(
+                x: .init(0),
+                y: startY,
+                width: .init(100),
+                height: spanHeight
+            )
 
             // Tick-based equality: accumulated and direct computation match
             #expect(row3.ury == span.ury)
@@ -65,9 +85,24 @@ struct `Geometry+Quantized` {
             let rowHeight: QGeometry.Height = .init(21.8)
 
             // Build three rows
-            let row1 = QGeometry.Rectangle(x: .init(0), y: startY, width: .init(100), height: rowHeight)
-            let row2 = QGeometry.Rectangle(x: .init(0), y: row1.ury, width: .init(100), height: rowHeight)
-            let row3 = QGeometry.Rectangle(x: .init(0), y: row2.ury, width: .init(100), height: rowHeight)
+            let row1 = QGeometry.Rectangle(
+                x: .init(0),
+                y: startY,
+                width: .init(100),
+                height: rowHeight
+            )
+            let row2 = QGeometry.Rectangle(
+                x: .init(0),
+                y: row1.ury,
+                width: .init(100),
+                height: rowHeight
+            )
+            let row3 = QGeometry.Rectangle(
+                x: .init(0),
+                y: row2.ury,
+                width: .init(100),
+                height: rowHeight
+            )
 
             // Check each row's upper y coordinate
             #expect(row1.ury.ticks == 10580)  // 84.0 + 21.8 = 105.8
@@ -76,7 +111,12 @@ struct `Geometry+Quantized` {
 
             // Span should match
             let spanHeight: QGeometry.Height = .init(65.4)
-            let span = QGeometry.Rectangle(x: .init(0), y: startY, width: .init(100), height: spanHeight)
+            let span = QGeometry.Rectangle(
+                x: .init(0),
+                y: startY,
+                width: .init(100),
+                height: spanHeight
+            )
             #expect(span.ury.ticks == 14940)  // 84.0 + 65.4 = 149.4
         }
     }

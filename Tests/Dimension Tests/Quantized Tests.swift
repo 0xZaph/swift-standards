@@ -5,8 +5,8 @@
 //  Tests for the Quantized protocol.
 //
 
-import Testing
 import Dimension
+import Testing
 
 // MARK: - Test Space
 

@@ -342,7 +342,11 @@ extension Time {
     ///
     /// Uses Zeller's congruence algorithm to determine the weekday.
     @inlinable
-    public static func weekday(year: Time.Year, month: Time.Month, day: Time.Month.Day) -> Time.Weekday {
+    public static func weekday(
+        year: Time.Year,
+        month: Time.Month,
+        day: Time.Month.Day
+    ) -> Time.Weekday {
         Time.Weekday(year: year, month: month, day: day)
     }
 

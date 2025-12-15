@@ -255,7 +255,8 @@ extension Geometry.Size {
 
 // MARK: - ExpressibleByLiteral for 1D Size
 
-extension Geometry.Size: ExpressibleByIntegerLiteral where N == 1, Scalar: ExpressibleByIntegerLiteral {
+extension Geometry.Size: ExpressibleByIntegerLiteral
+where N == 1, Scalar: ExpressibleByIntegerLiteral {
     @inlinable
     public init(integerLiteral value: Scalar.IntegerLiteralType) {
         self.init([Scalar(integerLiteral: value)])

@@ -1,10 +1,12 @@
 // Degree Tests.swift
 // Tests for Degree type (basic structure, arithmetic, trigonometry, conversions)
 
+import RealModule
 import StandardsTestSupport
 import Testing
-import RealModule
+
 @testable import Dimension
+
 @Suite
 struct `Degree - Basic Structure & Arithmetic` {
     @Test
@@ -126,26 +128,30 @@ struct `Degree - Conversion` {
         #expect(isApprox(degrees, Degree(90.0)))
     }
 
-    @Test(arguments: [
-        (Degree<Double>(0), Radian<Double>(0)),
-        (Degree<Double>(90), Radian<Double>(Double.pi / 2)),
-        (Degree<Double>(180), Radian<Double>(Double.pi)),
-        (Degree<Double>(270), Radian<Double>(3 * Double.pi / 2)),
-        (Degree<Double>(360), Radian<Double>(2 * Double.pi)),
-    ] as [(Degree<Double>, Radian<Double>)])
+    @Test(
+        arguments: [
+            (Degree<Double>(0), Radian<Double>(0)),
+            (Degree<Double>(90), Radian<Double>(Double.pi / 2)),
+            (Degree<Double>(180), Radian<Double>(Double.pi)),
+            (Degree<Double>(270), Radian<Double>(3 * Double.pi / 2)),
+            (Degree<Double>(360), Radian<Double>(2 * Double.pi)),
+        ] as [(Degree<Double>, Radian<Double>)]
+    )
     func `conversion to radians common angles`(testCase: (Degree<Double>, Radian<Double>)) {
         let (degrees, expected) = testCase
         let result = degrees.radians
         #expect(isApprox(result, expected))
     }
 
-    @Test(arguments: [
-        (Radian<Double>(0), Degree<Double>(0)),
-        (Radian<Double>(Double.pi / 2), Degree<Double>(90)),
-        (Radian<Double>(Double.pi), Degree<Double>(180)),
-        (Radian<Double>(3 * Double.pi / 2), Degree<Double>(270)),
-        (Radian<Double>(2 * Double.pi), Degree<Double>(360)),
-    ] as [(Radian<Double>, Degree<Double>)])
+    @Test(
+        arguments: [
+            (Radian<Double>(0), Degree<Double>(0)),
+            (Radian<Double>(Double.pi / 2), Degree<Double>(90)),
+            (Radian<Double>(Double.pi), Degree<Double>(180)),
+            (Radian<Double>(3 * Double.pi / 2), Degree<Double>(270)),
+            (Radian<Double>(2 * Double.pi), Degree<Double>(360)),
+        ] as [(Radian<Double>, Degree<Double>)]
+    )
     func `conversion from radians common angles`(testCase: (Radian<Double>, Degree<Double>)) {
         let (radians, expected) = testCase
         let result = Degree(radians: radians)
@@ -196,38 +202,44 @@ struct `Degree - Common Angles` {
 
 @Suite
 struct `Degree - Trigonometric Functions` {
-    @Test(arguments: [
-        (Degree<Double>(0), 0.0),
-        (Degree<Double>(90), 1.0),
-        (Degree<Double>(180), 0.0),
-        (Degree<Double>(45), 1.0 / Double.sqrt(2.0)),
-        (Degree<Double>(30), 0.5),
-        (Degree<Double>(60), Double.sqrt(3.0) / 2),
-    ] as [(Degree<Double>, Double)])
+    @Test(
+        arguments: [
+            (Degree<Double>(0), 0.0),
+            (Degree<Double>(90), 1.0),
+            (Degree<Double>(180), 0.0),
+            (Degree<Double>(45), 1.0 / Double.sqrt(2.0)),
+            (Degree<Double>(30), 0.5),
+            (Degree<Double>(60), Double.sqrt(3.0) / 2),
+        ] as [(Degree<Double>, Double)]
+    )
     func `sin of common angles`(testCase: (Degree<Double>, Double)) {
         let (angle, expected) = testCase
         #expect(abs(angle.sin.value - expected) < 1e-10)
     }
 
-    @Test(arguments: [
-        (Degree<Double>(0), 1.0),
-        (Degree<Double>(90), 0.0),
-        (Degree<Double>(180), -1.0),
-        (Degree<Double>(45), 1.0 / Double.sqrt(2.0)),
-        (Degree<Double>(30), Double.sqrt(3.0) / 2),
-        (Degree<Double>(60), 0.5),
-    ] as [(Degree<Double>, Double)])
+    @Test(
+        arguments: [
+            (Degree<Double>(0), 1.0),
+            (Degree<Double>(90), 0.0),
+            (Degree<Double>(180), -1.0),
+            (Degree<Double>(45), 1.0 / Double.sqrt(2.0)),
+            (Degree<Double>(30), Double.sqrt(3.0) / 2),
+            (Degree<Double>(60), 0.5),
+        ] as [(Degree<Double>, Double)]
+    )
     func `cos of common angles`(testCase: (Degree<Double>, Double)) {
         let (angle, expected) = testCase
         #expect(abs(angle.cos.value - expected) < 1e-10)
     }
 
-    @Test(arguments: [
-        (Degree<Double>(0), 0.0),
-        (Degree<Double>(45), 1.0),
-        (Degree<Double>(30), 1.0 / Double.sqrt(3.0)),
-        (Degree<Double>(60), Double.sqrt(3.0)),
-    ] as [(Degree<Double>, Double)])
+    @Test(
+        arguments: [
+            (Degree<Double>(0), 0.0),
+            (Degree<Double>(45), 1.0),
+            (Degree<Double>(30), 1.0 / Double.sqrt(3.0)),
+            (Degree<Double>(60), Double.sqrt(3.0)),
+        ] as [(Degree<Double>, Double)]
+    )
     func `tan of common angles`(testCase: (Degree<Double>, Double)) {
         let (angle, expected) = testCase
         #expect(abs(angle.tan.value - expected) < 1e-10)

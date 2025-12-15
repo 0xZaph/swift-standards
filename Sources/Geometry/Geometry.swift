@@ -42,6 +42,7 @@ public import Affine
 public import Algebra
 public import Algebra_Linear
 import Dimension
+
 public enum Geometry<Scalar: ~Copyable, Space>: ~Copyable {}
 
 extension Geometry: Copyable where Scalar: Copyable {}
@@ -151,7 +152,8 @@ extension Geometry.Magnitude: Comparable where Scalar: Comparable {
     }
 }
 
-extension Geometry.Magnitude: ExpressibleByIntegerLiteral where Scalar: ExpressibleByIntegerLiteral {
+extension Geometry.Magnitude: ExpressibleByIntegerLiteral
+where Scalar: ExpressibleByIntegerLiteral {
     @inlinable
     public init(integerLiteral value: Scalar.IntegerLiteralType) {
         self.rawValue = Linear<Scalar, Space>.Magnitude(integerLiteral: value)

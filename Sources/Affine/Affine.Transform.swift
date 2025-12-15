@@ -44,7 +44,7 @@ extension Affine.Transform: Hashable where Scalar: Hashable {}
 // MARK: - Codable
 
 #if Codable
-extension Affine.Transform: Codable where Scalar: Codable, Scalar: FloatingPoint {
+    extension Affine.Transform: Codable where Scalar: Codable, Scalar: FloatingPoint {
         private enum CodingKeys: String, CodingKey {
             case a, b, c, d, tx, ty
         }
@@ -297,7 +297,10 @@ extension Affine.Transform where Scalar: FloatingPoint & ExpressibleByIntegerLit
 
     /// Returns new transform with additional vector translation applied.
     @inlinable
-    public static func translated(_ transform: Self, by vector: Linear<Scalar, Space>.Vector<2>) -> Self {
+    public static func translated(
+        _ transform: Self,
+        by vector: Linear<Scalar, Space>.Vector<2>
+    ) -> Self {
         concatenating(transform, .translation(vector))
     }
 
@@ -415,8 +418,10 @@ extension Affine.Transform where Scalar: FloatingPoint {
         // Matrix multiplication mixes X and Y components: new_x = a*x + b*y + tx
         let px = point.x._rawValue
         let py = point.y._rawValue
-        let newX = transform.linear.a * px + transform.linear.b * py + transform.translation.dx._rawValue
-        let newY = transform.linear.c * px + transform.linear.d * py + transform.translation.dy._rawValue
+        let newX =
+            transform.linear.a * px + transform.linear.b * py + transform.translation.dx._rawValue
+        let newY =
+            transform.linear.c * px + transform.linear.d * py + transform.translation.dy._rawValue
         return Affine.Point(x: Affine.X(newX), y: Affine.Y(newY))
     }
 
@@ -428,8 +433,10 @@ extension Affine.Transform where Scalar: FloatingPoint {
 
     /// Applies linear transformation to vector, ignoring translation component.
     @inlinable
-    public static func apply(_ transform: Self, to vector: Linear<Scalar, Space>.Vector<2>) -> Linear<Scalar, Space>.Vector<2>
-    {
+    public static func apply(
+        _ transform: Self,
+        to vector: Linear<Scalar, Space>.Vector<2>
+    ) -> Linear<Scalar, Space>.Vector<2> {
         // Matrix multiplication mixes X and Y components: new_x = a*x + b*y
         let vx = vector.dx._rawValue
         let vy = vector.dy._rawValue

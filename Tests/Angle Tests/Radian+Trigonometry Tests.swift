@@ -2,41 +2,49 @@
 // Tests for Radian trigonometric functions and constants
 
 import Affine
+import RealModule
 import StandardsTestSupport
 import Testing
-import RealModule
+
 @testable import Dimension
+
 @Suite
 struct `Radian - Static Trigonometric Functions` {
-    @Test(arguments: [
-        (Radian<Double>.zero, 0.0),
-        (Radian<Double>.halfPi, 1.0),
-        (Radian(Double.pi), 0.0),
-        (Radian<Double>.quarterPi, 1.0 / Double.sqrt(2.0)),
-        (Radian<Double>(-Double.pi / 2), -1.0),
-    ] as [(Radian<Double>, Double)])
+    @Test(
+        arguments: [
+            (Radian<Double>.zero, 0.0),
+            (Radian<Double>.halfPi, 1.0),
+            (Radian(Double.pi), 0.0),
+            (Radian<Double>.quarterPi, 1.0 / Double.sqrt(2.0)),
+            (Radian<Double>(-Double.pi / 2), -1.0),
+        ] as [(Radian<Double>, Double)]
+    )
     func `sin of common angles`(testCase: (Radian<Double>, Double)) {
         let (angle, expected) = testCase
         #expect(abs(Radian.sin(of: angle).value - expected) < 1e-10)
     }
 
-    @Test(arguments: [
-        (Radian<Double>.zero, 1.0),
-        (Radian<Double>.halfPi, 0.0),
-        (Radian(Double.pi), -1.0),
-        (Radian<Double>.quarterPi, 1.0 / Double.sqrt(2.0)),
-        (Radian<Double>(-Double.pi / 2), 0.0),
-    ] as [(Radian<Double>, Double)])
+    @Test(
+        arguments: [
+            (Radian<Double>.zero, 1.0),
+            (Radian<Double>.halfPi, 0.0),
+            (Radian(Double.pi), -1.0),
+            (Radian<Double>.quarterPi, 1.0 / Double.sqrt(2.0)),
+            (Radian<Double>(-Double.pi / 2), 0.0),
+        ] as [(Radian<Double>, Double)]
+    )
     func `cos of common angles`(testCase: (Radian<Double>, Double)) {
         let (angle, expected) = testCase
         #expect(abs(Radian.cos(of: angle).value - expected) < 1e-10)
     }
 
-    @Test(arguments: [
-        (Radian<Double>.zero, 0.0),
-        (Radian<Double>.quarterPi, 1.0),
-        (Radian<Double>(-Double.pi / 4), -1.0),
-    ] as [(Radian<Double>, Double)])
+    @Test(
+        arguments: [
+            (Radian<Double>.zero, 0.0),
+            (Radian<Double>.quarterPi, 1.0),
+            (Radian<Double>(-Double.pi / 4), -1.0),
+        ] as [(Radian<Double>, Double)]
+    )
     func `tan of common angles`(testCase: (Radian<Double>, Double)) {
         let (angle, expected) = testCase
         let result = Radian.tan(of: angle)
@@ -280,13 +288,15 @@ struct `Radian - Constants` {
 
 @Suite
 struct `Radian - Normalization (Static)` {
-    @Test(arguments: [
-        (Radian<Double>(0), Radian<Double>(0)),
-        (Radian<Double>(Double.pi), Radian<Double>(Double.pi)),
-        (Radian<Double>(2 * Double.pi), Radian<Double>(0)),
-        (Radian<Double>(3 * Double.pi), Radian<Double>(Double.pi)),
-        (Radian<Double>(-Double.pi / 2), Radian<Double>(3 * Double.pi / 2)),
-    ] as [(Radian<Double>, Radian<Double>)])
+    @Test(
+        arguments: [
+            (Radian<Double>(0), Radian<Double>(0)),
+            (Radian<Double>(Double.pi), Radian<Double>(Double.pi)),
+            (Radian<Double>(2 * Double.pi), Radian<Double>(0)),
+            (Radian<Double>(3 * Double.pi), Radian<Double>(Double.pi)),
+            (Radian<Double>(-Double.pi / 2), Radian<Double>(3 * Double.pi / 2)),
+        ] as [(Radian<Double>, Radian<Double>)]
+    )
     func `normalized to 0-2π range`(testCase: (Radian<Double>, Radian<Double>)) {
         let (angle, expected) = testCase
         let result = Radian.normalized(angle)

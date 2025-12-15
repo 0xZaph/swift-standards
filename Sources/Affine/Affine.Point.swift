@@ -278,7 +278,8 @@ extension Affine.Point where N == 2, Scalar: AdditiveArithmetic {
 
     /// Returns point translated by displacement vector.
     @inlinable
-    public static func translated(_ point: Self, by vector: Linear<Scalar, Space>.Vector<2>) -> Self {
+    public static func translated(_ point: Self, by vector: Linear<Scalar, Space>.Vector<2>) -> Self
+    {
         Self(x: point.x + vector.dx, y: point.y + vector.dy)
     }
 
@@ -360,7 +361,10 @@ extension Affine.Point where N == 2, Scalar: FloatingPoint {
     public struct Distance2 {
         var point: Affine.Point<2>
 
-        public static func squared(from point: Affine.Point<2>, to other: Affine.Point<2>) -> Affine<Scalar, Space>.Area {
+        public static func squared(
+            from point: Affine.Point<2>,
+            to other: Affine.Point<2>
+        ) -> Affine<Scalar, Space>.Area {
             let dx = other.x - point.x
             let dy = other.y - point.y
             return dx * dx + dy * dy
@@ -370,7 +374,10 @@ extension Affine.Point where N == 2, Scalar: FloatingPoint {
             Self.squared(from: point, to: other)
         }
 
-        public static func from(_ point: Affine.Point<2>, to other: Affine.Point<2>) -> Affine.Distance {
+        public static func from(
+            _ point: Affine.Point<2>,
+            to other: Affine.Point<2>
+        ) -> Affine.Distance {
             // sqrt(Area) = Magnitude = Distance
             sqrt(squared(from: point, to: other))
         }
@@ -407,7 +414,8 @@ extension Affine.Point where N == 3, Scalar: AdditiveArithmetic {
 
     /// Returns point translated by displacement vector.
     @inlinable
-    public static func translated(_ point: Self, by vector: Linear<Scalar, Space>.Vector<3>) -> Self {
+    public static func translated(_ point: Self, by vector: Linear<Scalar, Space>.Vector<3>) -> Self
+    {
         Self(x: point.x + vector.dx, y: point.y + vector.dy, z: point.z + vector.dz)
     }
 
@@ -420,7 +428,11 @@ extension Affine.Point where N == 3, Scalar: AdditiveArithmetic {
     /// Computes displacement vector from one point to another.
     @inlinable
     public static func vector(from point: Self, to other: Self) -> Linear<Scalar, Space>.Vector<3> {
-        Linear<Scalar, Space>.Vector(dx: other.x - point.x, dy: other.y - point.y, dz: other.z - point.z)
+        Linear<Scalar, Space>.Vector(
+            dx: other.x - point.x,
+            dy: other.y - point.y,
+            dz: other.z - point.z
+        )
     }
 
     /// Computes displacement vector from this point to another.
@@ -445,7 +457,10 @@ extension Affine.Point where N == 3, Scalar: FloatingPoint {
     public struct Distance3 {
         var point: Affine.Point<3>
 
-        public static func squared(from point: Affine.Point<3>, to other: Affine.Point<3>) -> Affine<Scalar, Space>.Area {
+        public static func squared(
+            from point: Affine.Point<3>,
+            to other: Affine.Point<3>
+        ) -> Affine<Scalar, Space>.Area {
             let dx = other.x - point.x
             let dy = other.y - point.y
             let dz = other.z - point.z
@@ -456,7 +471,10 @@ extension Affine.Point where N == 3, Scalar: FloatingPoint {
             Self.squared(from: point, to: other)
         }
 
-        public static func from(_ point: Affine.Point<3>, to other: Affine.Point<3>) -> Affine.Distance {
+        public static func from(
+            _ point: Affine.Point<3>,
+            to other: Affine.Point<3>
+        ) -> Affine.Distance {
             // sqrt(Area) = Magnitude = Distance
             sqrt(squared(from: point, to: other))
         }

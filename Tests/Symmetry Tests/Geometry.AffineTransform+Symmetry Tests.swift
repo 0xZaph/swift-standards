@@ -50,10 +50,10 @@ struct `Geometry.AffineTransform+Symmetry Tests` {
         let transform = Affine<Double, Void>.Transform(rotation)
 
         // 90 degrees: cos(π/2) ≈ 0, sin(π/2) ≈ 1
-        #expect(abs(transform.linear.a) < 1e-10)      // cos(π/2)
+        #expect(abs(transform.linear.a) < 1e-10)  // cos(π/2)
         #expect(abs(transform.linear.b + 1) < 1e-10)  // -sin(π/2)
         #expect(abs(transform.linear.c - 1) < 1e-10)  // sin(π/2)
-        #expect(abs(transform.linear.d) < 1e-10)      // cos(π/2)
+        #expect(abs(transform.linear.d) < 1e-10)  // cos(π/2)
         #expect(transform.translation == .zero)
     }
 

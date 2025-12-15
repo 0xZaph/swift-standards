@@ -386,7 +386,8 @@ extension Geometry where Scalar: FloatingPoint {
     ///
     /// Returns a typed `Linear.Area` for dimensional safety.
     @inlinable
-    public static func signedDoubleArea(of polygon: Polygon) -> Linear<Scalar, Space>.Area where Scalar: SignedNumeric {
+    public static func signedDoubleArea(of polygon: Polygon) -> Linear<Scalar, Space>.Area
+    where Scalar: SignedNumeric {
         polygon.signedDoubleArea
     }
 

@@ -5,8 +5,8 @@
 //  Tests for Tagged quantized arithmetic and tick-based equality.
 //
 
-import Testing
 @_spi(Internal) import Dimension
+import Testing
 
 // MARK: - Test Space
 

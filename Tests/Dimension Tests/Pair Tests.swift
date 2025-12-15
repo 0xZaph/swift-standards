@@ -2,6 +2,7 @@
 
 import StandardsTestSupport
 import Testing
+
 @testable import Dimension
 
 // MARK: - Pair - Static Functions
@@ -172,7 +173,7 @@ struct `Pair - Protocol Conformances` {
         let set: Set<Pair<Int, String>> = [
             Pair(10, "a"),
             Pair(20, "b"),
-            Pair(10, "a")
+            Pair(10, "a"),
         ]
         #expect(set.count == 2)
     }

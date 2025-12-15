@@ -14,10 +14,10 @@ struct ClosureOperatorTests {
     let isNegative: (Int) -> Bool = { $0 < 0 }
 
     @Test(arguments: [
-        (value: 4, expected: true),   // even and positive
+        (value: 4, expected: true),  // even and positive
         (value: 3, expected: false),  // odd
-        (value: -4, expected: false), // negative
-        (value: -3, expected: false)  // odd and negative
+        (value: -4, expected: false),  // negative
+        (value: -3, expected: false),  // odd and negative
     ])
     func closureAND(value: Int, expected: Bool) {
         let combined = isEven && isPositive
@@ -25,10 +25,10 @@ struct ClosureOperatorTests {
     }
 
     @Test(arguments: [
-        (value: 4, expected: true),   // even
+        (value: 4, expected: true),  // even
         (value: -3, expected: true),  // negative
         (value: -4, expected: true),  // both
-        (value: 3, expected: false)   // neither
+        (value: 3, expected: false),  // neither
     ])
     func closureOR(value: Int, expected: Bool) {
         let combined = isEven || isNegative
@@ -37,9 +37,9 @@ struct ClosureOperatorTests {
 
     @Test(arguments: [
         (value: 4, expected: false),  // both
-        (value: 3, expected: true),   // positive only
+        (value: 3, expected: true),  // positive only
         (value: -4, expected: true),  // even only
-        (value: -3, expected: false)  // neither
+        (value: -3, expected: false),  // neither
     ])
     func closureXOR(value: Int, expected: Bool) {
         let combined = isEven ^ isPositive
@@ -48,7 +48,7 @@ struct ClosureOperatorTests {
 
     @Test(arguments: [
         (value: 3, expected: true),
-        (value: 4, expected: false)
+        (value: 4, expected: false),
     ])
     func closureNOT(value: Int, expected: Bool) {
         let isOdd = !isEven
@@ -64,7 +64,7 @@ struct ClosureOperatorTests {
         #expect(combined(4) == true)
         #expect(combined(6) == false)  // not small
         #expect(combined(3) == false)  // not even
-        #expect(combined(-2) == false) // not positive
+        #expect(combined(-2) == false)  // not positive
     }
 }
 
@@ -80,7 +80,7 @@ struct MixedPredicateClosureOperatorTests {
     @Test(arguments: [
         (value: 4, expected: true),
         (value: 3, expected: false),
-        (value: -4, expected: false)
+        (value: -4, expected: false),
     ])
     func predicateANDclosure(value: Int, expected: Bool) {
         let combined = predicateEven && closurePositive
@@ -90,7 +90,7 @@ struct MixedPredicateClosureOperatorTests {
     @Test(arguments: [
         (value: 4, expected: true),
         (value: 3, expected: false),
-        (value: -4, expected: false)
+        (value: -4, expected: false),
     ])
     func closureANDpredicate(value: Int, expected: Bool) {
         let combined = closureEven && predicatePositive
@@ -100,7 +100,7 @@ struct MixedPredicateClosureOperatorTests {
     @Test(arguments: [
         (value: 4, expected: true),
         (value: 3, expected: true),
-        (value: -3, expected: false)
+        (value: -3, expected: false),
     ])
     func predicateORclosure(value: Int, expected: Bool) {
         let combined = predicateEven || closurePositive
@@ -110,7 +110,7 @@ struct MixedPredicateClosureOperatorTests {
     @Test(arguments: [
         (value: 4, expected: true),
         (value: 3, expected: true),
-        (value: -3, expected: false)
+        (value: -3, expected: false),
     ])
     func closureORpredicate(value: Int, expected: Bool) {
         let combined = closureEven || predicatePositive
@@ -119,9 +119,9 @@ struct MixedPredicateClosureOperatorTests {
 
     @Test(arguments: [
         (value: 4, expected: false),  // both
-        (value: 3, expected: true),   // positive only
+        (value: 3, expected: true),  // positive only
         (value: -4, expected: true),  // even only
-        (value: -3, expected: false)  // neither
+        (value: -3, expected: false),  // neither
     ])
     func predicateXORclosure(value: Int, expected: Bool) {
         let combined = predicateEven ^ closurePositive
@@ -130,9 +130,9 @@ struct MixedPredicateClosureOperatorTests {
 
     @Test(arguments: [
         (value: 4, expected: false),  // both
-        (value: 3, expected: true),   // positive only
+        (value: 3, expected: true),  // positive only
         (value: -4, expected: true),  // even only
-        (value: -3, expected: false)  // neither
+        (value: -3, expected: false),  // neither
     ])
     func closureXORpredicate(value: Int, expected: Bool) {
         let combined = closureEven ^ predicatePositive
@@ -151,7 +151,7 @@ struct FluentMethodClosureTests {
     @Test(arguments: [
         (value: 4, expected: true),
         (value: -4, expected: false),
-        (value: 3, expected: false)
+        (value: 3, expected: false),
     ])
     func fluentAND(value: Int, expected: Bool) {
         let combined = predicate.and(isPositive)
@@ -162,7 +162,7 @@ struct FluentMethodClosureTests {
         (value: 4, expected: true),
         (value: -4, expected: true),
         (value: 3, expected: true),
-        (value: -3, expected: false)
+        (value: -3, expected: false),
     ])
     func fluentOR(value: Int, expected: Bool) {
         let combined = predicate.or(isPositive)
@@ -173,7 +173,7 @@ struct FluentMethodClosureTests {
         (value: 4, expected: false),
         (value: 3, expected: true),
         (value: -4, expected: true),
-        (value: -3, expected: false)
+        (value: -3, expected: false),
     ])
     func fluentXOR(value: Int, expected: Bool) {
         let combined = predicate.xor(isPositive)
@@ -182,8 +182,8 @@ struct FluentMethodClosureTests {
 
     @Test(arguments: [
         (value: 4, expected: false),  // both true, NAND is false
-        (value: 3, expected: true),   // one false
-        (value: -4, expected: true)   // one false
+        (value: 3, expected: true),  // one false
+        (value: -4, expected: true),  // one false
     ])
     func fluentNAND(value: Int, expected: Bool) {
         let combined = predicate.nand(isPositive)
@@ -193,7 +193,7 @@ struct FluentMethodClosureTests {
     @Test(arguments: [
         (value: 4, expected: false),  // one true, NOR is false
         (value: 3, expected: false),  // one true
-        (value: -3, expected: true)   // both false
+        (value: -3, expected: true),  // both false
     ])
     func fluentNOR(value: Int, expected: Bool) {
         let combined = predicate.nor(isPositive)
@@ -201,10 +201,10 @@ struct FluentMethodClosureTests {
     }
 
     @Test(arguments: [
-        (value: -4, expected: false), // even(true) → positive(false) = false
-        (value: 4, expected: true),   // even(true) → positive(true) = true
+        (value: -4, expected: false),  // even(true) → positive(false) = false
+        (value: 4, expected: true),  // even(true) → positive(true) = true
         (value: -3, expected: true),  // even(false) → positive(false) = true (¬false ∨ false)
-        (value: 3, expected: true)    // even(false) → positive(true) = true (¬false ∨ true)
+        (value: 3, expected: true),  // even(false) → positive(true) = true (¬false ∨ true)
     ])
     func fluentImplies(value: Int, expected: Bool) {
         let combined = predicate.implies(isPositive)
@@ -212,10 +212,10 @@ struct FluentMethodClosureTests {
     }
 
     @Test(arguments: [
-        (value: 4, expected: true),   // both true
-        (value: -4, expected: false), // even true, positive false
+        (value: 4, expected: true),  // both true
+        (value: -4, expected: false),  // even true, positive false
         (value: 3, expected: false),  // even false, positive true
-        (value: -3, expected: true)   // both false
+        (value: -3, expected: true),  // both false
     ])
     func fluentIff(value: Int, expected: Bool) {
         let combined = predicate.iff(isPositive)
@@ -223,10 +223,10 @@ struct FluentMethodClosureTests {
     }
 
     @Test(arguments: [
-        (value: 4, expected: true),   // positive -> even is true -> true = true
+        (value: 4, expected: true),  // positive -> even is true -> true = true
         (value: -4, expected: true),  // not positive -> even is false -> true = true
         (value: 3, expected: false),  // positive -> even is true -> false = false
-        (value: -3, expected: true)   // not positive -> even is don't care = true
+        (value: -3, expected: true),  // not positive -> even is don't care = true
     ])
     func fluentUnless(value: Int, expected: Bool) {
         let combined = predicate.unless(isPositive)
@@ -238,11 +238,11 @@ struct FluentMethodClosureTests {
         // isSmall = abs($0) < 10
         let combined = predicate.and(isPositive).or(isSmall)
 
-        #expect(combined(4) == true)   // (even ∧ positive) ∨ small = (true ∧ true) ∨ true = true
-        #expect(combined(8) == true)   // (even ∧ positive) ∨ small = (true ∧ true) ∨ true = true (8 < 10)
+        #expect(combined(4) == true)  // (even ∧ positive) ∨ small = (true ∧ true) ∨ true = true
+        #expect(combined(8) == true)  // (even ∧ positive) ∨ small = (true ∧ true) ∨ true = true (8 < 10)
         #expect(combined(-2) == true)  // (even ∧ positive) ∨ small = (true ∧ false) ∨ true = true
-        #expect(combined(3) == true)   // (even ∧ positive) ∨ small = (false ∧ true) ∨ true = true
-        #expect(combined(11) == false) // (even ∧ positive) ∨ small = (false ∧ true) ∨ false = false
+        #expect(combined(3) == true)  // (even ∧ positive) ∨ small = (false ∧ true) ∨ true = true
+        #expect(combined(11) == false)  // (even ∧ positive) ∨ small = (false ∧ true) ∨ false = false
     }
 }
 
@@ -353,8 +353,8 @@ struct ClosureTypeConversionTests {
         // Closure operators create Predicate, so we can chain fluent methods
         let combined = (isEven && isPositive).or(Predicate<Int> { $0 == 0 })
 
-        #expect(combined(4) == true)   // even and positive
-        #expect(combined(0) == true)   // zero
-        #expect(combined(-4) == false) // even but not positive, not zero
+        #expect(combined(4) == true)  // even and positive
+        #expect(combined(0) == true)  // zero
+        #expect(combined(-4) == false)  // even but not positive, not zero
     }
 }
