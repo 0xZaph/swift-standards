@@ -52,6 +52,11 @@ extension Geometry: Sendable where Scalar: Sendable {}
 
 extension Geometry {
     /// See ``Affine/X``
+    public typealias Area = Linear<Scalar, Space>.Area
+}
+
+extension Geometry {
+    /// See ``Affine/X``
     public typealias X = Affine<Scalar, Space>.X
 
     /// See ``Affine/Y``

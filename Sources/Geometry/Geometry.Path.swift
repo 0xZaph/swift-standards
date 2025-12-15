@@ -45,7 +45,7 @@ extension Geometry.Path: Equatable where Scalar: Equatable {}
 extension Geometry.Path: Hashable where Scalar: Hashable {}
 
 #if Codable
-extension Geometry.Path: Codable where Scalar: Codable {}
+    extension Geometry.Path: Codable where Scalar: Codable {}
 #endif
 
 // MARK: - Path.Subpath
@@ -85,7 +85,7 @@ extension Geometry.Path.Subpath: Equatable where Scalar: Equatable {}
 extension Geometry.Path.Subpath: Hashable where Scalar: Hashable {}
 
 #if Codable
-extension Geometry.Path.Subpath: Codable where Scalar: Codable {}
+    extension Geometry.Path.Subpath: Codable where Scalar: Codable {}
 #endif
 
 // MARK: - Path.Segment
@@ -114,7 +114,7 @@ extension Geometry.Path.Segment: Equatable where Scalar: Equatable {}
 extension Geometry.Path.Segment: Hashable where Scalar: Hashable {}
 
 #if Codable
-extension Geometry.Path.Segment: Codable where Scalar: Codable {}
+    extension Geometry.Path.Segment: Codable where Scalar: Codable {}
 #endif
 
 // MARK: - Segment Properties

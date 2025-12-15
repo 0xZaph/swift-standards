@@ -334,7 +334,7 @@ extension Geometry where Scalar: BinaryFloatingPoint {
     /// Calculate the area of an ellipse (π × a × b).
     @inlinable
     public static func area(of ellipse: Ellipse) -> Area {
-        Area(Scale<1, Scalar>.pi * ellipse.semiMajor * ellipse.semiMinor)
+        Scale<1, Scalar>.pi * ellipse.semiMajor * ellipse.semiMinor
     }
 }
 
@@ -628,7 +628,7 @@ extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
         for i in 1...segments {
             let t = Scale<1, Scalar>(Scalar(i) / Scalar(segments))
             let current = point(at: t)
-            total = total + prev.distance(to: current)
+            total += prev.distance(to: current)
             prev = current
         }
 

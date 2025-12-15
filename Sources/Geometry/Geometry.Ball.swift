@@ -488,3 +488,84 @@ extension Geometry.Ball where N == 2, Scalar: BinaryFloatingPoint {
         Geometry.Point<2>(x: center.x + radius, y: center.y)
     }
 }
+
+// MARK: - Circle from Triangle
+
+extension Geometry.Ball where N == 2, Scalar: FloatingPoint {
+    /// The incircle (largest inscribed circle) of a triangle.
+    ///
+    /// The incircle's center is equidistant from all three sides.
+    /// Returns `nil` if the triangle is degenerate.
+    @inlinable
+    public static func incircle(of triangle: Geometry.Triangle) -> Geometry.Circle? {
+        let sides = triangle.sideLengths
+        let ab = sides.ab._rawValue
+        let bc = sides.bc._rawValue
+        let ca = sides.ca._rawValue
+
+        let perimeter = ab + bc + ca
+        guard perimeter > 0 else { return nil }
+
+        // Incenter is weighted centroid: I = (a*A + b*B + c*C) / (a+b+c)
+        // where a,b,c are opposite side lengths
+        let v = triangle.vertices
+        let ax = v[0].x._rawValue
+        let ay = v[0].y._rawValue
+        let bx = v[1].x._rawValue
+        let by = v[1].y._rawValue
+        let cx = v[2].x._rawValue
+        let cy = v[2].y._rawValue
+
+        let centerX = (bc * ax + ca * bx + ab * cx) / perimeter
+        let centerY = (bc * ay + ca * by + ab * cy) / perimeter
+
+        // Inradius = Area / semi-perimeter
+        let semiPerimeter = perimeter / 2
+        let inradius = triangle.area._rawValue / semiPerimeter
+
+        return Geometry.Circle(
+            center: Geometry.Point(x: Geometry.X(centerX), y: Geometry.Y(centerY)),
+            radius: Geometry.Radius(inradius)
+        )
+    }
+
+    /// The circumcircle (smallest enclosing circle passing through all vertices) of a triangle.
+    ///
+    /// Returns `nil` if the triangle is degenerate (collinear vertices).
+    @inlinable
+    public static func circumcircle(of triangle: Geometry.Triangle) -> Geometry.Circle? {
+        let v = triangle.vertices
+        let ax = v[0].x._rawValue
+        let ay = v[0].y._rawValue
+        let bx = v[1].x._rawValue
+        let by = v[1].y._rawValue
+        let cx = v[2].x._rawValue
+        let cy = v[2].y._rawValue
+
+        // Break up complex expressions for type checker
+        let dTerm1 = ax * (by - cy)
+        let dTerm2 = bx * (cy - ay)
+        let dTerm3 = cx * (ay - by)
+        let d = Scalar(2) * (dTerm1 + dTerm2 + dTerm3)
+        guard abs(d) > Scalar.ulpOfOne else { return nil }
+
+        let aSq = ax * ax + ay * ay
+        let bSq = bx * bx + by * by
+        let cSq = cx * cx + cy * cy
+
+        let uxTerm1 = aSq * (by - cy)
+        let uxTerm2 = bSq * (cy - ay)
+        let uxTerm3 = cSq * (ay - by)
+        let ux = (uxTerm1 + uxTerm2 + uxTerm3) / d
+
+        let uyTerm1 = aSq * (cx - bx)
+        let uyTerm2 = bSq * (ax - cx)
+        let uyTerm3 = cSq * (bx - ax)
+        let uy = (uyTerm1 + uyTerm2 + uyTerm3) / d
+
+        let center = Geometry.Point(x: Geometry.X(ux), y: Geometry.Y(uy))
+        let radius = center.distance(to: v[0])
+
+        return Geometry.Circle(center: center, radius: radius)
+    }
+}

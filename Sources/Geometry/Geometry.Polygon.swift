@@ -379,7 +379,7 @@ extension Geometry where Scalar: FloatingPoint {
         let signedArea = signedDoubleArea(of: polygon)
         // abs of typed area, then divide by 2
         let absArea = signedArea._rawValue < 0 ? -signedArea._rawValue : signedArea._rawValue
-        return Area(Tagged(absArea / 2))
+        return Area(absArea / 2)
     }
 
     /// Calculate the signed double area of a polygon using the shoelace formula.

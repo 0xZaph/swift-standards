@@ -42,7 +42,7 @@ private func isApproxScalar(_ a: Double, _ b: Double, tol: Double = 1e-10) -> Bo
 }
 
 private func isApprox(_ a: Area, _ b: Area, tol: Double = 1e-10) -> Bool {
-    return abs(a.rawValue - b.rawValue) < tol
+    return abs(a - b)._rawValue < tol
 }
 
 private func isApprox(_ a: Radian<Double>, _ b: Radian<Double>, tol: Double = 1e-10) -> Bool {
@@ -643,7 +643,7 @@ struct `Geometry.Ngon<4> - Quadrilateral` {
             c: .init(x: 4, y: 3),
             d: .init(x: 0, y: 3)
         )
-        #expect(abs(quad.area.rawValue - 12) < 1e-10)
+        #expect(abs(quad.area - 12) < 1e-10)
     }
 }
 
