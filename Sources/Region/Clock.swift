@@ -1,7 +1,7 @@
 // Clock.swift
 // Twelve angular regions (30-degree sectors, like clock positions).
 
-public import Algebra
+import Algebra
 public import Dimension
 
 extension Region {

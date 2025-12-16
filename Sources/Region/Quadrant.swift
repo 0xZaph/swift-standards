@@ -1,7 +1,7 @@
 // Quadrant.swift
 // Cartesian plane quadrants.
 
-public import Algebra
+import Algebra
 public import Dimension
 
 extension Region {

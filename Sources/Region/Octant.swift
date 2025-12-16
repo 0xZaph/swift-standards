@@ -1,7 +1,7 @@
 // Octant.swift
 // 3D space octants.
 
-public import Algebra
+import Algebra
 public import Dimension
 
 extension Region {

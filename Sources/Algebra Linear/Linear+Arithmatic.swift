@@ -4,7 +4,7 @@
 //
 //  Created by Coen ten Thije Boonkkamp on 14/12/2025.
 //
-public import Algebra
+import Algebra
 public import Dimension
 
 // MARK: - Vector × Scale (Uniform Scaling)

@@ -6,4 +6,4 @@
 // for documentation purposes; the formatting functionality is re-exported
 // via the `public import Algebra_Linear` statements in Affine files.
 
-public import Algebra_Linear
+import Algebra_Linear

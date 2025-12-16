@@ -33,7 +33,7 @@
 // let v = q - p  // Linear<Double, Void>.Vector<2>
 // ```
 
-public import Algebra
+import Algebra
 public import Dimension
 
 /// Namespace for affine space primitives parameterized by scalar type and coordinate space.

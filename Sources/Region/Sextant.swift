@@ -1,7 +1,7 @@
 // Sextant.swift
 // Six angular regions (60-degree sectors).
 
-public import Algebra
+import Algebra
 public import Dimension
 
 extension Region {

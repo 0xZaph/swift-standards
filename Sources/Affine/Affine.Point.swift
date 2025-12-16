@@ -1,7 +1,7 @@
 // Affine.Point.swift
 // A fixed-size coordinate with compile-time known dimensions.
 
-public import Algebra
+import Algebra
 public import Algebra_Linear
 public import Dimension
 

@@ -2,7 +2,7 @@
 // An ellipse defined by center, semi-axes, and rotation.
 
 public import Affine
-public import Algebra
+import Algebra
 public import Algebra_Linear
 public import Dimension
 public import RealModule

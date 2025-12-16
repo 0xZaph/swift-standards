@@ -1,7 +1,7 @@
 // Radian.swift
 // An angle measured in radians, implemented as a Tagged type.
 
-public import RealModule
+import RealModule
 
 /// An angle measured in radians (dimensionless ratio of arc length to radius).
 ///

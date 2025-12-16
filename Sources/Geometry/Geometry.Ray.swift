@@ -2,7 +2,7 @@
 // A half-line (ray) extending from an origin in a direction.
 
 public import Affine
-public import Algebra
+import Algebra
 public import Algebra_Linear
 public import Dimension
 

@@ -2,7 +2,7 @@
 // Algebraic structures and protocols.
 
 // Re-export Dimension (Tagged, Enumerable, etc.)
-public import Dimension
+import Dimension
 
 /// Namespace for algebraic structures and type-safe primitives.
 ///

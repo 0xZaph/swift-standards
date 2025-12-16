@@ -1,7 +1,7 @@
 // Affine.Translation.swift
 // A 2D translation (displacement) in an affine space.
 
-public import Algebra
+import Algebra
 public import Algebra_Linear
 public import Dimension
 

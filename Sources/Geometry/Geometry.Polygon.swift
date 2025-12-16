@@ -2,7 +2,7 @@
 // A polygon defined by an ordered sequence of vertices.
 
 public import Affine
-public import Algebra
+import Algebra
 public import Algebra_Linear
 public import Dimension
 

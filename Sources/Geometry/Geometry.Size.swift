@@ -1,7 +1,7 @@
 // Size.swift
 // A fixed-size dimensions with compile-time known number of dimensions.
 
-public import Algebra_Linear
+import Algebra_Linear
 public import Dimension
 
 extension Geometry {

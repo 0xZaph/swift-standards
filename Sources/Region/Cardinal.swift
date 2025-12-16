@@ -1,7 +1,7 @@
 // Cardinal.swift
 // Cardinal directions (compass points).
 
-public import Algebra
+import Algebra
 public import Dimension
 
 extension Region {

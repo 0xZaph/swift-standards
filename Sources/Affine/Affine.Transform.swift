@@ -1,7 +1,7 @@
 // Affine.Transform.swift
 // A 2D affine transformation: linear transformation + translation.
 
-public import Algebra
+import Algebra
 public import Algebra_Linear
 public import Dimension
 public import RealModule

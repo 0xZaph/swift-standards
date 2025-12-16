@@ -39,7 +39,7 @@
 // ```
 
 public import Affine
-public import Algebra
+import Algebra
 public import Algebra_Linear
 import Dimension
 

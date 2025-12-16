@@ -1,7 +1,7 @@
 // Corner.swift
 // Rectangle corners as product of Horizontal × Vertical.
 
-public import Algebra
+import Algebra
 public import Dimension
 
 extension Region {

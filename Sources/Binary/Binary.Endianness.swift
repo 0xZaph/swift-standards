@@ -1,7 +1,7 @@
 // Endianness.swift
 // Byte order for multi-byte integer serialization.
 
-public import Algebra
+import Algebra
 public import Dimension
 
 /// Byte order for multi-byte integer serialization.
