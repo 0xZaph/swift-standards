@@ -341,3 +341,81 @@ struct `Binary.Serializable - API Patterns` {
         #expect(results == ["<li>one</li>", "<li>two</li>", "<li>three</li>"])
     }
 }
+
+// MARK: - Span Access Tests
+
+@Suite
+struct `Binary.Serializable - Span Access` {
+
+    @Test
+    func `withSerializedBytes provides correct bytes`() {
+        let greeting = Greeting(name: "Span")
+
+        var capturedCount = 0
+        Greeting.withSerializedBytes(greeting) { span in
+            capturedCount = span.count
+        }
+
+        #expect(capturedCount == "Hello, Span!".utf8.count)
+    }
+
+    @Test
+    func `withSerializedBytes instance method works`() {
+        let element = Element(tag: "div", content: "test")
+
+        var capturedCount = 0
+        element.withSerializedBytes { span in
+            capturedCount = span.count
+        }
+
+        #expect(capturedCount == "<div>test</div>".utf8.count)
+    }
+
+    @Test
+    func `withSerializedBytes propagates typed errors`() throws {
+        enum TestError: Error { case test }
+        let greeting = Greeting(name: "Error")
+
+        #expect(throws: TestError.self) {
+            try greeting.withSerializedBytes { _ in
+                throw TestError.test
+            }
+        }
+    }
+
+    @Test
+    func `withSerializedBytes returns closure result`() {
+        let greeting = Greeting(name: "Result")
+
+        let count = greeting.withSerializedBytes { span in
+            span.count
+        }
+
+        #expect(count == "Hello, Result!".utf8.count)
+    }
+
+    @Test
+    func `withSerializedBytes non-throwing closure is non-throwing`() {
+        let element = Element(tag: "span", content: "zero-copy")
+
+        // This should compile without 'try' because the closure is non-throwing
+        // (E is inferred as Never)
+        let length = element.withSerializedBytes { span in
+            span.count
+        }
+
+        #expect(length == "<span>zero-copy</span>".utf8.count)
+    }
+
+    @Test
+    func `withSerializedBytes provides borrowing access to bytes`() {
+        let greeting = Greeting(name: "Test")
+
+        // Verify we can read individual bytes through the span
+        let firstByte = greeting.withSerializedBytes { span in
+            span[0]
+        }
+
+        #expect(firstByte == UInt8(ascii: "H"))
+    }
+}

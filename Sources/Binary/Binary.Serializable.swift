@@ -92,6 +92,47 @@ extension Binary.Serializable {
     }
 }
 
+// MARK: - Zero-Copy Span Access
+
+extension Binary.Serializable {
+    /// Provides zero-copy access to serialized bytes via a Span.
+    ///
+    /// Default implementation creates a temporary ContiguousArray. Types with
+    /// contiguous storage can override for true zero-copy access.
+    ///
+    /// - Parameters:
+    ///   - value: The value to serialize
+    ///   - body: Closure receiving borrowing access to the serialized bytes
+    /// - Returns: The result of the body closure
+    @inlinable
+    public static func withSerializedBytes<R, E: Error>(
+        _ value: Self,
+        _ body: (borrowing Span<UInt8>) throws(E) -> R
+    ) throws(E) -> R {
+        var buffer: ContiguousArray<UInt8> = []
+        Self.serialize(value, into: &buffer)
+        // Use Result to bridge typed throws across non-typed-throws boundary
+        var result: Result<R, E>!
+        buffer.withUnsafeBufferPointer { bufferPointer in
+            let span = Span(_unsafeElements: bufferPointer)
+            do throws(E) {
+                result = .success(try body(span))
+            } catch {
+                result = .failure(error)
+            }
+        }
+        return try result.get()
+    }
+
+    /// Instance method convenience for zero-copy Span access.
+    @inlinable
+    public func withSerializedBytes<R, E: Error>(
+        _ body: (borrowing Span<UInt8>) throws(E) -> R
+    ) throws(E) -> R {
+        try Self.withSerializedBytes(self, body)
+    }
+}
+
 // MARK: - RangeReplaceableCollection Append
 
 extension RangeReplaceableCollection<UInt8> {
@@ -197,6 +238,49 @@ extension Binary.Serializable where Self: RawRepresentable, Self.RawValue == [UI
     }
 }
 
+// MARK: - Zero-Copy Optimization for RawRepresentable Types
+
+extension Binary.Serializable where Self: RawRepresentable, Self.RawValue == [UInt8] {
+    /// Optimized zero-copy access for [UInt8]-backed types.
+    @inlinable
+    public static func withSerializedBytes<R, E: Error>(
+        _ value: Self,
+        _ body: (borrowing Span<UInt8>) throws(E) -> R
+    ) throws(E) -> R {
+        var result: Result<R, E>!
+        value.rawValue.withUnsafeBufferPointer { bufferPointer in
+            let span = Span(_unsafeElements: bufferPointer)
+            do throws(E) {
+                result = .success(try body(span))
+            } catch {
+                result = .failure(error)
+            }
+        }
+        return try result.get()
+    }
+}
+
+extension Binary.Serializable where Self: RawRepresentable, Self.RawValue: StringProtocol {
+    /// Optimized access for StringProtocol-backed types via UTF-8.
+    @inlinable
+    public static func withSerializedBytes<R, E: Error>(
+        _ value: Self,
+        _ body: (borrowing Span<UInt8>) throws(E) -> R
+    ) throws(E) -> R {
+        let utf8 = ContiguousArray(value.rawValue.utf8)
+        var result: Result<R, E>!
+        utf8.withUnsafeBufferPointer { bufferPointer in
+            let span = Span(_unsafeElements: bufferPointer)
+            do throws(E) {
+                result = .success(try body(span))
+            } catch {
+                result = .failure(error)
+            }
+        }
+        return try result.get()
+    }
+}
+
 // MARK: - Tagged Conformance
 extension Tagged: Binary.Serializable where RawValue: Binary.Serializable {
     /// Serializes a tagged value by serializing its underlying raw value.
@@ -208,5 +292,14 @@ extension Tagged: Binary.Serializable where RawValue: Binary.Serializable {
         into buffer: inout Buffer
     ) where Buffer.Element == UInt8 {
         RawValue.serialize(value._rawValue, into: &buffer)
+    }
+
+    /// Delegates to raw value's withSerializedBytes for optimal performance.
+    @inlinable
+    public static func withSerializedBytes<R, E: Error>(
+        _ value: Self,
+        _ body: (borrowing Span<UInt8>) throws(E) -> R
+    ) throws(E) -> R {
+        try RawValue.withSerializedBytes(value._rawValue, body)
     }
 }
