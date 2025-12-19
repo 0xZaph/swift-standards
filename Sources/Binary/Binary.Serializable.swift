@@ -153,6 +153,7 @@ extension Array where Element == UInt8 {
     ///
     /// Serializes the value into a new array.
     @inlinable
+    @_disfavoredOverload
     public init<S: Binary.Serializable>(_ serializable: S) {
         self = []
         S.serialize(serializable, into: &self)
@@ -164,6 +165,7 @@ extension ContiguousArray where Element == UInt8 {
     ///
     /// Serializes the value into a new contiguous array for better cache locality.
     @inlinable
+    @_disfavoredOverload
     public init<S: Binary.Serializable>(_ serializable: S) {
         self = []
         S.serialize(serializable, into: &self)
@@ -301,5 +303,76 @@ extension Tagged: Binary.Serializable where RawValue: Binary.Serializable {
         _ body: (borrowing Span<UInt8>) throws(E) -> R
     ) throws(E) -> R {
         try RawValue.withSerializedBytes(value._rawValue, body)
+    }
+}
+
+// MARK: - Byte Collection Conformances
+
+extension Array: Binary.Serializable where Element == UInt8 {
+    /// Serializes a byte array by appending its contents directly.
+    @inlinable
+    public static func serialize<Buffer: RangeReplaceableCollection>(
+        _ value: Self,
+        into buffer: inout Buffer
+    ) where Buffer.Element == UInt8 {
+        buffer.append(contentsOf: value)
+    }
+
+    /// Zero-copy access to the array's bytes.
+    @inlinable
+    public static func withSerializedBytes<R, E: Error>(
+        _ value: Self,
+        _ body: (borrowing Span<UInt8>) throws(E) -> R
+    ) throws(E) -> R {
+        var result: Result<R, E>!
+        value.withUnsafeBufferPointer { bufferPointer in
+            let span = Span(_unsafeElements: bufferPointer)
+            do throws(E) {
+                result = .success(try body(span))
+            } catch {
+                result = .failure(error)
+            }
+        }
+        return try result.get()
+    }
+}
+
+extension ContiguousArray: Binary.Serializable where Element == UInt8 {
+    /// Serializes a contiguous byte array by appending its contents directly.
+    @inlinable
+    public static func serialize<Buffer: RangeReplaceableCollection>(
+        _ value: Self,
+        into buffer: inout Buffer
+    ) where Buffer.Element == UInt8 {
+        buffer.append(contentsOf: value)
+    }
+
+    /// Zero-copy access to the contiguous array's bytes.
+    @inlinable
+    public static func withSerializedBytes<R, E: Error>(
+        _ value: Self,
+        _ body: (borrowing Span<UInt8>) throws(E) -> R
+    ) throws(E) -> R {
+        var result: Result<R, E>!
+        value.withUnsafeBufferPointer { bufferPointer in
+            let span = Span(_unsafeElements: bufferPointer)
+            do throws(E) {
+                result = .success(try body(span))
+            } catch {
+                result = .failure(error)
+            }
+        }
+        return try result.get()
+    }
+}
+
+extension ArraySlice: Binary.Serializable where Element == UInt8 {
+    /// Serializes a byte array slice by appending its contents directly.
+    @inlinable
+    public static func serialize<Buffer: RangeReplaceableCollection>(
+        _ value: Self,
+        into buffer: inout Buffer
+    ) where Buffer.Element == UInt8 {
+        buffer.append(contentsOf: value)
     }
 }
