@@ -250,7 +250,7 @@ extension Time {
     ///
     /// - Warning: Only use when nanoseconds is known to be valid (0-999,999,999)
     @_spi(Internal)
-    public init (
+    public init(
         __unchecked: (),
         secondsSinceEpoch: Int,
         nanoseconds: Int
