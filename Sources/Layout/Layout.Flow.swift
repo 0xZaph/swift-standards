@@ -2,6 +2,7 @@
 // A wrapping layout that flows content to the next line when full.
 
 public import Dimension
+public import Geometry
 
 extension Layout {
     /// A wrapping layout that reflows content to the next line when space runs out.
@@ -14,8 +15,10 @@ extension Layout {
     /// ## Example
     ///
     /// ```swift
+    /// enum PageSpace {}
+    ///
     /// // Tag cloud with wrapping
-    /// let tags = Layout<Double>.Flow<[Tag]>(
+    /// let tags = Layout<Double, PageSpace>.Flow<[Tag]>(
     ///     spacing: .init(item: 8.0, line: 12.0),
     ///     alignment: .leading,
     ///     line: .top,
@@ -59,36 +62,36 @@ extension Layout {
 extension Layout.Flow {
     /// Spacing configuration for horizontal and vertical gaps in a flow layout.
     ///
-    /// Separately controls spacing between items on the same line (horizontal)
-    /// and spacing between lines (vertical).
+    /// Uses dimensionally-typed spacing: `Width` for horizontal item gaps,
+    /// `Height` for vertical line gaps.
     public struct Gaps {
         /// Spacing between items on the same line (horizontal gap)
-        public var item: Spacing
+        public var item: Layout.Width
 
         /// Spacing between lines (vertical gap)
-        public var line: Spacing
+        public var line: Layout.Height
 
         /// Creates spacing with the specified item and line values.
         @inlinable
-        public init(item: Spacing, line: Spacing) {
+        public init(item: Layout.Width, line: Layout.Height) {
             self.item = item
             self.line = line
         }
     }
 }
 
-extension Layout.Flow.Gaps: Sendable where Spacing: Sendable {}
-extension Layout.Flow.Gaps: Equatable where Spacing: Equatable {}
-extension Layout.Flow.Gaps: Hashable where Spacing: Hashable {}
+extension Layout.Flow.Gaps: Sendable where Scalar: Sendable {}
+extension Layout.Flow.Gaps: Equatable where Scalar: Equatable {}
+extension Layout.Flow.Gaps: Hashable where Scalar: Hashable {}
 #if Codable
-    extension Layout.Flow.Gaps: Codable where Spacing: Codable {}
+    extension Layout.Flow.Gaps: Codable where Scalar: Codable {}
 #endif
 
-extension Layout.Flow.Gaps where Spacing: AdditiveArithmetic {
-    /// Creates uniform spacing (identical for items and lines).
+extension Layout.Flow.Gaps where Scalar: AdditiveArithmetic {
+    /// Creates uniform spacing (identical magnitude for items and lines).
     @inlinable
-    public static func uniform(_ value: Spacing) -> Self {
-        Self(item: value, line: value)
+    public static func uniform(_ value: Layout.Spacing) -> Self {
+        Self(item: value.width, line: value.height)
     }
 }
 
@@ -124,19 +127,19 @@ extension Layout.Flow.Line {
 
 // MARK: - Sendable
 
-extension Layout.Flow: Sendable where Spacing: Sendable, Content: Sendable {}
+extension Layout.Flow: Sendable where Scalar: Sendable, Content: Sendable {}
 
 // MARK: - Equatable
 
-extension Layout.Flow: Equatable where Spacing: Equatable, Content: Equatable {}
+extension Layout.Flow: Equatable where Scalar: Equatable, Content: Equatable {}
 
 // MARK: - Hashable
 
-extension Layout.Flow: Hashable where Spacing: Hashable, Content: Hashable {}
+extension Layout.Flow: Hashable where Scalar: Hashable, Content: Hashable {}
 
 // MARK: - Codable
 #if Codable
-    extension Layout.Flow: Codable where Spacing: Codable, Content: Codable {}
+    extension Layout.Flow: Codable where Scalar: Codable, Content: Codable {}
 #endif
 
 // MARK: - Convenience Initializers
@@ -157,11 +160,11 @@ extension Layout.Flow {
     }
 }
 
-extension Layout.Flow where Spacing: AdditiveArithmetic {
-    /// Creates a flow layout with uniform spacing (same for items and lines).
+extension Layout.Flow where Scalar: AdditiveArithmetic {
+    /// Creates a flow layout with uniform spacing (same magnitude for items and lines).
     @inlinable
     public static func uniform(
-        spacing: Spacing,
+        spacing: Layout.Spacing,
         alignment: Horizontal.Alignment = .leading,
         content: Content
     ) -> Self {
@@ -177,28 +180,9 @@ extension Layout.Flow where Spacing: AdditiveArithmetic {
 // MARK: - Functorial Map
 
 extension Layout.Flow {
-    /// Creates a flow by transforming the spacing unit of another flow.
-    @inlinable
-    public init<U, E: Error>(
-        transforming other: borrowing Layout<U>.Flow<Content>,
-        spacing transform: (U) throws(E) -> Spacing
-    ) throws(E) {
-        self.init(
-            spacing: Gaps(
-                item: try transform(other.spacing.item),
-                line: try transform(other.spacing.line)
-            ),
-            alignment: other.alignment,
-            line: Line(alignment: other.line.alignment),
-            content: other.content
-        )
-    }
-}
-
-extension Layout.Flow {
     /// Returns the functorial transformation namespace for the given flow.
     @inlinable
-    public static func map(_ flow: Layout<Spacing>.Flow<Content>) -> Map {
+    public static func map(_ flow: borrowing Layout<Scalar, Space>.Flow<Content>) -> Map {
         Map(flow: flow)
     }
 
@@ -209,41 +193,25 @@ extension Layout.Flow {
     /// Functorial transformation operations for `Flow`.
     public struct Map {
         @usableFromInline
-        let flow: Layout<Spacing>.Flow<Content>
+        let flow: Layout<Scalar, Space>.Flow<Content>
 
         @usableFromInline
-        init(flow: Layout<Spacing>.Flow<Content>) {
-            self.flow = flow
-        }
-
-        /// Transforms the spacing type using the given closure.
-        @inlinable
-        public func spacing<Result, E: Error>(
-            _ transform: (Spacing) throws(E) -> Result
-        ) throws(E) -> Layout<Result>.Flow<Content> {
-            Layout<Result>.Flow<Content>(
-                spacing: Layout<Result>.Flow<Content>.Gaps(
-                    item: try transform(flow.spacing.item),
-                    line: try transform(flow.spacing.line)
-                ),
-                alignment: flow.alignment,
-                line: Layout<Result>.Flow<Content>.Line(alignment: flow.line.alignment),
-                content: flow.content
-            )
+        init(flow: borrowing Layout<Scalar, Space>.Flow<Content>) {
+            self.flow = copy flow
         }
 
         /// Transforms the content using the given closure.
         @inlinable
         public func content<Result, E: Error>(
             _ transform: (Content) throws(E) -> Result
-        ) throws(E) -> Layout<Spacing>.Flow<Result> {
-            Layout<Spacing>.Flow<Result>(
-                spacing: Layout<Spacing>.Flow<Result>.Gaps(
+        ) throws(E) -> Layout<Scalar, Space>.Flow<Result> {
+            Layout<Scalar, Space>.Flow<Result>(
+                spacing: Layout<Scalar, Space>.Flow<Result>.Gaps(
                     item: flow.spacing.item,
                     line: flow.spacing.line
                 ),
                 alignment: flow.alignment,
-                line: Layout<Spacing>.Flow<Result>.Line(alignment: flow.line.alignment),
+                line: Layout<Scalar, Space>.Flow<Result>.Line(alignment: flow.line.alignment),
                 content: try transform(flow.content)
             )
         }

@@ -2,7 +2,6 @@
 // A sequential arrangement of content along an axis.
 
 public import Dimension
-import Geometry
 
 extension Layout {
     /// A linear arrangement of content along a horizontal or vertical axis.
@@ -14,15 +13,17 @@ extension Layout {
     /// ## Example
     ///
     /// ```swift
+    /// enum PageSpace {}
+    ///
     /// // Vertical form fields
-    /// let form = Layout<Double>.Stack<[Field]>.vertical(
+    /// let form = Layout<Double, PageSpace>.Stack<[Field]>.vertical(
     ///     spacing: 12.0,
     ///     alignment: .leading,  // Left-aligned fields
     ///     content: formFields
     /// )
     ///
     /// // Horizontal toolbar buttons
-    /// let toolbar = Layout<Double>.Stack<[Button]>.horizontal(
+    /// let toolbar = Layout<Double, PageSpace>.Stack<[Button]>.horizontal(
     ///     spacing: 8.0,
     ///     alignment: .center,  // Vertically centered buttons
     ///     content: actions
@@ -32,7 +33,8 @@ extension Layout {
         /// Axis along which content flows (`.primary` for horizontal, `.secondary` for vertical)
         public var axis: Axis<2>
 
-        /// Spacing between adjacent items
+        /// Spacing between adjacent items (non-directional magnitude).
+        /// Projects to Width or Height based on axis at render time.
         public var spacing: Spacing
 
         /// Cross-axis alignment (vertical for horizontal stack, horizontal for vertical stack)
@@ -59,27 +61,28 @@ extension Layout {
 
 // MARK: - Sendable
 
-extension Layout.Stack: Sendable where Spacing: Sendable, Content: Sendable {}
+extension Layout.Stack: Sendable where Scalar: Sendable, Content: Sendable {}
 
 // MARK: - Equatable
 
-extension Layout.Stack: Equatable where Spacing: Equatable, Content: Equatable {}
+extension Layout.Stack: Equatable where Scalar: Equatable, Content: Equatable {}
 
 // MARK: - Hashable
 
-extension Layout.Stack: Hashable where Spacing: Hashable, Content: Hashable {}
+extension Layout.Stack: Hashable where Scalar: Hashable, Content: Hashable {}
 
 // MARK: - Codable
 #if Codable
-    extension Layout.Stack: Codable where Spacing: Codable, Content: Codable {}
+    extension Layout.Stack: Codable where Scalar: Codable, Content: Codable {}
 #endif
+
 // MARK: - Convenience Initializers
 
 extension Layout.Stack {
     /// Creates a vertical stack (items flow top to bottom).
     @inlinable
     public static func vertical(
-        spacing: Spacing,
+        spacing: Layout.Spacing,
         alignment: Cross.Alignment = .center,
         content: Content
     ) -> Self {
@@ -89,7 +92,7 @@ extension Layout.Stack {
     /// Creates a horizontal stack (items flow leading to trailing).
     @inlinable
     public static func horizontal(
-        spacing: Spacing,
+        spacing: Layout.Spacing,
         alignment: Cross.Alignment = .center,
         content: Content
     ) -> Self {
@@ -100,25 +103,9 @@ extension Layout.Stack {
 // MARK: - Functorial Map
 
 extension Layout.Stack {
-    /// Creates a stack by transforming the spacing unit of another stack.
-    @inlinable
-    public init<U, E: Error>(
-        transforming other: borrowing Layout<U>.Stack<Content>,
-        spacing transform: (U) throws(E) -> Spacing
-    ) throws(E) {
-        self.init(
-            axis: other.axis,
-            spacing: try transform(other.spacing),
-            alignment: other.alignment,
-            content: other.content
-        )
-    }
-}
-
-extension Layout.Stack {
     /// Namespace for functorial transformation operations.
     @inlinable
-    public static func map(_ stack: Layout<Spacing>.Stack<Content>) -> Map {
+    public static func map(_ stack: borrowing Layout<Scalar, Space>.Stack<Content>) -> Map {
         Map(stack: stack)
     }
 
@@ -129,32 +116,19 @@ extension Layout.Stack {
     /// Functorial transformation operations for `Stack`.
     public struct Map {
         @usableFromInline
-        let stack: Layout<Spacing>.Stack<Content>
+        let stack: Layout<Scalar, Space>.Stack<Content>
 
         @usableFromInline
-        init(stack: Layout<Spacing>.Stack<Content>) {
-            self.stack = stack
-        }
-
-        /// Transforms the spacing type using the given closure.
-        @inlinable
-        public func spacing<Result, E: Error>(
-            _ transform: (Spacing) throws(E) -> Result
-        ) throws(E) -> Layout<Result>.Stack<Content> {
-            Layout<Result>.Stack<Content>(
-                axis: stack.axis,
-                spacing: try transform(stack.spacing),
-                alignment: stack.alignment,
-                content: stack.content
-            )
+        init(stack: borrowing Layout<Scalar, Space>.Stack<Content>) {
+            self.stack = copy stack
         }
 
         /// Transforms the content using the given closure.
         @inlinable
         public func content<Result, E: Error>(
             _ transform: (Content) throws(E) -> Result
-        ) throws(E) -> Layout<Spacing>.Stack<Result> {
-            Layout<Spacing>.Stack<Result>(
+        ) throws(E) -> Layout<Scalar, Space>.Stack<Result> {
+            Layout<Scalar, Space>.Stack<Result>(
                 axis: stack.axis,
                 spacing: stack.spacing,
                 alignment: stack.alignment,

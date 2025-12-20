@@ -1,6 +1,8 @@
 // Layout.Grid.swift
 // A two-dimensional arrangement of content in rows and columns.
 
+public import Geometry
+
 extension Layout {
     /// A two-dimensional arrangement of content in rows and columns.
     ///
@@ -11,15 +13,17 @@ extension Layout {
     /// ## Example
     ///
     /// ```swift
+    /// enum PageSpace {}
+    ///
     /// // Photo gallery grid
-    /// let gallery = Layout<Double>.Grid<[[Photo]]>(
+    /// let gallery = Layout<Double, PageSpace>.Grid<[[Photo]]>(
     ///     spacing: .init(row: 16.0, column: 16.0),
     ///     alignment: .center,
     ///     content: photoRows
     /// )
     ///
     /// // Form with uniform spacing
-    /// let form = Layout<Double>.Grid<[[Field]]>.uniform(
+    /// let form = Layout<Double, PageSpace>.Grid<[[Field]]>.uniform(
     ///     spacing: 12.0,
     ///     alignment: .leading,
     ///     content: formRows
@@ -54,54 +58,54 @@ extension Layout {
 extension Layout.Grid {
     /// Spacing configuration for rows and columns in a grid.
     ///
-    /// Separately controls vertical spacing between rows and horizontal spacing
-    /// between columns.
+    /// Uses dimensionally-typed spacing: `Height` for vertical row gaps,
+    /// `Width` for horizontal column gaps.
     public struct Gaps {
         /// Spacing between rows (vertical gap)
-        public var row: Spacing
+        public var row: Layout.Height
 
         /// Spacing between columns (horizontal gap)
-        public var column: Spacing
+        public var column: Layout.Width
 
         /// Creates spacing with the specified row and column values.
         @inlinable
-        public init(row: Spacing, column: Spacing) {
+        public init(row: Layout.Height, column: Layout.Width) {
             self.row = row
             self.column = column
         }
     }
 }
 
-extension Layout.Grid.Gaps: Sendable where Spacing: Sendable {}
-extension Layout.Grid.Gaps: Equatable where Spacing: Equatable {}
-extension Layout.Grid.Gaps: Hashable where Spacing: Hashable {}
+extension Layout.Grid.Gaps: Sendable where Scalar: Sendable {}
+extension Layout.Grid.Gaps: Equatable where Scalar: Equatable {}
+extension Layout.Grid.Gaps: Hashable where Scalar: Hashable {}
 #if Codable
-    extension Layout.Grid.Gaps: Codable where Spacing: Codable {}
+    extension Layout.Grid.Gaps: Codable where Scalar: Codable {}
 #endif
 
-extension Layout.Grid.Gaps where Spacing: AdditiveArithmetic {
-    /// Creates uniform spacing (identical for rows and columns).
+extension Layout.Grid.Gaps where Scalar: AdditiveArithmetic {
+    /// Creates uniform spacing (identical magnitude for rows and columns).
     @inlinable
-    public static func uniform(_ value: Spacing) -> Self {
-        Self(row: value, column: value)
+    public static func uniform(_ value: Layout.Spacing) -> Self {
+        Self(row: value.height, column: value.width)
     }
 }
 
 // MARK: - Sendable
 
-extension Layout.Grid: Sendable where Spacing: Sendable, Content: Sendable {}
+extension Layout.Grid: Sendable where Scalar: Sendable, Content: Sendable {}
 
 // MARK: - Equatable
 
-extension Layout.Grid: Equatable where Spacing: Equatable, Content: Equatable {}
+extension Layout.Grid: Equatable where Scalar: Equatable, Content: Equatable {}
 
 // MARK: - Hashable
 
-extension Layout.Grid: Hashable where Spacing: Hashable, Content: Hashable {}
+extension Layout.Grid: Hashable where Scalar: Hashable, Content: Hashable {}
 
 // MARK: - Codable
 #if Codable
-    extension Layout.Grid: Codable where Spacing: Codable, Content: Codable {}
+    extension Layout.Grid: Codable where Scalar: Codable, Content: Codable {}
 #endif
 
 // MARK: - Convenience Initializers
@@ -121,11 +125,11 @@ extension Layout.Grid {
     }
 }
 
-extension Layout.Grid where Spacing: AdditiveArithmetic {
-    /// Creates a grid with uniform spacing (same for rows and columns).
+extension Layout.Grid where Scalar: AdditiveArithmetic {
+    /// Creates a grid with uniform spacing (same magnitude for rows and columns).
     @inlinable
     public static func uniform(
-        spacing: Spacing,
+        spacing: Layout.Spacing,
         alignment: Alignment = .center,
         content: Content
     ) -> Self {
@@ -140,27 +144,9 @@ extension Layout.Grid where Spacing: AdditiveArithmetic {
 // MARK: - Functorial Map
 
 extension Layout.Grid {
-    /// Creates a grid by transforming the spacing unit of another grid.
-    @inlinable
-    public init<U, E: Error>(
-        transforming other: borrowing Layout<U>.Grid<Content>,
-        spacing transform: (U) throws(E) -> Spacing
-    ) throws(E) {
-        self.init(
-            spacing: Gaps(
-                row: try transform(other.spacing.row),
-                column: try transform(other.spacing.column)
-            ),
-            alignment: other.alignment,
-            content: other.content
-        )
-    }
-}
-
-extension Layout.Grid {
     /// Returns the functorial transformation namespace for the given grid.
     @inlinable
-    public static func map(_ grid: Layout<Spacing>.Grid<Content>) -> Map {
+    public static func map(_ grid: borrowing Layout<Scalar, Space>.Grid<Content>) -> Map {
         Map(grid: grid)
     }
 
@@ -171,35 +157,20 @@ extension Layout.Grid {
     /// Functorial transformation operations for `Grid`.
     public struct Map {
         @usableFromInline
-        let grid: Layout<Spacing>.Grid<Content>
+        let grid: Layout<Scalar, Space>.Grid<Content>
 
         @usableFromInline
-        init(grid: Layout<Spacing>.Grid<Content>) {
-            self.grid = grid
-        }
-
-        /// Transforms the spacing type using the given closure.
-        @inlinable
-        public func spacing<Result, E: Error>(
-            _ transform: (Spacing) throws(E) -> Result
-        ) throws(E) -> Layout<Result>.Grid<Content> {
-            Layout<Result>.Grid<Content>(
-                spacing: Layout<Result>.Grid<Content>.Gaps(
-                    row: try transform(grid.spacing.row),
-                    column: try transform(grid.spacing.column)
-                ),
-                alignment: grid.alignment,
-                content: grid.content
-            )
+        init(grid: borrowing Layout<Scalar, Space>.Grid<Content>) {
+            self.grid = copy grid
         }
 
         /// Transforms the content using the given closure.
         @inlinable
         public func content<Result, E: Error>(
             _ transform: (Content) throws(E) -> Result
-        ) throws(E) -> Layout<Spacing>.Grid<Result> {
-            Layout<Spacing>.Grid<Result>(
-                spacing: Layout<Spacing>.Grid<Result>.Gaps(
+        ) throws(E) -> Layout<Scalar, Space>.Grid<Result> {
+            Layout<Scalar, Space>.Grid<Result>(
+                spacing: Layout<Scalar, Space>.Grid<Result>.Gaps(
                     row: grid.spacing.row,
                     column: grid.spacing.column
                 ),
