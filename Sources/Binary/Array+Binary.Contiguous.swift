@@ -9,6 +9,14 @@ extension Array: Binary.Contiguous where Element == UInt8 {
             try body(UnsafeRawBufferPointer(buffer))
         }
     }
+
+    @inlinable
+    public var bytes: Span<UInt8> {
+        @_lifetime(borrow self)
+        borrowing get {
+            self.span
+        }
+    }
 }
 
 extension Array: Binary.Mutable where Element == UInt8 {
@@ -19,6 +27,14 @@ extension Array: Binary.Mutable where Element == UInt8 {
         try self.withUnsafeMutableBufferPointer {
             (buffer: inout UnsafeMutableBufferPointer<UInt8>) throws(E) -> R in
             try body(UnsafeMutableRawBufferPointer(buffer))
+        }
+    }
+
+    @inlinable
+    public var mutableBytes: MutableSpan<UInt8> {
+        @_lifetime(&self)
+        mutating get {
+            self.mutableSpan
         }
     }
 }
@@ -34,6 +50,14 @@ extension ContiguousArray: Binary.Contiguous where Element == UInt8 {
             try body(UnsafeRawBufferPointer(buffer))
         }
     }
+
+    @inlinable
+    public var bytes: Span<UInt8> {
+        @_lifetime(borrow self)
+        borrowing get {
+            self.span
+        }
+    }
 }
 
 extension ContiguousArray: Binary.Mutable where Element == UInt8 {
@@ -44,6 +68,14 @@ extension ContiguousArray: Binary.Mutable where Element == UInt8 {
         try self.withUnsafeMutableBufferPointer {
             (buffer: inout UnsafeMutableBufferPointer<UInt8>) throws(E) -> R in
             try body(UnsafeMutableRawBufferPointer(buffer))
+        }
+    }
+
+    @inlinable
+    public var mutableBytes: MutableSpan<UInt8> {
+        @_lifetime(&self)
+        mutating get {
+            self.mutableSpan
         }
     }
 }
