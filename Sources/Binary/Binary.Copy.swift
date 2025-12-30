@@ -21,8 +21,8 @@ extension Binary {
     /// - Precondition: `offset >= 0`
     /// - Precondition: `offset + source.count <= destination.count`
     @inlinable
-    public static func copy<Source: Binary.Contiguous, Destination: Binary.Mutable>(
-        from source: Source,
+    public static func copy<Source: Binary.Contiguous & ~Copyable, Destination: Binary.Mutable & ~Copyable>(
+        from source: borrowing Source,
         into destination: inout Destination,
         at offset: Int = 0
     ) {
@@ -59,7 +59,7 @@ extension Binary {
     /// - Precondition: `offset >= 0`
     /// - Precondition: `offset + source.count <= destination.count`
     @inlinable
-    public static func copy<Destination: Binary.Mutable>(
+    public static func copy<Destination: Binary.Mutable & ~Copyable>(
         from source: UnsafeRawBufferPointer,
         into destination: inout Destination,
         at offset: Int = 0
@@ -94,8 +94,8 @@ extension Binary {
     /// - Precondition: `offset >= 0`
     /// - Precondition: `offset + source.count <= destination.count`
     @inlinable
-    public static func copy<Source: Binary.Contiguous>(
-        from source: Source,
+    public static func copy<Source: Binary.Contiguous & ~Copyable>(
+        from source: borrowing Source,
         into destination: UnsafeMutableRawBufferPointer,
         at offset: Int = 0
     ) {

@@ -13,7 +13,7 @@ extension Binary {
     ///
     /// - Parameter buffer: The buffer to zero.
     @inlinable
-    public static func zero<Buffer: Binary.Mutable>(
+    public static func zero<Buffer: Binary.Mutable & ~Copyable>(
         _ buffer: inout Buffer
     ) {
         // swiftlint:disable:next empty_count
@@ -42,7 +42,7 @@ extension Binary {
     /// - Precondition: `range.lowerBound >= 0`
     /// - Precondition: `range.upperBound <= buffer.count`
     @inlinable
-    public static func zero<Buffer: Binary.Mutable>(
+    public static func zero<Buffer: Binary.Mutable & ~Copyable>(
         _ buffer: inout Buffer,
         range: Range<Int>
     ) {
@@ -75,7 +75,7 @@ extension Binary {
     /// - Precondition: `offset >= 0`
     /// - Precondition: `offset <= buffer.count`
     @inlinable
-    public static func zero<Buffer: Binary.Mutable>(
+    public static func zero<Buffer: Binary.Mutable & ~Copyable>(
         _ buffer: inout Buffer,
         from offset: Int
     ) {
