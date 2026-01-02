@@ -40,6 +40,7 @@ let package = Package(
                 "Layout",
                 "TernaryLogic",
                 "Predicate",
+                "Parsing",
             ]
         ),
         // Individual modules
@@ -111,6 +112,10 @@ let package = Package(
             name: "Predicate",
             targets: ["Predicate"]
         ),
+        .library(
+            name: "Parsing",
+            targets: ["Parsing"]
+        ),
     ],
     traits: [
         .trait(
@@ -143,6 +148,7 @@ let package = Package(
                 "Layout",
                 "TernaryLogic",
                 "Predicate",
+                "Parsing",
             ]
         ),
         .target(
@@ -251,6 +257,12 @@ let package = Package(
             name: "Predicate",
             dependencies: [
                 "TernaryLogic"
+            ]
+        ),
+        .target(
+            name: "Parsing",
+            dependencies: [
+                "Binary"
             ]
         ),
         .macro(
@@ -393,6 +405,13 @@ let package = Package(
                 "StandardsTestSupport",
                 "StandardsTestSupportMacros",
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+            ]
+        ),
+        .testTarget(
+            name: "Parsing".tests,
+            dependencies: [
+                "Parsing",
+                "StandardsTestSupport",
             ]
         ),
     ],
