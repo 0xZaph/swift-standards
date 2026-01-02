@@ -174,6 +174,11 @@ extension Parsing {
 
 extension ArraySlice: Parsing.Input {
     @inlinable
+    public var count: Int? {
+        endIndex - startIndex
+    }
+
+    @inlinable
     public var remaining: ArraySlice<Element> {
         self
     }
@@ -183,12 +188,22 @@ extension ArraySlice: Parsing.Input {
 
 extension Substring: Parsing.Input {
     @inlinable
+    public var count: Int? {
+        utf8.distance(from: utf8.startIndex, to: utf8.endIndex)
+    }
+
+    @inlinable
     public var remaining: Substring {
         self
     }
 }
 
 extension Substring.UTF8View: Parsing.Input {
+    @inlinable
+    public var count: Int? {
+        distance(from: startIndex, to: endIndex)
+    }
+
     @inlinable
     public var remaining: Substring.UTF8View {
         self

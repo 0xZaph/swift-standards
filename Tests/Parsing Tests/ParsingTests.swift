@@ -511,4 +511,245 @@ struct ParsingTests {
             #expect(result == [0x41, 0x42, 0x43])
         }
     }
+
+    // MARK: - Location Tracking
+
+    @Suite("Located error wrapper")
+    struct LocatedTests {
+        @Test("wraps error with offset")
+        func wrapsErrorWithOffset() {
+            let error = Parsing.Located(Parsing.EndOfInput.Error.unexpected(expected: "byte"), at: 42)
+            #expect(error.offset == 42)
+            #expect(error.error == .unexpected(expected: "byte"))
+        }
+
+        @Test("equatable when underlying is equatable")
+        func equatableWhenUnderlyingIs() {
+            let a = Parsing.Located(Parsing.EndOfInput.Error.unexpected(expected: "byte"), at: 10)
+            let b = Parsing.Located(Parsing.EndOfInput.Error.unexpected(expected: "byte"), at: 10)
+            let c = Parsing.Located(Parsing.EndOfInput.Error.unexpected(expected: "byte"), at: 20)
+            #expect(a == b)
+            #expect(a != c)
+        }
+
+        @Test("description includes offset")
+        func descriptionIncludesOffset() {
+            let error = Parsing.Located(Parsing.EndOfInput.Error.unexpected(expected: "byte"), at: 42)
+            #expect(error.description.contains("42"))
+        }
+
+        @Test("map transforms underlying error")
+        func mapTransformsError() {
+            let error = Parsing.Located(Parsing.EndOfInput.Error.unexpected(expected: "byte"), at: 42)
+            let mapped = error.map { _ in Parsing.Match.Error.predicateFailed(description: "test") }
+            #expect(mapped.offset == 42)
+            #expect(mapped.error == Parsing.Match.Error.predicateFailed(description: "test"))
+        }
+    }
+
+    @Suite("Spanned value wrapper")
+    struct SpannedTests {
+        @Test("wraps value with span")
+        func wrapsValueWithSpan() {
+            let spanned = Parsing.Spanned("hello", start: 10, end: 15)
+            #expect(spanned.value == "hello")
+            #expect(spanned.start == 10)
+            #expect(spanned.end == 15)
+        }
+
+        @Test("computes length")
+        func computesLength() {
+            let spanned = Parsing.Spanned("hello", start: 10, end: 15)
+            #expect(spanned.length == 5)
+        }
+
+        @Test("computes range")
+        func computesRange() {
+            let spanned = Parsing.Spanned("hello", start: 10, end: 15)
+            #expect(spanned.range == 10..<15)
+        }
+
+        @Test("equatable when value is equatable")
+        func equatableWhenValueIs() {
+            let a = Parsing.Spanned("hello", start: 10, end: 15)
+            let b = Parsing.Spanned("hello", start: 10, end: 15)
+            let c = Parsing.Spanned("world", start: 10, end: 15)
+            #expect(a == b)
+            #expect(a != c)
+        }
+
+        @Test("hashable when value is hashable")
+        func hashableWhenValueIs() {
+            let a = Parsing.Spanned("hello", start: 10, end: 15)
+            let b = Parsing.Spanned("hello", start: 10, end: 15)
+            #expect(a.hashValue == b.hashValue)
+        }
+
+        @Test("map preserves span")
+        func mapPreservesSpan() {
+            let spanned = Parsing.Spanned("hello", start: 10, end: 15)
+            let mapped = spanned.map { $0.uppercased() }
+            #expect(mapped.value == "HELLO")
+            #expect(mapped.start == 10)
+            #expect(mapped.end == 15)
+        }
+
+        @Test("description includes value and span")
+        func descriptionIncludesValueAndSpan() {
+            let spanned = Parsing.Spanned("hello", start: 10, end: 15)
+            #expect(spanned.description.contains("hello"))
+            #expect(spanned.description.contains("10"))
+            #expect(spanned.description.contains("15"))
+        }
+    }
+
+    @Suite("Tracked input wrapper")
+    struct TrackedTests {
+        @Test("tracks offset during parsing")
+        func tracksOffset() {
+            var tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41, 0x42, 0x43][...])
+            #expect(tracked.currentOffset == 0)
+            _ = tracked.removeFirst()
+            #expect(tracked.currentOffset == 1)
+            tracked.removeFirst(2)
+            #expect(tracked.currentOffset == 3)
+        }
+
+        @Test("starts with custom offset")
+        func startsWithCustomOffset() {
+            let tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41, 0x42][...], offset: 100)
+            #expect(tracked.currentOffset == 100)
+        }
+
+        @Test("provides base input access")
+        func providesBaseAccess() {
+            let tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41, 0x42, 0x43][...])
+            #expect(Array(tracked.input) == [0x41, 0x42, 0x43])
+        }
+
+        @Test("isEmpty reflects base state")
+        func isEmptyReflectsBase() {
+            var tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41][...])
+            #expect(!tracked.isEmpty)
+            _ = tracked.removeFirst()
+            #expect(tracked.isEmpty)
+        }
+
+        @Test("count reflects base state")
+        func countReflectsBase() {
+            let tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41, 0x42, 0x43][...])
+            #expect(tracked.count == 3)
+        }
+
+        @Test("first reflects base state")
+        func firstReflectsBase() {
+            let tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41, 0x42][...])
+            #expect(tracked.first == 0x41)
+        }
+
+        @Test("savepoint and restore")
+        func savepointAndRestore() {
+            var tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41, 0x42, 0x43][...])
+            _ = tracked.removeFirst()
+            let saved = tracked.savepoint()
+            _ = tracked.removeFirst()
+            #expect(tracked.currentOffset == 2)
+            tracked.restore(to: saved)
+            #expect(tracked.currentOffset == 1)
+            #expect(tracked.first == 0x42)
+        }
+    }
+
+    @Suite("Locate parser")
+    struct LocateTests {
+        @Test("wraps error with location")
+        func wrapsErrorWithLocation() {
+            var tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41, 0x42][...])
+            // Consume one byte first
+            _ = tracked.removeFirst()
+
+            // Parser that fails immediately
+            let failing = Parsing.First.Where<ArraySlice<UInt8>> { $0 == 0xFF }
+            let located = Parsing.Locate(failing)
+
+            do {
+                _ = try located.parse(&tracked)
+                Issue.record("Expected to throw")
+            } catch {
+                #expect(error.offset == 1)
+            }
+        }
+
+        @Test("preserves output on success")
+        func preservesOutputOnSuccess() throws {
+            var tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41, 0x42, 0x43][...])
+            let parser = Parsing.First.Element<ArraySlice<UInt8>>()
+            let located = Parsing.Locate(parser)
+            let result = try located.parse(&tracked)
+            #expect(result == 0x41)
+        }
+    }
+
+    @Suite("Span parser")
+    struct SpanTests {
+        @Test("captures span around parsed value")
+        func capturesSpan() throws {
+            var tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41, 0x42, 0x43][...])
+            // Skip first byte
+            _ = tracked.removeFirst()
+
+            let parser = Parsing.Consume.Exactly<ArraySlice<UInt8>>(2)
+            let spanning = Parsing.Span(parser)
+            let result = try spanning.parse(&tracked)
+
+            #expect(result.start == 1)
+            #expect(result.end == 3)
+            #expect(Array(result.value) == [0x42, 0x43])
+        }
+
+        @Test("wraps error with location on failure")
+        func wrapsErrorOnFailure() {
+            var tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41][...])
+            // Skip first byte
+            _ = tracked.removeFirst()
+
+            let parser = Parsing.Consume.Exactly<ArraySlice<UInt8>>(5)  // More than available
+            let spanning = Parsing.Span(parser)
+
+            do {
+                _ = try spanning.parse(&tracked)
+                Issue.record("Expected to throw")
+            } catch {
+                #expect(error.offset == 1)
+            }
+        }
+    }
+
+    @Suite("Location extensions")
+    struct LocationExtensionTests {
+        @Test("located() convenience method")
+        func locatedConvenience() {
+            var tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41][...])
+            _ = tracked.removeFirst()
+
+            let parser = Parsing.First.Element<ArraySlice<UInt8>>().located()
+
+            do {
+                _ = try parser.parse(&tracked)
+                Issue.record("Expected to throw")
+            } catch {
+                #expect(error.offset == 1)
+            }
+        }
+
+        @Test("spanned() convenience method")
+        func spannedConvenience() throws {
+            var tracked = Parsing.Tracked<ArraySlice<UInt8>>([0x41, 0x42, 0x43][...])
+            let parser = Parsing.Consume.Exactly<ArraySlice<UInt8>>(2).spanned()
+            let result = try parser.parse(&tracked)
+            #expect(result.start == 0)
+            #expect(result.end == 2)
+            #expect(Array(result.value) == [0x41, 0x42])
+        }
+    }
 }
