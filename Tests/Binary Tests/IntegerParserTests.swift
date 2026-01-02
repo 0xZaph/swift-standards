@@ -289,8 +289,8 @@ struct IntegerParserTests {
     @Test
     func `sequential parsing with multiple parsers`() throws {
         var input: ArraySlice<UInt8> = [
-            0x12, 0x34,        // UInt16 big endian
-            0x56, 0x78, 0x9A, 0xBC  // UInt32 big endian
+            0x12, 0x34,  // UInt16 big endian
+            0x56, 0x78, 0x9A, 0xBC,  // UInt32 big endian
         ]
 
         let uint16Parser = UInt16.Parser(endianness: .big)
