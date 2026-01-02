@@ -142,7 +142,7 @@ extension Parsing.Parsers {
         let wrapped: Wrapped
 
         @inlinable
-        public init(@Parsing.Build.Sequence<Input> _ wrapped: () -> Wrapped) {
+        public init(@Parsing.Parsers.Take.Builder<Input> _ wrapped: () -> Wrapped) {
             self.wrapped = wrapped()
         }
 

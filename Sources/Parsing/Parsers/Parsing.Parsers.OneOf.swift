@@ -10,6 +10,76 @@ extension Parsing.Parsers {
     public enum OneOf {}
 }
 
+// MARK: - OneOf.Builder
+
+extension Parsing.Parsers.OneOf {
+    /// A result builder for alternative parsers.
+    ///
+    /// `OneOf.Builder` combines parsers as alternatives - the first one that
+    /// succeeds wins.
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// Parse.OneOf {
+    ///     "true".map { true }
+    ///     "false".map { false }
+    /// }
+    /// ```
+    @resultBuilder
+    public struct Builder<Input, Output> {
+        /// Builds a single alternative.
+        @inlinable
+        public static func buildBlock<P: Parsing.Parser>(
+            _ parser: P
+        ) -> P where P.Input == Input, P.Output == Output {
+            parser
+        }
+
+        /// Combines two alternatives.
+        @inlinable
+        public static func buildBlock<P0: Parsing.Parser, P1: Parsing.Parser>(
+            _ p0: P0,
+            _ p1: P1
+        ) -> Parsing.Parsers.OneOf.Two<P0, P1>
+        where P0.Input == Input, P1.Input == Input,
+              P0.Output == Output, P1.Output == Output {
+            Parsing.Parsers.OneOf.Two(p0, p1)
+        }
+
+        /// Combines three alternatives.
+        @inlinable
+        public static func buildBlock<P0: Parsing.Parser, P1: Parsing.Parser, P2: Parsing.Parser>(
+            _ p0: P0,
+            _ p1: P1,
+            _ p2: P2
+        ) -> Parsing.Parsers.OneOf.Three<P0, P1, P2>
+        where P0.Input == Input, P1.Input == Input, P2.Input == Input,
+              P0.Output == Output, P1.Output == Output, P2.Output == Output {
+            Parsing.Parsers.OneOf.Three(p0, p1, p2)
+        }
+
+        /// Starts partial block.
+        @inlinable
+        public static func buildPartialBlock<P: Parsing.Parser>(
+            first: P
+        ) -> P where P.Input == Input, P.Output == Output {
+            first
+        }
+
+        /// Accumulates alternatives.
+        @inlinable
+        public static func buildPartialBlock<Accumulated: Parsing.Parser, Next: Parsing.Parser>(
+            accumulated: Accumulated,
+            next: Next
+        ) -> Parsing.Parsers.OneOf.Two<Accumulated, Next>
+        where Accumulated.Input == Input, Next.Input == Input,
+              Accumulated.Output == Output, Next.Output == Output {
+            Parsing.Parsers.OneOf.Two(accumulated, next)
+        }
+    }
+}
+
 // MARK: - Type-Erased OneOf
 
 extension Parsing.Parsers.OneOf {

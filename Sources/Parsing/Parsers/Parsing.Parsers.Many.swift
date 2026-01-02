@@ -52,8 +52,8 @@ extension Parsing.Parsers.Many {
         public init(
             atLeast minimum: Int = 0,
             atMost maximum: Int? = nil,
-            @Parsing.Build.Sequence<Input> element: () -> Element,
-            @Parsing.Build.Sequence<Input> separator: () -> Separator
+            @Parsing.Parsers.Take.Builder<Input> element: () -> Element,
+            @Parsing.Parsers.Take.Builder<Input> separator: () -> Separator
         ) {
             self.element = element()
             self.separator = separator()
@@ -143,7 +143,7 @@ extension Parsing.Parsers.Many {
         public init(
             atLeast minimum: Int = 0,
             atMost maximum: Int? = nil,
-            @Parsing.Build.Sequence<Input> element: () -> Element
+            @Parsing.Parsers.Take.Builder<Input> element: () -> Element
         ) {
             self.element = element()
             self.minimum = minimum
@@ -183,7 +183,7 @@ extension Parsing {
     public static func many<Element: Parser>(
         atLeast minimum: Int = 0,
         atMost maximum: Int? = nil,
-        @Build.Sequence<Element.Input> element: () -> Element
+        @Parsers.Take.Builder<Element.Input> element: () -> Element
     ) -> Parsers.Many.Simple<Element> {
         Parsers.Many.Simple(atLeast: minimum, atMost: maximum, element: element)
     }
@@ -193,8 +193,8 @@ extension Parsing {
     public static func many<Element: Parser, Separator: Parser>(
         atLeast minimum: Int = 0,
         atMost maximum: Int? = nil,
-        @Build.Sequence<Element.Input> element: () -> Element,
-        @Build.Sequence<Element.Input> separator: () -> Separator
+        @Parsers.Take.Builder<Element.Input> element: () -> Element,
+        @Parsers.Take.Builder<Element.Input> separator: () -> Separator
     ) -> Parsers.Many.Separated<Element, Separator>
     where Element.Input == Separator.Input {
         Parsers.Many.Separated(atLeast: minimum, atMost: maximum, element: element, separator: separator)

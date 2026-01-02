@@ -54,7 +54,7 @@ extension Parsing.Parse {
         /// - Parameter build: A builder that produces a parser.
         @inlinable
         public init(
-            @Parsing.Build.Sequence<Input> _ build: () -> Body
+            @Parsing.Parsers.Take.Builder<Input> _ build: () -> Body
         ) {
             self.body = build()
         }
@@ -91,7 +91,7 @@ extension Parsing.Parse {
         @inlinable
         public init(
             _ transform: @escaping @Sendable (BodyOutput) -> Output,
-            @Parsing.Build.Sequence<Input> _ build: () -> Body
+            @Parsing.Parsers.Take.Builder<Input> _ build: () -> Body
         ) {
             self.body = build()
             self.transform = transform
@@ -126,7 +126,7 @@ extension Parsing.Parse {
 
         @inlinable
         public init(
-            @Parsing.Build.OneOf<Input, Output> _ build: () -> Body
+            @Parsing.Parsers.OneOf.Builder<Input, Output> _ build: () -> Body
         ) {
             self.body = build()
         }
