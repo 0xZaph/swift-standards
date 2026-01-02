@@ -26,3 +26,13 @@ extension Parsing.Rest: Parsing.Parser {
         return result
     }
 }
+
+// MARK: - Printer Conformance
+
+extension Parsing.Rest: Parsing.Printer
+where Input: RangeReplaceableCollection {
+    @inlinable
+    public func print(_ output: Input, into input: inout Input) throws(Parsing.Error) {
+        input.insert(contentsOf: output, at: input.startIndex)
+    }
+}

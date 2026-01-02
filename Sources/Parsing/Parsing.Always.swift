@@ -25,3 +25,12 @@ extension Parsing.Always: Parsing.Parser {
         output
     }
 }
+
+// MARK: - Printer Conformance (Void only)
+
+extension Parsing.Always: Parsing.Printer where Output == Void {
+    @inlinable
+    public func print(_ output: Void, into input: inout Input) throws(Parsing.Error) {
+        // Always produces value without consuming/producing input
+    }
+}

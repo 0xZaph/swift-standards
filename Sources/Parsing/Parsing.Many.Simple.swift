@@ -15,13 +15,13 @@ extension Parsing.Many {
     /// let digits = Parsing.Many.Simple { Digit() }
     ///
     /// // One or more digits
-    /// let digits1 = Parsing.Many.Simple(atLeast: 1) { Digit() }
+    /// let digits1 = Parsing.Many.Simple(1...) { Digit() }
     ///
     /// // Exactly 4 digits
-    /// let pin = Parsing.Many.Simple(exactly: 4) { Digit() }
+    /// let pin = Parsing.Many.Simple(4...4) { Digit() }
     /// ```
-    public struct Simple<Element: Parsing.Parser>: Sendable
-    where Element: Sendable {
+    public struct Simple<Input: Parsing.Input, Element: Parsing.Parser>: Sendable
+    where Element: Sendable, Element.Input == Input {
         @usableFromInline
         let element: Element
 
@@ -33,19 +33,36 @@ extension Parsing.Many {
 
         @inlinable
         public init(
-            atLeast minimum: Int = 0,
-            atMost maximum: Int? = nil,
-            @Parsing.Take.Builder<Element.Input> element: () -> Element
+            _ range: PartialRangeFrom<Int>,
+            @Parsing.Take.Builder<Input> element: () -> Element
         ) {
             self.element = element()
-            self.minimum = minimum
-            self.maximum = maximum
+            self.minimum = range.lowerBound
+            self.maximum = nil
+        }
+
+        @inlinable
+        public init(
+            _ range: ClosedRange<Int>,
+            @Parsing.Take.Builder<Input> element: () -> Element
+        ) {
+            self.element = element()
+            self.minimum = range.lowerBound
+            self.maximum = range.upperBound
+        }
+
+        @inlinable
+        public init(
+            @Parsing.Take.Builder<Input> element: () -> Element
+        ) {
+            self.element = element()
+            self.minimum = 0
+            self.maximum = nil
         }
     }
 }
 
 extension Parsing.Many.Simple: Parsing.Parser {
-    public typealias Input = Element.Input
     public typealias Output = [Element.Output]
 
     @inlinable
@@ -69,5 +86,26 @@ extension Parsing.Many.Simple: Parsing.Parser {
         }
 
         return results
+    }
+}
+
+// MARK: - Printer Conformance
+
+extension Parsing.Many.Simple: Parsing.Printer
+where Element: Parsing.Printer {
+    @inlinable
+    public func print(_ output: [Element.Output], into input: inout Input) throws(Parsing.Error) {
+        // Validate count constraints
+        if output.count < minimum {
+            throw Parsing.Error("Expected at least \(minimum) elements, got \(output.count)")
+        }
+        if let max = maximum, output.count > max {
+            throw Parsing.Error("Expected at most \(max) elements, got \(output.count)")
+        }
+
+        // Print in reverse order
+        for item in output.reversed() {
+            try element.print(item, into: &input)
+        }
     }
 }

@@ -50,3 +50,30 @@ extension Parsing.OneOf.Three: Parsing.Parser {
         throw Parsing.Error.noMatch(tried: errors)
     }
 }
+
+// MARK: - Printer Conformance
+
+extension Parsing.OneOf.Three: Parsing.Printer
+where P0: Parsing.Printer, P1: Parsing.Printer, P2: Parsing.Printer {
+    @inlinable
+    public func print(_ output: Output, into input: inout Input) throws(Parsing.Error) {
+        // Try each printer in order, use first that succeeds
+        let saved = input
+
+        do {
+            try p0.print(output, into: &input)
+            return
+        } catch {
+            input = saved
+        }
+
+        do {
+            try p1.print(output, into: &input)
+            return
+        } catch {
+            input = saved
+        }
+
+        try p2.print(output, into: &input)
+    }
+}

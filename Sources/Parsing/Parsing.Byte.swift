@@ -35,3 +35,13 @@ extension Parsing.Byte: Parsing.Parser {
         _ = input.removeFirst()
     }
 }
+
+// MARK: - Printer Conformance
+
+extension Parsing.Byte: Parsing.Printer
+where Input: RangeReplaceableCollection {
+    @inlinable
+    public func print(_ output: Void, into input: inout Input) throws(Parsing.Error) {
+        input.insert(expected, at: input.startIndex)
+    }
+}

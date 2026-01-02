@@ -37,3 +37,17 @@ extension Parsing.Consume.Exactly: Parsing.Parser {
         return result
     }
 }
+
+// MARK: - Printer Conformance
+
+extension Parsing.Consume.Exactly: Parsing.Printer
+where Input: RangeReplaceableCollection {
+    @inlinable
+    public func print(_ output: Input, into input: inout Input) throws(Parsing.Error) {
+        let outputCount = output.count
+        guard outputCount == count else {
+            throw Parsing.Error("Expected \(count) elements, got \(outputCount)")
+        }
+        input.insert(contentsOf: output, at: input.startIndex)
+    }
+}

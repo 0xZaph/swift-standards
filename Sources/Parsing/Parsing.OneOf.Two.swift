@@ -45,3 +45,21 @@ extension Parsing.OneOf.Two: Parsing.Parser {
         }
     }
 }
+
+// MARK: - Printer Conformance
+
+extension Parsing.OneOf.Two: Parsing.Printer
+where P0: Parsing.Printer, P1: Parsing.Printer {
+    @inlinable
+    public func print(_ output: Output, into input: inout Input) throws(Parsing.Error) {
+        // Try first printer, fall back to second
+        let saved = input
+        do {
+            try p0.print(output, into: &input)
+            return
+        } catch {
+            input = saved
+        }
+        try p1.print(output, into: &input)
+    }
+}

@@ -31,3 +31,18 @@ extension Parsing.Conditional: Parsing.Parser {
         }
     }
 }
+
+// MARK: - Printer Conformance
+
+extension Parsing.Conditional: Parsing.Printer
+where First: Parsing.Printer, Second: Parsing.Printer {
+    @inlinable
+    public func print(_ output: Output, into input: inout Input) throws(Parsing.Error) {
+        switch self {
+        case .first(let printer):
+            try printer.print(output, into: &input)
+        case .second(let printer):
+            try printer.print(output, into: &input)
+        }
+    }
+}

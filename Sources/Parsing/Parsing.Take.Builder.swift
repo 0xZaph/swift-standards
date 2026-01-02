@@ -193,3 +193,22 @@ extension Parsing.Take.Builder {
         parser
     }
 }
+
+// MARK: - Byte Array Literal Support
+
+extension Parsing.Take.Builder where Input == ArraySlice<UInt8> {
+    /// Converts a `[UInt8]` array literal to a parser.
+    ///
+    /// This enables using byte arrays directly in builders:
+    /// ```swift
+    /// Parsing.Many.Separated(1...) {
+    ///     element
+    /// } separator: {
+    ///     [0x2C]  // Comma byte
+    /// }
+    /// ```
+    @inlinable
+    public static func buildExpression(_ bytes: [UInt8]) -> [UInt8] {
+        bytes
+    }
+}

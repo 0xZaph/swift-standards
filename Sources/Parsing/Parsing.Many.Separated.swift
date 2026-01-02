@@ -14,11 +14,23 @@ extension Parsing.Many {
     /// ## Usage
     ///
     /// ```swift
-    /// // With separator
-    /// let csv = Parsing.Many.Separated { Field() } separator: { "," }
+    /// // Comma-separated values
+    /// let csv = Parsing.Many.Separated {
+    ///     Field()
+    /// } separator: {
+    ///     ","
+    /// }
+    ///
+    /// // One or more with separator
+    /// let list = Parsing.Many.Separated(1...) {
+    ///     Int.parser()
+    /// } separator: {
+    ///     ","
+    /// }
     /// ```
-    public struct Separated<Element: Parsing.Parser, Separator: Parsing.Parser>: Sendable
-    where Element: Sendable, Separator: Sendable, Element.Input == Separator.Input {
+    public struct Separated<Input: Parsing.Input, Element: Parsing.Parser, Separator: Parsing.Parser>: Sendable
+    where Element: Sendable, Separator: Sendable,
+          Element.Input == Input, Separator.Input == Input {
         @usableFromInline
         let element: Element
 
@@ -33,21 +45,42 @@ extension Parsing.Many {
 
         @inlinable
         public init(
-            atLeast minimum: Int = 0,
-            atMost maximum: Int? = nil,
-            @Parsing.Take.Builder<Element.Input> element: () -> Element,
-            @Parsing.Take.Builder<Element.Input> separator: () -> Separator
+            _ range: PartialRangeFrom<Int>,
+            @Parsing.Take.Builder<Input> element: () -> Element,
+            @Parsing.Take.Builder<Input> separator: () -> Separator
         ) {
             self.element = element()
             self.separator = separator()
-            self.minimum = minimum
-            self.maximum = maximum
+            self.minimum = range.lowerBound
+            self.maximum = nil
+        }
+
+        @inlinable
+        public init(
+            _ range: ClosedRange<Int>,
+            @Parsing.Take.Builder<Input> element: () -> Element,
+            @Parsing.Take.Builder<Input> separator: () -> Separator
+        ) {
+            self.element = element()
+            self.separator = separator()
+            self.minimum = range.lowerBound
+            self.maximum = range.upperBound
+        }
+
+        @inlinable
+        public init(
+            @Parsing.Take.Builder<Input> element: () -> Element,
+            @Parsing.Take.Builder<Input> separator: () -> Separator
+        ) {
+            self.element = element()
+            self.separator = separator()
+            self.minimum = 0
+            self.maximum = nil
         }
     }
 }
 
 extension Parsing.Many.Separated: Parsing.Parser {
-    public typealias Input = Element.Input
     public typealias Output = [Element.Output]
 
     @inlinable
@@ -93,5 +126,31 @@ extension Parsing.Many.Separated: Parsing.Parser {
         }
 
         return results
+    }
+}
+
+// MARK: - Printer Conformance
+
+extension Parsing.Many.Separated: Parsing.Printer
+where Element: Parsing.Printer, Separator: Parsing.Printer, Separator.Output == Void {
+    @inlinable
+    public func print(_ output: [Element.Output], into input: inout Input) throws(Parsing.Error) {
+        // Validate count constraints
+        if output.count < minimum {
+            throw Parsing.Error("Expected at least \(minimum) elements, got \(output.count)")
+        }
+        if let max = maximum, output.count > max {
+            throw Parsing.Error("Expected at most \(max) elements, got \(output.count)")
+        }
+
+        // Print in reverse order with separators between elements
+        var isFirst = true
+        for item in output.reversed() {
+            if !isFirst {
+                try separator.print((), into: &input)
+            }
+            try element.print(item, into: &input)
+            isFirst = false
+        }
     }
 }

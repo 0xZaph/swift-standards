@@ -47,3 +47,18 @@ extension Parsing.Take.Two {
         Map(upstream: self, transform: transform)
     }
 }
+
+// MARK: - Printer Conformance
+
+extension Parsing.Take.Two: Parsing.Printer
+where P0: Parsing.Printer, P1: Parsing.Printer {
+    @inlinable
+    public func print(
+        _ output: (P0.Output, P1.Output),
+        into input: inout Input
+    ) throws(Parsing.Error) {
+        // Print in reverse order to build input correctly
+        try p1.print(output.1, into: &input)
+        try p0.print(output.0, into: &input)
+    }
+}

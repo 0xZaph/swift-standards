@@ -33,3 +33,14 @@ extension Parsing.Optional: Parsing.Parser {
         return try wrapped.parse(&input)
     }
 }
+
+// MARK: - Printer Conformance
+
+extension Parsing.Optional: Parsing.Printer
+where Wrapped: Parsing.Printer {
+    @inlinable
+    public func print(_ output: Wrapped.Output?, into input: inout Input) throws(Parsing.Error) {
+        guard let wrapped = wrapped, let output = output else { return }
+        try wrapped.print(output, into: &input)
+    }
+}

@@ -26,3 +26,12 @@ extension Parsing.End: Parsing.Parser {
         }
     }
 }
+
+// MARK: - Printer Conformance
+
+extension Parsing.End: Parsing.Printer {
+    @inlinable
+    public func print(_ output: Void, into input: inout Input) throws(Parsing.Error) {
+        // End produces nothing - it's a marker
+    }
+}

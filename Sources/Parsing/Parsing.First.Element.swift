@@ -27,3 +27,13 @@ extension Parsing.First.Element: Parsing.Parser {
         return input.removeFirst()
     }
 }
+
+// MARK: - Printer Conformance
+
+extension Parsing.First.Element: Parsing.Printer
+where Input: RangeReplaceableCollection {
+    @inlinable
+    public func print(_ output: Input.Element, into input: inout Input) throws(Parsing.Error) {
+        input.insert(output, at: input.startIndex)
+    }
+}

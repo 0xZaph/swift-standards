@@ -35,3 +35,15 @@ extension Parsing.Skip.First: Parsing.Parser {
         return try p1.parse(&input)
     }
 }
+
+// MARK: - Printer Conformance
+
+extension Parsing.Skip.First: Parsing.Printer
+where P0: Parsing.Printer, P1: Parsing.Printer {
+    @inlinable
+    public func print(_ output: P1.Output, into input: inout Input) throws(Parsing.Error) {
+        // Print in reverse order
+        try p1.print(output, into: &input)
+        try p0.print((), into: &input)
+    }
+}
