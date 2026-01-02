@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  exports.swift
 //  swift-standards
 //
-//  Created by Coen ten Thije Boonkkamp on 06/12/2025.
+//  Public exports for the Binary module.
 //
 
 @_exported import Algebra
+@_exported import Parsing

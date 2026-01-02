@@ -199,7 +199,8 @@ let package = Package(
         .target(
             name: "Binary",
             dependencies: [
-                "Algebra"
+                "Algebra",
+                "Parsing"
             ]
         ),
         .target(
@@ -261,9 +262,7 @@ let package = Package(
         ),
         .target(
             name: "Parsing",
-            dependencies: [
-                "Binary"
-            ]
+            dependencies: []
         ),
         .macro(
             name: "StandardsTestSupportMacros",
