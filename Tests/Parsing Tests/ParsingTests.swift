@@ -850,4 +850,258 @@ struct ParsingTests {
             }
         }
     }
+
+    // MARK: - Peek
+
+    @Suite("Peek combinator")
+    struct PeekTests {
+        @Test("succeeds without consuming input")
+        func succeedsWithoutConsuming() throws {
+            var input: Substring = "abc123"
+            let parser = Parsing.Prefix.While<Substring>(minLength: 1) { $0.isLetter }
+                .peek()
+            let result = try parser.parse(&input)
+            #expect(result == "abc")
+            #expect(input == "abc123")  // Input unchanged!
+        }
+
+        @Test("fails without consuming input")
+        func failsWithoutConsuming() {
+            var input: Substring = "123abc"
+            let parser = Parsing.Prefix.While<Substring>(minLength: 1) { $0.isLetter }
+                .peek()
+            let originalInput = input
+            #expect(throws: Parsing.Constraint.Error.self) {
+                try parser.parse(&input)
+            }
+            #expect(input == originalInput)  // Input unchanged on failure too!
+        }
+
+        @Test("can be used for lookahead")
+        func usedForLookahead() throws {
+            var input: Substring = "<tag>"
+            // Peek to check for '<', then actually consume
+            let openAngle = "<"
+            let tagContent = Parsing.Prefix.While<Substring> { $0 != ">" }
+
+            // First peek
+            try openAngle.peek().parse(&input)
+            #expect(input == "<tag>")  // Still there
+
+            // Now actually parse
+            try openAngle.parse(&input)
+            #expect(input == "tag>")
+        }
+
+        @Test("works with First.Element")
+        func worksWithFirstElement() throws {
+            var input: ArraySlice<UInt8> = [0x41, 0x42, 0x43][...]
+            let parser = Parsing.First.Element<ArraySlice<UInt8>>().peek()
+            let result = try parser.parse(&input)
+            #expect(result == 0x41)
+            #expect(Array(input) == [0x41, 0x42, 0x43])  // Not consumed
+        }
+    }
+
+    // MARK: - Not
+
+    @Suite("Not combinator")
+    struct NotTests {
+        @Test("succeeds when upstream fails")
+        func succeedsWhenUpstreamFails() throws {
+            var input: Substring = "abc"
+            let parser = "xyz".not()
+            try parser.parse(&input)  // Should succeed
+            #expect(input == "abc")  // Input unchanged
+        }
+
+        @Test("fails when upstream succeeds")
+        func failsWhenUpstreamSucceeds() {
+            var input: Substring = "abc"
+            let parser = "abc".not()
+            #expect(throws: Parsing.Not<String>.Error.self) {
+                try parser.parse(&input)
+            }
+        }
+
+        @Test("input not consumed on success")
+        func inputNotConsumedOnSuccess() throws {
+            var input: Substring = "hello"
+            let parser = "goodbye".not()
+            try parser.parse(&input)
+            #expect(input == "hello")
+        }
+
+        @Test("input not consumed on failure")
+        func inputNotConsumedOnFailure() {
+            var input: Substring = "hello"
+            let originalInput = input
+            let parser = "hello".not()
+            do {
+                try parser.parse(&input)
+                Issue.record("Expected to throw")
+            } catch {
+                #expect(input == originalInput)
+            }
+        }
+
+        @Test("output is Void")
+        func outputIsVoid() throws {
+            var input: Substring = "abc"
+            let parser = "xyz".not()
+            let result: Void = try parser.parse(&input)
+            _ = result  // Just verify it's Void
+        }
+
+        @Test("error type is unexpectedMatch")
+        func errorTypeIsUnexpectedMatch() {
+            var input: Substring = "test"
+            let parser = "test".not()
+            do {
+                try parser.parse(&input)
+                Issue.record("Expected to throw")
+            } catch {
+                #expect(error == .unexpectedMatch)
+            }
+        }
+
+        @Test("can be combined with Peek for lookahead patterns")
+        func combinedWithPeek() throws {
+            var input: Substring = "-->end"
+            // Parse until we hit "-->"
+            var consumed: [Character] = []
+            while true {
+                // Check if we're at end marker
+                if (try? "-->".peek().parse(&input)) != nil {
+                    break
+                }
+                if input.isEmpty { break }
+                consumed.append(input.removeFirst())
+            }
+            // We didn't consume anything because input starts with "-->"
+            #expect(consumed.isEmpty)
+            #expect(input == "-->end")
+        }
+    }
+
+    // MARK: - Lazy
+
+    @Suite("Lazy combinator")
+    struct LazyTests {
+        @Test("works with autoclosure")
+        func worksWithAutoclosure() throws {
+            var input: Substring = "abc"
+            let parser = Parsing.Lazy(Parsing.Rest<Substring>())
+            let result = try parser.parse(&input)
+            #expect(result == "abc")
+        }
+
+        @Test("works with closure")
+        func worksWithClosure() throws {
+            var input: Substring = "hello"
+            let parser = Parsing.Lazy { Parsing.Rest<Substring>() }
+            let result = try parser.parse(&input)
+            #expect(result == "hello")
+        }
+
+        @Test("enables recursive parsing - nested parentheses")
+        func recursiveParsingNestedParens() throws {
+            // Test the key use case: recursive grammars
+            // Grammar: expr = '(' expr ')' | 'x'
+            // Returns nesting depth
+
+            var input1: Substring = "x"
+            let depth1 = try NestedParenParser().parse(&input1)
+            #expect(depth1 == 0)
+
+            var input2: Substring = "(x)"
+            let depth2 = try NestedParenParser().parse(&input2)
+            #expect(depth2 == 1)
+
+            var input3: Substring = "((x))"
+            let depth3 = try NestedParenParser().parse(&input3)
+            #expect(depth3 == 2)
+
+            var input4: Substring = "(((x)))"
+            let depth4 = try NestedParenParser().parse(&input4)
+            #expect(depth4 == 3)
+        }
+    }
+
+    /// Recursive parser for nested parentheses: `(((x)))` -> depth 3
+    struct NestedParenParser: Parsing.Parser, Sendable {
+        typealias Input = Substring
+        typealias Output = Int
+        typealias Failure = Parsing.Match.Error
+
+        func parse(_ input: inout Substring) throws(Failure) -> Int {
+            // Try '(' expr ')' first
+            if input.first == "(" {
+                input.removeFirst()
+                let inner = try Parsing.Lazy { NestedParenParser() }.parse(&input)
+                guard input.first == ")" else {
+                    throw .literalMismatch(expected: ")", found: String(input.prefix(1)))
+                }
+                input.removeFirst()
+                return inner + 1
+            }
+            // Base case: 'x'
+            guard input.first == "x" else {
+                throw .literalMismatch(expected: "x", found: String(input.prefix(1)))
+            }
+            input.removeFirst()
+            return 0
+        }
+    }
+
+    // MARK: - Trace
+
+    @Suite("Trace combinator")
+    struct TraceTests {
+        @Test("preserves output on success")
+        func preservesOutput() throws {
+            var input: ArraySlice<UInt8> = [0x42, 0x43][...]
+            // Use default print logger (output goes to console)
+            let parser = Parsing.First.Element<ArraySlice<UInt8>>().trace("byte")
+            let result = try parser.parse(&input)
+
+            #expect(result == 0x42)
+            #expect(Array(input) == [0x43])
+        }
+
+        @Test("preserves error type on failure")
+        func preservesErrorType() {
+            var input: ArraySlice<UInt8> = [][...]
+            let parser = Parsing.First.Element<ArraySlice<UInt8>>().trace("byte")
+
+            #expect(throws: Parsing.EndOfInput.Error.self) {
+                try parser.parse(&input)
+            }
+        }
+
+        @Test("can be chained")
+        func canBeChained() throws {
+            var input: Substring = "abc123"
+
+            let letters = Parsing.Prefix.While<Substring> { $0.isLetter }
+                .trace("letters")
+            let digits = Parsing.Prefix.While<Substring> { $0.isNumber }
+                .trace("digits")
+
+            let combined = Parsing.Take.Two(letters, digits)
+            let (a, b) = try combined.parse(&input)
+
+            #expect(a == "abc")
+            #expect(b == "123")
+        }
+
+        @Test("wraps parser transparently")
+        func wrapsTransparently() throws {
+            var input: Substring = "hello world"
+            let parser = Parsing.Rest<Substring>().trace("rest")
+            let result = try parser.parse(&input)
+            #expect(result == "hello world")
+            #expect(input.isEmpty)
+        }
+    }
 }
