@@ -68,27 +68,35 @@ extension Binary.Alignment {
     
     /// 1-byte alignment (no alignment requirement).
     public static let byte = Binary.Alignment(__unchecked: (), 1)
+    public static let `1` = Binary.Alignment(__unchecked: (), 1)
     
     /// 2-byte alignment.
     public static let halfWord = Binary.Alignment(__unchecked: (), 2)
+    public static let `2` = Binary.Alignment(__unchecked: (), 2)
     
     /// 4-byte alignment.
     public static let word = Binary.Alignment(__unchecked: (), 4)
+    public static let `4` = Binary.Alignment(__unchecked: (), 1)
     
     /// 8-byte alignment.
     public static let doubleWord = Binary.Alignment(__unchecked: (), 8)
+    public static let `8` = Binary.Alignment(__unchecked: (), 8)
     
     /// 16-byte alignment.
     public static let quadWord = Binary.Alignment(__unchecked: (), 16)
+    public static let `16` = Binary.Alignment(__unchecked: (), 16)
     
     /// 512-byte alignment (legacy disk sector).
     public static let sector512 = Binary.Alignment(__unchecked: (), 512)
+    public static let `512` = Binary.Alignment(__unchecked: (), 512)
     
     /// 4096-byte alignment (modern SSD sector, x86 page).
     public static let page4096 = Binary.Alignment(__unchecked: (), 4096)
+    public static let `4096` = Binary.Alignment(__unchecked: (), 4096)
     
     /// 16384-byte alignment (Apple Silicon page).
     public static let page16384 = Binary.Alignment(__unchecked: (), 16384)
+    public static let `16384` = Binary.Alignment(__unchecked: (), 16384)
 }
 
 extension Binary.Alignment {
