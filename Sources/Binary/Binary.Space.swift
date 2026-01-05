@@ -28,5 +28,11 @@ extension Binary {
     /// // or use the convenience alias:
     /// typealias BufferPos = Binary.Space.Position
     /// ```
-    public enum Space {}
+    ///
+    /// - Note: `Binary.Space` conforms to `Spatial` but NOT `Aligned`.
+    ///   Alignment is a specialization for I/O operations, not a default.
+    ///   Use nested aligned spaces like `Binary.Space.Page4096` for aligned operations.
+    public enum Space: Spatial {
+        public typealias Space = Binary.Space
+    }
 }

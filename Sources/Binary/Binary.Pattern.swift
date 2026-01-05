@@ -27,6 +27,11 @@ extension Binary.Pattern {
     /// Masks represent bit patterns for selection, filtering, or field extraction.
     /// All operations are well-defined within the ring Z/2^w.
     ///
+    /// ## Distinction from `Binary.Mask`
+    ///
+    /// - `Binary.Mask` — Int-based, for alignment operations (page sizes, sector sizes)
+    /// - `Binary.Pattern<Carrier>.Mask` — generic, for arbitrary bit pattern operations
+    ///
     /// ## Ring Laws
     ///
     /// - `a & b` — intersection (meet)

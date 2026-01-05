@@ -10,6 +10,11 @@ extension Binary {
     ///
     /// This type is retained for simple Int-based use cases.
     ///
+    /// ## Distinction from `Binary.Pattern<Carrier>.Mask`
+    ///
+    /// - `Binary.Mask` — Int-based, for alignment operations (page sizes, sector sizes)
+    /// - `Binary.Pattern<Carrier>.Mask` — generic, for arbitrary bit pattern operations
+    ///
     /// ## Relationship with Alignment
     ///
     /// For alignment `2^shift`, the mask is `(2^shift) - 1`:
