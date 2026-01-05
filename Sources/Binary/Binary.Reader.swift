@@ -98,12 +98,14 @@ extension Binary.Reader {
         }
 
         guard readerIndex._rawValue <= count else {
-            throw .bounds(.init(
-                field: .reader,
-                value: readerIndex._rawValue,
-                lower: Storage.Scalar(0),
-                upper: count
-            ))
+            throw .bounds(
+                .init(
+                    field: .reader,
+                    value: readerIndex._rawValue,
+                    lower: Storage.Scalar(0),
+                    upper: count
+                )
+            )
         }
 
         self.storage = storage
@@ -183,21 +185,25 @@ extension Binary.Reader {
         }
 
         guard newIndex >= 0 else {
-            throw .bounds(.init(
-                field: .reader,
-                value: newIndex,
-                lower: Storage.Scalar(0),
-                upper: _count
-            ))
+            throw .bounds(
+                .init(
+                    field: .reader,
+                    value: newIndex,
+                    lower: Storage.Scalar(0),
+                    upper: _count
+                )
+            )
         }
 
         guard newIndex <= _count else {
-            throw .bounds(.init(
-                field: .reader,
-                value: newIndex,
-                lower: Storage.Scalar(0),
-                upper: _count
-            ))
+            throw .bounds(
+                .init(
+                    field: .reader,
+                    value: newIndex,
+                    lower: Storage.Scalar(0),
+                    upper: _count
+                )
+            )
         }
 
         _readerIndex = Binary.Position(newIndex)
@@ -238,12 +244,14 @@ extension Binary.Reader {
         }
 
         guard position._rawValue <= _count else {
-            throw .bounds(.init(
-                field: .reader,
-                value: position._rawValue,
-                lower: Storage.Scalar(0),
-                upper: _count
-            ))
+            throw .bounds(
+                .init(
+                    field: .reader,
+                    value: position._rawValue,
+                    lower: Storage.Scalar(0),
+                    upper: _count
+                )
+            )
         }
 
         _readerIndex = position

@@ -114,20 +114,24 @@ extension Binary.Cursor {
         }
 
         guard writerIndex._rawValue >= readerIndex._rawValue else {
-            throw .invariant(.init(
-                kind: .reader,
-                left: readerIndex._rawValue,
-                right: writerIndex._rawValue
-            ))
+            throw .invariant(
+                .init(
+                    kind: .reader,
+                    left: readerIndex._rawValue,
+                    right: writerIndex._rawValue
+                )
+            )
         }
 
         guard writerIndex._rawValue <= count else {
-            throw .bounds(.init(
-                field: .writer,
-                value: writerIndex._rawValue,
-                lower: Storage.Scalar(0),
-                upper: count
-            ))
+            throw .bounds(
+                .init(
+                    field: .writer,
+                    value: writerIndex._rawValue,
+                    lower: Storage.Scalar(0),
+                    upper: count
+                )
+            )
         }
 
         self.storage = storage
@@ -219,20 +223,24 @@ extension Binary.Cursor {
         }
 
         guard newIndex >= 0 else {
-            throw .bounds(.init(
-                field: .reader,
-                value: newIndex,
-                lower: Storage.Scalar(0),
-                upper: _writerIndex._rawValue
-            ))
+            throw .bounds(
+                .init(
+                    field: .reader,
+                    value: newIndex,
+                    lower: Storage.Scalar(0),
+                    upper: _writerIndex._rawValue
+                )
+            )
         }
 
         guard newIndex <= _writerIndex._rawValue else {
-            throw .invariant(.init(
-                kind: .reader,
-                left: newIndex,
-                right: _writerIndex._rawValue
-            ))
+            throw .invariant(
+                .init(
+                    kind: .reader,
+                    left: newIndex,
+                    right: _writerIndex._rawValue
+                )
+            )
         }
 
         _readerIndex = Binary.Position(newIndex)
@@ -275,20 +283,24 @@ extension Binary.Cursor {
         }
 
         guard newIndex >= _readerIndex._rawValue else {
-            throw .invariant(.init(
-                kind: .reader,
-                left: _readerIndex._rawValue,
-                right: newIndex
-            ))
+            throw .invariant(
+                .init(
+                    kind: .reader,
+                    left: _readerIndex._rawValue,
+                    right: newIndex
+                )
+            )
         }
 
         guard newIndex <= _count else {
-            throw .bounds(.init(
-                field: .writer,
-                value: newIndex,
-                lower: _readerIndex._rawValue,
-                upper: _count
-            ))
+            throw .bounds(
+                .init(
+                    field: .writer,
+                    value: newIndex,
+                    lower: _readerIndex._rawValue,
+                    upper: _count
+                )
+            )
         }
 
         _writerIndex = Binary.Position(newIndex)
@@ -330,11 +342,13 @@ extension Binary.Cursor {
         }
 
         guard position._rawValue <= _writerIndex._rawValue else {
-            throw .invariant(.init(
-                kind: .reader,
-                left: position._rawValue,
-                right: _writerIndex._rawValue
-            ))
+            throw .invariant(
+                .init(
+                    kind: .reader,
+                    left: position._rawValue,
+                    right: _writerIndex._rawValue
+                )
+            )
         }
 
         _readerIndex = position
@@ -369,20 +383,24 @@ extension Binary.Cursor {
         to position: Binary.Position<Storage.Scalar, Storage.Space>
     ) throws(Binary.Error) {
         guard position._rawValue >= _readerIndex._rawValue else {
-            throw .invariant(.init(
-                kind: .reader,
-                left: _readerIndex._rawValue,
-                right: position._rawValue
-            ))
+            throw .invariant(
+                .init(
+                    kind: .reader,
+                    left: _readerIndex._rawValue,
+                    right: position._rawValue
+                )
+            )
         }
 
         guard position._rawValue <= _count else {
-            throw .bounds(.init(
-                field: .writer,
-                value: position._rawValue,
-                lower: _readerIndex._rawValue,
-                upper: _count
-            ))
+            throw .bounds(
+                .init(
+                    field: .writer,
+                    value: position._rawValue,
+                    lower: _readerIndex._rawValue,
+                    upper: _count
+                )
+            )
         }
 
         _writerIndex = position

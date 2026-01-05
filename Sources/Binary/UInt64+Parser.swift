@@ -50,9 +50,11 @@ extension UInt64 {
             switch endianness {
             case .little:
                 return UInt64(b0) | (UInt64(b1) << 8) | (UInt64(b2) << 16) | (UInt64(b3) << 24)
-                    | (UInt64(b4) << 32) | (UInt64(b5) << 40) | (UInt64(b6) << 48) | (UInt64(b7) << 56)
+                    | (UInt64(b4) << 32) | (UInt64(b5) << 40) | (UInt64(b6) << 48)
+                    | (UInt64(b7) << 56)
             case .big:
-                return (UInt64(b0) << 56) | (UInt64(b1) << 48) | (UInt64(b2) << 40) | (UInt64(b3) << 32)
+                return (UInt64(b0) << 56) | (UInt64(b1) << 48) | (UInt64(b2) << 40)
+                    | (UInt64(b3) << 32)
                     | (UInt64(b4) << 24) | (UInt64(b5) << 16) | (UInt64(b6) << 8) | UInt64(b7)
             }
         }

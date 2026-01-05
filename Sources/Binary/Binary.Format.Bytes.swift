@@ -168,7 +168,7 @@ extension Binary.Format.Bytes {
                 (1_000_000_000, "GB"),
                 (1_000_000, "MB"),
                 (1_000, "KB"),
-                (1, "B")
+                (1, "B"),
             ]
         case .binary:
             thresholds = [
@@ -177,7 +177,7 @@ extension Binary.Format.Bytes {
                 (1_073_741_824, "GiB"),
                 (1_048_576, "MiB"),
                 (1_024, "KiB"),
-                (1, "B")
+                (1, "B"),
             ]
         }
 

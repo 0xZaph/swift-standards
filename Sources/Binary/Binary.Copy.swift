@@ -21,7 +21,10 @@ extension Binary {
     /// - Precondition: `offset >= 0`
     /// - Precondition: `offset + source.count <= destination.count`
     @inlinable
-    public static func copy<Source: Binary.Contiguous & ~Copyable, Destination: Binary.Mutable & ~Copyable>(
+    public static func copy<
+        Source: Binary.Contiguous & ~Copyable,
+        Destination: Binary.Mutable & ~Copyable
+    >(
         from source: borrowing Source,
         into destination: inout Destination,
         at offset: Int = 0

@@ -189,7 +189,10 @@ extension Binary.Shift {
     ///
     /// - Throws: `Binary.Shift.Error.outOfRange` if result > 63.
     @inlinable
-    public static func + (lhs: Binary.Shift, rhs: Binary.Shift) throws(Binary.Shift.Error) -> Binary.Shift {
+    public static func + (
+        lhs: Binary.Shift,
+        rhs: Binary.Shift
+    ) throws(Binary.Shift.Error) -> Binary.Shift {
         let result = Int(lhs.rawValue) + Int(rhs.rawValue)
         return try Binary.Shift(result)
     }
@@ -198,7 +201,10 @@ extension Binary.Shift {
     ///
     /// - Throws: `Binary.Shift.Error.outOfRange` if result < 0.
     @inlinable
-    public static func - (lhs: Binary.Shift, rhs: Binary.Shift) throws(Binary.Shift.Error) -> Binary.Shift {
+    public static func - (
+        lhs: Binary.Shift,
+        rhs: Binary.Shift
+    ) throws(Binary.Shift.Error) -> Binary.Shift {
         let result = Int(lhs.rawValue) - Int(rhs.rawValue)
         return try Binary.Shift(result)
     }
