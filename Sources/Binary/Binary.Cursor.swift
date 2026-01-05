@@ -31,7 +31,7 @@ extension Binary {
     /// `0 <= readerIndex <= writerIndex <= count`
     ///
     /// The `count` is stored as `Storage.Scalar` and validated once at construction.
-    public struct Cursor<Storage: Binary.Mutable>: ~Copyable {
+    public struct Cursor<Storage: Binary.Mutable & ~Copyable>: ~Copyable {
         /// The underlying storage.
         public var storage: Storage
 
@@ -69,7 +69,7 @@ extension Binary {
 
 // MARK: - Default Initializer
 
-extension Binary.Cursor {
+extension Binary.Cursor where Storage: ~Copyable {
     /// Creates a cursor over the given storage with indices at zero.
     ///
     /// This is the simplest way to create a cursor. Both reader and writer
@@ -91,7 +91,7 @@ extension Binary.Cursor {
 
 // MARK: - Validated Initializer
 
-extension Binary.Cursor {
+extension Binary.Cursor where Storage: ~Copyable {
     /// Creates a cursor over the given storage with validated indices.
     ///
     /// - Parameters:
@@ -143,7 +143,7 @@ extension Binary.Cursor {
 
 // MARK: - Unchecked Initializer
 
-extension Binary.Cursor {
+extension Binary.Cursor where Storage: ~Copyable {
     /// Creates a cursor without validation.
     ///
     /// Use this in performance-critical paths where invariants are
@@ -177,7 +177,7 @@ extension Binary.Cursor {
 
 // MARK: - Computed Properties
 
-extension Binary.Cursor {
+extension Binary.Cursor where Storage: ~Copyable {
     /// Bytes available for reading.
     @inlinable
     public var readableCount: Binary.Count<Storage.Scalar, Storage.Space> {
@@ -207,7 +207,7 @@ extension Binary.Cursor {
 
 // MARK: - Move Reader Index
 
-extension Binary.Cursor {
+extension Binary.Cursor where Storage: ~Copyable {
     /// Move reader index by offset.
     ///
     /// - Parameter offset: The displacement to apply.
@@ -267,7 +267,7 @@ extension Binary.Cursor {
 
 // MARK: - Move Writer Index
 
-extension Binary.Cursor {
+extension Binary.Cursor where Storage: ~Copyable {
     /// Move writer index by offset.
     ///
     /// - Parameter offset: The displacement to apply.
@@ -328,7 +328,7 @@ extension Binary.Cursor {
 
 // MARK: - Set Reader Index
 
-extension Binary.Cursor {
+extension Binary.Cursor where Storage: ~Copyable {
     /// Set reader index to position.
     ///
     /// - Parameter position: The new reader position.
@@ -373,7 +373,7 @@ extension Binary.Cursor {
 
 // MARK: - Set Writer Index
 
-extension Binary.Cursor {
+extension Binary.Cursor where Storage: ~Copyable {
     /// Set writer index to position.
     ///
     /// - Parameter position: The new writer position.
@@ -425,7 +425,7 @@ extension Binary.Cursor {
 
 // MARK: - Reset
 
-extension Binary.Cursor {
+extension Binary.Cursor where Storage: ~Copyable {
     /// Reset both indices to zero.
     @inlinable
     public mutating func reset() {
@@ -436,7 +436,7 @@ extension Binary.Cursor {
 
 // MARK: - Region Access
 
-extension Binary.Cursor {
+extension Binary.Cursor where Storage: ~Copyable {
     /// Provides read-only access to the readable bytes region.
     ///
     /// The readable region is `storage[readerIndex..<writerIndex]`.
