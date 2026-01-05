@@ -13,6 +13,7 @@ extension Binary {
     /// - `bounds`: An index or position was out of valid range.
     /// - `invariant`: A required invariant was violated.
     /// - `bit`: A bit operation parameter was invalid.
+    /// - `overflow`: An arithmetic operation would overflow.
     ///
     /// ## Example
     ///
@@ -35,6 +36,9 @@ extension Binary {
 
         /// A bit operation parameter was invalid.
         case bit(Bit)
+
+        /// An arithmetic operation would overflow.
+        case overflow(Overflow)
     }
 }
 
@@ -47,6 +51,7 @@ extension Binary.Error: CustomStringConvertible {
         case .bounds(let e): return e.description
         case .invariant(let e): return e.description
         case .bit(let e): return e.description
+        case .overflow(let e): return e.description
         }
     }
 }

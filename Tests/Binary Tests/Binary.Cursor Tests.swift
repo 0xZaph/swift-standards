@@ -8,9 +8,9 @@ struct `Binary.Cursor Tests` {
     // MARK: - Initialization
 
     @Test
-    func `cursor initializes with default indices`() {
+    func `cursor initializes with default indices`() throws {
         let storage: [UInt8] = [1, 2, 3, 4, 5]
-        let cursor = Binary.Cursor(storage: storage)
+        let cursor = try Binary.Cursor(storage: storage)
 
         #expect(cursor.readerIndex._rawValue == 0)
         #expect(cursor.writerIndex._rawValue == 0)
@@ -211,11 +211,11 @@ struct `Binary.Cursor Tests` {
     }
 
     @Test
-    func `withWritableBytes propagates typed error`() {
+    func `withWritableBytes propagates typed error`() throws {
         enum TestError: Error { case expected }
 
         let storage: [UInt8] = [1, 2, 3]
-        var cursor = Binary.Cursor(storage: storage)
+        var cursor = try Binary.Cursor(storage: storage)
 
         #expect(throws: TestError.expected) {
             try cursor.withWritableBytes { (_: UnsafeMutableRawBufferPointer) throws(TestError) in

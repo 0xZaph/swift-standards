@@ -4,32 +4,42 @@
 extension Binary {
     /// A read-only position-tracked view over contiguous storage.
     ///
-    /// Uses typed throws for all validation.
+    /// Uses typed throws for all validation. All index arithmetic uses
+    /// overflow-checking operations to prevent silent traps.
     ///
-    /// ## API Pattern
+    /// ## Initializer Pattern
     ///
-    /// - **Primary**: `init(storage:) throws(Binary.Error)` — validates at runtime
-    /// - **Performance**: `init(unchecked:)` — debug assertion only
+    /// - **Default**: `init(storage:)` — index at zero, throws on count conversion
+    /// - **Validated**: `init(storage:readerIndex:) throws` — validates at runtime
+    /// - **Unchecked**: `init(__unchecked:storage:readerIndex:)` — precondition only
     ///
-    /// ## Nested Accessor Pattern
+    /// ## Example
     ///
     /// ```swift
-    /// // Move operations
-    /// try reader.move.index(by: offset)
-    /// reader.move.index.unchecked(by: offset)
+    /// // Default (reader = 0)
+    /// var reader = try Binary.Reader(storage: buffer)
     ///
-    /// // Set operations
-    /// try reader.set.index(to: position)
+    /// // Validated (throws on invalid index)
+    /// var reader = try Binary.Reader(storage: buffer, readerIndex: 5)
+    ///
+    /// // Unchecked (trusted caller)
+    /// var reader = Binary.Reader(__unchecked: (), storage: buffer, readerIndex: 5)
     /// ```
     ///
     /// ## Invariants
     ///
-    /// `0 <= readerIndex <= storage.count`
+    /// `0 <= readerIndex <= count`
+    ///
+    /// The `count` is stored as `Storage.Scalar` and validated once at construction.
     public struct Reader<Storage: Binary.Contiguous>: ~Copyable {
         /// The underlying storage.
         public let storage: Storage
 
-        /// The current read position.
+        /// The storage count as Scalar (computed once, validated).
+        @usableFromInline
+        internal let _count: Storage.Scalar
+
+        /// The current read position (internal storage).
         @usableFromInline
         internal var _readerIndex: Binary.Position<Storage.Scalar, Storage.Space>
 
@@ -38,24 +48,55 @@ extension Binary {
         public var readerIndex: Binary.Position<Storage.Scalar, Storage.Space> {
             _readerIndex
         }
+
+        /// The storage count.
+        @inlinable
+        public var count: Storage.Scalar {
+            _count
+        }
     }
 }
 
-// MARK: - Throwing Initializer
+// MARK: - Default Initializer
 
 extension Binary.Reader {
-    /// Creates a reader over the given storage.
+    /// Creates a reader over the given storage with index at zero.
     ///
-    /// - Throws: `Binary.Error` if readerIndex is invalid.
+    /// - Parameter storage: The underlying storage.
+    /// - Throws: `Binary.Error.overflow` if storage.count exceeds Scalar range.
+    @inlinable
+    public init(storage: consuming Storage) throws(Binary.Error) {
+        guard let count = Storage.Scalar(exactly: storage.count) else {
+            throw .overflow(.init(operation: .conversion, field: .count))
+        }
+        self.storage = storage
+        self._count = count
+        self._readerIndex = 0
+    }
+}
+
+// MARK: - Validated Initializer
+
+extension Binary.Reader {
+    /// Creates a reader over the given storage with validated index.
+    ///
+    /// - Parameters:
+    ///   - storage: The underlying storage.
+    ///   - readerIndex: The initial reader position.
+    /// - Throws: `Binary.Error` if index violates invariants or storage.count exceeds Scalar range.
+    @inlinable
     public init(
         storage: consuming Storage,
-        readerIndex: Binary.Position<Storage.Scalar, Storage.Space> = 0
+        readerIndex: Binary.Position<Storage.Scalar, Storage.Space>
     ) throws(Binary.Error) {
+        guard let count = Storage.Scalar(exactly: storage.count) else {
+            throw .overflow(.init(operation: .conversion, field: .count))
+        }
+
         guard readerIndex._rawValue >= 0 else {
             throw .negative(.init(field: .reader, value: readerIndex._rawValue))
         }
 
-        let count = Storage.Scalar(storage.count)
         guard readerIndex._rawValue <= count else {
             throw .bounds(.init(
                 field: .reader,
@@ -66,6 +107,7 @@ extension Binary.Reader {
         }
 
         self.storage = storage
+        self._count = count
         self._readerIndex = readerIndex
     }
 }
@@ -75,14 +117,27 @@ extension Binary.Reader {
 extension Binary.Reader {
     /// Creates a reader without validation.
     ///
+    /// Use this in performance-critical paths where invariants are
+    /// guaranteed by construction or prior validation.
+    ///
+    /// - Parameters:
+    ///   - __unchecked: Marker parameter (pass `()` or omit).
+    ///   - storage: The underlying storage.
+    ///   - readerIndex: The initial reader position.
+    /// - Precondition: `storage.count` must fit in `Storage.Scalar`.
     /// - Precondition: `0 <= readerIndex <= storage.count`
+    @inlinable
     public init(
-        unchecked storage: consuming Storage,
+        __unchecked: Void = (),
+        storage: consuming Storage,
         readerIndex: Binary.Position<Storage.Scalar, Storage.Space> = 0
     ) {
-        assert(readerIndex._rawValue >= 0)
-        assert(readerIndex._rawValue <= Storage.Scalar(storage.count))
+        let count = Storage.Scalar(exactly: storage.count)
+        precondition(count != nil, "storage.count exceeds Scalar range")
+        precondition(readerIndex._rawValue >= 0)
+        precondition(readerIndex._rawValue <= count!)
         self.storage = storage
+        self._count = count!
         self._readerIndex = readerIndex
     }
 }
@@ -92,184 +147,122 @@ extension Binary.Reader {
 extension Binary.Reader {
     /// Bytes remaining to read.
     @inlinable
-    public var remaining: Binary.Count<Storage.Scalar, Storage.Space> {
-        Binary.Count(unchecked: Storage.Scalar(storage.count) - _readerIndex._rawValue)
+    public var remainingCount: Binary.Count<Storage.Scalar, Storage.Space> {
+        // Safe: invariant guarantees count >= reader
+        Binary.Count(unchecked: _count - _readerIndex._rawValue)
     }
 
     /// Whether there are bytes remaining to read.
     @inlinable
     public var hasRemaining: Bool {
-        remaining._rawValue > 0
+        _count > _readerIndex._rawValue
     }
 
     /// Whether the reader has consumed all bytes.
     @inlinable
     public var isAtEnd: Bool {
-        _readerIndex._rawValue >= Storage.Scalar(storage.count)
+        _readerIndex._rawValue >= _count
     }
 }
 
-// MARK: - Move Namespace
+// MARK: - Move Reader Index
 
 extension Binary.Reader {
-    /// Accessor for move operations.
-    public struct Move: ~Copyable {
-        @usableFromInline
-        var parent: UnsafeMutablePointer<Binary.Reader<Storage>>
-
-        @usableFromInline
-        init(_ parent: UnsafeMutablePointer<Binary.Reader<Storage>>) {
-            self.parent = parent
-        }
-    }
-
-    /// Move operations on this reader.
-    public var move: Move {
-        mutating get {
-            Move(&self)
-        }
-    }
-}
-
-// MARK: - Move.Index
-
-extension Binary.Reader.Move {
-    /// Accessor for reader index movement.
-    public struct Index: ~Copyable {
-        @usableFromInline
-        var parent: UnsafeMutablePointer<Binary.Reader<Storage>>
-
-        @usableFromInline
-        init(_ parent: UnsafeMutablePointer<Binary.Reader<Storage>>) {
-            self.parent = parent
-        }
-    }
-
-    /// Reader index movement.
-    public var index: Index {
-        Index(parent)
-    }
-}
-
-extension Binary.Reader.Move.Index {
     /// Move reader index by offset.
     ///
-    /// - Throws: `Binary.Error` if resulting index would be invalid.
+    /// - Parameter offset: The displacement to apply.
+    /// - Throws: `Binary.Error` if resulting index would be invalid or overflow occurs.
     @inlinable
-    public func callAsFunction(
+    public mutating func moveReaderIndex(
         by offset: Binary.Offset<Storage.Scalar, Storage.Space>
     ) throws(Binary.Error) {
-        let newIndex = parent.pointee._readerIndex._rawValue + offset._rawValue
-        let count = Storage.Scalar(parent.pointee.storage.count)
+        let (newIndex, overflow) = _readerIndex._rawValue.addingReportingOverflow(offset._rawValue)
+
+        guard !overflow else {
+            throw .overflow(.init(operation: .addition, field: .reader))
+        }
 
         guard newIndex >= 0 else {
             throw .bounds(.init(
                 field: .reader,
                 value: newIndex,
                 lower: Storage.Scalar(0),
-                upper: count
+                upper: _count
             ))
         }
 
-        guard newIndex <= count else {
+        guard newIndex <= _count else {
             throw .bounds(.init(
                 field: .reader,
                 value: newIndex,
                 lower: Storage.Scalar(0),
-                upper: count
+                upper: _count
             ))
         }
 
-        parent.pointee._readerIndex = Binary.Position(newIndex)
+        _readerIndex = Binary.Position(newIndex)
     }
 
     /// Move reader index by offset (unchecked).
+    ///
+    /// - Parameters:
+    ///   - __unchecked: Marker parameter (pass `()` or omit).
+    ///   - offset: The displacement to apply.
+    /// - Precondition: No overflow occurs.
+    /// - Precondition: Result must satisfy `0 <= readerIndex <= count`.
     @inlinable
-    public func unchecked(
+    public mutating func moveReaderIndex(
+        __unchecked: Void = (),
         by offset: Binary.Offset<Storage.Scalar, Storage.Space>
     ) {
-        let newIndex = parent.pointee._readerIndex._rawValue + offset._rawValue
-        assert(newIndex >= 0 && newIndex <= Storage.Scalar(parent.pointee.storage.count))
-        parent.pointee._readerIndex = Binary.Position(newIndex)
+        let (newIndex, overflow) = _readerIndex._rawValue.addingReportingOverflow(offset._rawValue)
+        precondition(!overflow, "readerIndex arithmetic overflow")
+        precondition(newIndex >= 0 && newIndex <= _count)
+        _readerIndex = Binary.Position(newIndex)
     }
 }
 
-// MARK: - Set Namespace
+// MARK: - Set Reader Index
 
 extension Binary.Reader {
-    /// Accessor for set operations.
-    public struct Set: ~Copyable {
-        @usableFromInline
-        var parent: UnsafeMutablePointer<Binary.Reader<Storage>>
-
-        @usableFromInline
-        init(_ parent: UnsafeMutablePointer<Binary.Reader<Storage>>) {
-            self.parent = parent
-        }
-    }
-
-    /// Set operations on this reader.
-    public var set: Set {
-        mutating get {
-            Set(&self)
-        }
-    }
-}
-
-// MARK: - Set.Index
-
-extension Binary.Reader.Set {
-    /// Accessor for reader index setting.
-    public struct Index: ~Copyable {
-        @usableFromInline
-        var parent: UnsafeMutablePointer<Binary.Reader<Storage>>
-
-        @usableFromInline
-        init(_ parent: UnsafeMutablePointer<Binary.Reader<Storage>>) {
-            self.parent = parent
-        }
-    }
-
-    /// Reader index setting.
-    public var index: Index {
-        Index(parent)
-    }
-}
-
-extension Binary.Reader.Set.Index {
     /// Set reader index to position.
     ///
+    /// - Parameter position: The new reader position.
     /// - Throws: `Binary.Error` if position is invalid.
     @inlinable
-    public func callAsFunction(
+    public mutating func setReaderIndex(
         to position: Binary.Position<Storage.Scalar, Storage.Space>
     ) throws(Binary.Error) {
-        let count = Storage.Scalar(parent.pointee.storage.count)
-
         guard position._rawValue >= 0 else {
             throw .negative(.init(field: .reader, value: position._rawValue))
         }
 
-        guard position._rawValue <= count else {
+        guard position._rawValue <= _count else {
             throw .bounds(.init(
                 field: .reader,
                 value: position._rawValue,
                 lower: Storage.Scalar(0),
-                upper: count
+                upper: _count
             ))
         }
 
-        parent.pointee._readerIndex = position
+        _readerIndex = position
     }
 
     /// Set reader index to position (unchecked).
+    ///
+    /// - Parameters:
+    ///   - __unchecked: Marker parameter (pass `()` or omit).
+    ///   - position: The new reader position.
+    /// - Precondition: `0 <= position <= count`.
     @inlinable
-    public func unchecked(
+    public mutating func setReaderIndex(
+        __unchecked: Void = (),
         to position: Binary.Position<Storage.Scalar, Storage.Space>
     ) {
-        assert(position._rawValue >= 0)
-        assert(position._rawValue <= Storage.Scalar(parent.pointee.storage.count))
-        parent.pointee._readerIndex = position
+        precondition(position._rawValue >= 0)
+        precondition(position._rawValue <= _count)
+        _readerIndex = position
     }
 }
 
@@ -277,6 +270,7 @@ extension Binary.Reader.Set.Index {
 
 extension Binary.Reader {
     /// Reset reader index to zero.
+    @inlinable
     public mutating func reset() {
         _readerIndex = 0
     }
@@ -287,15 +281,16 @@ extension Binary.Reader {
 extension Binary.Reader {
     /// Provides read-only access to the remaining bytes region.
     ///
-    /// The remaining region is `storage[readerIndex..<storage.count]`.
+    /// The remaining region is `storage[readerIndex..<count]`.
     /// The buffer pointer is valid only within the closure scope.
     @inlinable
     public func withRemainingBytes<R, E: Swift.Error>(
         _ body: (UnsafeRawBufferPointer) throws(E) -> R
     ) throws(E) -> R {
         let readerIdx = Int(_readerIndex._rawValue)
+        let storageCount = Int(_count)
         return try storage.withUnsafeBytes { (ptr: UnsafeRawBufferPointer) throws(E) -> R in
-            let slice = UnsafeRawBufferPointer(rebasing: ptr[readerIdx..<storage.count])
+            let slice = UnsafeRawBufferPointer(rebasing: ptr[readerIdx..<storageCount])
             return try body(slice)
         }
     }

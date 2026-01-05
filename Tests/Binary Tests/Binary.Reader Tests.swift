@@ -13,7 +13,7 @@ struct `Binary.Reader Tests` {
         let reader = try Binary.Reader(storage: storage)
 
         #expect(reader.readerIndex._rawValue == 0)
-        #expect(reader.remaining._rawValue == 5)
+        #expect(reader.remainingCount._rawValue == 5)
     }
 
     @Test
@@ -22,16 +22,16 @@ struct `Binary.Reader Tests` {
         let reader = try Binary.Reader(storage: storage, readerIndex: 2)
 
         #expect(reader.readerIndex._rawValue == 2)
-        #expect(reader.remaining._rawValue == 3)
+        #expect(reader.remainingCount._rawValue == 3)
     }
 
     @Test
     func `reader initializes with unchecked`() {
         let storage: [UInt8] = [1, 2, 3, 4, 5]
-        let reader = Binary.Reader(unchecked: storage, readerIndex: 2)
+        let reader = Binary.Reader(__unchecked: (), storage: storage, readerIndex: 2)
 
         #expect(reader.readerIndex._rawValue == 2)
-        #expect(reader.remaining._rawValue == 3)
+        #expect(reader.remainingCount._rawValue == 3)
     }
 
     // MARK: - Index Mutation
@@ -41,9 +41,9 @@ struct `Binary.Reader Tests` {
         let storage: [UInt8] = [1, 2, 3, 4, 5]
         var reader = try Binary.Reader(storage: storage)
 
-        try reader.move.index(by: 3)
+        try reader.moveReaderIndex(by: 3)
         #expect(reader.readerIndex._rawValue == 3)
-        #expect(reader.remaining._rawValue == 2)
+        #expect(reader.remainingCount._rawValue == 2)
     }
 
     @Test
@@ -51,9 +51,9 @@ struct `Binary.Reader Tests` {
         let storage: [UInt8] = [1, 2, 3, 4, 5]
         var reader = try Binary.Reader(storage: storage, readerIndex: 3)
 
-        try reader.move.index(by: -2)
+        try reader.moveReaderIndex(by: -2)
         #expect(reader.readerIndex._rawValue == 1)
-        #expect(reader.remaining._rawValue == 4)
+        #expect(reader.remainingCount._rawValue == 4)
     }
 
     @Test
@@ -61,9 +61,9 @@ struct `Binary.Reader Tests` {
         let storage: [UInt8] = [1, 2, 3, 4, 5]
         var reader = try Binary.Reader(storage: storage)
 
-        try reader.set.index(to: 4)
+        try reader.setReaderIndex(to: 4)
         #expect(reader.readerIndex._rawValue == 4)
-        #expect(reader.remaining._rawValue == 1)
+        #expect(reader.remainingCount._rawValue == 1)
     }
 
     @Test
@@ -73,7 +73,27 @@ struct `Binary.Reader Tests` {
 
         reader.reset()
         #expect(reader.readerIndex._rawValue == 0)
-        #expect(reader.remaining._rawValue == 5)
+        #expect(reader.remainingCount._rawValue == 5)
+    }
+
+    // MARK: - Unchecked Variants
+
+    @Test
+    func `moveReaderIndex unchecked works`() throws {
+        let storage: [UInt8] = [1, 2, 3, 4, 5]
+        var reader = try Binary.Reader(storage: storage)
+
+        reader.moveReaderIndex(__unchecked: (), by: 3)
+        #expect(reader.readerIndex._rawValue == 3)
+    }
+
+    @Test
+    func `setReaderIndex unchecked works`() throws {
+        let storage: [UInt8] = [1, 2, 3, 4, 5]
+        var reader = try Binary.Reader(storage: storage)
+
+        reader.setReaderIndex(__unchecked: (), to: 4)
+        #expect(reader.readerIndex._rawValue == 4)
     }
 
     // MARK: - Convenience Properties
@@ -164,5 +184,37 @@ struct `Binary.Reader Tests` {
 
         #expect(reader.storage.count == 3)
         #expect(reader.storage[0] == 10)
+    }
+
+    // MARK: - Error Cases
+
+    @Test
+    func `moveReaderIndex throws on overflow`() throws {
+        let storage: [UInt8] = [1, 2, 3]
+        var reader = try Binary.Reader(storage: storage)
+
+        #expect(throws: Binary.Error.self) {
+            try reader.moveReaderIndex(by: Binary.Offset(Int.max))
+        }
+    }
+
+    @Test
+    func `moveReaderIndex throws on out of bounds`() throws {
+        let storage: [UInt8] = [1, 2, 3]
+        var reader = try Binary.Reader(storage: storage)
+
+        #expect(throws: Binary.Error.self) {
+            try reader.moveReaderIndex(by: 10)
+        }
+    }
+
+    @Test
+    func `setReaderIndex throws on negative`() throws {
+        let storage: [UInt8] = [1, 2, 3]
+        var reader = try Binary.Reader(storage: storage)
+
+        #expect(throws: Binary.Error.self) {
+            try reader.setReaderIndex(to: Binary.Position(-1))
+        }
     }
 }
