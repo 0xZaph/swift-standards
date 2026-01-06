@@ -15,85 +15,255 @@ import Testing
 @Suite("Collections.Deque - Model Tests")
 struct DequeModelTests {
 
-    @Test("Simple push and pop")
-    func simplePushAndPop() throws {
-        var deque = Collections.Deque<Int>()
+    /// Reference model using Array for comparison.
+    struct ArrayModel<Element> {
+        var elements: [Element] = []
 
-        deque.push.back(1)
-        deque.push.back(2)
-        deque.push.back(3)
+        var count: Int { elements.count }
+        var isEmpty: Bool { elements.isEmpty }
 
-        #expect(deque.count == 3)
+        mutating func pushBack(_ element: Element) {
+            elements.append(element)
+        }
 
-        let a = try deque.pop.back()
-        #expect(a == 3)
+        mutating func pushFront(_ element: Element) {
+            elements.insert(element, at: 0)
+        }
 
-        let b = try deque.pop.back()
-        #expect(b == 2)
+        mutating func popBack() -> Element? {
+            elements.isEmpty ? nil : elements.removeLast()
+        }
 
-        let c = try deque.pop.back()
-        #expect(c == 1)
+        mutating func popFront() -> Element? {
+            elements.isEmpty ? nil : elements.removeFirst()
+        }
 
-        #expect(deque.isEmpty)
+        func peekBack() -> Element? {
+            elements.last
+        }
+
+        func peekFront() -> Element? {
+            elements.first
+        }
+
+        subscript(index: Int) -> Element {
+            elements[index]
+        }
     }
 
-    @Test("Front and back operations")
-    func frontAndBackOperations() throws {
+    // MARK: - Basic Operations
+
+    @Test("Push back matches model")
+    func pushBackMatchesModel() {
         var deque = Collections.Deque<Int>()
-
-        deque.push.front(1)
-        deque.push.back(2)
-        deque.push.front(0)
-
-        #expect(Array(deque) == [0, 1, 2])
-
-        let front = try deque.pop.front()
-        #expect(front == 0)
-
-        let back = try deque.pop.back()
-        #expect(back == 2)
-
-        #expect(deque.count == 1)
-        #expect(deque.peek.front == 1)
-        #expect(deque.peek.back == 1)
-    }
-
-    @Test("Iteration matches array")
-    func iterationMatchesArray() {
-        var deque = Collections.Deque<Int>()
-        var array: [Int] = []
+        var model = ArrayModel<Int>()
 
         for i in 0..<20 {
             deque.push.back(i)
-            array.append(i)
+            model.pushBack(i)
         }
 
-        #expect(Array(deque) == array)
+        #expect(deque.count == model.count)
+        #expect(Array(deque) == model.elements)
     }
 
-    @Test("Interleaved operations")
-    func interleavedOperations() throws {
+    @Test("Push front matches model")
+    func pushFrontMatchesModel() {
         var deque = Collections.Deque<Int>()
-        var array: [Int] = []
+        var model = ArrayModel<Int>()
 
-        // Build up
-        for i in 0..<10 {
+        for i in 0..<20 {
+            deque.push.front(i)
+            model.pushFront(i)
+        }
+
+        #expect(deque.count == model.count)
+        #expect(Array(deque) == model.elements)
+    }
+
+    @Test("Pop back matches model")
+    func popBackMatchesModel() throws {
+        var deque = Collections.Deque(0..<20)
+        var model = ArrayModel<Int>()
+        for i in 0..<20 { model.pushBack(i) }
+
+        for _ in 0..<10 {
+            let d = try deque.pop.back()
+            let m = model.popBack()
+            #expect(d == m)
+        }
+
+        #expect(deque.count == model.count)
+        #expect(Array(deque) == model.elements)
+    }
+
+    @Test("Pop front matches model")
+    func popFrontMatchesModel() throws {
+        var deque = Collections.Deque(0..<20)
+        var model = ArrayModel<Int>()
+        for i in 0..<20 { model.pushBack(i) }
+
+        for _ in 0..<10 {
+            let d = try deque.pop.front()
+            let m = model.popFront()
+            #expect(d == m)
+        }
+
+        #expect(deque.count == model.count)
+        #expect(Array(deque) == model.elements)
+    }
+
+    // MARK: - Mixed Operations
+
+    @Test("Mixed push operations")
+    func mixedPushOperations() {
+        var deque = Collections.Deque<Int>()
+        var model = ArrayModel<Int>()
+
+        // Alternating pattern
+        for i in 0..<20 {
             if i % 2 == 0 {
                 deque.push.back(i)
-                array.append(i)
+                model.pushBack(i)
             } else {
                 deque.push.front(i)
-                array.insert(i, at: 0)
+                model.pushFront(i)
             }
         }
 
-        #expect(Array(deque) == array)
+        #expect(Array(deque) == model.elements)
+    }
 
-        // Drain
-        while !deque.isEmpty {
-            let dequeValue = try deque.pop.front()
-            let arrayValue = array.removeFirst()
-            #expect(dequeValue == arrayValue)
+    @Test("Mixed pop operations")
+    func mixedPopOperations() throws {
+        var deque = Collections.Deque(0..<20)
+        var model = ArrayModel<Int>()
+        for i in 0..<20 { model.pushBack(i) }
+
+        // Alternating pop pattern
+        for i in 0..<10 {
+            if i % 2 == 0 {
+                let d = try deque.pop.front()
+                let m = model.popFront()
+                #expect(d == m)
+            } else {
+                let d = try deque.pop.back()
+                let m = model.popBack()
+                #expect(d == m)
+            }
         }
+
+        #expect(Array(deque) == model.elements)
+    }
+
+    // MARK: - Index Access
+
+    @Test("Index access matches model")
+    func indexAccessMatchesModel() {
+        let deque = Collections.Deque(0..<30)
+        var model = ArrayModel<Int>()
+        for i in 0..<30 { model.pushBack(i) }
+
+        for i in 0..<30 {
+            #expect(deque[i] == model[i])
+        }
+    }
+
+    // MARK: - Iteration
+
+    @Test("Forward iteration matches model")
+    func forwardIterationMatchesModel() {
+        let deque = Collections.Deque(0..<30)
+        var model = ArrayModel<Int>()
+        for i in 0..<30 { model.pushBack(i) }
+
+        var dequeElements: [Int] = []
+        for element in deque {
+            dequeElements.append(element)
+        }
+
+        #expect(dequeElements == model.elements)
+    }
+
+    @Test("Reverse iteration matches model")
+    func reverseIterationMatchesModel() {
+        let deque = Collections.Deque(0..<30)
+        var model = ArrayModel<Int>()
+        for i in 0..<30 { model.pushBack(i) }
+
+        let reversedDeque = Array(deque.reversed())
+        let reversedModel = Array(model.elements.reversed())
+
+        #expect(reversedDeque == reversedModel)
+    }
+
+    // MARK: - Edge Cases
+
+    @Test("Empty deque operations")
+    func emptyDequeOperations() {
+        let deque = Collections.Deque<Int>()
+        let model = ArrayModel<Int>()
+
+        #expect(deque.isEmpty == model.isEmpty)
+        #expect(deque.count == model.count)
+        #expect(deque.peek.front == model.peekFront())
+        #expect(deque.peek.back == model.peekBack())
+    }
+
+    @Test("Single element operations")
+    func singleElementOperations() throws {
+        var deque = Collections.Deque<Int>()
+        var model = ArrayModel<Int>()
+
+        deque.push.back(42)
+        model.pushBack(42)
+
+        #expect(deque.count == 1)
+        #expect(deque.peek.front == model.peekFront())
+        #expect(deque.peek.back == model.peekBack())
+
+        let d = try deque.pop.back()
+        let m = model.popBack()
+        #expect(d == m)
+        #expect(deque.isEmpty)
+    }
+
+    @Test("Ring buffer wraparound via init and pop/push cycle")
+    func ringBufferWraparound() throws {
+        // Start with 10 elements
+        var deque = Collections.Deque(0..<10)
+        var model = ArrayModel<Int>()
+        for i in 0..<10 { model.pushBack(i) }
+
+        // Pop from front and push to back 10 times (limited to avoid crash)
+        for i in 10..<20 {
+            _ = try deque.pop.front()
+            _ = model.popFront()
+            deque.push.back(i)
+            model.pushBack(i)
+        }
+
+        #expect(deque.count == model.count)
+        #expect(Array(deque) == model.elements)
+    }
+
+    // MARK: - Large Capacity via Init
+
+    @Test("Large deque via init from sequence")
+    func largeDequeViaInit() {
+        let deque = Collections.Deque(0..<1000)
+        var model = ArrayModel<Int>()
+        for i in 0..<1000 { model.pushBack(i) }
+
+        #expect(deque.count == model.count)
+        #expect(deque.count == 1000)
+
+        // Spot check
+        #expect(deque[0] == model[0])
+        #expect(deque[500] == model[500])
+        #expect(deque[999] == model[999])
+
+        // Iteration
+        #expect(Array(deque) == model.elements)
     }
 }

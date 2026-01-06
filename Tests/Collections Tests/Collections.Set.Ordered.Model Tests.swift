@@ -15,8 +15,8 @@ import Testing
 @Suite("Collections.Set.Ordered - Model Tests")
 struct OrderedSetModelTests {
 
-    /// Deterministic PRNG for reproducible tests.
-    struct SeededRNG: RandomNumberGenerator {
+    /// Linear congruential generator for deterministic randomness.
+    struct LCG {
         var state: UInt64
 
         init(seed: UInt64) {
@@ -24,10 +24,16 @@ struct OrderedSetModelTests {
         }
 
         mutating func next() -> UInt64 {
-            state ^= state << 13
-            state ^= state >> 7
-            state ^= state << 17
+            state = state &* 6364136223846793005 &+ 1442695040888963407
             return state
+        }
+
+        mutating func nextInt(_ bound: Int) -> Int {
+            Int(next() % UInt64(bound))
+        }
+
+        mutating func nextBool() -> Bool {
+            next() % 2 == 0
         }
     }
 
@@ -65,15 +71,17 @@ struct OrderedSetModelTests {
         }
     }
 
-    @Test("Random operations match model")
+    // MARK: - Random Operations
+
+    @Test("Random operations match model - 1000 iterations")
     func randomOperationsMatchModel() {
-        var rng = SeededRNG(seed: 33333)
+        var rng = LCG(seed: 33333)
         var orderedSet = Collections.Set.Ordered<Int>()
         var model = ArraySetModel<Int>()
 
         for _ in 0..<1000 {
-            let value = Int(rng.next() % 100)  // Limited range to ensure collisions
-            let op = rng.next() % 4
+            let value = rng.nextInt(100)  // Limited range to ensure collisions
+            let op = rng.nextInt(4)
 
             switch op {
             case 0:  // insert
@@ -97,25 +105,24 @@ struct OrderedSetModelTests {
                 break
             }
 
-            // Verify invariants
             #expect(orderedSet.count == model.count)
             #expect(orderedSet.isEmpty == model.isEmpty)
         }
 
-        // Final verification
         #expect(Array(orderedSet) == model.elements)
     }
 
-    @Test("Insertion order preserved")
+    // MARK: - Order Preservation
+
+    @Test("Insertion order strictly preserved")
     func insertionOrderPreserved() {
-        var rng = SeededRNG(seed: 44444)
+        var rng = LCG(seed: 44444)
         var orderedSet = Collections.Set.Ordered<Int>()
         var model = ArraySetModel<Int>()
 
-        // Insert many unique values
         var inserted: [Int] = []
-        for _ in 0..<200 {
-            let value = Int(rng.next() % 10000)
+        for _ in 0..<500 {
+            let value = rng.nextInt(10000)
             if !model.contains(value) {
                 orderedSet.insert(value)
                 model.insert(value)
@@ -123,46 +130,52 @@ struct OrderedSetModelTests {
             }
         }
 
-        // Verify order matches insertion order
         #expect(Array(orderedSet) == inserted)
         #expect(Array(orderedSet) == model.elements)
     }
 
     @Test("Remove maintains order of remaining elements")
-    func removesMaintainOrder() {
-        var rng = SeededRNG(seed: 55555)
+    func removeMaintainsOrder() {
+        var rng = LCG(seed: 55555)
         var orderedSet = Collections.Set.Ordered<Int>()
         var model = ArraySetModel<Int>()
 
-        // Insert
-        for i in 0..<100 {
+        // Insert 200 elements
+        for i in 0..<200 {
             orderedSet.insert(i)
             model.insert(i)
         }
 
-        // Remove random elements
-        for _ in 0..<50 {
-            let value = Int(rng.next() % 100)
+        // Remove 100 random elements
+        for _ in 0..<100 {
+            let value = rng.nextInt(200)
             orderedSet.remove(value)
             model.remove(value)
         }
 
         #expect(Array(orderedSet) == model.elements)
+
+        // Verify indices are correct after removals
+        for (idx, element) in orderedSet.enumerated() {
+            #expect(orderedSet.index(element) == idx)
+            #expect(model.index(element) == idx)
+        }
     }
+
+    // MARK: - Set Algebra
 
     @Test("Algebra union matches model")
     func algebraUnionMatchesModel() {
-        var rng = SeededRNG(seed: 66666)
+        var rng = LCG(seed: 66666)
 
         var setA = Collections.Set.Ordered<Int>()
         var setB = Collections.Set.Ordered<Int>()
         var modelA = ArraySetModel<Int>()
         var modelB = ArraySetModel<Int>()
 
-        // Build sets
-        for _ in 0..<50 {
-            let valueA = Int(rng.next() % 100)
-            let valueB = Int(rng.next() % 100)
+        for _ in 0..<100 {
+            let valueA = rng.nextInt(100)
+            let valueB = rng.nextInt(100)
             setA.insert(valueA)
             setB.insert(valueB)
             modelA.insert(valueA)
@@ -183,15 +196,14 @@ struct OrderedSetModelTests {
 
     @Test("Algebra intersection matches model")
     func algebraIntersectionMatchesModel() {
-        var rng = SeededRNG(seed: 77777)
+        var rng = LCG(seed: 77777)
 
         var setA = Collections.Set.Ordered<Int>()
         var setB = Collections.Set.Ordered<Int>()
 
-        // Build sets with some overlap
-        for _ in 0..<100 {
-            setA.insert(Int(rng.next() % 50))
-            setB.insert(Int(rng.next() % 50))
+        for _ in 0..<200 {
+            setA.insert(rng.nextInt(50))
+            setB.insert(rng.nextInt(50))
         }
 
         let intersection = setA.algebra.intersection(setB)
@@ -204,19 +216,17 @@ struct OrderedSetModelTests {
 
     @Test("Algebra subtract matches model")
     func algebraSubtractMatchesModel() {
-        var rng = SeededRNG(seed: 88888)
+        var rng = LCG(seed: 88888)
 
         var setA = Collections.Set.Ordered<Int>()
         var setB = Collections.Set.Ordered<Int>()
 
-        for _ in 0..<100 {
-            setA.insert(Int(rng.next() % 50))
-            setB.insert(Int(rng.next() % 50))
+        for _ in 0..<200 {
+            setA.insert(rng.nextInt(50))
+            setB.insert(rng.nextInt(50))
         }
 
         let difference = setA.algebra.subtract(setB)
-
-        // Model: elements in A that are not in B
         let modelDifference = Array(setA).filter { !setB.contains($0) }
 
         #expect(Array(difference) == modelDifference)
@@ -224,14 +234,14 @@ struct OrderedSetModelTests {
 
     @Test("Algebra symmetric difference matches model")
     func algebraSymmetricDifferenceMatchesModel() {
-        var rng = SeededRNG(seed: 99999)
+        var rng = LCG(seed: 99999)
 
         var setA = Collections.Set.Ordered<Int>()
         var setB = Collections.Set.Ordered<Int>()
 
-        for _ in 0..<100 {
-            setA.insert(Int(rng.next() % 50))
-            setB.insert(Int(rng.next() % 50))
+        for _ in 0..<200 {
+            setA.insert(rng.nextInt(50))
+            setB.insert(rng.nextInt(50))
         }
 
         let symmetric = setA.algebra.symmetric.difference(setB)
@@ -244,14 +254,16 @@ struct OrderedSetModelTests {
         #expect(Array(symmetric) == modelSymmetric)
     }
 
+    // MARK: - Index Access
+
     @Test("Index access matches model")
     func indexAccessMatchesModel() {
-        var rng = SeededRNG(seed: 10101)
+        var rng = LCG(seed: 10101)
         var orderedSet = Collections.Set.Ordered<Int>()
         var model = ArraySetModel<Int>()
 
-        for _ in 0..<100 {
-            let value = Int(rng.next() % 1000)
+        for _ in 0..<200 {
+            let value = rng.nextInt(1000)
             orderedSet.insert(value)
             model.insert(value)
         }
@@ -260,6 +272,127 @@ struct OrderedSetModelTests {
         for i in 0..<orderedSet.count {
             #expect(orderedSet[i] == model.elements[i])
         }
+
+        // Random access
+        for _ in 0..<100 {
+            let idx = rng.nextInt(orderedSet.count)
+            #expect(orderedSet[idx] == model.elements[idx])
+        }
     }
 
+    // MARK: - Heavy Operations
+
+    @Test("Heavy insert/remove cycles")
+    func heavyInsertRemoveCycles() {
+        var rng = LCG(seed: 20202)
+        var orderedSet = Collections.Set.Ordered<Int>()
+        var model = ArraySetModel<Int>()
+
+        for cycle in 0..<5 {
+            // Insert phase
+            for _ in 0..<100 {
+                let value = rng.nextInt(200)
+                orderedSet.insert(value)
+                model.insert(value)
+            }
+
+            #expect(Array(orderedSet) == model.elements, "Mismatch after insert phase \(cycle)")
+
+            // Remove phase
+            for _ in 0..<50 {
+                let value = rng.nextInt(200)
+                orderedSet.remove(value)
+                model.remove(value)
+            }
+
+            #expect(Array(orderedSet) == model.elements, "Mismatch after remove phase \(cycle)")
+        }
+    }
+
+    @Test("Large set operations")
+    func largeSetOperations() {
+        var setA = Collections.Set.Ordered<Int>()
+        var setB = Collections.Set.Ordered<Int>()
+
+        // Build large sets with known overlap
+        for i in 0..<1000 {
+            setA.insert(i)
+        }
+        for i in 500..<1500 {
+            setB.insert(i)
+        }
+
+        let union = setA.algebra.union(setB)
+        #expect(union.count == 1500)  // 0-1499
+
+        let intersection = setA.algebra.intersection(setB)
+        #expect(intersection.count == 500)  // 500-999
+
+        let difference = setA.algebra.subtract(setB)
+        #expect(difference.count == 500)  // 0-499
+
+        let symmetric = setA.algebra.symmetric.difference(setB)
+        #expect(symmetric.count == 1000)  // 0-499 and 1000-1499
+    }
+
+    // MARK: - Edge Cases
+
+    @Test("Empty set operations")
+    func emptySetOperations() {
+        let empty = Collections.Set.Ordered<Int>()
+        var nonEmpty = Collections.Set.Ordered<Int>()
+        nonEmpty.insert(1)
+        nonEmpty.insert(2)
+        nonEmpty.insert(3)
+
+        // Union with empty
+        #expect(Array(empty.algebra.union(nonEmpty)) == [1, 2, 3])
+        #expect(Array(nonEmpty.algebra.union(empty)) == [1, 2, 3])
+
+        // Intersection with empty
+        #expect(empty.algebra.intersection(nonEmpty).isEmpty)
+        #expect(nonEmpty.algebra.intersection(empty).isEmpty)
+
+        // Subtract empty
+        #expect(Array(nonEmpty.algebra.subtract(empty)) == [1, 2, 3])
+        #expect(empty.algebra.subtract(nonEmpty).isEmpty)
+    }
+
+    @Test("Single element set operations")
+    func singleElementSetOperations() {
+        var set = Collections.Set.Ordered<Int>()
+        set.insert(42)
+
+        #expect(set.contains(42))
+        #expect(!set.contains(0))
+        #expect(set.index(42) == 0)
+        #expect(set.index(0) == nil)
+        #expect(set.count == 1)
+
+        set.remove(42)
+        #expect(set.isEmpty)
+        #expect(!set.contains(42))
+    }
+
+    @Test("Duplicate insert behavior")
+    func duplicateInsertBehavior() {
+        var orderedSet = Collections.Set.Ordered<Int>()
+        var model = ArraySetModel<Int>()
+
+        // First insert
+        let first = orderedSet.insert(42)
+        let modelFirst = model.insert(42)
+        #expect(first.inserted == modelFirst.inserted)
+        #expect(first.inserted == true)
+        #expect(first.index == 0)
+
+        // Duplicate insert
+        let second = orderedSet.insert(42)
+        let modelSecond = model.insert(42)
+        #expect(second.inserted == modelSecond.inserted)
+        #expect(second.inserted == false)
+        #expect(second.index == 0)
+
+        #expect(orderedSet.count == 1)
+    }
 }

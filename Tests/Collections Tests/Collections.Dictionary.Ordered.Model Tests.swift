@@ -15,8 +15,8 @@ import Testing
 @Suite("Collections.Dictionary.Ordered - Model Tests")
 struct OrderedDictionaryModelTests {
 
-    /// Deterministic PRNG for reproducible tests.
-    struct SeededRNG: RandomNumberGenerator {
+    /// Linear congruential generator for deterministic randomness.
+    struct LCG {
         var state: UInt64
 
         init(seed: UInt64) {
@@ -24,10 +24,16 @@ struct OrderedDictionaryModelTests {
         }
 
         mutating func next() -> UInt64 {
-            state ^= state << 13
-            state ^= state >> 7
-            state ^= state << 17
+            state = state &* 6364136223846793005 &+ 1442695040888963407
             return state
+        }
+
+        mutating func nextInt(_ bound: Int) -> Int {
+            Int(next() % UInt64(bound))
+        }
+
+        mutating func nextBool() -> Bool {
+            next() % 2 == 0
         }
     }
 
@@ -79,16 +85,18 @@ struct OrderedDictionaryModelTests {
         }
     }
 
-    @Test("Random operations match model")
+    // MARK: - Random Operations
+
+    @Test("Random operations match model - 1000 iterations")
     func randomOperationsMatchModel() {
-        var rng = SeededRNG(seed: 11111)
+        var rng = LCG(seed: 11111)
         var orderedDict = Collections.Dictionary.Ordered<String, Int>()
         var model = ArrayDictModel<String, Int>()
 
         for _ in 0..<1000 {
-            let key = "key\(rng.next() % 50)"  // Limited range for collisions
-            let value = Int(rng.next() % 1000)
-            let op = rng.next() % 5
+            let key = "key\(rng.nextInt(50))"  // Limited range for collisions
+            let value = rng.nextInt(10000)
+            let op = rng.nextInt(5)
 
             switch op {
             case 0:  // set via subscript
@@ -114,12 +122,10 @@ struct OrderedDictionaryModelTests {
                 break
             }
 
-            // Verify invariants
             #expect(orderedDict.count == model.count)
             #expect(orderedDict.isEmpty == model.isEmpty)
         }
 
-        // Final verification: keys and values match
         let dictKeys = Array(orderedDict.keys)
         #expect(dictKeys == model.keys)
 
@@ -128,15 +134,17 @@ struct OrderedDictionaryModelTests {
         }
     }
 
+    // MARK: - Order Semantics
+
     @Test("Insertion order preserved")
     func insertionOrderPreserved() {
-        var rng = SeededRNG(seed: 22222)
+        var rng = LCG(seed: 22222)
         var orderedDict = Collections.Dictionary.Ordered<Int, String>()
         var model = ArrayDictModel<Int, String>()
 
         var insertedKeys: [Int] = []
-        for _ in 0..<200 {
-            let key = Int(rng.next() % 10000)
+        for _ in 0..<500 {
+            let key = rng.nextInt(10000)
             let value = "value\(key)"
             if !model.contains(key) {
                 orderedDict[key] = value
@@ -155,7 +163,7 @@ struct OrderedDictionaryModelTests {
         var model = ArrayDictModel<String, Int>()
 
         // Insert in order
-        for i in 0..<10 {
+        for i in 0..<20 {
             let key = "key\(i)"
             orderedDict[key] = i
             model[key] = i
@@ -163,34 +171,43 @@ struct OrderedDictionaryModelTests {
 
         let originalOrder = Array(orderedDict.keys)
 
-        // Update middle elements
-        orderedDict["key5"] = 500
-        model["key5"] = 500
-        orderedDict["key3"] = 300
-        model["key3"] = 300
+        // Update various elements (not just middle)
+        for i in [0, 5, 10, 15, 19] {
+            let key = "key\(i)"
+            orderedDict[key] = i * 100
+            model[key] = i * 100
+        }
 
         #expect(Array(orderedDict.keys) == originalOrder)
         #expect(Array(orderedDict.keys) == model.keys)
-        #expect(orderedDict["key5"] == 500)
-        #expect(orderedDict["key3"] == 300)
+
+        // Verify values were updated
+        for i in [0, 5, 10, 15, 19] {
+            #expect(orderedDict["key\(i)"] == i * 100)
+        }
     }
 
-    @Test("Removal shifts indices")
+    @Test("Removal shifts indices correctly")
     func removalShiftsIndices() {
         var orderedDict = Collections.Dictionary.Ordered<String, Int>()
         var model = ArrayDictModel<String, Int>()
 
-        for i in 0..<5 {
+        for i in 0..<10 {
             orderedDict["key\(i)"] = i
             model["key\(i)"] = i
         }
 
-        // Remove middle element
-        orderedDict.values.remove("key2")
-        model.remove("key2")
+        // Remove elements from various positions
+        for key in ["key2", "key5", "key8"] {
+            orderedDict.values.remove(key)
+            model.remove(key)
+        }
 
-        #expect(orderedDict.keys.index("key3") == model.index("key3"))
-        #expect(orderedDict.keys.index("key4") == model.index("key4"))
+        // Verify indices shifted correctly
+        for key in model.keys {
+            #expect(orderedDict.keys.index(key) == model.index(key))
+        }
+
         #expect(Array(orderedDict.keys) == model.keys)
     }
 
@@ -202,34 +219,39 @@ struct OrderedDictionaryModelTests {
         orderedDict["a"] = 1
         orderedDict["b"] = 2
         orderedDict["c"] = 3
+        orderedDict["d"] = 4
         model["a"] = 1
         model["b"] = 2
         model["c"] = 3
+        model["d"] = 4
 
-        // Remove and reinsert
+        // Remove middle element and reinsert
         orderedDict.values.remove("b")
         model.remove("b")
         orderedDict["b"] = 20
         model["b"] = 20
 
-        #expect(Array(orderedDict.keys) == ["a", "c", "b"])
+        #expect(Array(orderedDict.keys) == ["a", "c", "d", "b"])
         #expect(Array(orderedDict.keys) == model.keys)
+        #expect(orderedDict["b"] == 20)
     }
+
+    // MARK: - Nested Accessors
 
     @Test("Keys index lookup matches model")
     func keysIndexLookupMatchesModel() {
-        var rng = SeededRNG(seed: 33333)
+        var rng = LCG(seed: 33333)
         var orderedDict = Collections.Dictionary.Ordered<Int, String>()
         var model = ArrayDictModel<Int, String>()
 
-        for _ in 0..<100 {
-            let key = Int(rng.next() % 200)
+        for _ in 0..<200 {
+            let key = rng.nextInt(300)
             orderedDict[key] = "value"
             model[key] = "value"
         }
 
-        // Test index lookup for all possible keys
-        for key in 0..<200 {
+        // Test index lookup for all keys
+        for key in 0..<300 {
             #expect(orderedDict.keys.index(key) == model.index(key))
         }
     }
@@ -251,6 +273,17 @@ struct OrderedDictionaryModelTests {
         #expect(orderedDict["counter"] == 100)
     }
 
+    @Test("Values modify on non-existent key")
+    func valuesModifyNonExistent() {
+        var orderedDict = Collections.Dictionary.Ordered<String, Int>()
+
+        let result = orderedDict.values.modify("missing") { $0 += 1 }
+        #expect(result == nil)
+        #expect(orderedDict["missing"] == nil)
+    }
+
+    // MARK: - Merge Operations
+
     @Test("Merge keep first matches model")
     func mergeKeepFirstMatchesModel() {
         var orderedDict = Collections.Dictionary.Ordered<String, Int>()
@@ -261,7 +294,7 @@ struct OrderedDictionaryModelTests {
         model["a"] = 1
         model["b"] = 2
 
-        let pairs = [("b", 20), ("c", 3), ("d", 4)]
+        let pairs = [("b", 20), ("c", 3), ("d", 4), ("a", 10)]
 
         orderedDict.merge.keep.first(pairs)
 
@@ -272,10 +305,10 @@ struct OrderedDictionaryModelTests {
             }
         }
 
-        #expect(orderedDict["a"] == model["a"])
-        #expect(orderedDict["b"] == model["b"])  // Should be 2, not 20
-        #expect(orderedDict["c"] == model["c"])
-        #expect(orderedDict["d"] == model["d"])
+        #expect(orderedDict["a"] == 1)   // kept original
+        #expect(orderedDict["b"] == 2)   // kept original
+        #expect(orderedDict["c"] == 3)   // new
+        #expect(orderedDict["d"] == 4)   // new
         #expect(Array(orderedDict.keys) == model.keys)
     }
 
@@ -299,28 +332,29 @@ struct OrderedDictionaryModelTests {
         }
 
         #expect(orderedDict["a"] == model["a"])
-        #expect(orderedDict["b"] == model["b"])  // Should be 20
-        #expect(orderedDict["c"] == model["c"])
-        #expect(orderedDict["d"] == model["d"])
+        #expect(orderedDict["b"] == 20)   // updated
+        #expect(orderedDict["c"] == 3)
+        #expect(orderedDict["d"] == 4)
 
-        // Order should be a, b, c, d (b stays in place)
+        // Order: a, b stay in place; c, d added at end
         #expect(Array(orderedDict.keys) == ["a", "b", "c", "d"])
     }
 
+    // MARK: - Iteration
+
     @Test("Iteration matches model")
     func iterationMatchesModel() {
-        var rng = SeededRNG(seed: 44444)
+        var rng = LCG(seed: 44444)
         var orderedDict = Collections.Dictionary.Ordered<Int, Int>()
         var model = ArrayDictModel<Int, Int>()
 
-        for _ in 0..<100 {
-            let key = Int(rng.next() % 50)
-            let value = Int(rng.next() % 1000)
+        for _ in 0..<200 {
+            let key = rng.nextInt(50)
+            let value = rng.nextInt(10000)
             orderedDict[key] = value
             model[key] = value
         }
 
-        // Forward iteration
         var dictPairs: [(Int, Int)] = []
         for (key, value) in orderedDict {
             dictPairs.append((key, value))
@@ -335,15 +369,31 @@ struct OrderedDictionaryModelTests {
         }
     }
 
+    @Test("Reverse iteration")
+    func reverseIteration() {
+        var orderedDict = Collections.Dictionary.Ordered<String, Int>()
+
+        for i in 0..<10 {
+            orderedDict["key\(i)"] = i
+        }
+
+        let reversed = Array(orderedDict.reversed())
+        #expect(reversed.count == 10)
+        #expect(reversed[0].key == "key9")
+        #expect(reversed[9].key == "key0")
+    }
+
+    // MARK: - Index Access
+
     @Test("Index access matches model")
     func indexAccessMatchesModel() {
-        var rng = SeededRNG(seed: 55555)
+        var rng = LCG(seed: 55555)
         var orderedDict = Collections.Dictionary.Ordered<String, Int>()
         var model = ArrayDictModel<String, Int>()
 
-        for _ in 0..<50 {
-            let key = "key\(rng.next() % 100)"
-            let value = Int(rng.next() % 1000)
+        for _ in 0..<100 {
+            let key = "key\(rng.nextInt(200))"
+            let value = rng.nextInt(10000)
             orderedDict[key] = value
             model[key] = value
         }
@@ -354,5 +404,93 @@ struct OrderedDictionaryModelTests {
             #expect(dictPair.key == modelPair.key)
             #expect(dictPair.value == modelPair.value)
         }
+    }
+
+    // MARK: - Heavy Operations
+
+    @Test("Heavy insert/update/remove cycles")
+    func heavyInsertUpdateRemoveCycles() {
+        var rng = LCG(seed: 66666)
+        var orderedDict = Collections.Dictionary.Ordered<Int, Int>()
+        var model = ArrayDictModel<Int, Int>()
+
+        for cycle in 0..<5 {
+            // Insert phase
+            for _ in 0..<100 {
+                let key = rng.nextInt(200)
+                let value = rng.nextInt(10000)
+                orderedDict[key] = value
+                model[key] = value
+            }
+
+            // Update phase
+            for _ in 0..<50 {
+                let key = rng.nextInt(200)
+                if orderedDict.contains(key) {
+                    let newValue = rng.nextInt(10000)
+                    orderedDict[key] = newValue
+                    model[key] = newValue
+                }
+            }
+
+            // Remove phase
+            for _ in 0..<30 {
+                let key = rng.nextInt(200)
+                orderedDict.values.remove(key)
+                model.remove(key)
+            }
+
+            #expect(Array(orderedDict.keys) == model.keys, "Keys mismatch after cycle \(cycle)")
+            for key in model.keys {
+                #expect(orderedDict[key] == model[key], "Value mismatch for \(key) after cycle \(cycle)")
+            }
+        }
+    }
+
+    // MARK: - Edge Cases
+
+    @Test("Empty dictionary operations")
+    func emptyDictionaryOperations() {
+        let empty = Collections.Dictionary.Ordered<String, Int>()
+
+        #expect(empty.isEmpty)
+        #expect(empty.count == 0)
+        #expect(empty["missing"] == nil)
+        #expect(!empty.contains("missing"))
+        #expect(empty.keys.index("missing") == nil)
+    }
+
+    @Test("Single element dictionary")
+    func singleElementDictionary() {
+        var dict = Collections.Dictionary.Ordered<String, Int>()
+        dict["only"] = 42
+
+        #expect(dict.count == 1)
+        #expect(dict["only"] == 42)
+        #expect(dict.contains("only"))
+        #expect(dict.keys.index("only") == 0)
+
+        dict.values.remove("only")
+        #expect(dict.isEmpty)
+    }
+
+    @Test("Nil assignment removes key")
+    func nilAssignmentRemovesKey() {
+        var orderedDict = Collections.Dictionary.Ordered<String, Int>()
+        var model = ArrayDictModel<String, Int>()
+
+        orderedDict["a"] = 1
+        orderedDict["b"] = 2
+        orderedDict["c"] = 3
+        model["a"] = 1
+        model["b"] = 2
+        model["c"] = 3
+
+        orderedDict["b"] = nil
+        model["b"] = nil
+
+        #expect(orderedDict.count == 2)
+        #expect(!orderedDict.contains("b"))
+        #expect(Array(orderedDict.keys) == model.keys)
     }
 }

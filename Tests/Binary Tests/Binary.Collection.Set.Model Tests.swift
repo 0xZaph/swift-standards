@@ -15,8 +15,8 @@ import Testing
 @Suite("Binary.Collection.Set - Model Tests")
 struct BitSetModelTests {
 
-    /// Deterministic PRNG for reproducible tests.
-    struct SeededRNG: RandomNumberGenerator {
+    /// Linear congruential generator for deterministic randomness.
+    struct LCG {
         var state: UInt64
 
         init(seed: UInt64) {
@@ -24,9 +24,7 @@ struct BitSetModelTests {
         }
 
         mutating func next() -> UInt64 {
-            state ^= state << 13
-            state ^= state >> 7
-            state ^= state << 17
+            state = state &* 6364136223846793005 &+ 1442695040888963407
             return state
         }
     }
@@ -36,7 +34,7 @@ struct BitSetModelTests {
 
     @Test("Random operations match Swift.Set model")
     func randomOperationsMatchModel() {
-        var rng = SeededRNG(seed: 12345)
+        var rng = LCG(seed: 12345)
         var bitSet = Binary.Collection.Set()
         var model = SetModel()
 
@@ -101,7 +99,7 @@ struct BitSetModelTests {
 
     @Test("Union matches model")
     func unionMatchesModel() {
-        var rng = SeededRNG(seed: 23456)
+        var rng = LCG(seed: 23456)
 
         var bitSetA = Binary.Collection.Set()
         var bitSetB = Binary.Collection.Set()
@@ -125,7 +123,7 @@ struct BitSetModelTests {
 
     @Test("Intersection matches model")
     func intersectionMatchesModel() {
-        var rng = SeededRNG(seed: 34567)
+        var rng = LCG(seed: 34567)
 
         var bitSetA = Binary.Collection.Set()
         var bitSetB = Binary.Collection.Set()
@@ -149,7 +147,7 @@ struct BitSetModelTests {
 
     @Test("Subtract matches model")
     func subtractMatchesModel() {
-        var rng = SeededRNG(seed: 45678)
+        var rng = LCG(seed: 45678)
 
         var bitSetA = Binary.Collection.Set()
         var bitSetB = Binary.Collection.Set()
@@ -173,7 +171,7 @@ struct BitSetModelTests {
 
     @Test("Symmetric difference matches model")
     func symmetricDifferenceMatchesModel() {
-        var rng = SeededRNG(seed: 56789)
+        var rng = LCG(seed: 56789)
 
         var bitSetA = Binary.Collection.Set()
         var bitSetB = Binary.Collection.Set()
@@ -268,7 +266,7 @@ struct BitSetModelTests {
 
     @Test("Min and max match model")
     func minAndMaxMatchModel() {
-        var rng = SeededRNG(seed: 67890)
+        var rng = LCG(seed: 67890)
         var bitSet = Binary.Collection.Set()
         var model = SetModel()
 
@@ -284,7 +282,7 @@ struct BitSetModelTests {
 
     @Test("Iteration produces sorted elements")
     func iterationProducesSortedElements() {
-        var rng = SeededRNG(seed: 78901)
+        var rng = LCG(seed: 78901)
         var bitSet = Binary.Collection.Set()
 
         for _ in 0..<100 {
@@ -302,7 +300,7 @@ struct BitSetModelTests {
 
     @Test("Large sparse set matches model")
     func largeSparseSetMatchesModel() {
-        var rng = SeededRNG(seed: 89012)
+        var rng = LCG(seed: 89012)
         var bitSet = Binary.Collection.Set()
         var model = SetModel()
 
@@ -328,7 +326,7 @@ struct BitSetModelTests {
 
     @Test("Heavy insert/remove cycles")
     func heavyInsertRemoveCycles() {
-        var rng = SeededRNG(seed: 90123)
+        var rng = LCG(seed: 90123)
         var bitSet = Binary.Collection.Set()
         var model = SetModel()
 

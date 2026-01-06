@@ -65,21 +65,22 @@ extension Collections.Deque.Storage {
     final class Buffer: ManagedBuffer<Header, Element> {
         @usableFromInline
         static func create(minimumCapacity: Int) -> Buffer {
-            let capacity = Swift.max(minimumCapacity, 4)
-            let buffer = self.create(minimumCapacity: capacity) { _ in
-                Header(count: 0, head: 0, capacity: capacity)
+            let requestedCapacity = Swift.max(minimumCapacity, 4)
+            let buffer = self.create(minimumCapacity: requestedCapacity) { buffer in
+                // Use the actual capacity from ManagedBuffer, not the requested one
+                Header(count: 0, head: 0, capacity: buffer.capacity)
             }
             return unsafeDowncast(buffer, to: Buffer.self)
         }
 
         @usableFromInline
         func copy(minimumCapacity: Int) -> Buffer {
-            let newCapacity = Swift.max(minimumCapacity, header.count, 4)
-            let newBuffer = Buffer.create(minimumCapacity: newCapacity)
+            let requestedCapacity = Swift.max(minimumCapacity, header.count, 4)
+            let newBuffer = Buffer.create(minimumCapacity: requestedCapacity)
+            // Note: newBuffer.header.capacity is already set to actual capacity by create()
 
             newBuffer.header.count = header.count
             newBuffer.header.head = 0
-            newBuffer.header.capacity = newCapacity
 
             // Copy elements in logical order
             withUnsafeMutablePointerToElements { src in
