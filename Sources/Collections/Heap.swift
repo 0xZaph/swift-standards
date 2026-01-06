@@ -9,185 +9,159 @@
 //
 // ===----------------------------------------------------------------------===//
 
-/// Binary heap with configurable ordering.
+/// Double-ended priority queue backed by a min-max heap.
 ///
-/// A priority queue backed by a binary heap. O(log N) push/pop, O(1) peek.
+/// `Heap` provides O(1) access to both the minimum and maximum elements,
+/// with O(log n) insertion and removal. Based on min-max heaps
+/// (Atkinson et al. 1986).
+///
+/// ## API
+///
+/// Operations use nested accessors:
+///
+/// ```swift
+/// var heap: Heap<Int> = [3, 1, 4, 1, 5]
+///
+/// // Peek (O(1))
+/// if let min = heap.peek.min { ... }
+/// if let max = heap.peek.max { ... }
+///
+/// // Pop (throws if empty)
+/// let min = try heap.pop.min()
+/// let max = try heap.pop.max()
+///
+/// // Take (returns nil if empty)
+/// while let min = heap.take.min { process(min) }
+///
+/// // Replace
+/// let oldMin = try heap.replace.min(with: 0)
+///
+/// // Push
+/// heap.push(42)
+/// heap.push.contentsOf([1, 2, 3])
+/// ```
 ///
 /// ## Thread Safety
+///
 /// Not thread-safe for concurrent mutation. Synchronize externally.
 ///
-/// ## Usage
-/// ```swift
-/// var minHeap = Heap<Int>.min()
-/// minHeap.push(5)
-/// minHeap.push(3)
-/// minHeap.pop() // -> 3
+/// ## Complexity
 ///
-/// var maxHeap = Heap<Int>.max()
-/// ```
+/// - Peek min/max: O(1)
+/// - Push: O(log n)
+/// - Pop min/max: O(log n)
+/// - Init from sequence: O(n)
 public struct Heap<Element: Comparable> {
-    /// Heap ordering strategy.
-    public enum Order: Sendable {
-        /// Smallest element has highest priority.
-        case min
-        /// Largest element has highest priority.
-        case max
-    }
-
     @usableFromInline
-    var storage: [Element] = []
+    var storage: Storage
 
-    /// The ordering of this heap.
-    public let order: Order
-
-    // MARK: - Initialization
-
-    /// Creates a heap with the specified ordering.
-    ///
-    /// - Parameter order: The ordering strategy (default: `.min`).
+    /// Creates an empty heap.
     @inlinable
-    public init(order: Order = .min) {
-        self.order = order
+    public init() {
+        self.storage = Storage()
     }
+}
 
-    /// Creates a min-heap (smallest first).
-    @inlinable
-    public static func min() -> Self {
-        Self(order: .min)
-    }
+// MARK: - Properties
 
-    /// Creates a max-heap (largest first).
-    @inlinable
-    public static func max() -> Self {
-        Self(order: .max)
-    }
-
-    // MARK: - Queries
-
+extension Heap {
     /// The number of elements in the heap.
     @inlinable
-    public var count: Int { storage.count }
+    public var count: Int {
+        storage.count
+    }
 
     /// Whether the heap is empty.
     @inlinable
-    public var isEmpty: Bool { storage.isEmpty }
-
-    /// Returns the top element without removing it.
-    ///
-    /// - Returns: The highest-priority element, or `nil` if empty.
-    /// - Complexity: O(1)
-    @inlinable
-    public func peek() -> Element? {
-        storage.first
+    public var isEmpty: Bool {
+        storage.isEmpty
     }
 
-    // MARK: - Mutations
-
-    /// Adds an element to the heap.
+    /// A read-only view into the underlying storage.
     ///
-    /// - Parameter element: The element to add.
-    /// - Complexity: O(log N)
-    @inlinable
-    public mutating func push(_ element: Element) {
-        storage.append(element)
-        siftUp(from: storage.count - 1)
-    }
-
-    /// Removes and returns the highest-priority element.
+    /// The elements are in heap order, which is **not** sorted order.
+    /// Do not rely on any particular ordering - it may change between
+    /// versions.
     ///
-    /// - Returns: The top element, or `nil` if empty.
-    /// - Complexity: O(log N)
-    @discardableResult
+    /// - Complexity: O(n) to copy elements.
     @inlinable
-    public mutating func pop() -> Element? {
-        guard !storage.isEmpty else { return nil }
-
-        if storage.count == 1 {
-            return storage.removeLast()
-        }
-
-        let result = storage[0]
-        storage[0] = storage.removeLast()
-        siftDown(from: 0)
-        return result
+    public var unordered: [Element] {
+        Array(storage.elements)
     }
+}
 
+// MARK: - Initialization from Sequence
+
+extension Heap {
+    /// Creates a heap from a sequence using O(n) heapification.
+    ///
+    /// - Parameter elements: The sequence of elements.
+    /// - Complexity: O(n)
+    @inlinable
+    public init(_ elements: some Sequence<Element>) {
+        self.storage = Storage(elements)
+    }
+}
+
+// MARK: - Reserve Capacity
+
+extension Heap {
+    /// Reserves enough space to store the specified number of elements.
+    ///
+    /// - Parameter minimumCapacity: The minimum number of elements.
+    @inlinable
+    public mutating func reserve(_ minimumCapacity: Int) {
+        storage.reserveCapacity(minimumCapacity)
+    }
+}
+
+// MARK: - Remove All
+
+extension Heap {
     /// Removes all elements from the heap.
     ///
-    /// - Parameter keepingCapacity: Whether to keep the underlying storage capacity.
+    /// - Parameter keepingCapacity: Whether to keep the current capacity.
     @inlinable
     public mutating func removeAll(keepingCapacity: Bool = false) {
         storage.removeAll(keepingCapacity: keepingCapacity)
     }
+}
 
-    // MARK: - Heap Operations
+// MARK: - Sendable
 
-    /// Returns true if `a` has higher priority than `b`.
+extension Heap: Sendable where Element: Sendable {}
+
+// MARK: - Equatable
+
+extension Heap: Equatable where Element: Equatable {
     @inlinable
-    func hasHigherPriority(_ a: Element, than b: Element) -> Bool {
-        switch order {
-        case .min: return a < b
-        case .max: return a > b
-        }
-    }
-
-    /// Restores heap property by moving an element up.
-    @inlinable
-    mutating func siftUp(from index: Int) {
-        var child = index
-        var parent = parentIndex(of: child)
-
-        while child > 0 && hasHigherPriority(storage[child], than: storage[parent]) {
-            storage.swapAt(child, parent)
-            child = parent
-            parent = parentIndex(of: child)
-        }
-    }
-
-    /// Restores heap property by moving an element down.
-    @inlinable
-    mutating func siftDown(from index: Int) {
-        var parent = index
-
-        while true {
-            let left = leftChildIndex(of: parent)
-            let right = rightChildIndex(of: parent)
-            var candidate = parent
-
-            if left < storage.count && hasHigherPriority(storage[left], than: storage[candidate]) {
-                candidate = left
-            }
-            if right < storage.count && hasHigherPriority(storage[right], than: storage[candidate]) {
-                candidate = right
-            }
-
-            if candidate == parent {
-                break
-            }
-
-            storage.swapAt(parent, candidate)
-            parent = candidate
-        }
-    }
-
-    // MARK: - Index Calculations
-
-    @inlinable
-    func parentIndex(of index: Int) -> Int {
-        (index - 1) / 2
-    }
-
-    @inlinable
-    func leftChildIndex(of index: Int) -> Int {
-        2 * index + 1
-    }
-
-    @inlinable
-    func rightChildIndex(of index: Int) -> Int {
-        2 * index + 2
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.storage.elements == rhs.storage.elements
     }
 }
 
-// MARK: - Conditional Conformances
+// MARK: - Hashable
 
-extension Heap: Sendable where Element: Sendable {}
+extension Heap: Hashable where Element: Hashable {
+    @inlinable
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(storage.elements)
+    }
+}
+
+// MARK: - ExpressibleByArrayLiteral
+
+extension Heap: ExpressibleByArrayLiteral {
+    @inlinable
+    public init(arrayLiteral elements: Element...) {
+        self.init(elements)
+    }
+}
+
+// MARK: - CustomStringConvertible
+
+extension Heap: CustomStringConvertible {
+    public var description: String {
+        "Heap(\(count) elements)"
+    }
+}
