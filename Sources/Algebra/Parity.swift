@@ -15,7 +15,7 @@ public import Dimension
 /// print(p.adding(.odd))          // odd
 /// print(p.multiplying(.odd))     // even
 /// ```
-public enum Parity: Sendable, Hashable, Codable, CaseIterable {
+public enum Parity: Sendable, Hashable, CaseIterable {
     /// Divisible by 2 (remainder 0).
     case even
 
@@ -98,3 +98,9 @@ extension Parity {
     /// A value paired with its parity.
     public typealias Value<Payload> = Pair<Parity, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Parity: Codable {}
+#endif

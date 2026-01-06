@@ -14,7 +14,7 @@ public import Dimension
 /// print(position.opposite)   // end
 /// print(!position)           // end
 /// ```
-public enum Endpoint: Sendable, Hashable, Codable, CaseIterable {
+public enum Endpoint: Sendable, Hashable, CaseIterable {
     /// Beginning of the sequence.
     case start
 
@@ -69,3 +69,9 @@ extension Endpoint {
     /// A value paired with its endpoint position.
     public typealias Value<Payload> = Pair<Endpoint, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Endpoint: Codable {}
+#endif

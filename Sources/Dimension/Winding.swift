@@ -12,7 +12,7 @@
 /// let reversed = !rotation                   // .clockwise
 /// let angle: Winding.Value<Double> = Pair(.ccw, 45.0)
 /// ```
-public enum Winding: Sendable, Hashable, Codable, CaseIterable {
+public enum Winding: Sendable, Hashable, CaseIterable {
     /// Rotation in the direction of clock hands.
     case clockwise
 
@@ -65,3 +65,9 @@ extension Winding {
     /// Value paired with winding direction.
     public typealias Value<Payload> = Pair<Winding, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Winding: Codable {}
+#endif

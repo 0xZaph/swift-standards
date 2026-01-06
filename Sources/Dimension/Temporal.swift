@@ -14,7 +14,7 @@
 /// // Oriented duration with direction
 /// let delta = Temporal.Value(.future, 10.0)
 /// ```
-public enum Temporal: Sendable, Hashable, Codable {
+public enum Temporal: Sendable, Hashable {
     /// Time-axis increases toward the future.
     case future
 
@@ -88,3 +88,9 @@ extension Temporal: CustomStringConvertible {
         }
     }
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Temporal: Codable {}
+#endif

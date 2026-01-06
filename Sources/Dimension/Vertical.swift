@@ -14,7 +14,7 @@
 /// // Oriented value with direction
 /// let offset = Vertical.Value(.upward, 10.0)
 /// ```
-public enum Vertical: Sendable, Hashable, Codable {
+public enum Vertical: Sendable, Hashable {
     /// Y-axis increases upward (standard Cartesian, PDF).
     case upward
 
@@ -88,3 +88,9 @@ extension Vertical: CustomStringConvertible {
         }
     }
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Vertical: Codable {}
+#endif

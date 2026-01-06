@@ -12,7 +12,7 @@
 /// let mirrored = !system           // .left
 /// let hand: Chirality.Value<Point> = Pair(.right, point)
 /// ```
-public enum Chirality: Sendable, Hashable, Codable, CaseIterable {
+public enum Chirality: Sendable, Hashable, CaseIterable {
     /// Left-handed (sinistral).
     case left
 
@@ -69,3 +69,9 @@ extension Chirality {
     /// Value paired with chirality information.
     public typealias Value<Payload> = Pair<Chirality, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Chirality: Codable {}
+#endif

@@ -14,7 +14,7 @@ public import Dimension
 /// print(boundary.isInclusive)   // true
 /// print(boundary.opposite)      // open
 /// ```
-public enum Boundary: Sendable, Hashable, Codable, CaseIterable {
+public enum Boundary: Sendable, Hashable, CaseIterable {
     /// Endpoint is included (≤ or ≥).
     case closed
 
@@ -69,3 +69,9 @@ extension Boundary {
     /// A value paired with its boundary type.
     public typealias Value<Payload> = Pair<Boundary, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Boundary: Codable {}
+#endif

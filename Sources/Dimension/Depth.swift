@@ -14,7 +14,7 @@
 /// // Oriented value with direction
 /// let offset = Depth.Value(.forward, 10.0)
 /// ```
-public enum Depth: Sendable, Hashable, Codable {
+public enum Depth: Sendable, Hashable {
     /// Z-axis increases away from viewer (left-handed systems).
     case forward
 
@@ -88,3 +88,9 @@ extension Depth: CustomStringConvertible {
         }
     }
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Depth: Codable {}
+#endif

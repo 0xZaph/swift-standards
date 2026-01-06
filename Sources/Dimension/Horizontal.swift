@@ -13,7 +13,7 @@
 /// // Oriented value with direction
 /// let offset = Horizontal.Value(.rightward, 10.0)
 /// ```
-public enum Horizontal: Sendable, Hashable, Codable {
+public enum Horizontal: Sendable, Hashable {
     /// X-axis increases rightward (standard convention).
     case rightward
 
@@ -87,3 +87,9 @@ extension Horizontal: CustomStringConvertible {
         }
     }
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Horizontal: Codable {}
+#endif

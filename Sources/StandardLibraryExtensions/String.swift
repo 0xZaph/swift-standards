@@ -104,7 +104,7 @@ extension String {
     /// "single line".lines         // ["single line"]
     /// ```
     public var lines: [String] {
-        split(whereSeparator: \.isNewline).map(String.init)
+        split(whereSeparator: { $0.isNewline }).map(String.init)
     }
 
     /// The string split into separate words.
@@ -116,6 +116,6 @@ extension String {
     /// "single".words            // ["single"]
     /// ```
     public var words: [String] {
-        split(whereSeparator: \.isWhitespace).map(String.init)
+        split(whereSeparator: { $0.isWhitespace }).map(String.init)
     }
 }

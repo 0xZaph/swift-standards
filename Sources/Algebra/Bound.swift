@@ -13,7 +13,7 @@ public import Dimension
 /// print(limit.opposite)     // upper
 /// print(!limit)             // upper
 /// ```
-public enum Bound: Sendable, Hashable, Codable, CaseIterable {
+public enum Bound: Sendable, Hashable, CaseIterable {
     /// Lower bound (minimum, left endpoint).
     case lower
 
@@ -68,3 +68,9 @@ extension Bound {
     /// A value paired with its bound position.
     public typealias Value<Payload> = Pair<Bound, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Bound: Codable {}
+#endif

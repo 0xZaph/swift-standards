@@ -14,7 +14,7 @@ public import Dimension
 /// print(charge.opposite)     // negative
 /// print(charge.isCharged)    // true
 /// ```
-public enum Polarity: Sendable, Hashable, Codable, CaseIterable {
+public enum Polarity: Sendable, Hashable, CaseIterable {
     /// Positive polarity (anode, north-seeking).
     case positive
 
@@ -77,3 +77,9 @@ extension Polarity {
     /// A value paired with its polarity.
     public typealias Value<Payload> = Pair<Polarity, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Polarity: Codable {}
+#endif

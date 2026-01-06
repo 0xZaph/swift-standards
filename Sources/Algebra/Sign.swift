@@ -15,7 +15,7 @@ public import Dimension
 /// print(s.negated)               // positive
 /// print(s.multiplying(.positive)) // negative
 /// ```
-public enum Sign: Sendable, Hashable, Codable, CaseIterable {
+public enum Sign: Sendable, Hashable, CaseIterable {
     /// Greater than zero.
     case positive
 
@@ -94,3 +94,9 @@ extension Sign {
     /// A value paired with its sign.
     public typealias Value<Payload> = Pair<Sign, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Sign: Codable {}
+#endif

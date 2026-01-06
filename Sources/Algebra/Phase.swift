@@ -16,7 +16,7 @@ public import Dimension
 /// print(phase.opposite)          // threeQuarter
 /// print(phase.composed(with: .half))  // threeQuarter
 /// ```
-public enum Phase: Int, Sendable, Hashable, Codable, CaseIterable {
+public enum Phase: Int, Sendable, Hashable, CaseIterable {
     /// 0° (identity, no rotation).
     case zero = 0
 
@@ -128,3 +128,9 @@ extension Phase {
     /// A value paired with a phase.
     public typealias Value<Payload> = Pair<Phase, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Phase: Codable {}
+#endif

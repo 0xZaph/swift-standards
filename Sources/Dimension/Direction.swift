@@ -17,7 +17,7 @@
 /// let horizontal = Horizontal(direction: dir)  // .rightward
 /// let vertical = Vertical(direction: dir)      // .upward
 /// ```
-public enum Direction: Sendable, Hashable, Codable {
+public enum Direction: Sendable, Hashable {
     /// Positive direction (increasing coordinate values).
     case positive
 
@@ -79,3 +79,9 @@ extension Direction {
         self = sign >= 0 ? .positive : .negative
     }
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Direction: Codable {}
+#endif

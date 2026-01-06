@@ -14,7 +14,7 @@ public import Dimension
 /// print(trend.opposite)      // descending
 /// print(!trend)              // descending
 /// ```
-public enum Gradient: Sendable, Hashable, Codable, CaseIterable {
+public enum Gradient: Sendable, Hashable, CaseIterable {
     /// Values are increasing (positive slope).
     case ascending
 
@@ -69,3 +69,9 @@ extension Gradient {
     /// A value paired with its gradient direction.
     public typealias Value<Payload> = Pair<Gradient, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Gradient: Codable {}
+#endif

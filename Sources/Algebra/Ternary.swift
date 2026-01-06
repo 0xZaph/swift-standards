@@ -15,7 +15,7 @@ public import Dimension
 /// print(t.negated)               // negative
 /// print(t.multiplying(.negative)) // negative
 /// ```
-public enum Ternary: Int, Sendable, Hashable, Codable, CaseIterable {
+public enum Ternary: Int, Sendable, Hashable, CaseIterable {
     /// Negative one (-1).
     case negative = -1
 
@@ -92,3 +92,9 @@ extension Ternary {
     /// A value paired with a ternary digit.
     public typealias Value<Payload> = Pair<Ternary, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Ternary: Codable {}
+#endif

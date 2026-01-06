@@ -15,7 +15,7 @@ public import Dimension
 /// print(result.reversed)     // greater
 /// print(result.isLess)       // true
 /// ```
-public enum Comparison: Sendable, Hashable, Codable, CaseIterable {
+public enum Comparison: Sendable, Hashable, CaseIterable {
     /// First value is less than second.
     case less
 
@@ -98,3 +98,9 @@ extension Comparison {
     /// A value paired with a comparison result.
     public typealias Value<Payload> = Pair<Comparison, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Comparison: Codable {}
+#endif

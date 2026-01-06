@@ -14,7 +14,7 @@ public import Dimension
 /// print(behavior.reversed)         // decreasing
 /// print(behavior.isNonDecreasing)  // true
 /// ```
-public enum Monotonicity: Sendable, Hashable, Codable, CaseIterable {
+public enum Monotonicity: Sendable, Hashable, CaseIterable {
     /// Output increases as input increases.
     case increasing
 
@@ -101,3 +101,9 @@ extension Monotonicity {
     /// A value paired with its monotonicity.
     public typealias Value<Payload> = Pair<Monotonicity, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Monotonicity: Codable {}
+#endif
