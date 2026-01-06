@@ -22,7 +22,7 @@ public import Dimension
 /// // [0x34, 0x12] - Least significant byte first (most modern CPUs)
 /// ```
 extension Binary {
-    public enum Endianness: Sendable, Hashable, Codable, CaseIterable {
+    public enum Endianness: Sendable, Hashable, CaseIterable {
         /// Least significant byte first.
         ///
         /// Standard order for x86, ARM, and most modern CPUs.
@@ -104,3 +104,9 @@ extension Binary.Endianness {
     /// ```
     public typealias Value<Payload> = Tagged<Binary.Endianness, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Binary.Endianness: Codable {}
+#endif

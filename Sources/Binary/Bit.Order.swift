@@ -19,7 +19,7 @@ public import Dimension
 /// // LSB first: process bits 0→1→2→3→4→5→6→7
 /// ```
 extension Bit {
-    public enum Order: Sendable, Hashable, Codable, CaseIterable {
+    public enum Order: Sendable, Hashable, CaseIterable {
         /// Most significant bit first (bit 7 → bit 0).
         ///
         /// Common in network protocols and human-readable binary representations.
@@ -87,3 +87,9 @@ extension Bit.Order {
     /// ```
     public typealias Value<Payload> = Tagged<Bit.Order, Payload>
 }
+
+// MARK: - Codable
+
+#if !hasFeature(Embedded)
+extension Bit.Order: Codable {}
+#endif

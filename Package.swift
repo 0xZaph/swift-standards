@@ -41,9 +41,14 @@ let package = Package(
                 "TernaryLogic",
                 "Predicate",
                 "Parsing",
+                "StandardsCollections",
             ]
         ),
         // Individual modules
+        .library(
+            name: "StandardsCollections",
+            targets: ["StandardsCollections"]
+        ),
         .library(
             name: "StandardLibraryExtensions",
             targets: ["StandardLibraryExtensions"]
@@ -149,7 +154,12 @@ let package = Package(
                 "TernaryLogic",
                 "Predicate",
                 "Parsing",
+                "StandardsCollections",
             ]
+        ),
+        .target(
+            name: "StandardsCollections",
+            path: "Sources/Collections"
         ),
         .target(
             name: "StandardLibraryExtensions"
@@ -414,6 +424,14 @@ let package = Package(
                 "Parsing",
                 "StandardsTestSupport",
             ]
+        ),
+        .testTarget(
+            name: "StandardsCollections".tests,
+            dependencies: [
+                "StandardsCollections",
+                "StandardsTestSupport",
+            ],
+            path: "Tests/Collections Tests"
         ),
     ],
     swiftLanguageModes: [.v6]

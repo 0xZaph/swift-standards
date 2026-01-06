@@ -136,7 +136,7 @@ extension Binary.Format.Bytes {
     /// - Parameter bytes: The byte count to format.
     /// - Returns: A formatted string representation.
     public func format<T: BinaryInteger>(_ bytes: T) -> String {
-        let absBytes = bytes < 0 ? -Int(bytes) : Int(bytes)
+        let absBytes = bytes < 0 ? -Int64(bytes) : Int64(bytes)
         let sign = bytes < 0 ? "-" : ""
 
         // Select appropriate unit and calculate display value
@@ -156,9 +156,9 @@ extension Binary.Format.Bytes {
 
     /// Selects the appropriate unit and calculates the display value.
     @usableFromInline
-    func selectUnit(for bytes: Int) -> (Double, String) {
+    func selectUnit(for bytes: Int64) -> (Double, String) {
         // Unit thresholds in descending order
-        let thresholds: [(threshold: Int, symbol: String)]
+        let thresholds: [(threshold: Int64, symbol: String)]
 
         switch units {
         case .decimal:

@@ -9,7 +9,7 @@ extension Binary.Format.Bytes {
     /// for both naming conventions.
     public struct Unit: Sendable, Equatable {
         /// The multiplier for this unit relative to bytes.
-        public let multiplier: Int
+        public let multiplier: Int64
 
         /// Symbol for decimal (SI) system (e.g., "KB").
         public let decimalSymbol: String
@@ -18,7 +18,7 @@ extension Binary.Format.Bytes {
         public let binarySymbol: String
 
         @usableFromInline
-        init(multiplier: Int, decimalSymbol: String, binarySymbol: String) {
+        init(multiplier: Int64, decimalSymbol: String, binarySymbol: String) {
             self.multiplier = multiplier
             self.decimalSymbol = decimalSymbol
             self.binarySymbol = binarySymbol
