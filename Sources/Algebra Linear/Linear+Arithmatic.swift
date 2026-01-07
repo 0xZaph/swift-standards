@@ -127,8 +127,8 @@ extension Linear.Matrix where Rows == 2, Columns == 2, Scalar: FloatingPoint {
         lhs: Self,
         rhs: Linear<Scalar, Space>.Vector<2>
     ) -> Linear<Scalar, Space>.Vector<2> {
-        let x = lhs.a * rhs.dx._rawValue + lhs.b * rhs.dy._rawValue
-        let y = lhs.c * rhs.dx._rawValue + lhs.d * rhs.dy._rawValue
+        let x = lhs.a * rhs.dx._storage + lhs.b * rhs.dy._storage
+        let y = lhs.c * rhs.dx._storage + lhs.d * rhs.dy._storage
         return Linear<Scalar, Space>.Vector(dx: .init(x), dy: .init(y))
     }
 }
@@ -268,7 +268,7 @@ public func dot<Scalar: Numeric, Space>(
     _ lhs: Linear<Scalar, Space>.Vector<2>,
     _ rhs: Linear<Scalar, Space>.Vector<2>
 ) -> Scalar {
-    lhs.dx._rawValue * rhs.dx._rawValue + lhs.dy._rawValue * rhs.dy._rawValue
+    lhs.dx._storage * rhs.dx._storage + lhs.dy._storage * rhs.dy._storage
 }
 
 // MARK: - Cross Product (2D)
@@ -285,5 +285,5 @@ public func cross<Scalar: Numeric, Space>(
     _ lhs: Linear<Scalar, Space>.Vector<2>,
     _ rhs: Linear<Scalar, Space>.Vector<2>
 ) -> Scalar {
-    lhs.dx._rawValue * rhs.dy._rawValue - lhs.dy._rawValue * rhs.dx._rawValue
+    lhs.dx._storage * rhs.dy._storage - lhs.dy._storage * rhs.dx._storage
 }

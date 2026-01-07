@@ -433,11 +433,11 @@ extension Geometry.Ngon where Scalar: FloatingPoint {
 
             if (vi.y > point.y) != (vj.y > point.y) {
                 // Compute x-intercept using raw values
-                let dx = (vj.x - vi.x)._rawValue
-                let dy = (vj.y - vi.y)._rawValue
-                let py = (point.y - vi.y)._rawValue
-                let xIntersect = vi.x._rawValue + dx / dy * py
-                if point.x._rawValue < xIntersect {
+                let dx = (vj.x - vi.x)._storage
+                let dy = (vj.y - vi.y)._storage
+                let py = (point.y - vi.y)._storage
+                let xIntersect = vi.x._storage + dx / dy * py
+                if point.x._storage < xIntersect {
                     inside.toggle()
                 }
             }
@@ -601,7 +601,7 @@ extension Geometry where Scalar: FloatingPoint {
     where Scalar: SignedNumeric {
         // Centroid formula uses raw values because it inherently mixes
         // coordinate components in ways that don't fit dimensional analysis
-        let a = signedDoubleArea(of: ngon)._rawValue
+        let a = signedDoubleArea(of: ngon)._storage
         guard abs(a) > .ulpOfOne else { return nil }
 
         var cx: Scalar = .zero
@@ -609,10 +609,10 @@ extension Geometry where Scalar: FloatingPoint {
 
         for i in 0..<N {
             let j = (i + 1) % N
-            let xi = ngon.vertices[i].x._rawValue
-            let yi = ngon.vertices[i].y._rawValue
-            let xj = ngon.vertices[j].x._rawValue
-            let yj = ngon.vertices[j].y._rawValue
+            let xi = ngon.vertices[i].x._storage
+            let yi = ngon.vertices[i].y._storage
+            let xj = ngon.vertices[j].x._storage
+            let yj = ngon.vertices[j].y._storage
             let cross = xi * yj - xj * yi
             cx += (xi + xj) * cross
             cy += (yi + yj) * cross
@@ -816,14 +816,14 @@ extension Geometry.Ngon where N == 3, Scalar: FloatingPoint {
         // Orthocenter uses raw values due to coordinate mixing
         guard let cc = circumcircle else { return nil }
 
-        let ax = vertices[0].x._rawValue
-        let ay = vertices[0].y._rawValue
-        let bx = vertices[1].x._rawValue
-        let by = vertices[1].y._rawValue
-        let cx = vertices[2].x._rawValue
-        let cy = vertices[2].y._rawValue
-        let ccx = cc.center.x._rawValue
-        let ccy = cc.center.y._rawValue
+        let ax = vertices[0].x._storage
+        let ay = vertices[0].y._storage
+        let bx = vertices[1].x._storage
+        let by = vertices[1].y._storage
+        let cx = vertices[2].x._storage
+        let cy = vertices[2].y._storage
+        let ccx = cc.center.x._storage
+        let ccy = cc.center.y._storage
 
         let ox = ax + bx + cx - Scalar(2) * ccx
         let oy = ay + by + cy - Scalar(2) * ccy
@@ -842,9 +842,9 @@ extension Geometry.Ngon where N == 3, Scalar: Real & BinaryFloatingPoint {
     public var angles: (atA: Radian<Scalar>, atB: Radian<Scalar>, atC: Radian<Scalar>) {
         // Law of cosines uses raw values for side lengths
         let sides = sideLengths
-        let ab = sides.ab._rawValue
-        let bc = sides.bc._rawValue
-        let ca = sides.ca._rawValue
+        let ab = sides.ab._storage
+        let bc = sides.bc._storage
+        let ca = sides.ca._storage
 
         // cos(A) = (b² + c² - a²) / (2bc) - break up for type checker
         let abSq = ab * ab

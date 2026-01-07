@@ -20,6 +20,6 @@ extension Tagged where Tag == Coordinate.X<Time.Julian.Space>, RawValue == Doubl
     /// let mjd = jd.modified                   // 51544.5
     /// ```
     public var modified: Double {
-        _rawValue - Time.Julian.Offset.modified._rawValue
+        _rawValue - Time.Julian.Offset.modified._storage
     }
 }

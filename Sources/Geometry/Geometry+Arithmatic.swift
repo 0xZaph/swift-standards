@@ -209,7 +209,7 @@ public func / <Scalar: FloatingPoint, Space>(
     lhs: Geometry<Scalar, Space>.Height,
     rhs: Geometry<Scalar, Space>.Height
 ) -> Scale<1, Scalar> {
-    Scale(lhs._rawValue / rhs._rawValue)
+    Scale(lhs._storage / rhs._storage)
 }
 
 /// Ratio of two widths (dimensionless).
@@ -222,7 +222,7 @@ public func / <Scalar: FloatingPoint, Space>(
     lhs: Geometry<Scalar, Space>.Width,
     rhs: Geometry<Scalar, Space>.Width
 ) -> Scale<1, Scalar> {
-    Scale(lhs._rawValue / rhs._rawValue)
+    Scale(lhs._storage / rhs._storage)
 }
 
 /// Ratio of two lengths/magnitudes (dimensionless).
@@ -235,7 +235,7 @@ public func / <Scalar: FloatingPoint, Space>(
     lhs: Linear<Scalar, Space>.Magnitude,
     rhs: Linear<Scalar, Space>.Magnitude
 ) -> Scale<1, Scalar> {
-    Scale(lhs._rawValue / rhs._rawValue)
+    Scale(lhs._storage / rhs._storage)
 }
 
 // MARK: - Height + Height, Width + Width
@@ -247,7 +247,7 @@ public func + <Scalar: AdditiveArithmetic, Space>(
     lhs: Geometry<Scalar, Space>.Height,
     rhs: Geometry<Scalar, Space>.Height
 ) -> Geometry<Scalar, Space>.Height {
-    Geometry<Scalar, Space>.Height(lhs._rawValue + rhs._rawValue)
+    Geometry<Scalar, Space>.Height(lhs._storage + rhs._storage)
 }
 
 /// Subtracts two heights (non-quantized fallback).
@@ -257,7 +257,7 @@ public func - <Scalar: AdditiveArithmetic, Space>(
     lhs: Geometry<Scalar, Space>.Height,
     rhs: Geometry<Scalar, Space>.Height
 ) -> Geometry<Scalar, Space>.Height {
-    Geometry<Scalar, Space>.Height(lhs._rawValue - rhs._rawValue)
+    Geometry<Scalar, Space>.Height(lhs._storage - rhs._storage)
 }
 
 /// Adds two widths (non-quantized fallback).
@@ -267,7 +267,7 @@ public func + <Scalar: AdditiveArithmetic, Space>(
     lhs: Geometry<Scalar, Space>.Width,
     rhs: Geometry<Scalar, Space>.Width
 ) -> Geometry<Scalar, Space>.Width {
-    Geometry<Scalar, Space>.Width(lhs._rawValue + rhs._rawValue)
+    Geometry<Scalar, Space>.Width(lhs._storage + rhs._storage)
 }
 
 /// Subtracts two widths (non-quantized fallback).
@@ -277,7 +277,7 @@ public func - <Scalar: AdditiveArithmetic, Space>(
     lhs: Geometry<Scalar, Space>.Width,
     rhs: Geometry<Scalar, Space>.Width
 ) -> Geometry<Scalar, Space>.Width {
-    Geometry<Scalar, Space>.Width(lhs._rawValue - rhs._rawValue)
+    Geometry<Scalar, Space>.Width(lhs._storage - rhs._storage)
 }
 
 // MARK: - Quantized Height + Height, Width + Width
@@ -288,7 +288,7 @@ public func + <Scalar: BinaryFloatingPoint, Space: Quantized>(
     lhs: Geometry<Scalar, Space>.Height,
     rhs: Geometry<Scalar, Space>.Height
 ) -> Geometry<Scalar, Space>.Height where Space.Scalar == Scalar {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Subtracts two heights with quantization.
@@ -297,7 +297,7 @@ public func - <Scalar: BinaryFloatingPoint, Space: Quantized>(
     lhs: Geometry<Scalar, Space>.Height,
     rhs: Geometry<Scalar, Space>.Height
 ) -> Geometry<Scalar, Space>.Height where Space.Scalar == Scalar {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Adds two widths with quantization.
@@ -306,7 +306,7 @@ public func + <Scalar: BinaryFloatingPoint, Space: Quantized>(
     lhs: Geometry<Scalar, Space>.Width,
     rhs: Geometry<Scalar, Space>.Width
 ) -> Geometry<Scalar, Space>.Width where Space.Scalar == Scalar {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Subtracts two widths with quantization.
@@ -315,7 +315,7 @@ public func - <Scalar: BinaryFloatingPoint, Space: Quantized>(
     lhs: Geometry<Scalar, Space>.Width,
     rhs: Geometry<Scalar, Space>.Width
 ) -> Geometry<Scalar, Space>.Width where Space.Scalar == Scalar {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 // MARK: - Height * Scale, Width * Scale
@@ -327,7 +327,7 @@ public func * <Scalar: FloatingPoint, Space>(
     lhs: Geometry<Scalar, Space>.Height,
     rhs: Scale<1, Scalar>
 ) -> Geometry<Scalar, Space>.Height {
-    Geometry<Scalar, Space>.Height(lhs._rawValue * rhs.value)
+    Geometry<Scalar, Space>.Height(lhs._storage * rhs.value)
 }
 
 /// Scales a height by a dimensionless factor (commutative, non-quantized fallback).
@@ -347,7 +347,7 @@ public func * <Scalar: FloatingPoint, Space>(
     lhs: Geometry<Scalar, Space>.Width,
     rhs: Scale<1, Scalar>
 ) -> Geometry<Scalar, Space>.Width {
-    Geometry<Scalar, Space>.Width(lhs._rawValue * rhs.value)
+    Geometry<Scalar, Space>.Width(lhs._storage * rhs.value)
 }
 
 /// Scales a width by a dimensionless factor (commutative, non-quantized fallback).
@@ -368,7 +368,7 @@ public func * <Scalar: BinaryFloatingPoint, Space: Quantized>(
     lhs: Geometry<Scalar, Space>.Height,
     rhs: Scale<1, Scalar>
 ) -> Geometry<Scalar, Space>.Height where Space.Scalar == Scalar {
-    ._quantize(lhs._rawValue * rhs.value, in: Space.self)
+    ._quantize(lhs._storage * rhs.value, in: Space.self)
 }
 
 /// Scales a height by a dimensionless factor (commutative) with quantization.
@@ -386,7 +386,7 @@ public func * <Scalar: BinaryFloatingPoint, Space: Quantized>(
     lhs: Geometry<Scalar, Space>.Width,
     rhs: Scale<1, Scalar>
 ) -> Geometry<Scalar, Space>.Width where Space.Scalar == Scalar {
-    ._quantize(lhs._rawValue * rhs.value, in: Space.self)
+    ._quantize(lhs._storage * rhs.value, in: Space.self)
 }
 
 /// Scales a width by a dimensionless factor (commutative) with quantization.

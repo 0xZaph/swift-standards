@@ -11,7 +11,7 @@ extension Tagged where Tag == Angle.Radian, RawValue: Real {
     /// Returns a dimensionless scale factor (ratio of opposite/hypotenuse).
     @inlinable
     public static func sin(of angle: Self) -> Scale<1, RawValue> {
-        Scale(RawValue.sin(angle._rawValue))
+        Scale(RawValue.sin(angle._storage))
     }
 
     /// Cosine of an angle.
@@ -19,7 +19,7 @@ extension Tagged where Tag == Angle.Radian, RawValue: Real {
     /// Returns a dimensionless scale factor (ratio of adjacent/hypotenuse).
     @inlinable
     public static func cos(of angle: Self) -> Scale<1, RawValue> {
-        Scale(RawValue.cos(angle._rawValue))
+        Scale(RawValue.cos(angle._storage))
     }
 
     /// Tangent of an angle.
@@ -27,7 +27,7 @@ extension Tagged where Tag == Angle.Radian, RawValue: Real {
     /// Returns a dimensionless scale factor (ratio of opposite/adjacent).
     @inlinable
     public static func tan(of angle: Self) -> Scale<1, RawValue> {
-        Scale(RawValue.tan(angle._rawValue))
+        Scale(RawValue.tan(angle._storage))
     }
 }
 
@@ -87,7 +87,7 @@ extension Tagged where Tag == Angle.Radian, RawValue: Real {
         y: Displacement.Y<Space>.Value<RawValue>,
         x: Displacement.X<Space>.Value<RawValue>
     ) -> Self {
-        Self(RawValue.atan2(y: y._rawValue, x: x._rawValue))
+        Self(RawValue.atan2(y: y._storage, x: x._storage))
     }
 }
 
@@ -135,7 +135,7 @@ extension Tagged where Tag == Angle.Radian, RawValue: Real {
     /// ```
     @inlinable
     public static func normalized(_ angle: Self) -> Self {
-        var result = angle._rawValue.truncatingRemainder(dividingBy: 2 * RawValue.pi)
+        var result = angle._storage.truncatingRemainder(dividingBy: 2 * RawValue.pi)
         if result < 0 {
             result += 2 * RawValue.pi
         }

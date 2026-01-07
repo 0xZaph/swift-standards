@@ -27,28 +27,39 @@ public import Formatting
 public struct Tagged<Tag, RawValue> {
     /// Internal storage for the raw value.
     ///
-    /// - Note: Use `rawValue` for read access. This is `package` visible
-    ///   to allow `@inlinable` operators within the package.
+    /// - Note: Use `rawValue` for read access. Direct access to `_rawValue`
+    ///   is deprecated and will be removed in a future version.
     @usableFromInline
-    package var _rawValue: RawValue
+    package var _storage: RawValue
 
-    /// The underlying raw value (read-only).
+    /// The underlying raw value.
     ///
     /// Use this to access the wrapped value when needed for interop
     /// with non-Tagged APIs.
     @inlinable
-    public var rawValue: RawValue { _rawValue }
+    public var rawValue: RawValue {
+        get { _storage }
+        set { _storage = newValue }
+    }
+
+    /// Deprecated: Use `rawValue` instead.
+    @available(*, deprecated, renamed: "rawValue", message: "Use 'rawValue' instead. '_rawValue' will be removed in a future version.")
+    @inlinable
+    public var _rawValue: RawValue {
+        get { _storage }
+        set { _storage = newValue }
+    }
 
     /// Creates a tagged value from a raw value.
     @inlinable
     public init(_ rawValue: RawValue) {
-        self._rawValue = rawValue
+        self._storage = rawValue
     }
 
     /// Creates a tagged value from a raw value.
     @inlinable
     public init(rawValue: RawValue) {
-        self._rawValue = rawValue
+        self._storage = rawValue
     }
 
     /// Mutates the raw value in place (package-internal).
@@ -57,7 +68,7 @@ public struct Tagged<Tag, RawValue> {
     /// where domain operations would be too costly.
     @inlinable
     package mutating func modifyRawValue<T>(_ body: (inout RawValue) -> T) -> T {
-        body(&_rawValue)
+        body(&_storage)
     }
 }
 
@@ -73,7 +84,7 @@ extension Tagged: Hashable where RawValue: Hashable {}
 extension Tagged: Comparable where RawValue: Comparable {
     @inlinable
     public static func < (lhs: Tagged, rhs: Tagged) -> Bool {
-        lhs._rawValue < rhs._rawValue
+        lhs._storage < rhs._storage
     }
 
     /// Returns the greater of two tagged values.
@@ -81,7 +92,7 @@ extension Tagged: Comparable where RawValue: Comparable {
     /// Equivalent to `Swift.max(a, b)` but avoids verbose type annotations.
     @inlinable
     public static func max(_ a: Self, _ b: Self) -> Self {
-        a._rawValue >= b._rawValue ? a : b
+        a._storage >= b._storage ? a : b
     }
 
     /// Returns the lesser of two tagged values.
@@ -89,7 +100,7 @@ extension Tagged: Comparable where RawValue: Comparable {
     /// Equivalent to `Swift.min(a, b)` but avoids verbose type annotations.
     @inlinable
     public static func min(_ a: Self, _ b: Self) -> Self {
-        a._rawValue <= b._rawValue ? a : b
+        a._storage <= b._storage ? a : b
     }
 }
 
@@ -102,7 +113,7 @@ extension Tagged {
         _ tagged: Tagged,
         transform: (RawValue) throws -> NewRawValue
     ) rethrows -> Tagged<Tag, NewRawValue> {
-        Tagged<Tag, NewRawValue>(try transform(tagged._rawValue))
+        Tagged<Tag, NewRawValue>(try transform(tagged._storage))
     }
 
     /// Changes the tag type of a tagged value while preserving the raw value (zero-cost conversion).
@@ -111,7 +122,7 @@ extension Tagged {
         _ tagged: Tagged,
         to _: NewTag.Type = NewTag.self
     ) -> Tagged<NewTag, RawValue> {
-        Tagged<NewTag, RawValue>(tagged._rawValue)
+        Tagged<NewTag, RawValue>(tagged._storage)
     }
 }
 
@@ -138,14 +149,14 @@ extension Tagged {
 extension Tagged: ExpressibleByIntegerLiteral where RawValue: ExpressibleByIntegerLiteral {
     @inlinable
     public init(integerLiteral value: RawValue.IntegerLiteralType) {
-        self._rawValue = RawValue(integerLiteral: value)
+        self._storage = RawValue(integerLiteral: value)
     }
 }
 
 extension Tagged: ExpressibleByFloatLiteral where RawValue: ExpressibleByFloatLiteral {
     @inlinable
     public init(floatLiteral value: RawValue.FloatLiteralType) {
-        self._rawValue = RawValue(floatLiteral: value)
+        self._storage = RawValue(floatLiteral: value)
     }
 }
 
@@ -153,7 +164,7 @@ extension Tagged: ExpressibleByUnicodeScalarLiteral
 where RawValue: ExpressibleByUnicodeScalarLiteral {
     @inlinable
     public init(unicodeScalarLiteral value: RawValue.UnicodeScalarLiteralType) {
-        self._rawValue = RawValue(unicodeScalarLiteral: value)
+        self._storage = RawValue(unicodeScalarLiteral: value)
     }
 }
 
@@ -161,21 +172,21 @@ extension Tagged: ExpressibleByExtendedGraphemeClusterLiteral
 where RawValue: ExpressibleByExtendedGraphemeClusterLiteral {
     @inlinable
     public init(extendedGraphemeClusterLiteral value: RawValue.ExtendedGraphemeClusterLiteralType) {
-        self._rawValue = RawValue(extendedGraphemeClusterLiteral: value)
+        self._storage = RawValue(extendedGraphemeClusterLiteral: value)
     }
 }
 
 extension Tagged: ExpressibleByStringLiteral where RawValue: ExpressibleByStringLiteral {
     @inlinable
     public init(stringLiteral value: RawValue.StringLiteralType) {
-        self._rawValue = RawValue(stringLiteral: value)
+        self._storage = RawValue(stringLiteral: value)
     }
 }
 
 extension Tagged: ExpressibleByBooleanLiteral where RawValue: ExpressibleByBooleanLiteral {
     @inlinable
     public init(booleanLiteral value: RawValue.BooleanLiteralType) {
-        self._rawValue = RawValue(booleanLiteral: value)
+        self._storage = RawValue(booleanLiteral: value)
     }
 }
 
@@ -196,23 +207,23 @@ extension Tagged where RawValue: FloatingPoint {
 
     /// A Boolean value indicating whether this instance is NaN.
     @inlinable
-    public var isNaN: Bool { _rawValue.isNaN }
+    public var isNaN: Bool { _storage.isNaN }
 
     /// A Boolean value indicating whether this instance is infinite.
     @inlinable
-    public var isInfinite: Bool { _rawValue.isInfinite }
+    public var isInfinite: Bool { _storage.isInfinite }
 
     /// A Boolean value indicating whether this instance is finite.
     @inlinable
-    public var isFinite: Bool { _rawValue.isFinite }
+    public var isFinite: Bool { _storage.isFinite }
 
     /// A Boolean value indicating whether this instance is zero.
     @inlinable
-    public var isZero: Bool { _rawValue.isZero }
+    public var isZero: Bool { _storage.isZero }
 
     /// The sign of this value.
     @inlinable
-    public var sign: FloatingPointSign { _rawValue.sign }
+    public var sign: FloatingPointSign { _storage.sign }
 }
 
 // MARK: - Square Root for Measures
@@ -224,7 +235,7 @@ extension Tagged where RawValue: FloatingPoint {
 public func sqrt<Space, Scalar: FloatingPoint>(
     _ value: Tagged<Area<Space>, Scalar>
 ) -> Tagged<Magnitude<Space>, Scalar> {
-    Tagged(value._rawValue.squareRoot())
+    Tagged(value._storage.squareRoot())
 }
 
 /// Square root of volume returns area.
@@ -234,14 +245,14 @@ public func sqrt<Space, Scalar: FloatingPoint>(
 public func sqrt<Space, Scalar: FloatingPoint>(
     _ value: Tagged<Volume<Space>, Scalar>
 ) -> Tagged<Area<Space>, Scalar> {
-    Tagged(value._rawValue.squareRoot())
+    Tagged(value._storage.squareRoot())
 }
 
 extension Tagged where RawValue: FloatingPoint {
     /// The square root of this value.
     @inlinable
     public func squareRoot() -> Self {
-        Self(_rawValue.squareRoot())
+        Self(_storage.squareRoot())
     }
 }
 
@@ -252,12 +263,12 @@ extension Tagged: Strideable where RawValue: Strideable {
 
     @inlinable
     public func distance(to other: Self) -> Stride {
-        _rawValue.distance(to: other._rawValue)
+        _storage.distance(to: other._storage)
     }
 
     @inlinable
     public func advanced(by n: Stride) -> Self {
-        Self(_rawValue.advanced(by: n))
+        Self(_storage.advanced(by: n))
     }
 }
 
@@ -276,7 +287,7 @@ extension Tagged where RawValue: SignedNumeric, RawValue.Magnitude == RawValue {
     /// Mathematically: `|x|` where the result has the same unit/type as the input.
     @inlinable
     public var magnitude: Self {
-        Self(_rawValue.magnitude)
+        Self(_storage.magnitude)
     }
 }
 
@@ -308,6 +319,6 @@ extension Tagged where RawValue: FloatingPoint {
     /// - Returns: Formatted string representation
     @inlinable
     public func formatted(_ format: Format.FloatingPoint) -> String {
-        format.format(_rawValue)
+        format.format(_storage)
     }
 }

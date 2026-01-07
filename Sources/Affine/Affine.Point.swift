@@ -149,20 +149,20 @@ extension Affine.Point where N == 2 {
     @inlinable
     public var x: Affine.X {
         get { Affine.X(coordinates[0]) }
-        set { coordinates[0] = newValue._rawValue }
+        set { coordinates[0] = newValue._storage }
     }
 
     /// Vertical coordinate position.
     @inlinable
     public var y: Affine.Y {
         get { Affine.Y(coordinates[1]) }
-        set { coordinates[1] = newValue._rawValue }
+        set { coordinates[1] = newValue._storage }
     }
 
     /// Creates 2D point from type-safe coordinate components.
     @inlinable
     public init(x: Affine.X, y: Affine.Y) {
-        self.init([x._rawValue, y._rawValue])
+        self.init([x._storage, y._storage])
     }
 }
 
@@ -173,27 +173,27 @@ extension Affine.Point where N == 3 {
     @inlinable
     public var x: Affine.X {
         get { .init(coordinates[0]) }
-        set { coordinates[0] = newValue._rawValue }
+        set { coordinates[0] = newValue._storage }
     }
 
     /// Vertical coordinate position.
     @inlinable
     public var y: Affine.Y {
         get { .init(coordinates[1]) }
-        set { coordinates[1] = newValue._rawValue }
+        set { coordinates[1] = newValue._storage }
     }
 
     /// Depth coordinate position.
     @inlinable
     public var z: Affine.Z {
         get { .init(coordinates[2]) }
-        set { coordinates[2] = newValue._rawValue }
+        set { coordinates[2] = newValue._storage }
     }
 
     /// Creates 3D point from type-safe coordinate components.
     @inlinable
     public init(x: Affine.X, y: Affine.Y, z: Affine.Z) {
-        self.init([x._rawValue, y._rawValue, z._rawValue])
+        self.init([x._storage, y._storage, z._storage])
     }
 
     /// Creates 3D point by extending 2D point with depth coordinate.
@@ -210,34 +210,34 @@ extension Affine.Point where N == 4 {
     @inlinable
     public var x: Affine.X {
         get { .init(coordinates[0]) }
-        set { coordinates[0] = newValue._rawValue }
+        set { coordinates[0] = newValue._storage }
     }
 
     /// Vertical coordinate position.
     @inlinable
     public var y: Affine.Y {
         get { .init(coordinates[1]) }
-        set { coordinates[1] = newValue._rawValue }
+        set { coordinates[1] = newValue._storage }
     }
 
     /// Depth coordinate position.
     @inlinable
     public var z: Affine.Z {
         get { .init(coordinates[2]) }
-        set { coordinates[2] = newValue._rawValue }
+        set { coordinates[2] = newValue._storage }
     }
 
     /// Homogeneous coordinate for projective transformations.
     @inlinable
     public var w: Affine.W {
         get { .init(coordinates[3]) }
-        set { coordinates[3] = newValue._rawValue }
+        set { coordinates[3] = newValue._storage }
     }
 
     /// Creates 4D point from type-safe coordinate components.
     @inlinable
     public init(x: Affine.X, y: Affine.Y, z: Affine.Z, w: Affine.W) {
-        self.init([x._rawValue, y._rawValue, z._rawValue, w._rawValue])
+        self.init([x._storage, y._storage, z._storage, w._storage])
     }
 
     /// Creates 4D point by extending 3D point with homogeneous coordinate.

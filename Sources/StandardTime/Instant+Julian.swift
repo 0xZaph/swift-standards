@@ -43,7 +43,7 @@ extension Instant {
     /// Uses the Unix epoch Julian Day (2440587.5) as reference.
     public static func from(_ julianDay: Time.Julian.Day) -> Self {
         let offset = julianDay - .unixEpoch
-        let days = offset._rawValue
+        let days = offset._storage
 
         let secondsPerDay: Double = 86400.0
         let totalSeconds = days * secondsPerDay

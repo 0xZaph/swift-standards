@@ -55,7 +55,7 @@ extension Tagged where Tag == Angle.Radian, RawValue: BinaryFloatingPoint {
     /// ```
     @inlinable
     public init(degrees: Degree<RawValue>) {
-        self.init(degrees._rawValue * .pi / 180)
+        self.init(degrees._storage * .pi / 180)
     }
 }
 

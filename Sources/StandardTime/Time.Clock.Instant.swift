@@ -24,7 +24,7 @@ extension Tagged: InstantProtocol where RawValue == Int64 {
     /// Positive if `other` is after `self`, negative otherwise.
     @inlinable
     public func duration(to other: Self) -> Duration {
-        .nanoseconds(other._rawValue - self._rawValue)
+        .nanoseconds(other._storage - self._storage)
     }
 
     /// Returns a new instant advanced by the specified duration.
@@ -56,7 +56,7 @@ extension Tagged: InstantProtocol where RawValue == Int64 {
         let (deltaNs, ov2) = secToNs.addingReportingOverflow(subNs)
         if ov2 { throw .overflow }
 
-        let (result, ov3) = self._rawValue.addingReportingOverflow(deltaNs)
+        let (result, ov3) = self._storage.addingReportingOverflow(deltaNs)
         if ov3 { throw .overflow }
 
         return Self(result)

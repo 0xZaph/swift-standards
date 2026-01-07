@@ -33,8 +33,8 @@ extension Linear.Vector where N == 2, Scalar: Real & BinaryFloatingPoint {
     @inlinable
     public static func polar(length: Linear.Length, angle: Radian<Scalar>) -> Self {
         Self(
-            dx: Linear.Dx(length._rawValue * angle.cos.value),
-            dy: Linear.Dy(length._rawValue * angle.sin.value)
+            dx: Linear.Dx(length._storage * angle.cos.value),
+            dy: Linear.Dy(length._storage * angle.sin.value)
         )
     }
 }
@@ -67,7 +67,7 @@ extension Linear.Vector where N == 2, Scalar: Real & BinaryFloatingPoint {
     /// Note: cross returns Area, dot returns Scalar (both dimension Length²), ratio is dimensionless.
     @inlinable
     public static func signedAngle(_ lhs: Self, to rhs: Self) -> Radian<Scalar> {
-        let crossProduct = cross(lhs, rhs)._rawValue
+        let crossProduct = cross(lhs, rhs)._storage
         let dotProduct = dot(lhs, rhs)
         return Radian(Scalar.atan2(y: crossProduct, x: dotProduct))
     }
@@ -89,8 +89,8 @@ extension Linear.Vector where N == 2, Scalar: Real & BinaryFloatingPoint {
     public static func rotated(_ vector: Self, by angle: Radian<Scalar>) -> Self {
         let c = angle.cos.value
         let s = angle.sin.value
-        let x = vector.dx._rawValue
-        let y = vector.dy._rawValue
+        let x = vector.dx._storage
+        let y = vector.dy._storage
         return Self(
             dx: Linear.Dx(x * c - y * s),
             dy: Linear.Dy(x * s + y * c)

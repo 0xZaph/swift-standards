@@ -138,7 +138,7 @@ extension Geometry.Ellipse where Scalar: Real & BinaryFloatingPoint {
     /// The two foci of the ellipse
     @inlinable
     public var foci: (f1: Geometry.Point<2>, f2: Geometry.Point<2>) {
-        let c: Scalar = focalDistance._rawValue
+        let c: Scalar = focalDistance._storage
         let cosVal: Scalar = rotation.cos.value
         let sinVal: Scalar = rotation.sin.value
 
@@ -174,8 +174,8 @@ extension Geometry.Ellipse where Scalar: FloatingPoint {
     /// dimensionless ratios and transcendental operations that don't benefit from type tracking.
     @inlinable
     public var perimeter: Geometry.Perimeter {
-        let a: Scalar = semiMajor._rawValue
-        let b: Scalar = semiMinor._rawValue
+        let a: Scalar = semiMajor._storage
+        let b: Scalar = semiMinor._storage
         let diff: Scalar = a - b
         let sum: Scalar = a + b
         let h: Scalar = (diff * diff) / (sum * sum)
@@ -213,8 +213,8 @@ extension Geometry.Ellipse where Scalar: Real & BinaryFloatingPoint {
     public func tangent(at t: Radian<Scalar>) -> Geometry.Vector<2> {
         let cosT: Scalar = t.cos.value
         let sinT: Scalar = t.sin.value
-        let a: Scalar = semiMajor._rawValue
-        let b: Scalar = semiMinor._rawValue
+        let a: Scalar = semiMajor._storage
+        let b: Scalar = semiMinor._storage
 
         // Derivative of point on unrotated ellipse
         let dx: Scalar = -a * sinT
@@ -343,8 +343,8 @@ extension Geometry where Scalar: Real & BinaryFloatingPoint {
     @inlinable
     public static func contains(_ ellipse: Ellipse, point: Point<2>) -> Bool {
         // Transform point to ellipse-local coordinates
-        let dx: Scalar = point.x._rawValue - ellipse.center.x._rawValue
-        let dy: Scalar = point.y._rawValue - ellipse.center.y._rawValue
+        let dx: Scalar = point.x._storage - ellipse.center.x._storage
+        let dy: Scalar = point.y._storage - ellipse.center.y._storage
 
         // Rotate by -rotation to align with axes
         let cosR: Scalar = ellipse.rotation.cos.value
@@ -353,8 +353,8 @@ extension Geometry where Scalar: Real & BinaryFloatingPoint {
         let localY: Scalar = -dx * sinR + dy * cosR
 
         // Check ellipse equation: (x/a)² + (y/b)² ≤ 1
-        let a: Scalar = ellipse.semiMajor._rawValue
-        let b: Scalar = ellipse.semiMinor._rawValue
+        let a: Scalar = ellipse.semiMajor._storage
+        let b: Scalar = ellipse.semiMinor._storage
         let aSq: Scalar = a * a
         let bSq: Scalar = b * b
         let one: Scalar = 1
@@ -366,8 +366,8 @@ extension Geometry where Scalar: Real & BinaryFloatingPoint {
     public static func point(of ellipse: Ellipse, at t: Radian<Scalar>) -> Point<2> {
         let cosT: Scalar = t.cos.value
         let sinT: Scalar = t.sin.value
-        let a: Scalar = ellipse.semiMajor._rawValue
-        let b: Scalar = ellipse.semiMinor._rawValue
+        let a: Scalar = ellipse.semiMajor._storage
+        let b: Scalar = ellipse.semiMinor._storage
 
         // Point on unrotated ellipse
         let x: Scalar = a * cosT
@@ -377,8 +377,8 @@ extension Geometry where Scalar: Real & BinaryFloatingPoint {
         let cosR: Scalar = ellipse.rotation.cos.value
         let sinR: Scalar = ellipse.rotation.sin.value
 
-        let cx: Scalar = ellipse.center.x._rawValue
-        let cy: Scalar = ellipse.center.y._rawValue
+        let cx: Scalar = ellipse.center.x._storage
+        let cy: Scalar = ellipse.center.y._storage
 
         return Point(
             x: Affine<Scalar, Space>.X(cx + x * cosR - y * sinR),
@@ -400,7 +400,7 @@ extension Geometry.Ellipse {
             center: try Affine<Scalar, Space>.Point<2>(other.center, transform),
             semiMajor: try other.semiMajor.map(transform),
             semiMinor: try other.semiMinor.map(transform),
-            rotation: Radian(try transform(other.rotation._rawValue))
+            rotation: Radian(try transform(other.rotation._storage))
         )
     }
 
@@ -413,7 +413,7 @@ extension Geometry.Ellipse {
             center: try center.map(transform),
             semiMajor: try semiMajor.map(transform),
             semiMinor: try semiMinor.map(transform),
-            rotation: Radian(try transform(rotation._rawValue))
+            rotation: Radian(try transform(rotation._storage))
         )
     }
 }
@@ -560,8 +560,8 @@ extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
 
         // Point on unrotated ellipse: (a·cos(t), b·sin(t))
         // Rotation mixes these, requiring raw arithmetic
-        let a = semiMajor._rawValue
-        let b = semiMinor._rawValue
+        let a = semiMajor._storage
+        let b = semiMinor._storage
         let x = a * cosT.value
         let y = b * sinT.value
 
@@ -590,8 +590,8 @@ extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
 
         // Derivative of point on unrotated ellipse: (-a·sin(t), b·cos(t))
         // Rotation mixes these, requiring raw arithmetic
-        let a = semiMajor._rawValue
-        let b = semiMinor._rawValue
+        let a = semiMajor._storage
+        let b = semiMinor._storage
         let dx = -a * sinT.value
         let dy = b * cosT.value
 
@@ -599,7 +599,7 @@ extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
         let sinR = rotation.sin
 
         // Direction sign from sweep
-        let sign: Scalar = sweep._rawValue >= 0 ? 1 : -1
+        let sign: Scalar = sweep._storage >= 0 ? 1 : -1
 
         return Geometry.Vector(
             dx: Geometry.Dx(sign * (dx * cosR.value - dy * sinR.value)),
@@ -659,16 +659,16 @@ extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
         let p0 = startPoint
         let p1 = endPoint
 
-        var minX = min(p0.x._rawValue, p1.x._rawValue)
-        var maxX = max(p0.x._rawValue, p1.x._rawValue)
-        var minY = min(p0.y._rawValue, p1.y._rawValue)
-        var maxY = max(p0.y._rawValue, p1.y._rawValue)
+        var minX = min(p0.x._storage, p1.x._storage)
+        var maxX = max(p0.x._storage, p1.x._storage)
+        var minY = min(p0.y._storage, p1.y._storage)
+        var maxY = max(p0.y._storage, p1.y._storage)
 
         // Check extrema: where dx/dt = 0 or dy/dt = 0
         // For rotated ellipse, extrema occur at specific parameter angles
-        let a = semiMajor._rawValue
-        let b = semiMinor._rawValue
-        let phi = rotation._rawValue
+        let a = semiMajor._storage
+        let b = semiMinor._storage
+        let phi = rotation._storage
 
         // X extrema: tan(t) = -(b/a)·tan(φ)
         let tanPhi = Scalar.tan(phi)
@@ -681,10 +681,10 @@ extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
         for baseAngle in [xExtremaAngle, xExtremaAngle + .pi, yExtremaAngle, yExtremaAngle + .pi] {
             if containsAngle(Radian(baseAngle)) {
                 let pt = pointAtAngle(Radian(baseAngle))
-                minX = min(minX, pt.x._rawValue)
-                maxX = max(maxX, pt.x._rawValue)
-                minY = min(minY, pt.y._rawValue)
-                maxY = max(maxY, pt.y._rawValue)
+                minX = min(minX, pt.x._storage)
+                maxX = max(maxX, pt.x._storage)
+                minY = min(minY, pt.y._storage)
+                maxY = max(maxY, pt.y._storage)
             }
         }
 
@@ -699,10 +699,10 @@ extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
     /// Check if an angle falls within the arc's range.
     @inlinable
     internal func containsAngle(_ angle: Radian<Scalar>) -> Bool {
-        let a = angle._rawValue
-        let s = startAngle._rawValue
-        let e = endAngle._rawValue
-        let sweepVal = sweep._rawValue
+        let a = angle._storage
+        let s = startAngle._storage
+        let e = endAngle._storage
+        let sweepVal = sweep._storage
 
         // Normalize angle to [0, 2π)
         let twoPi = Scalar.pi * 2
@@ -736,8 +736,8 @@ extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
     @inlinable
     public func contains(_ point: Geometry.Point<2>) -> Bool {
         // First check if point is on the ellipse
-        let dx = point.x._rawValue - center.x._rawValue
-        let dy = point.y._rawValue - center.y._rawValue
+        let dx = point.x._storage - center.x._storage
+        let dy = point.y._storage - center.y._storage
 
         // Rotate to ellipse-local coordinates
         let cosR = rotation.cos.value
@@ -746,8 +746,8 @@ extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
         let localY = -dx * sinR + dy * cosR
 
         // Check ellipse equation: (x/a)² + (y/b)² ≈ 1
-        let a = semiMajor._rawValue
-        let b = semiMinor._rawValue
+        let a = semiMajor._storage
+        let b = semiMinor._storage
         let aSq: Scalar = a * a
         let bSq: Scalar = b * b
         let xTerm: Scalar = (localX * localX) / aSq
@@ -790,10 +790,10 @@ extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
         sweepFlag: Bool
     ) {
         // Handle degenerate case: coincident endpoints
-        let x1 = start.x._rawValue
-        let y1 = start.y._rawValue
-        let x2 = end.x._rawValue
-        let y2 = end.y._rawValue
+        let x1 = start.x._storage
+        let y1 = start.y._storage
+        let x2 = end.x._storage
+        let y2 = end.y._storage
 
         if x1 == x2 && y1 == y2 {
             // Degenerate: return zero-length arc at the point
@@ -808,8 +808,8 @@ extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
             return
         }
 
-        var rxVal = abs(rx._rawValue)
-        var ryVal = abs(ry._rawValue)
+        var rxVal = abs(rx._storage)
+        var ryVal = abs(ry._storage)
 
         // Handle degenerate case: zero radii (treat as line)
         if rxVal == 0 || ryVal == 0 {
@@ -827,7 +827,7 @@ extension Geometry.Ellipse.Arc where Scalar: Real & BinaryFloatingPoint {
             return
         }
 
-        let phi = xAxisRotation._rawValue
+        let phi = xAxisRotation._storage
         let cosPhi = Scalar.cos(phi)
         let sinPhi = Scalar.sin(phi)
 
@@ -941,7 +941,7 @@ extension Array {
     public init<Scalar: Real & BinaryFloatingPoint, Space>(
         ellipticalArc arc: Geometry<Scalar, Space>.Ellipse.Arc
     ) where Element == Geometry<Scalar, Space>.Bezier {
-        let sweepRaw = arc.sweep._rawValue
+        let sweepRaw = arc.sweep._storage
         guard abs(sweepRaw) > 0 else {
             self = []
             return
@@ -989,26 +989,26 @@ extension Array {
         from startAngle: Radian<Scalar>,
         to endAngle: Radian<Scalar>
     ) -> Geometry<Scalar, Space>.Bezier where Element == Geometry<Scalar, Space>.Bezier {
-        let sweepRaw = (endAngle - startAngle)._rawValue
+        let sweepRaw = (endAngle - startAngle)._storage
         let halfSweepRaw = sweepRaw / 2
 
         // Control point distance factor: k = (4/3) * tan(θ/2)
         let k = Scalar(4.0 / 3.0) * Scalar.tan(halfSweepRaw / 2)
 
         // Extract raw values for the affine transformation
-        let cx = arc.center.x._rawValue
-        let cy = arc.center.y._rawValue
-        let a = arc.semiMajor._rawValue
-        let b = arc.semiMinor._rawValue
-        let phi = arc.rotation._rawValue
+        let cx = arc.center.x._storage
+        let cy = arc.center.y._storage
+        let a = arc.semiMajor._storage
+        let b = arc.semiMinor._storage
+        let phi = arc.rotation._storage
         let cosPhi = Scalar.cos(phi)
         let sinPhi = Scalar.sin(phi)
 
         // Start and end points on unit circle (parameter space)
-        let cosStart = Scalar.cos(startAngle._rawValue)
-        let sinStart = Scalar.sin(startAngle._rawValue)
-        let cosEnd = Scalar.cos(endAngle._rawValue)
-        let sinEnd = Scalar.sin(endAngle._rawValue)
+        let cosStart = Scalar.cos(startAngle._storage)
+        let sinStart = Scalar.sin(startAngle._storage)
+        let cosEnd = Scalar.cos(endAngle._storage)
+        let sinEnd = Scalar.sin(endAngle._storage)
 
         // Transform from ellipse parameter space to world coordinates
         // Point on unrotated ellipse: (a·cos(t), b·sin(t))
@@ -1127,9 +1127,9 @@ extension Geometry.Ellipse.Arc {
             center: try Affine<Scalar, Space>.Point<2>(other.center, transform),
             semiMajor: try other.semiMajor.map(transform),
             semiMinor: try other.semiMinor.map(transform),
-            rotation: Radian(try transform(other.rotation._rawValue)),
-            startAngle: Radian(try transform(other.startAngle._rawValue)),
-            endAngle: Radian(try transform(other.endAngle._rawValue))
+            rotation: Radian(try transform(other.rotation._storage)),
+            startAngle: Radian(try transform(other.startAngle._storage)),
+            endAngle: Radian(try transform(other.endAngle._storage))
         )
     }
 
@@ -1142,9 +1142,9 @@ extension Geometry.Ellipse.Arc {
             center: try center.map(transform),
             semiMajor: try semiMajor.map(transform),
             semiMinor: try semiMinor.map(transform),
-            rotation: Radian(try transform(rotation._rawValue)),
-            startAngle: Radian(try transform(startAngle._rawValue)),
-            endAngle: Radian(try transform(endAngle._rawValue))
+            rotation: Radian(try transform(rotation._storage)),
+            startAngle: Radian(try transform(startAngle._storage)),
+            endAngle: Radian(try transform(endAngle._storage))
         )
     }
 }

@@ -23,14 +23,14 @@ extension Affine.Point where N == 2, Scalar: Real & BinaryFloatingPoint {
     /// Angular direction from origin to this point in radians.
     @inlinable
     public var angle: Radian<Scalar> {
-        Radian(Scalar.atan2(y: y._rawValue, x: x._rawValue))
+        Radian(Scalar.atan2(y: y._storage, x: x._storage))
     }
 
     /// Distance from origin to this point.
     @inlinable
     public var radius: Affine.Distance {
         // sqrt(x² + y²) using raw values since coordinates can't be multiplied
-        Affine.Distance(Scalar.sqrt(x._rawValue * x._rawValue + y._rawValue * y._rawValue))
+        Affine.Distance(Scalar.sqrt(x._storage * x._storage + y._storage * y._storage))
     }
 }
 
@@ -45,8 +45,8 @@ extension Affine.Point where N == 2, Scalar: Real & BinaryFloatingPoint {
     ) -> Self {
         let c = angle.cos.value
         let s = angle.sin.value
-        let px = point.x._rawValue
-        let py = point.y._rawValue
+        let px = point.x._storage
+        let py = point.y._storage
         return Self(
             x: Affine.X(px * c - py * s),
             y: Affine.Y(px * s + py * c)

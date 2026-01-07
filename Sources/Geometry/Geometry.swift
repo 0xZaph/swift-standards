@@ -179,19 +179,19 @@ extension Geometry.Magnitude {
     /// Project magnitude as horizontal displacement (width).
     @inlinable
     public var width: Geometry.Width {
-        Geometry.Width(rawValue._rawValue)
+        Geometry.Width(rawValue._storage)
     }
 
     /// Project magnitude as vertical displacement (height).
     @inlinable
     public var height: Geometry.Height {
-        Geometry.Height(rawValue._rawValue)
+        Geometry.Height(rawValue._storage)
     }
 
     /// Underlying scalar value.
     @inlinable
     public var value: Scalar {
-        rawValue._rawValue
+        rawValue._storage
     }
 }
 

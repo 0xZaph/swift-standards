@@ -109,25 +109,25 @@ extension Binary.Cursor where Storage: ~Copyable {
             throw .overflow(.init(operation: .conversion, field: .count))
         }
 
-        guard readerIndex._rawValue >= 0 else {
-            throw .negative(.init(field: .reader, value: readerIndex._rawValue))
+        guard readerIndex._storage >= 0 else {
+            throw .negative(.init(field: .reader, value: readerIndex._storage))
         }
 
-        guard writerIndex._rawValue >= readerIndex._rawValue else {
+        guard writerIndex._storage >= readerIndex._storage else {
             throw .invariant(
                 .init(
                     kind: .reader,
-                    left: readerIndex._rawValue,
-                    right: writerIndex._rawValue
+                    left: readerIndex._storage,
+                    right: writerIndex._storage
                 )
             )
         }
 
-        guard writerIndex._rawValue <= count else {
+        guard writerIndex._storage <= count else {
             throw .bounds(
                 .init(
                     field: .writer,
-                    value: writerIndex._rawValue,
+                    value: writerIndex._storage,
                     lower: Storage.Scalar(0),
                     upper: count
                 )
@@ -165,9 +165,9 @@ extension Binary.Cursor where Storage: ~Copyable {
     ) {
         let count = Storage.Scalar(exactly: storage.count)
         precondition(count != nil, "storage.count exceeds Scalar range")
-        precondition(readerIndex._rawValue >= 0)
-        precondition(writerIndex._rawValue >= readerIndex._rawValue)
-        precondition(writerIndex._rawValue <= count!)
+        precondition(readerIndex._storage >= 0)
+        precondition(writerIndex._storage >= readerIndex._storage)
+        precondition(writerIndex._storage <= count!)
         self.storage = storage
         self._count = count!
         self._readerIndex = readerIndex
@@ -182,26 +182,26 @@ extension Binary.Cursor where Storage: ~Copyable {
     @inlinable
     public var readableCount: Binary.Count<Storage.Scalar, Storage.Space> {
         // Safe: invariant guarantees writer >= reader
-        Binary.Count(unchecked: _writerIndex._rawValue - _readerIndex._rawValue)
+        Binary.Count(unchecked: _writerIndex._storage - _readerIndex._storage)
     }
 
     /// Bytes available for writing.
     @inlinable
     public var writableCount: Binary.Count<Storage.Scalar, Storage.Space> {
         // Safe: invariant guarantees count >= writer
-        Binary.Count(unchecked: _count - _writerIndex._rawValue)
+        Binary.Count(unchecked: _count - _writerIndex._storage)
     }
 
     /// Whether there are bytes available to read.
     @inlinable
     public var isReadable: Bool {
-        _writerIndex._rawValue > _readerIndex._rawValue
+        _writerIndex._storage > _readerIndex._storage
     }
 
     /// Whether there is space available to write.
     @inlinable
     public var isWritable: Bool {
-        _count > _writerIndex._rawValue
+        _count > _writerIndex._storage
     }
 }
 
@@ -216,7 +216,7 @@ extension Binary.Cursor where Storage: ~Copyable {
     public mutating func moveReaderIndex(
         by offset: Binary.Offset<Storage.Scalar, Storage.Space>
     ) throws(Binary.Error) {
-        let (newIndex, overflow) = _readerIndex._rawValue.addingReportingOverflow(offset._rawValue)
+        let (newIndex, overflow) = _readerIndex._storage.addingReportingOverflow(offset._storage)
 
         guard !overflow else {
             throw .overflow(.init(operation: .addition, field: .reader))
@@ -228,17 +228,17 @@ extension Binary.Cursor where Storage: ~Copyable {
                     field: .reader,
                     value: newIndex,
                     lower: Storage.Scalar(0),
-                    upper: _writerIndex._rawValue
+                    upper: _writerIndex._storage
                 )
             )
         }
 
-        guard newIndex <= _writerIndex._rawValue else {
+        guard newIndex <= _writerIndex._storage else {
             throw .invariant(
                 .init(
                     kind: .reader,
                     left: newIndex,
-                    right: _writerIndex._rawValue
+                    right: _writerIndex._storage
                 )
             )
         }
@@ -258,9 +258,9 @@ extension Binary.Cursor where Storage: ~Copyable {
         __unchecked: Void = (),
         by offset: Binary.Offset<Storage.Scalar, Storage.Space>
     ) {
-        let (newIndex, overflow) = _readerIndex._rawValue.addingReportingOverflow(offset._rawValue)
+        let (newIndex, overflow) = _readerIndex._storage.addingReportingOverflow(offset._storage)
         precondition(!overflow, "readerIndex arithmetic overflow")
-        precondition(newIndex >= 0 && newIndex <= _writerIndex._rawValue)
+        precondition(newIndex >= 0 && newIndex <= _writerIndex._storage)
         _readerIndex = Binary.Position(newIndex)
     }
 }
@@ -276,17 +276,17 @@ extension Binary.Cursor where Storage: ~Copyable {
     public mutating func moveWriterIndex(
         by offset: Binary.Offset<Storage.Scalar, Storage.Space>
     ) throws(Binary.Error) {
-        let (newIndex, overflow) = _writerIndex._rawValue.addingReportingOverflow(offset._rawValue)
+        let (newIndex, overflow) = _writerIndex._storage.addingReportingOverflow(offset._storage)
 
         guard !overflow else {
             throw .overflow(.init(operation: .addition, field: .writer))
         }
 
-        guard newIndex >= _readerIndex._rawValue else {
+        guard newIndex >= _readerIndex._storage else {
             throw .invariant(
                 .init(
                     kind: .reader,
-                    left: _readerIndex._rawValue,
+                    left: _readerIndex._storage,
                     right: newIndex
                 )
             )
@@ -297,7 +297,7 @@ extension Binary.Cursor where Storage: ~Copyable {
                 .init(
                     field: .writer,
                     value: newIndex,
-                    lower: _readerIndex._rawValue,
+                    lower: _readerIndex._storage,
                     upper: _count
                 )
             )
@@ -318,9 +318,9 @@ extension Binary.Cursor where Storage: ~Copyable {
         __unchecked: Void = (),
         by offset: Binary.Offset<Storage.Scalar, Storage.Space>
     ) {
-        let (newIndex, overflow) = _writerIndex._rawValue.addingReportingOverflow(offset._rawValue)
+        let (newIndex, overflow) = _writerIndex._storage.addingReportingOverflow(offset._storage)
         precondition(!overflow, "writerIndex arithmetic overflow")
-        precondition(newIndex >= _readerIndex._rawValue)
+        precondition(newIndex >= _readerIndex._storage)
         precondition(newIndex <= _count)
         _writerIndex = Binary.Position(newIndex)
     }
@@ -337,16 +337,16 @@ extension Binary.Cursor where Storage: ~Copyable {
     public mutating func setReaderIndex(
         to position: Binary.Position<Storage.Scalar, Storage.Space>
     ) throws(Binary.Error) {
-        guard position._rawValue >= 0 else {
-            throw .negative(.init(field: .reader, value: position._rawValue))
+        guard position._storage >= 0 else {
+            throw .negative(.init(field: .reader, value: position._storage))
         }
 
-        guard position._rawValue <= _writerIndex._rawValue else {
+        guard position._storage <= _writerIndex._storage else {
             throw .invariant(
                 .init(
                     kind: .reader,
-                    left: position._rawValue,
-                    right: _writerIndex._rawValue
+                    left: position._storage,
+                    right: _writerIndex._storage
                 )
             )
         }
@@ -365,8 +365,8 @@ extension Binary.Cursor where Storage: ~Copyable {
         __unchecked: Void = (),
         to position: Binary.Position<Storage.Scalar, Storage.Space>
     ) {
-        precondition(position._rawValue >= 0)
-        precondition(position._rawValue <= _writerIndex._rawValue)
+        precondition(position._storage >= 0)
+        precondition(position._storage <= _writerIndex._storage)
         _readerIndex = position
     }
 }
@@ -382,22 +382,22 @@ extension Binary.Cursor where Storage: ~Copyable {
     public mutating func setWriterIndex(
         to position: Binary.Position<Storage.Scalar, Storage.Space>
     ) throws(Binary.Error) {
-        guard position._rawValue >= _readerIndex._rawValue else {
+        guard position._storage >= _readerIndex._storage else {
             throw .invariant(
                 .init(
                     kind: .reader,
-                    left: _readerIndex._rawValue,
-                    right: position._rawValue
+                    left: _readerIndex._storage,
+                    right: position._storage
                 )
             )
         }
 
-        guard position._rawValue <= _count else {
+        guard position._storage <= _count else {
             throw .bounds(
                 .init(
                     field: .writer,
-                    value: position._rawValue,
-                    lower: _readerIndex._rawValue,
+                    value: position._storage,
+                    lower: _readerIndex._storage,
                     upper: _count
                 )
             )
@@ -417,8 +417,8 @@ extension Binary.Cursor where Storage: ~Copyable {
         __unchecked: Void = (),
         to position: Binary.Position<Storage.Scalar, Storage.Space>
     ) {
-        precondition(position._rawValue >= _readerIndex._rawValue)
-        precondition(position._rawValue <= _count)
+        precondition(position._storage >= _readerIndex._storage)
+        precondition(position._storage <= _count)
         _writerIndex = position
     }
 }
@@ -445,8 +445,8 @@ extension Binary.Cursor where Storage: ~Copyable {
     public func withReadableBytes<R, E: Swift.Error>(
         _ body: (UnsafeRawBufferPointer) throws(E) -> R
     ) throws(E) -> R {
-        let readerIdx = Int(_readerIndex._rawValue)
-        let writerIdx = Int(_writerIndex._rawValue)
+        let readerIdx = Int(_readerIndex._storage)
+        let writerIdx = Int(_writerIndex._storage)
         return try storage.withUnsafeBytes { (ptr: UnsafeRawBufferPointer) throws(E) -> R in
             let slice = UnsafeRawBufferPointer(rebasing: ptr[readerIdx..<writerIdx])
             return try body(slice)
@@ -461,7 +461,7 @@ extension Binary.Cursor where Storage: ~Copyable {
     public mutating func withWritableBytes<R, E: Swift.Error>(
         _ body: (UnsafeMutableRawBufferPointer) throws(E) -> R
     ) throws(E) -> R {
-        let writerIdx = Int(_writerIndex._rawValue)
+        let writerIdx = Int(_writerIndex._storage)
         let storageCount = Int(_count)
         return try storage.withUnsafeMutableBytes {
             (ptr: UnsafeMutableRawBufferPointer) throws(E) -> R in

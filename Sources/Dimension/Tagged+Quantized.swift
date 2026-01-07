@@ -35,7 +35,7 @@ extension Tagged where Tag: Spatial, Tag.Space: Quantized, RawValue: BinaryFloat
     @inlinable
     public var ticks: Int64 {
         let q = Tag.Space.quantum(as: RawValue.self)
-        return Int64((_rawValue / q).rounded())
+        return Int64((_storage / q).rounded())
     }
 
     /// Creates a tagged value from an integer tick count.

@@ -35,7 +35,17 @@ extension Binary {
     /// ```
     public struct Count<Scalar: BinaryInteger & Sendable, Space>: Sendable, Equatable, Hashable {
         /// The underlying non-negative value.
-        public let _rawValue: Scalar
+        @usableFromInline
+        internal let _storage: Scalar
+
+        /// The underlying non-negative value.
+        @inlinable
+        public var rawValue: Scalar { _storage }
+
+        /// Deprecated: Use `rawValue` instead.
+        @available(*, deprecated, renamed: "rawValue", message: "Use 'rawValue' instead. '_rawValue' will be removed in a future version.")
+        @inlinable
+        public var _rawValue: Scalar { _storage }
     }
 }
 
@@ -51,7 +61,7 @@ extension Binary.Count {
         guard value >= 0 else {
             throw .negative(.init(field: .count, value: value))
         }
-        self._rawValue = value
+        self._storage = value
     }
 
     /// Creates a count from a typed extent.
@@ -60,10 +70,10 @@ extension Binary.Count {
     /// - Throws: `Binary.Error.negative` if value < 0.
     @inlinable
     public init(_ extent: Extent.X<Space>.Value<Scalar>) throws(Binary.Error) {
-        guard extent._rawValue >= 0 else {
-            throw .negative(.init(field: .count, value: extent._rawValue))
+        guard extent._storage >= 0 else {
+            throw .negative(.init(field: .count, value: extent._storage))
         }
-        self._rawValue = extent._rawValue
+        self._storage = extent._storage
     }
 }
 
@@ -80,7 +90,7 @@ extension Binary.Count {
     @inlinable
     public init(unchecked value: Scalar) {
         assert(value >= 0, "Count cannot be negative")
-        self._rawValue = value
+        self._storage = value
     }
 }
 
@@ -94,7 +104,7 @@ extension Binary.Count: ExpressibleByIntegerLiteral where Scalar: ExpressibleByI
     public init(integerLiteral value: Scalar.IntegerLiteralType) {
         let scalar = Scalar(integerLiteral: value)
         precondition(scalar >= 0, "Count literal cannot be negative")
-        self._rawValue = scalar
+        self._storage = scalar
     }
 }
 
@@ -103,7 +113,7 @@ extension Binary.Count: ExpressibleByIntegerLiteral where Scalar: ExpressibleByI
 extension Binary.Count: Comparable {
     @inlinable
     public static func < (lhs: Self, rhs: Self) -> Bool {
-        lhs._rawValue < rhs._rawValue
+        lhs._storage < rhs._storage
     }
 }
 
@@ -125,7 +135,7 @@ extension Binary.Count {
     /// Result is guaranteed non-negative since both operands are.
     @inlinable
     public static func + (lhs: Self, rhs: Self) -> Self {
-        Self(unchecked: lhs._rawValue + rhs._rawValue)
+        Self(unchecked: lhs._storage + rhs._storage)
     }
 }
 
@@ -138,13 +148,13 @@ extension Binary.Count {
     @inlinable
     public static func - (lhs: Self, rhs: Self) throws(Binary.Error) -> Self {
         // Check BEFORE subtraction to avoid unsigned underflow trap
-        guard lhs._rawValue >= rhs._rawValue else {
+        guard lhs._storage >= rhs._storage else {
             // Compute what the negative result would be for error reporting
             // Use Int64 to avoid overflow in the error value
-            let negativeResult = Int64(clamping: lhs._rawValue) - Int64(clamping: rhs._rawValue)
+            let negativeResult = Int64(clamping: lhs._storage) - Int64(clamping: rhs._storage)
             throw .negative(.init(field: .count, value: negativeResult))
         }
-        return Self(unchecked: lhs._rawValue - rhs._rawValue)
+        return Self(unchecked: lhs._storage - rhs._storage)
     }
 }
 
@@ -152,6 +162,6 @@ extension Binary.Count {
 
 extension Binary.Count: CustomStringConvertible {
     public var description: String {
-        "\(_rawValue)"
+        "\(_storage)"
     }
 }

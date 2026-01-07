@@ -34,7 +34,7 @@
 ///
 /// // All coordinates in PDFSpace snap to 0.01 increments
 /// let x: Coordinate.X<PDFSpace>.Value<Double> = .init(1.234)
-/// // x._rawValue == 1.23 (quantized)
+/// // x._storage == 1.23 (quantized)
 /// // Internally computed as: ticks = 123
 /// ```
 public protocol Quantized {

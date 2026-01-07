@@ -143,8 +143,8 @@ extension Geometry.Bezier where Scalar: FloatingPoint {
         guard let tang = tangent(at: t) else { return nil }
         // Rotate 90° counter-clockwise
         return Geometry.Vector(
-            dx: Linear<Scalar, Space>.Dx(-tang.dy._rawValue),
-            dy: Linear<Scalar, Space>.Dy(tang.dx._rawValue)
+            dx: Linear<Scalar, Space>.Dx(-tang.dy._storage),
+            dy: Linear<Scalar, Space>.Dy(tang.dx._storage)
         )
     }
 }
@@ -335,10 +335,10 @@ extension Geometry.Bezier where Scalar: Real & BinaryFloatingPoint {
         // k = (4/3) * tan(π/8) ≈ 0.5522847498
         let k: Scalar = Scalar(0.5522847498307936)
 
-        let cx: Scalar = ellipse.center.x._rawValue
-        let cy: Scalar = ellipse.center.y._rawValue
-        let a: Scalar = ellipse.semiMajor._rawValue
-        let b: Scalar = ellipse.semiMinor._rawValue
+        let cx: Scalar = ellipse.center.x._storage
+        let cy: Scalar = ellipse.center.y._storage
+        let a: Scalar = ellipse.semiMajor._storage
+        let b: Scalar = ellipse.semiMinor._storage
         let cosR: Scalar = ellipse.rotation.cos.value
         let sinR: Scalar = ellipse.rotation.sin.value
 
@@ -431,8 +431,8 @@ extension Geometry where Scalar: FloatingPoint {
         var derivPoints: [Point<2>] = []
         derivPoints.reserveCapacity(bezier.controlPoints.count - 1)
         for i in 0..<(bezier.controlPoints.count - 1) {
-            let dx = bezier.controlPoints[i + 1].x._rawValue - bezier.controlPoints[i].x._rawValue
-            let dy = bezier.controlPoints[i + 1].y._rawValue - bezier.controlPoints[i].y._rawValue
+            let dx = bezier.controlPoints[i + 1].x._storage - bezier.controlPoints[i].x._storage
+            let dy = bezier.controlPoints[i + 1].y._storage - bezier.controlPoints[i].y._storage
             derivPoints.append(Point(x: X(dx), y: Y(dy)))
         }
 
@@ -450,8 +450,8 @@ extension Geometry where Scalar: FloatingPoint {
 
         guard let p = points.first else { return nil }
         return Vector(
-            dx: Linear<Scalar, Space>.Dx(n * p.x._rawValue),
-            dy: Linear<Scalar, Space>.Dy(n * p.y._rawValue)
+            dx: Linear<Scalar, Space>.Dx(n * p.x._storage),
+            dy: Linear<Scalar, Space>.Dy(n * p.y._storage)
         )
     }
 }

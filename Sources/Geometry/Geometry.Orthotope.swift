@@ -227,12 +227,12 @@ extension Geometry.Orthotope where N == 2, Scalar: BinaryInteger {
         urx: Geometry.X,
         ury: Geometry.Y
     ) {
-        let halfWidth = (urx._rawValue - llx._rawValue) / 2
-        let halfHeight = (ury._rawValue - lly._rawValue) / 2
+        let halfWidth = (urx._storage - llx._storage) / 2
+        let halfHeight = (ury._storage - lly._storage) / 2
         self.init(
             center: Geometry.Point(
-                x: Geometry.X(llx._rawValue + halfWidth),
-                y: Geometry.Y(lly._rawValue + halfHeight)
+                x: Geometry.X(llx._storage + halfWidth),
+                y: Geometry.Y(lly._storage + halfHeight)
             ),
             halfExtents: Geometry.Size(
                 width: Geometry.Width(halfWidth),
@@ -518,8 +518,8 @@ extension Geometry.Orthotope where N == 3, Scalar: FloatingPoint {
     /// Volume (width × height × depth).
     @inlinable
     public var volume: Scalar {
-        let w = halfExtents.width._rawValue * 2
-        let h = halfExtents.height._rawValue * 2
+        let w = halfExtents.width._storage * 2
+        let h = halfExtents.height._storage * 2
         let d = halfExtents.depth * 2
         return w * h * d
     }
@@ -527,8 +527,8 @@ extension Geometry.Orthotope where N == 3, Scalar: FloatingPoint {
     /// Surface area (2 × (wh + wd + hd)).
     @inlinable
     public var surfaceArea: Scalar {
-        let w = halfExtents.width._rawValue * 2
-        let h = halfExtents.height._rawValue * 2
+        let w = halfExtents.width._storage * 2
+        let h = halfExtents.height._storage * 2
         let d = halfExtents.depth * 2
         return 2 * (w * h + w * d + h * d)
     }
@@ -536,8 +536,8 @@ extension Geometry.Orthotope where N == 3, Scalar: FloatingPoint {
     /// Space diagonal.
     @inlinable
     public var diagonal: Geometry.Magnitude {
-        let w = halfExtents.width._rawValue * 2
-        let h = halfExtents.height._rawValue * 2
+        let w = halfExtents.width._storage * 2
+        let h = halfExtents.height._storage * 2
         let d = halfExtents.depth * 2
         return Geometry.Magnitude(
             Linear<Scalar, Space>.Magnitude((w * w + h * h + d * d).squareRoot())
@@ -566,22 +566,22 @@ extension Geometry where Scalar: FloatingPoint {
     /// Calculate the area of a rectangle.
     @inlinable
     public static func area(of rectangle: Orthotope<2>) -> Area {
-        Area(rectangle.width._rawValue * rectangle.height._rawValue)
+        Area(rectangle.width._storage * rectangle.height._storage)
     }
 
     /// Calculate the perimeter of a rectangle.
     @inlinable
     public static func perimeter(of rectangle: Orthotope<2>) -> Perimeter {
-        Perimeter((rectangle.width._rawValue + rectangle.height._rawValue) * 2)
+        Perimeter((rectangle.width._storage + rectangle.height._storage) * 2)
     }
 
     /// Check if a rectangle contains a point.
     @inlinable
     public static func contains(_ rectangle: Orthotope<2>, point: Point<2>) -> Bool {
-        let dx = point.x._rawValue - rectangle.center.x._rawValue
-        let dy = point.y._rawValue - rectangle.center.y._rawValue
-        let hw = rectangle.halfExtents.width._rawValue
-        let hh = rectangle.halfExtents.height._rawValue
+        let dx = point.x._storage - rectangle.center.x._storage
+        let dy = point.y._storage - rectangle.center.y._storage
+        let hw = rectangle.halfExtents.width._storage
+        let hh = rectangle.halfExtents.height._storage
         return dx >= -hw && dx <= hw && dy >= -hh && dy <= hh
     }
 

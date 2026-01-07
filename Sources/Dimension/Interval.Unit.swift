@@ -33,7 +33,16 @@ extension Interval where Scalar: BinaryFloatingPoint {
     /// ```
     public struct Unit {
         /// The underlying value in [0, 1].
-        @usableFromInline internal var _rawValue: Scalar
+        @usableFromInline internal var _storage: Scalar
+
+        /// The underlying value in [0, 1].
+        @inlinable
+        public var rawValue: Scalar { _storage }
+
+        /// Deprecated: Use `rawValue` instead.
+        @available(*, deprecated, renamed: "rawValue", message: "Use 'rawValue' instead. '_rawValue' will be removed in a future version.")
+        @inlinable
+        public var _rawValue: Scalar { _storage }
 
         // MARK: - Initializers
 
@@ -52,7 +61,7 @@ extension Interval where Scalar: BinaryFloatingPoint {
         @inlinable
         public init?(_ value: Scalar) {
             guard value.isFinite && value >= 0 && value <= 1 else { return nil }
-            self._rawValue = value
+            self._storage = value
         }
 
         /// Creates a unit value without bounds checking.
@@ -69,7 +78,7 @@ extension Interval where Scalar: BinaryFloatingPoint {
         ) {
             assert(value.isFinite, "Interval.Unit requires finite values")
             assert(value >= 0 && value <= 1, "Interval.Unit requires value in [0, 1]")
-            self._rawValue = value
+            self._storage = value
         }
 
         /// Creates a unit value by clamping to [0, 1].
@@ -89,9 +98,9 @@ extension Interval where Scalar: BinaryFloatingPoint {
         @inlinable
         public init(clamping value: Scalar) {
             if value.isNaN {
-                self._rawValue = 0
+                self._storage = 0
             } else {
-                self._rawValue = min(max(value, 0), 1)
+                self._storage = min(max(value, 0), 1)
             }
         }
     }
@@ -106,7 +115,7 @@ extension Interval.Unit: Sendable where Scalar: Sendable {}
 extension Interval.Unit: Equatable where Scalar: Equatable {
     @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs._rawValue == rhs._rawValue
+        lhs._storage == rhs._storage
     }
 }
 
@@ -115,7 +124,7 @@ extension Interval.Unit: Equatable where Scalar: Equatable {
 extension Interval.Unit: Hashable where Scalar: Hashable {
     @inlinable
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(_rawValue)
+        hasher.combine(_storage)
     }
 }
 
@@ -124,7 +133,7 @@ extension Interval.Unit: Hashable where Scalar: Hashable {
 extension Interval.Unit: Comparable where Scalar: Comparable {
     @inlinable
     public static func < (lhs: Self, rhs: Self) -> Bool {
-        lhs._rawValue < rhs._rawValue
+        lhs._storage < rhs._storage
     }
 }
 
@@ -160,7 +169,7 @@ extension Interval.Unit {
     @inlinable
     public var complement: Self {
         // Clamp to handle floating-point edge cases
-        Self(__unchecked: (), min(max(1 - _rawValue, 0), 1))
+        Self(__unchecked: (), min(max(1 - _storage, 0), 1))
     }
 
     /// Linear interpolation from self to another value.
@@ -182,7 +191,7 @@ extension Interval.Unit {
     @inlinable
     public func interpolated(to other: Self, at t: Self) -> Self {
         // Clamp to handle floating-point edge cases
-        let result = _rawValue * (1 - t._rawValue) + other._rawValue * t._rawValue
+        let result = _storage * (1 - t._storage) + other._storage * t._storage
         return Self(__unchecked: (), min(max(result, 0), 1))
     }
 }
@@ -205,7 +214,7 @@ extension Interval.Unit {
     @inlinable
     public static func * (lhs: Self, rhs: Self) -> Self {
         // Clamp to handle floating-point edge cases
-        Self(__unchecked: (), min(max(lhs._rawValue * rhs._rawValue, 0), 1))
+        Self(__unchecked: (), min(max(lhs._storage * rhs._storage, 0), 1))
     }
 
     @inlinable
@@ -232,7 +241,7 @@ where Scalar: ExpressibleByFloatLiteral {
             "Float literal must be finite and in [0, 1]"
         )
         // Clamp in release builds for safety
-        self._rawValue = scalar.isNaN ? 0 : min(max(scalar, 0), 1)
+        self._storage = scalar.isNaN ? 0 : min(max(scalar, 0), 1)
     }
 }
 
@@ -254,7 +263,7 @@ where Scalar: ExpressibleByIntegerLiteral {
             "Integer literal must be 0 or 1"
         )
         // Clamp in release builds for safety
-        self._rawValue = min(max(scalar, 0), 1)
+        self._storage = min(max(scalar, 0), 1)
     }
 }
 
@@ -279,7 +288,7 @@ where Scalar: ExpressibleByIntegerLiteral {
 
         public func encode(to encoder: any Encoder) throws {
             var container = encoder.singleValueContainer()
-            try container.encode(_rawValue)
+            try container.encode(_storage)
         }
     }
 #endif

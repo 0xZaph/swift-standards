@@ -274,20 +274,20 @@ extension Linear.Vector where N == 2 {
     @inlinable
     public var dx: Linear.Dx {
         get { Linear.Dx(components[0]) }
-        set { components[0] = newValue._rawValue }
+        set { components[0] = newValue._storage }
     }
 
     /// The Y-component (vertical displacement).
     @inlinable
     public var dy: Linear.Dy {
         get { Linear.Dy(components[1]) }
-        set { components[1] = newValue._rawValue }
+        set { components[1] = newValue._storage }
     }
 
     /// Creates a 2D vector from typed displacement components.
     @inlinable
     public init(dx: Linear.Dx, dy: Linear.Dy) {
-        self.init([dx._rawValue, dy._rawValue])
+        self.init([dx._storage, dy._storage])
     }
 }
 
@@ -320,33 +320,33 @@ extension Linear.Vector where N == 3 {
     @inlinable
     public var dx: Linear.Dx {
         get { Linear.Dx(components[0]) }
-        set { components[0] = newValue._rawValue }
+        set { components[0] = newValue._storage }
     }
 
     /// The Y-component.
     @inlinable
     public var dy: Linear.Dy {
         get { Linear.Dy(components[1]) }
-        set { components[1] = newValue._rawValue }
+        set { components[1] = newValue._storage }
     }
 
     /// The Z-component.
     @inlinable
     public var dz: Linear.Dz {
         get { Linear.Dz(components[2]) }
-        set { components[2] = newValue._rawValue }
+        set { components[2] = newValue._storage }
     }
 
     /// Creates a 3D vector from typed displacement components.
     @inlinable
     public init(dx: Linear.Dx, dy: Linear.Dy, dz: Linear.Dz) {
-        self.init([dx._rawValue, dy._rawValue, dz._rawValue])
+        self.init([dx._storage, dy._storage, dz._storage])
     }
 
     /// Creates a 3D vector from a 2D vector by adding a Z-component.
     @inlinable
     public init(_ vector2: Linear.Vector<2>, dz: Linear.Dz) {
-        self.init([vector2.dx._rawValue, vector2.dy._rawValue, dz._rawValue])
+        self.init([vector2.dx._storage, vector2.dy._storage, dz._storage])
     }
 }
 
@@ -360,12 +360,12 @@ extension Linear.Vector where N == 3, Scalar: SignedNumeric {
     /// it's Length² (a bivector in geometric algebra).
     @inlinable
     public static func cross(_ lhs: Self, _ rhs: Self) -> Self {
-        let lx = lhs.dx._rawValue
-        let ly = lhs.dy._rawValue
-        let lz = lhs.dz._rawValue
-        let rx = rhs.dx._rawValue
-        let ry = rhs.dy._rawValue
-        let rz = rhs.dz._rawValue
+        let lx = lhs.dx._storage
+        let ly = lhs.dy._storage
+        let lz = lhs.dz._storage
+        let rx = rhs.dx._storage
+        let ry = rhs.dy._storage
+        let rz = rhs.dz._storage
         return Self(
             dx: Linear.Dx(ly * rz - lz * ry),
             dy: Linear.Dy(lz * rx - lx * rz),
@@ -387,40 +387,40 @@ extension Linear.Vector where N == 4 {
     @inlinable
     public var dx: Linear.Dx {
         get { Linear.Dx(components[0]) }
-        set { components[0] = newValue._rawValue }
+        set { components[0] = newValue._storage }
     }
 
     /// The Y-component.
     @inlinable
     public var dy: Linear.Dy {
         get { Linear.Dy(components[1]) }
-        set { components[1] = newValue._rawValue }
+        set { components[1] = newValue._storage }
     }
 
     /// The Z-component.
     @inlinable
     public var dz: Linear.Dz {
         get { Linear.Dz(components[2]) }
-        set { components[2] = newValue._rawValue }
+        set { components[2] = newValue._storage }
     }
 
     /// The W-component.
     @inlinable
     public var dw: Linear.Dw {
         get { Linear.Dw(components[3]) }
-        set { components[3] = newValue._rawValue }
+        set { components[3] = newValue._storage }
     }
 
     /// Creates a 4D vector from typed displacement components.
     @inlinable
     public init(dx: Linear.Dx, dy: Linear.Dy, dz: Linear.Dz, dw: Linear.Dw) {
-        self.init([dx._rawValue, dy._rawValue, dz._rawValue, dw._rawValue])
+        self.init([dx._storage, dy._storage, dz._storage, dw._storage])
     }
 
     /// Creates a 4D vector from a 3D vector by adding a W-component.
     @inlinable
     public init(_ vector3: Linear.Vector<3>, dw: Linear.Dw) {
-        self.init([vector3.dx._rawValue, vector3.dy._rawValue, vector3.dz._rawValue, dw._rawValue])
+        self.init([vector3.dx._storage, vector3.dy._storage, vector3.dz._storage, dw._storage])
     }
 }
 

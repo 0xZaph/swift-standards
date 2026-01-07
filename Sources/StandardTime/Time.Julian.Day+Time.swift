@@ -57,7 +57,7 @@ extension Time {
     ///
     /// Algorithm: Richards (Explanatory Supplement to the Astronomical Almanac, 3rd ed.)
     public static func from(_ julianDay: Time.Julian.Day) -> Self {
-        let jd = julianDay._rawValue
+        let jd = julianDay._storage
 
         // Extract fractional day for time components
         // JD starts at noon, so JD.0 = noon, JD.5 = midnight

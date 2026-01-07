@@ -293,7 +293,7 @@ extension Tagged: Binary.Serializable where RawValue: Binary.Serializable {
         _ value: Self,
         into buffer: inout Buffer
     ) where Buffer.Element == UInt8 {
-        RawValue.serialize(value._rawValue, into: &buffer)
+        RawValue.serialize(value._storage, into: &buffer)
     }
 
     /// Delegates to raw value's withSerializedBytes for optimal performance.
@@ -302,7 +302,7 @@ extension Tagged: Binary.Serializable where RawValue: Binary.Serializable {
         _ value: Self,
         _ body: (borrowing Span<UInt8>) throws(E) -> R
     ) throws(E) -> R {
-        try RawValue.withSerializedBytes(value._rawValue, body)
+        try RawValue.withSerializedBytes(value._storage, body)
     }
 }
 

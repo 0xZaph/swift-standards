@@ -15,7 +15,7 @@
 public func width<Space, Scalar>(
     _ dx: Displacement.X<Space>.Value<Scalar>
 ) -> Extent.X<Space>.Value<Scalar> {
-    Tagged(dx._rawValue)
+    Tagged(dx._storage)
 }
 
 /// Converts a Y-displacement to a Y-extent (height).
@@ -23,7 +23,7 @@ public func width<Space, Scalar>(
 public func height<Space, Scalar>(
     _ dy: Displacement.Y<Space>.Value<Scalar>
 ) -> Extent.Y<Space>.Value<Scalar> {
-    Tagged(dy._rawValue)
+    Tagged(dy._storage)
 }
 
 /// Converts a Z-displacement to a Z-extent (depth).
@@ -31,7 +31,7 @@ public func height<Space, Scalar>(
 public func depth<Space, Scalar>(
     _ dz: Displacement.Z<Space>.Value<Scalar>
 ) -> Extent.Z<Space>.Value<Scalar> {
-    Tagged(dz._rawValue)
+    Tagged(dz._storage)
 }
 
 // MARK: - Zero
@@ -54,7 +54,7 @@ extension Tagged where RawValue: SignedNumeric {
     /// Returns the negation of this value.
     @inlinable
     public static prefix func - (value: Self) -> Self {
-        Self(-value._rawValue)
+        Self(-value._storage)
     }
 }
 
@@ -63,19 +63,19 @@ extension Tagged where RawValue: SignedNumeric {
 /// Returns the absolute value of a tagged value.
 @inlinable
 public func abs<Tag, T: SignedNumeric & Comparable>(_ x: Tagged<Tag, T>) -> Tagged<Tag, T> {
-    Tagged(abs(x._rawValue))
+    Tagged(abs(x._storage))
 }
 
 /// Returns the minimum of two tagged values.
 @inlinable
 public func min<Tag, T: Comparable>(_ x: Tagged<Tag, T>, _ y: Tagged<Tag, T>) -> Tagged<Tag, T> {
-    x._rawValue <= y._rawValue ? x : y
+    x._storage <= y._storage ? x : y
 }
 
 /// Returns the maximum of two tagged values.
 @inlinable
 public func max<Tag, T: Comparable>(_ x: Tagged<Tag, T>, _ y: Tagged<Tag, T>) -> Tagged<Tag, T> {
-    x._rawValue >= y._rawValue ? x : y
+    x._storage >= y._storage ? x : y
 }
 
 // NOTE: Blanket scaling operators (Tagged * Int, Tagged / Int) were removed.
@@ -90,7 +90,7 @@ public func * <Scalar: FloatingPoint>(
     lhs: Angle.Radian.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Angle.Radian.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs.value)
+    Tagged(lhs._storage * rhs.value)
 }
 
 /// Scales a radian angle by a scale factor (commutative).
@@ -99,7 +99,7 @@ public func * <Scalar: FloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Angle.Radian.Value<Scalar>
 ) -> Angle.Radian.Value<Scalar> {
-    Tagged(lhs.value * rhs._rawValue)
+    Tagged(lhs.value * rhs._storage)
 }
 
 /// Divides a radian angle by a scale factor.
@@ -108,7 +108,7 @@ public func / <Scalar: FloatingPoint>(
     lhs: Angle.Radian.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Angle.Radian.Value<Scalar> {
-    Tagged(lhs._rawValue / rhs.value)
+    Tagged(lhs._storage / rhs.value)
 }
 
 /// Scales a degree angle by a scale factor.
@@ -117,7 +117,7 @@ public func * <Scalar: FloatingPoint>(
     lhs: Angle.Degree.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Angle.Degree.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs.value)
+    Tagged(lhs._storage * rhs.value)
 }
 
 /// Scales a degree angle by a scale factor (commutative).
@@ -126,7 +126,7 @@ public func * <Scalar: FloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Angle.Degree.Value<Scalar>
 ) -> Angle.Degree.Value<Scalar> {
-    Tagged(lhs.value * rhs._rawValue)
+    Tagged(lhs.value * rhs._storage)
 }
 
 /// Divides a degree angle by a scale factor.
@@ -135,7 +135,7 @@ public func / <Scalar: FloatingPoint>(
     lhs: Angle.Degree.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Angle.Degree.Value<Scalar> {
-    Tagged(lhs._rawValue / rhs.value)
+    Tagged(lhs._storage / rhs.value)
 }
 
 // MARK: - Displacement Same-Type Arithmetic
@@ -146,7 +146,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Displacement.X<Space>.Value<Scalar>,
     rhs: Displacement.X<Space>.Value<Scalar>
 ) -> Displacement.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Subtracts two X-displacements.
@@ -155,7 +155,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Displacement.X<Space>.Value<Scalar>,
     rhs: Displacement.X<Space>.Value<Scalar>
 ) -> Displacement.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Adds two Y-displacements.
@@ -164,7 +164,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Displacement.Y<Space>.Value<Scalar>,
     rhs: Displacement.Y<Space>.Value<Scalar>
 ) -> Displacement.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Subtracts two Y-displacements.
@@ -173,7 +173,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Displacement.Y<Space>.Value<Scalar>,
     rhs: Displacement.Y<Space>.Value<Scalar>
 ) -> Displacement.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Adds two Z-displacements.
@@ -182,7 +182,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Displacement.Z<Space>.Value<Scalar>,
     rhs: Displacement.Z<Space>.Value<Scalar>
 ) -> Displacement.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Subtracts two Z-displacements.
@@ -191,7 +191,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Displacement.Z<Space>.Value<Scalar>,
     rhs: Displacement.Z<Space>.Value<Scalar>
 ) -> Displacement.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 // MARK: - Magnitude Same-Type Arithmetic
@@ -202,7 +202,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Magnitude<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Magnitude<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Subtracts two magnitudes.
@@ -211,7 +211,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Magnitude<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Magnitude<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Add and assign magnitudes.
@@ -240,7 +240,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
 ) -> Extent.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Subtracts two X-extents (widths).
@@ -249,7 +249,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
 ) -> Extent.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Adds two Y-extents (heights).
@@ -258,7 +258,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
 ) -> Extent.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Subtracts two Y-extents (heights).
@@ -267,7 +267,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
 ) -> Extent.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Adds two Z-extents (depths).
@@ -276,7 +276,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Extent.Z<Space>.Value<Scalar>,
     rhs: Extent.Z<Space>.Value<Scalar>
 ) -> Extent.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Subtracts two Z-extents (depths).
@@ -285,7 +285,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Extent.Z<Space>.Value<Scalar>,
     rhs: Extent.Z<Space>.Value<Scalar>
 ) -> Extent.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Add and assign X-extents.
@@ -352,70 +352,70 @@ public func -= <Space, Scalar: AdditiveArithmetic>(
 public func < <Space, Scalar: Comparable>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
-) -> Bool { lhs._rawValue < rhs._rawValue }
+) -> Bool { lhs._storage < rhs._storage }
 
 /// Compares Y-extent to X-extent.
 @inlinable
 public func < <Space, Scalar: Comparable>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
-) -> Bool { lhs._rawValue < rhs._rawValue }
+) -> Bool { lhs._storage < rhs._storage }
 
 /// Compares X-extent to Y-extent.
 @inlinable
 public func <= <Space, Scalar: Comparable>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
-) -> Bool { lhs._rawValue <= rhs._rawValue }
+) -> Bool { lhs._storage <= rhs._storage }
 
 /// Compares Y-extent to X-extent.
 @inlinable
 public func <= <Space, Scalar: Comparable>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
-) -> Bool { lhs._rawValue <= rhs._rawValue }
+) -> Bool { lhs._storage <= rhs._storage }
 
 /// Compares X-extent to Y-extent.
 @inlinable
 public func > <Space, Scalar: Comparable>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
-) -> Bool { lhs._rawValue > rhs._rawValue }
+) -> Bool { lhs._storage > rhs._storage }
 
 /// Compares Y-extent to X-extent.
 @inlinable
 public func > <Space, Scalar: Comparable>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
-) -> Bool { lhs._rawValue > rhs._rawValue }
+) -> Bool { lhs._storage > rhs._storage }
 
 /// Compares X-extent to Y-extent.
 @inlinable
 public func >= <Space, Scalar: Comparable>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
-) -> Bool { lhs._rawValue >= rhs._rawValue }
+) -> Bool { lhs._storage >= rhs._storage }
 
 /// Compares Y-extent to X-extent.
 @inlinable
 public func >= <Space, Scalar: Comparable>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
-) -> Bool { lhs._rawValue >= rhs._rawValue }
+) -> Bool { lhs._storage >= rhs._storage }
 
 /// Compares X-extent to Y-extent for equality.
 @inlinable
 public func == <Space, Scalar: Equatable>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
-) -> Bool { lhs._rawValue == rhs._rawValue }
+) -> Bool { lhs._storage == rhs._storage }
 
 /// Compares Y-extent to X-extent for equality.
 @inlinable
 public func == <Space, Scalar: Equatable>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
-) -> Bool { lhs._rawValue == rhs._rawValue }
+) -> Bool { lhs._storage == rhs._storage }
 
 // MARK: - Angle Same-Type Arithmetic
 
@@ -425,7 +425,7 @@ public func + <Scalar: AdditiveArithmetic>(
     lhs: Angle.Radian.Value<Scalar>,
     rhs: Angle.Radian.Value<Scalar>
 ) -> Angle.Radian.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Subtracts two radian angles.
@@ -434,7 +434,7 @@ public func - <Scalar: AdditiveArithmetic>(
     lhs: Angle.Radian.Value<Scalar>,
     rhs: Angle.Radian.Value<Scalar>
 ) -> Angle.Radian.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Adds two degree angles.
@@ -443,7 +443,7 @@ public func + <Scalar: AdditiveArithmetic>(
     lhs: Angle.Degree.Value<Scalar>,
     rhs: Angle.Degree.Value<Scalar>
 ) -> Angle.Degree.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Subtracts two degree angles.
@@ -452,7 +452,7 @@ public func - <Scalar: AdditiveArithmetic>(
     lhs: Angle.Degree.Value<Scalar>,
     rhs: Angle.Degree.Value<Scalar>
 ) -> Angle.Degree.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 // MARK: - Displacement Multiplication → Area
@@ -467,7 +467,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Displacement.X<Space>.Value<Scalar>,
     rhs: Displacement.X<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies Y-displacement by Y-displacement, returning area.
@@ -476,7 +476,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Displacement.Y<Space>.Value<Scalar>,
     rhs: Displacement.Y<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies Z-displacement by Z-displacement, returning area.
@@ -485,7 +485,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Displacement.Z<Space>.Value<Scalar>,
     rhs: Displacement.Z<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies X-displacement by Y-displacement, returning area.
@@ -494,7 +494,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Displacement.X<Space>.Value<Scalar>,
     rhs: Displacement.Y<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies Y-displacement by X-displacement, returning area.
@@ -503,7 +503,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Displacement.Y<Space>.Value<Scalar>,
     rhs: Displacement.X<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies X-displacement by Z-displacement, returning area.
@@ -512,7 +512,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Displacement.X<Space>.Value<Scalar>,
     rhs: Displacement.Z<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies Z-displacement by X-displacement, returning area.
@@ -521,7 +521,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Displacement.Z<Space>.Value<Scalar>,
     rhs: Displacement.X<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies Y-displacement by Z-displacement, returning area.
@@ -530,7 +530,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Displacement.Y<Space>.Value<Scalar>,
     rhs: Displacement.Z<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies Z-displacement by Y-displacement, returning area.
@@ -539,7 +539,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Displacement.Z<Space>.Value<Scalar>,
     rhs: Displacement.Y<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 // MARK: - Extent Multiplication → Area
@@ -554,7 +554,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies Y-extent (height) by Y-extent (height), returning area.
@@ -563,7 +563,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies Z-extent (depth) by Z-extent (depth), returning area.
@@ -572,7 +572,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Extent.Z<Space>.Value<Scalar>,
     rhs: Extent.Z<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies X-extent (width) by Y-extent (height), returning area.
@@ -581,7 +581,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies Y-extent (height) by X-extent (width), returning area.
@@ -590,7 +590,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies X-extent (width) by Z-extent (depth), returning area.
@@ -599,7 +599,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Extent.Z<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies Z-extent (depth) by X-extent (width), returning area.
@@ -608,7 +608,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Extent.Z<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies Y-extent (height) by Z-extent (depth), returning area.
@@ -617,7 +617,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Extent.Z<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies Z-extent (depth) by Y-extent (height), returning area.
@@ -626,7 +626,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Extent.Z<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 // MARK: - Measure Multiplication
@@ -637,7 +637,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Measure<1, Space>.Value<Scalar>,
     rhs: Measure<1, Space>.Value<Scalar>
 ) -> Measure<2, Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies length by area, returning volume (Measure<3>).
@@ -646,7 +646,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Measure<1, Space>.Value<Scalar>,
     rhs: Measure<2, Space>.Value<Scalar>
 ) -> Measure<3, Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 /// Multiplies area by length, returning volume (Measure<3>).
@@ -655,7 +655,7 @@ public func * <Space, Scalar: Numeric>(
     lhs: Measure<2, Space>.Value<Scalar>,
     rhs: Measure<1, Space>.Value<Scalar>
 ) -> Measure<3, Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs._rawValue)
+    Tagged(lhs._storage * rhs._storage)
 }
 
 // MARK: - Area Arithmetic
@@ -666,7 +666,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Area<Space>.Value<Scalar>,
     rhs: Area<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Subtracts two areas.
@@ -675,7 +675,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Area<Space>.Value<Scalar>,
     rhs: Area<Space>.Value<Scalar>
 ) -> Area<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 // MARK: - Measure × Scale (Magnitude, Area, Volume)
@@ -686,7 +686,7 @@ public func * <let N: Int, Space, Scalar: FloatingPoint>(
     lhs: Measure<N, Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Measure<N, Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs.value)
+    Tagged(lhs._storage * rhs.value)
 }
 
 /// Scales a measure by a scale factor (commutative).
@@ -695,7 +695,7 @@ public func * <let N: Int, Space, Scalar: FloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Measure<N, Space>.Value<Scalar>
 ) -> Measure<N, Space>.Value<Scalar> {
-    Tagged(lhs.value * rhs._rawValue)
+    Tagged(lhs.value * rhs._storage)
 }
 
 /// Divides a measure by a scale factor.
@@ -704,7 +704,7 @@ public func / <let N: Int, Space, Scalar: FloatingPoint>(
     lhs: Measure<N, Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Measure<N, Space>.Value<Scalar> {
-    Tagged(lhs._rawValue / rhs.value)
+    Tagged(lhs._storage / rhs.value)
 }
 
 // MARK: - Area / Magnitude = Magnitude (L² / L = L)
@@ -715,7 +715,7 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs: Area<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Magnitude<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue / rhs._rawValue)
+    Tagged(lhs._storage / rhs._storage)
 }
 
 /// Divides area by area, returning a dimensionless scale factor.
@@ -725,7 +725,7 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs: Area<Space>.Value<Scalar>,
     rhs: Area<Space>.Value<Scalar>
 ) -> Scale<1, Scalar> {
-    Scale(lhs._rawValue / rhs._rawValue)
+    Scale(lhs._storage / rhs._storage)
 }
 
 // MARK: - Displacement Division (ratio)
@@ -736,7 +736,7 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs: Displacement.X<Space>.Value<Scalar>,
     rhs: Displacement.X<Space>.Value<Scalar>
 ) -> Scale<1, Scalar> {
-    Scale(lhs._rawValue / rhs._rawValue)
+    Scale(lhs._storage / rhs._storage)
 }
 
 /// Divides two Y-displacements, returning a dimensionless scale factor.
@@ -745,7 +745,7 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs: Displacement.Y<Space>.Value<Scalar>,
     rhs: Displacement.Y<Space>.Value<Scalar>
 ) -> Scale<1, Scalar> {
-    Scale(lhs._rawValue / rhs._rawValue)
+    Scale(lhs._storage / rhs._storage)
 }
 
 /// Divides two Z-displacements, returning a dimensionless scale factor.
@@ -754,7 +754,7 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs: Displacement.Z<Space>.Value<Scalar>,
     rhs: Displacement.Z<Space>.Value<Scalar>
 ) -> Scale<1, Scalar> {
-    Scale(lhs._rawValue / rhs._rawValue)
+    Scale(lhs._storage / rhs._storage)
 }
 
 // MARK: - Mixed Coordinate/Displacement Arithmetic
@@ -771,7 +771,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Displacement.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a displacement to an X coordinate with quantization (for floating-point types).
@@ -780,7 +780,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Displacement.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Subtracts two X coordinates, returning a displacement.
@@ -790,7 +790,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Coordinate.X<Space>.Value<Scalar>
 ) -> Displacement.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Subtracts two X coordinates with quantization (for floating-point types).
@@ -799,7 +799,7 @@ public func - <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Coordinate.X<Space>.Value<Scalar>
 ) -> Displacement.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Subtracts a displacement from an X coordinate, returning a coordinate.
@@ -809,7 +809,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Displacement.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Subtracts a displacement from an X coordinate with quantization (for floating-point types).
@@ -818,7 +818,7 @@ public func - <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Displacement.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Adds an X coordinate to a displacement, returning a coordinate (commutative).
@@ -828,7 +828,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Displacement.X<Space>.Value<Scalar>,
     rhs: Coordinate.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds an X coordinate to a displacement with quantization (commutative, for floating-point types).
@@ -837,7 +837,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Displacement.X<Space>.Value<Scalar>,
     rhs: Coordinate.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 // MARK: Y Axis
@@ -849,7 +849,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Displacement.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a displacement to a Y coordinate with quantization (for floating-point types).
@@ -858,7 +858,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Displacement.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Subtracts two Y coordinates, returning a displacement.
@@ -868,7 +868,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Coordinate.Y<Space>.Value<Scalar>
 ) -> Displacement.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Subtracts two Y coordinates with quantization (for floating-point types).
@@ -877,7 +877,7 @@ public func - <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Coordinate.Y<Space>.Value<Scalar>
 ) -> Displacement.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Subtracts a displacement from a Y coordinate, returning a coordinate.
@@ -887,7 +887,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Displacement.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Subtracts a displacement from a Y coordinate with quantization (for floating-point types).
@@ -896,7 +896,7 @@ public func - <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Displacement.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Adds a Y coordinate to a displacement, returning a coordinate (commutative).
@@ -906,7 +906,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Displacement.Y<Space>.Value<Scalar>,
     rhs: Coordinate.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a Y coordinate to a displacement with quantization (commutative, for floating-point types).
@@ -915,7 +915,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Displacement.Y<Space>.Value<Scalar>,
     rhs: Coordinate.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 // MARK: Z Axis
@@ -927,7 +927,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Displacement.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a displacement to a Z coordinate with quantization (for floating-point types).
@@ -936,7 +936,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Displacement.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Subtracts two Z coordinates, returning a displacement.
@@ -946,7 +946,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Coordinate.Z<Space>.Value<Scalar>
 ) -> Displacement.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Subtracts two Z coordinates with quantization (for floating-point types).
@@ -955,7 +955,7 @@ public func - <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Coordinate.Z<Space>.Value<Scalar>
 ) -> Displacement.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Subtracts a displacement from a Z coordinate, returning a coordinate.
@@ -965,7 +965,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Displacement.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Subtracts a displacement from a Z coordinate with quantization (for floating-point types).
@@ -974,7 +974,7 @@ public func - <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Displacement.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Adds a Z coordinate to a displacement, returning a coordinate (commutative).
@@ -984,7 +984,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Displacement.Z<Space>.Value<Scalar>,
     rhs: Coordinate.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a Z coordinate to a displacement with quantization (commutative, for floating-point types).
@@ -993,7 +993,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Displacement.Z<Space>.Value<Scalar>,
     rhs: Coordinate.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 // MARK: - Magnitude/Coordinate Arithmetic
@@ -1009,7 +1009,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a magnitude to an X coordinate with quantization (for floating-point types).
@@ -1018,7 +1018,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Subtracts a magnitude from an X coordinate, returning a coordinate.
@@ -1028,7 +1028,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Subtracts a magnitude from an X coordinate with quantization (for floating-point types).
@@ -1037,7 +1037,7 @@ public func - <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Adds an X coordinate to a magnitude, returning a coordinate (commutative).
@@ -1047,7 +1047,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Magnitude<Space>.Value<Scalar>,
     rhs: Coordinate.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds an X coordinate to a magnitude with quantization (commutative, for floating-point types).
@@ -1056,7 +1056,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Magnitude<Space>.Value<Scalar>,
     rhs: Coordinate.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Adds a magnitude to a Y coordinate, returning a coordinate.
@@ -1066,7 +1066,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a magnitude to a Y coordinate with quantization (for floating-point types).
@@ -1075,7 +1075,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Subtracts a magnitude from a Y coordinate, returning a coordinate.
@@ -1085,7 +1085,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Subtracts a magnitude from a Y coordinate with quantization (for floating-point types).
@@ -1094,7 +1094,7 @@ public func - <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Adds a Y coordinate to a magnitude, returning a coordinate (commutative).
@@ -1104,7 +1104,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Magnitude<Space>.Value<Scalar>,
     rhs: Coordinate.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a Y coordinate to a magnitude with quantization (commutative, for floating-point types).
@@ -1113,7 +1113,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Magnitude<Space>.Value<Scalar>,
     rhs: Coordinate.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Adds a magnitude to a Z coordinate, returning a coordinate.
@@ -1123,7 +1123,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a magnitude to a Z coordinate with quantization (for floating-point types).
@@ -1132,7 +1132,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Subtracts a magnitude from a Z coordinate, returning a coordinate.
@@ -1142,7 +1142,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Subtracts a magnitude from a Z coordinate with quantization (for floating-point types).
@@ -1151,7 +1151,7 @@ public func - <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Adds a Z coordinate to a magnitude, returning a coordinate (commutative).
@@ -1161,7 +1161,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Magnitude<Space>.Value<Scalar>,
     rhs: Coordinate.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a Z coordinate to a magnitude with quantization (commutative, for floating-point types).
@@ -1170,7 +1170,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Magnitude<Space>.Value<Scalar>,
     rhs: Coordinate.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 // MARK: - Extent/Coordinate Arithmetic
@@ -1186,7 +1186,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds an X extent (width) to an X coordinate with quantization (for floating-point types).
@@ -1195,7 +1195,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Subtracts an X extent (width) from an X coordinate, returning a coordinate.
@@ -1205,7 +1205,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Subtracts an X extent (width) from an X coordinate with quantization (for floating-point types).
@@ -1214,7 +1214,7 @@ public func - <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.X<Space>.Value<Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Adds an X coordinate to an X extent, returning a coordinate (commutative).
@@ -1224,7 +1224,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Coordinate.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds an X coordinate to an X extent with quantization (commutative, for floating-point types).
@@ -1233,7 +1233,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Coordinate.X<Space>.Value<Scalar>
 ) -> Coordinate.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Adds a Y extent (height) to a Y coordinate, returning a coordinate.
@@ -1243,7 +1243,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a Y extent (height) to a Y coordinate with quantization (for floating-point types).
@@ -1252,7 +1252,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Subtracts a Y extent (height) from a Y coordinate, returning a coordinate.
@@ -1262,7 +1262,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Subtracts a Y extent (height) from a Y coordinate with quantization (for floating-point types).
@@ -1271,7 +1271,7 @@ public func - <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Y<Space>.Value<Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Adds a Y coordinate to a Y extent, returning a coordinate (commutative).
@@ -1281,7 +1281,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Coordinate.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a Y coordinate to a Y extent with quantization (commutative, for floating-point types).
@@ -1290,7 +1290,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Coordinate.Y<Space>.Value<Scalar>
 ) -> Coordinate.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Adds a Z extent (depth) to a Z coordinate, returning a coordinate.
@@ -1300,7 +1300,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Extent.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a Z extent (depth) to a Z coordinate with quantization (for floating-point types).
@@ -1309,7 +1309,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Extent.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 /// Subtracts a Z extent (depth) from a Z coordinate, returning a coordinate.
@@ -1319,7 +1319,7 @@ public func - <Space, Scalar: AdditiveArithmetic>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Extent.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue - rhs._rawValue)
+    Tagged(lhs._storage - rhs._storage)
 }
 
 /// Subtracts a Z extent (depth) from a Z coordinate with quantization (for floating-point types).
@@ -1328,7 +1328,7 @@ public func - <Space, Scalar: BinaryFloatingPoint>(
     lhs: Coordinate.Z<Space>.Value<Scalar>,
     rhs: Extent.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue - rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage - rhs._storage, in: Space.self)
 }
 
 /// Adds a Z coordinate to a Z extent, returning a coordinate (commutative).
@@ -1338,7 +1338,7 @@ public func + <Space, Scalar: AdditiveArithmetic>(
     lhs: Extent.Z<Space>.Value<Scalar>,
     rhs: Coordinate.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue + rhs._rawValue)
+    Tagged(lhs._storage + rhs._storage)
 }
 
 /// Adds a Z coordinate to a Z extent with quantization (commutative, for floating-point types).
@@ -1347,7 +1347,7 @@ public func + <Space, Scalar: BinaryFloatingPoint>(
     lhs: Extent.Z<Space>.Value<Scalar>,
     rhs: Coordinate.Z<Space>.Value<Scalar>
 ) -> Coordinate.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue + rhs._rawValue, in: Space.self)
+    ._quantize(lhs._storage + rhs._storage, in: Space.self)
 }
 
 // MARK: - Tagged × Scale<1> (Uniform Scaling)
@@ -1365,7 +1365,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Displacement.X<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Displacement.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs.value)
+    Tagged(lhs._storage * rhs.value)
 }
 
 /// Scales an X displacement by a uniform scale factor with quantization.
@@ -1374,7 +1374,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Displacement.X<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Displacement.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue * rhs.value, in: Space.self)
+    ._quantize(lhs._storage * rhs.value, in: Space.self)
 }
 
 /// Scales an X displacement by a uniform scale factor (commutative).
@@ -1384,7 +1384,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Displacement.X<Space>.Value<Scalar>
 ) -> Displacement.X<Space>.Value<Scalar> {
-    Tagged(lhs.value * rhs._rawValue)
+    Tagged(lhs.value * rhs._storage)
 }
 
 /// Scales an X displacement by a uniform scale factor with quantization (commutative).
@@ -1393,7 +1393,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Displacement.X<Space>.Value<Scalar>
 ) -> Displacement.X<Space>.Value<Scalar> {
-    ._quantize(lhs.value * rhs._rawValue, in: Space.self)
+    ._quantize(lhs.value * rhs._storage, in: Space.self)
 }
 
 /// Divides an X displacement by a uniform scale factor.
@@ -1403,7 +1403,7 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs: Displacement.X<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Displacement.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue / rhs.value)
+    Tagged(lhs._storage / rhs.value)
 }
 
 /// Divides an X displacement by a uniform scale factor with quantization.
@@ -1412,7 +1412,7 @@ public func / <Space, Scalar: BinaryFloatingPoint>(
     lhs: Displacement.X<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Displacement.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue / rhs.value, in: Space.self)
+    ._quantize(lhs._storage / rhs.value, in: Space.self)
 }
 
 // MARK: Displacement.Y × Scale
@@ -1424,7 +1424,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Displacement.Y<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Displacement.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs.value)
+    Tagged(lhs._storage * rhs.value)
 }
 
 /// Scales a Y displacement by a uniform scale factor with quantization.
@@ -1433,7 +1433,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Displacement.Y<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Displacement.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue * rhs.value, in: Space.self)
+    ._quantize(lhs._storage * rhs.value, in: Space.self)
 }
 
 /// Scales a Y displacement by a uniform scale factor (commutative).
@@ -1443,7 +1443,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Displacement.Y<Space>.Value<Scalar>
 ) -> Displacement.Y<Space>.Value<Scalar> {
-    Tagged(lhs.value * rhs._rawValue)
+    Tagged(lhs.value * rhs._storage)
 }
 
 /// Scales a Y displacement by a uniform scale factor with quantization (commutative).
@@ -1452,7 +1452,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Displacement.Y<Space>.Value<Scalar>
 ) -> Displacement.Y<Space>.Value<Scalar> {
-    ._quantize(lhs.value * rhs._rawValue, in: Space.self)
+    ._quantize(lhs.value * rhs._storage, in: Space.self)
 }
 
 /// Divides a Y displacement by a uniform scale factor.
@@ -1462,7 +1462,7 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs: Displacement.Y<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Displacement.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue / rhs.value)
+    Tagged(lhs._storage / rhs.value)
 }
 
 /// Divides a Y displacement by a uniform scale factor with quantization.
@@ -1471,7 +1471,7 @@ public func / <Space, Scalar: BinaryFloatingPoint>(
     lhs: Displacement.Y<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Displacement.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue / rhs.value, in: Space.self)
+    ._quantize(lhs._storage / rhs.value, in: Space.self)
 }
 
 // MARK: Displacement.Z × Scale
@@ -1483,7 +1483,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Displacement.Z<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Displacement.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs.value)
+    Tagged(lhs._storage * rhs.value)
 }
 
 /// Scales a Z displacement by a uniform scale factor with quantization.
@@ -1492,7 +1492,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Displacement.Z<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Displacement.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue * rhs.value, in: Space.self)
+    ._quantize(lhs._storage * rhs.value, in: Space.self)
 }
 
 /// Scales a Z displacement by a uniform scale factor (commutative).
@@ -1502,7 +1502,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Displacement.Z<Space>.Value<Scalar>
 ) -> Displacement.Z<Space>.Value<Scalar> {
-    Tagged(lhs.value * rhs._rawValue)
+    Tagged(lhs.value * rhs._storage)
 }
 
 /// Scales a Z displacement by a uniform scale factor with quantization (commutative).
@@ -1511,7 +1511,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Displacement.Z<Space>.Value<Scalar>
 ) -> Displacement.Z<Space>.Value<Scalar> {
-    ._quantize(lhs.value * rhs._rawValue, in: Space.self)
+    ._quantize(lhs.value * rhs._storage, in: Space.self)
 }
 
 /// Divides a Z displacement by a uniform scale factor.
@@ -1521,7 +1521,7 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs: Displacement.Z<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Displacement.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue / rhs.value)
+    Tagged(lhs._storage / rhs.value)
 }
 
 /// Divides a Z displacement by a uniform scale factor with quantization.
@@ -1530,7 +1530,7 @@ public func / <Space, Scalar: BinaryFloatingPoint>(
     lhs: Displacement.Z<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Displacement.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue / rhs.value, in: Space.self)
+    ._quantize(lhs._storage / rhs.value, in: Space.self)
 }
 
 // MARK: Extent.X × Scale
@@ -1542,7 +1542,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Extent.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs.value)
+    Tagged(lhs._storage * rhs.value)
 }
 
 /// Scales an X extent (width) by a uniform scale factor with quantization.
@@ -1551,7 +1551,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Extent.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue * rhs.value, in: Space.self)
+    ._quantize(lhs._storage * rhs.value, in: Space.self)
 }
 
 /// Scales an X extent by a uniform scale factor (commutative).
@@ -1561,7 +1561,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
 ) -> Extent.X<Space>.Value<Scalar> {
-    Tagged(lhs.value * rhs._rawValue)
+    Tagged(lhs.value * rhs._storage)
 }
 
 /// Scales an X extent by a uniform scale factor with quantization (commutative).
@@ -1570,7 +1570,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Extent.X<Space>.Value<Scalar>
 ) -> Extent.X<Space>.Value<Scalar> {
-    ._quantize(lhs.value * rhs._rawValue, in: Space.self)
+    ._quantize(lhs.value * rhs._storage, in: Space.self)
 }
 
 /// Divides an X extent by a uniform scale factor.
@@ -1580,7 +1580,7 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Extent.X<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue / rhs.value)
+    Tagged(lhs._storage / rhs.value)
 }
 
 /// Divides an X extent by a uniform scale factor with quantization.
@@ -1589,7 +1589,7 @@ public func / <Space, Scalar: BinaryFloatingPoint>(
     lhs: Extent.X<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Extent.X<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue / rhs.value, in: Space.self)
+    ._quantize(lhs._storage / rhs.value, in: Space.self)
 }
 
 // MARK: Extent.Y × Scale
@@ -1601,7 +1601,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Extent.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs.value)
+    Tagged(lhs._storage * rhs.value)
 }
 
 /// Scales a Y extent (height) by a uniform scale factor with quantization.
@@ -1610,7 +1610,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Extent.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue * rhs.value, in: Space.self)
+    ._quantize(lhs._storage * rhs.value, in: Space.self)
 }
 
 /// Scales a Y extent by a uniform scale factor (commutative).
@@ -1620,7 +1620,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
 ) -> Extent.Y<Space>.Value<Scalar> {
-    Tagged(lhs.value * rhs._rawValue)
+    Tagged(lhs.value * rhs._storage)
 }
 
 /// Scales a Y extent by a uniform scale factor with quantization (commutative).
@@ -1629,7 +1629,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Extent.Y<Space>.Value<Scalar>
 ) -> Extent.Y<Space>.Value<Scalar> {
-    ._quantize(lhs.value * rhs._rawValue, in: Space.self)
+    ._quantize(lhs.value * rhs._storage, in: Space.self)
 }
 
 /// Divides a Y extent by a uniform scale factor.
@@ -1639,7 +1639,7 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Extent.Y<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue / rhs.value)
+    Tagged(lhs._storage / rhs.value)
 }
 
 /// Divides a Y extent by a uniform scale factor with quantization.
@@ -1648,7 +1648,7 @@ public func / <Space, Scalar: BinaryFloatingPoint>(
     lhs: Extent.Y<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Extent.Y<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue / rhs.value, in: Space.self)
+    ._quantize(lhs._storage / rhs.value, in: Space.self)
 }
 
 // MARK: Extent.Z × Scale
@@ -1660,7 +1660,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Extent.Z<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Extent.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs.value)
+    Tagged(lhs._storage * rhs.value)
 }
 
 /// Scales a Z extent (depth) by a uniform scale factor with quantization.
@@ -1669,7 +1669,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Extent.Z<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Extent.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue * rhs.value, in: Space.self)
+    ._quantize(lhs._storage * rhs.value, in: Space.self)
 }
 
 /// Scales a Z extent by a uniform scale factor (commutative).
@@ -1679,7 +1679,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Extent.Z<Space>.Value<Scalar>
 ) -> Extent.Z<Space>.Value<Scalar> {
-    Tagged(lhs.value * rhs._rawValue)
+    Tagged(lhs.value * rhs._storage)
 }
 
 /// Scales a Z extent by a uniform scale factor with quantization (commutative).
@@ -1688,7 +1688,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Extent.Z<Space>.Value<Scalar>
 ) -> Extent.Z<Space>.Value<Scalar> {
-    ._quantize(lhs.value * rhs._rawValue, in: Space.self)
+    ._quantize(lhs.value * rhs._storage, in: Space.self)
 }
 
 /// Divides a Z extent by a uniform scale factor.
@@ -1698,7 +1698,7 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs: Extent.Z<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Extent.Z<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue / rhs.value)
+    Tagged(lhs._storage / rhs.value)
 }
 
 /// Divides a Z extent by a uniform scale factor with quantization.
@@ -1707,7 +1707,7 @@ public func / <Space, Scalar: BinaryFloatingPoint>(
     lhs: Extent.Z<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Extent.Z<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue / rhs.value, in: Space.self)
+    ._quantize(lhs._storage / rhs.value, in: Space.self)
 }
 
 // MARK: Magnitude × Scale
@@ -1719,7 +1719,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Magnitude<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Magnitude<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue * rhs.value)
+    Tagged(lhs._storage * rhs.value)
 }
 
 /// Scales a magnitude by a uniform scale factor with quantization.
@@ -1728,7 +1728,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Magnitude<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Magnitude<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue * rhs.value, in: Space.self)
+    ._quantize(lhs._storage * rhs.value, in: Space.self)
 }
 
 /// Scales a magnitude by a uniform scale factor (commutative).
@@ -1738,7 +1738,7 @@ public func * <Space, Scalar: FloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Magnitude<Space>.Value<Scalar> {
-    Tagged(lhs.value * rhs._rawValue)
+    Tagged(lhs.value * rhs._storage)
 }
 
 /// Scales a magnitude by a uniform scale factor with quantization (commutative).
@@ -1747,7 +1747,7 @@ public func * <Space, Scalar: BinaryFloatingPoint>(
     lhs: Scale<1, Scalar>,
     rhs: Magnitude<Space>.Value<Scalar>
 ) -> Magnitude<Space>.Value<Scalar> {
-    ._quantize(lhs.value * rhs._rawValue, in: Space.self)
+    ._quantize(lhs.value * rhs._storage, in: Space.self)
 }
 
 /// Divides a magnitude by a uniform scale factor.
@@ -1757,7 +1757,7 @@ public func / <Space, Scalar: FloatingPoint>(
     lhs: Magnitude<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Magnitude<Space>.Value<Scalar> {
-    Tagged(lhs._rawValue / rhs.value)
+    Tagged(lhs._storage / rhs.value)
 }
 
 /// Divides a magnitude by a uniform scale factor with quantization.
@@ -1766,7 +1766,7 @@ public func / <Space, Scalar: BinaryFloatingPoint>(
     lhs: Magnitude<Space>.Value<Scalar>,
     rhs: Scale<1, Scalar>
 ) -> Magnitude<Space>.Value<Scalar> {
-    ._quantize(lhs._rawValue / rhs.value, in: Space.self)
+    ._quantize(lhs._storage / rhs.value, in: Space.self)
 }
 
 // MARK: - Scale × Scale
