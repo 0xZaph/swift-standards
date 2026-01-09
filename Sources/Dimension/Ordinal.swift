@@ -70,7 +70,7 @@ extension Ordinal: Comparable {
 
 // MARK: - Codable
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Ordinal: Codable {
         public init(from decoder: any Decoder) throws {
             let container = try decoder.singleValueContainer()

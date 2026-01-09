@@ -72,7 +72,7 @@ extension Layout.Stack: Equatable where Scalar: Equatable, Content: Equatable {}
 extension Layout.Stack: Hashable where Scalar: Hashable, Content: Hashable {}
 
 // MARK: - Codable
-#if Codable
+#if !hasFeature(Embedded)
     extension Layout.Stack: Codable where Scalar: Codable, Content: Codable {}
 #endif
 

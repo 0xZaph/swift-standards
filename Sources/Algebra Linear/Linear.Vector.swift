@@ -70,7 +70,7 @@ extension Linear {
 
 // MARK: - Codable
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Linear.Vector: Codable where Scalar: Codable {
         public init(from decoder: any Decoder) throws {
             var container = try decoder.unkeyedContainer()

@@ -98,7 +98,7 @@ extension Layout.Grid.Lazy {
 extension Layout.Grid.Lazy.Columns: Sendable where Scalar: Sendable {}
 extension Layout.Grid.Lazy.Columns: Equatable where Scalar: Equatable {}
 extension Layout.Grid.Lazy.Columns: Hashable where Scalar: Hashable {}
-#if Codable
+#if !hasFeature(Embedded)
     extension Layout.Grid.Lazy.Columns: Codable where Scalar: Codable {}
 #endif
 
@@ -115,7 +115,7 @@ extension Layout.Grid.Lazy: Equatable where Scalar: Equatable, Content: Equatabl
 extension Layout.Grid.Lazy: Hashable where Scalar: Hashable, Content: Hashable {}
 
 // MARK: - Codable
-#if Codable
+#if !hasFeature(Embedded)
     extension Layout.Grid.Lazy: Codable where Scalar: Codable, Content: Codable {}
 #endif
 

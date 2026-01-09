@@ -61,7 +61,7 @@ extension Scale: Comparable where N == 1, Scalar: FloatingPoint {
 
 // MARK: - Codable
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Scale: Codable where Scalar: Codable, Scalar: FloatingPoint {
         public init(from decoder: any Decoder) throws {
             var container = try decoder.unkeyedContainer()

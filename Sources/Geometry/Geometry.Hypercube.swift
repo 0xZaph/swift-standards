@@ -57,7 +57,7 @@ extension Geometry.Hypercube: Sendable where Scalar: Sendable {}
 extension Geometry.Hypercube: Equatable where Scalar: Equatable {}
 extension Geometry.Hypercube: Hashable where Scalar: Hashable {}
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Geometry.Hypercube: Codable where Scalar: Codable {}
 #endif
 

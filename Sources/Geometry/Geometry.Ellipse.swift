@@ -55,7 +55,7 @@ extension Geometry.Ellipse: Equatable where Scalar: Equatable {}
 extension Geometry.Ellipse: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
-#if Codable
+#if !hasFeature(Embedded)
     extension Geometry.Ellipse: Codable where Scalar: Codable {}
 #endif
 // MARK: - Convenience Initializers
@@ -483,7 +483,7 @@ extension Geometry.Ellipse.Arc: Equatable where Scalar: Equatable {}
 extension Geometry.Ellipse.Arc: Hashable where Scalar: Hashable {}
 
 // MARK: - Ellipse.Arc Codable
-#if Codable
+#if !hasFeature(Embedded)
     extension Geometry.Ellipse.Arc: Codable where Scalar: Codable {}
 #endif
 

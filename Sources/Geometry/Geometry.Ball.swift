@@ -57,7 +57,7 @@ extension Geometry.Ball: Sendable where Scalar: Sendable {}
 extension Geometry.Ball: Equatable where Scalar: Equatable {}
 extension Geometry.Ball: Hashable where Scalar: Hashable {}
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Geometry.Ball: Codable where Scalar: Codable {}
 #endif
 

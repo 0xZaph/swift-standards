@@ -59,7 +59,7 @@ extension Geometry.Arc: Equatable where Scalar: Equatable {}
 extension Geometry.Arc: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
-#if Codable
+#if !hasFeature(Embedded)
     extension Geometry.Arc: Codable where Scalar: Codable {}
 #endif
 // MARK: - Factory Methods

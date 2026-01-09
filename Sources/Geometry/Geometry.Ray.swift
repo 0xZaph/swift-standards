@@ -42,7 +42,7 @@ extension Geometry.Ray: Equatable where Scalar: Equatable {}
 extension Geometry.Ray: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
-#if Codable
+#if !hasFeature(Embedded)
     extension Geometry.Ray: Codable where Scalar: Codable {}
 #endif
 // MARK: - Factory Methods

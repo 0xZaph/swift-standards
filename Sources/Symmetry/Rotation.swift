@@ -59,7 +59,7 @@ extension Rotation: Hashable where N == 2, Scalar: Hashable {
 
 // MARK: - Codable (2D)
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Rotation: Codable where N == 2, Scalar: Codable, Scalar: BinaryFloatingPoint {
         private enum CodingKeys: String, CodingKey {
             case a, b, c, d

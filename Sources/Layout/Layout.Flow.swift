@@ -83,7 +83,7 @@ extension Layout.Flow {
 extension Layout.Flow.Gaps: Sendable where Scalar: Sendable {}
 extension Layout.Flow.Gaps: Equatable where Scalar: Equatable {}
 extension Layout.Flow.Gaps: Hashable where Scalar: Hashable {}
-#if Codable
+#if !hasFeature(Embedded)
     extension Layout.Flow.Gaps: Codable where Scalar: Codable {}
 #endif
 
@@ -138,7 +138,7 @@ extension Layout.Flow: Equatable where Scalar: Equatable, Content: Equatable {}
 extension Layout.Flow: Hashable where Scalar: Hashable, Content: Hashable {}
 
 // MARK: - Codable
-#if Codable
+#if !hasFeature(Embedded)
     extension Layout.Flow: Codable where Scalar: Codable, Content: Codable {}
 #endif
 

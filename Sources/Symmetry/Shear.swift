@@ -54,7 +54,7 @@ extension Shear: Hashable where N == 2, Scalar: Hashable {
 
 // MARK: - Codable (2D)
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Shear: Codable where N == 2, Scalar: Codable {
         private enum CodingKeys: String, CodingKey {
             case x, y

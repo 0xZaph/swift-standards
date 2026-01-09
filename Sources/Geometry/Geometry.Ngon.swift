@@ -70,7 +70,7 @@ extension Geometry.Ngon: Hashable where Scalar: Hashable {
 
 // MARK: - Codable
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Geometry.Ngon: Codable where Scalar: Codable {
         public init(from decoder: any Decoder) throws {
             var container = try decoder.unkeyedContainer()

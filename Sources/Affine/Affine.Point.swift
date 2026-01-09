@@ -72,7 +72,7 @@ extension Affine {
 
 // MARK: - Codable
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Affine.Point: Codable where Scalar: Codable {
         public init(from decoder: any Decoder) throws {
             var container = try decoder.unkeyedContainer()

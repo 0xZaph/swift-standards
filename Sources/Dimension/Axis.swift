@@ -42,7 +42,7 @@ public struct Axis<let N: Int>: Sendable, Hashable {
 
 // MARK: - Codable
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Axis: Codable {
         public init(from decoder: any Decoder) throws {
             let container = try decoder.singleValueContainer()

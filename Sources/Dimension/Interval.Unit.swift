@@ -269,7 +269,7 @@ where Scalar: ExpressibleByIntegerLiteral {
 
 // MARK: - Codable
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Interval.Unit: Codable where Scalar: Codable {
         public init(from decoder: any Decoder) throws {
             let container = try decoder.singleValueContainer()

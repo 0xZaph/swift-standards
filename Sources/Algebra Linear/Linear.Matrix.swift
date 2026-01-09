@@ -251,7 +251,7 @@ extension Linear.Matrix where Rows == 2, Columns == 2, Scalar: FloatingPoint {
 
 // MARK: - 2×2 Codable
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Linear.Matrix: Codable where Rows == 2, Columns == 2, Scalar: Codable {
         private enum CodingKeys: String, CodingKey {
             case a, b, c, d

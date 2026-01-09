@@ -56,7 +56,7 @@ extension Geometry.EdgeInsets: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Geometry.EdgeInsets: Codable where Scalar: Codable {
         private enum CodingKeys: String, CodingKey {
             case top, leading, bottom, trailing

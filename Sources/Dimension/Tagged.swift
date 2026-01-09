@@ -78,7 +78,7 @@ extension Tagged: Sendable where RawValue: Sendable {}
 extension Tagged: Equatable where RawValue: Equatable {}
 extension Tagged: Hashable where RawValue: Hashable {}
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Tagged: Codable where RawValue: Codable {}
 #endif
 extension Tagged: Comparable where RawValue: Comparable {

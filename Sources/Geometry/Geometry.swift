@@ -149,7 +149,7 @@ extension Geometry {
 extension Geometry.Magnitude: Sendable where Scalar: Sendable {}
 extension Geometry.Magnitude: Equatable where Scalar: Equatable {}
 extension Geometry.Magnitude: Hashable where Scalar: Hashable {}
-#if Codable
+#if !hasFeature(Embedded)
 extension Geometry.Magnitude: Codable where Scalar: Codable {}
 #endif
 

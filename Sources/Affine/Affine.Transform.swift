@@ -43,7 +43,7 @@ extension Affine.Transform: Hashable where Scalar: Hashable {}
 
 // MARK: - Codable
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Affine.Transform: Codable where Scalar: Codable, Scalar: FloatingPoint {
         private enum CodingKeys: String, CodingKey {
             case a, b, c, d, tx, ty

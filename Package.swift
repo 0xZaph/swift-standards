@@ -122,12 +122,6 @@ let package = Package(
             targets: ["Parsing"]
         ),
     ],
-    traits: [
-        .trait(
-            name: "Codable",
-            description: "Include Codable conformances (not compatible with Swift Embedded)"
-        )
-    ],
     dependencies: [
         .package(url: "https://github.com/coenttb/swift-testing-performance", from: "0.3.1"),
         .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),

@@ -56,7 +56,7 @@ extension Geometry.Orthotope: Sendable where Scalar: Sendable {}
 extension Geometry.Orthotope: Equatable where Scalar: Equatable {}
 extension Geometry.Orthotope: Hashable where Scalar: Hashable {}
 
-#if Codable
+#if !hasFeature(Embedded)
     extension Geometry.Orthotope: Codable where Scalar: Codable {}
 #endif
 
